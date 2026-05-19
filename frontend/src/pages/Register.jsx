@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Music2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { register, googleLogin } from '../api/auth';
 import { useAuthStore } from '../store/authStore';
@@ -10,82 +9,159 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const { setAuth } = useAuthStore();
   const navigate = useNavigate();
+  const cardRef = useRef(null);
+
+  useEffect(() => {
+    function handleMouseMove(e) {
+      const xAxis = (window.innerWidth / 2 - e.pageX) / 50;
+      const yAxis = (window.innerHeight / 2 - e.pageY) / 50;
+
+      if (cardRef.current) {
+        cardRef.current.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+      }
+    }
+
+    document.addEventListener('mousemove', handleMouseMove);
+    return () => document.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (form.password.length < 8) return toast.error('Password must be at least 8 characters');
+    if (!form.name || !form.email || !form.password) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+    if (form.password.length < 8) {
+      toast.error('Password must be at least 8 characters');
+      return;
+    }
     setLoading(true);
     try {
       const { data } = await register(form);
       setAuth(data.data.user, data.data.accessToken, data.data.refreshToken);
       toast.success('Account created!');
+      localStorage.setItem('rememberMe', 'true');
       navigate('/dashboard');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen bg-dark-900 flex items-center justify-center p-6">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center">
-              <Music2 size={22} />
-            </div>
-            <span className="text-2xl font-bold">Beatzy</span>
-          </Link>
-          <h1 className="text-3xl font-bold mb-2">Create your account</h1>
-          <p className="text-gray-400">100 free analyses per month</p>
-        </div>
+    <div className="relative min-h-screen flex items-center justify-center p-margin-mobile md:p-margin-desktop bg-deep-obsidian overflow-hidden text-on-surface">
+      <div className="obsidian-bg" aria-hidden="true" />
+      <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-tertiary/5 rounded-full blur-[120px] pointer-events-none" aria-hidden="true" />
+      <div className="fixed bottom-[-5%] right-[-5%] w-[30%] h-[30%] bg-sonic-lime/5 rounded-full blur-[100px] pointer-events-none" aria-hidden="true" />
 
-        <div className="card">
-          <button onClick={googleLogin} className="btn-secondary w-full flex items-center justify-center gap-3 mb-6">
-            <svg width="18" height="18" viewBox="0 0 18 18">
-              <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
-              <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
-              <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
-              <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
-            </svg>
-            Sign up with Google
-          </button>
-
-          <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-dark-600" />
+      <main className="relative z-10 w-full max-w-[480px]">
+        <div
+          ref={cardRef}
+          className="glass-card rounded-xl p-8 md:p-12 transition-all duration-500 hover:shadow-[0_0_40px_rgba(215,255,90,0.05)]"
+          style={{ transformStyle: 'preserve-3d', transition: 'transform 0.15s ease-out' }}
+        >
+          <div className="flex flex-col items-center mb-10">
+            <div className="w-14 h-14 bg-sonic-lime rounded-xl flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(215,255,90,0.3)]">
+              <span
+                className="material-symbols-outlined text-deep-obsidian !text-3xl"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                music_note
+              </span>
             </div>
-            <div className="relative flex justify-center text-xs text-gray-500">
-              <span className="bg-dark-800 px-2">or</span>
-            </div>
+            <span className="font-headline-lg text-headline-lg tracking-tighter text-white">Beatzy</span>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Full name</label>
-              <input className="input" placeholder="Your name" value={form.name}
-                onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required minLength={2} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Email</label>
-              <input type="email" className="input" placeholder="you@example.com" value={form.email}
-                onChange={e => setForm(f => ({ ...f, email: e.target.value }))} required />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Password</label>
-              <input type="password" className="input" placeholder="Min. 8 characters" value={form.password}
-                onChange={e => setForm(f => ({ ...f, password: e.target.value }))} required minLength={8} />
-            </div>
-            <button type="submit" className="btn-primary w-full" disabled={loading}>
-              {loading ? 'Creating account...' : 'Create account'}
+          <div className="text-center mb-10">
+            <h1 className="font-headline-lg text-headline-lg text-on-surface mb-2">Create your account</h1>
+            <p className="font-body-md text-body-md text-outline">100 free analyses per month</p>
+          </div>
+
+          <div className="space-y-6">
+            <button
+              onClick={googleLogin}
+              className="w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-surface-container-high rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-variant transition-all border border-glass-border"
+              type="button"
+            >
+              <svg height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"></path>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+              </svg>
+              Sign up with Google
             </button>
-          </form>
+
+            <div className="relative flex items-center py-2">
+              <div className="flex-grow border-t border-glass-border"></div>
+              <span className="flex-shrink mx-4 font-label-sm text-label-sm text-outline uppercase tracking-widest">or</span>
+              <div className="flex-grow border-t border-glass-border"></div>
+            </div>
+
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              <div>
+                <label className="block font-label-sm text-label-sm text-outline uppercase tracking-widest mb-2 px-1">Full name</label>
+                <input
+                  className="w-full bg-deep-obsidian/50 border border-outline-variant rounded-lg py-3.5 px-4 text-white focus:ring-0 sonic-lime-glow transition-all outline-none font-body-md text-body-md"
+                  placeholder="Your name"
+                  type="text"
+                  value={form.name}
+                  onChange={(e) => setForm((current) => ({ ...current, name: e.target.value }))}
+                  required
+                  minLength={2}
+                />
+              </div>
+              <div>
+                <label className="block font-label-sm text-label-sm text-outline uppercase tracking-widest mb-2 px-1">Email</label>
+                <input
+                  className="w-full bg-deep-obsidian/50 border border-outline-variant rounded-lg py-3.5 px-4 text-white focus:ring-0 sonic-lime-glow transition-all outline-none font-body-md text-body-md"
+                  placeholder="you@example.com"
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm((current) => ({ ...current, email: e.target.value }))}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-label-sm text-label-sm text-outline uppercase tracking-widest mb-2 px-1">Password</label>
+                <input
+                  className="w-full bg-deep-obsidian/50 border border-outline-variant rounded-lg py-3.5 px-4 text-white focus:ring-0 sonic-lime-glow transition-all outline-none font-body-md text-body-md"
+                  placeholder="Min. 8 characters"
+                  type="password"
+                  value={form.password}
+                  onChange={(e) => setForm((current) => ({ ...current, password: e.target.value }))}
+                  required
+                  minLength={8}
+                />
+              </div>
+              <button
+                className="w-full py-4 bg-sonic-lime text-deep-obsidian font-headline-lg-mobile text-headline-lg-mobile font-bold rounded-lg hover:brightness-110 active:scale-[0.98] transition-all mt-6 shadow-[0_4px_14px_rgba(215,255,90,0.2)] disabled:opacity-60"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? 'Creating account...' : 'Create account'}
+              </button>
+            </form>
+          </div>
+
+          <p className="mt-8 text-center font-body-md text-body-md text-outline">
+            Already have an account?{' '}
+            <Link className="text-sonic-lime font-bold hover:underline underline-offset-4 ml-1" to="/login">
+              Sign in
+            </Link>
+          </p>
         </div>
 
-        <p className="text-center text-gray-500 text-sm mt-6">
-          Already have an account?{' '}
-          <Link to="/login" className="text-brand-400 hover:text-brand-300 transition-colors">Sign in</Link>
-        </p>
-      </div>
+        <div className="mt-12 flex justify-center items-center gap-6 opacity-40">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-sonic-lime animate-pulse"></span>
+            <span className="font-label-sm text-label-sm uppercase tracking-tighter">Engine Alpha-9 Online</span>
+          </div>
+          <div className="w-px h-3 bg-outline/30"></div>
+          <div className="font-label-sm text-label-sm uppercase tracking-tighter">SSL Encrypted v2.4</div>
+        </div>
+      </main>
     </div>
   );
 }

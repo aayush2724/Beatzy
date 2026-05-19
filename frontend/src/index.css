@@ -37,3 +37,43 @@
 }
 
 .waveform-container canvas { border-radius: 8px; }
+
+/* Project visual polish: glass panels, neon glows, shimmer and waveform tweaks */
+@layer components {
+  .glass-panel {
+    background: rgba(5,5,5,0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 0.75rem;
+  }
+
+  .neon-glow-text {
+    text-shadow: 0 0 10px rgba(215,255,90,0.45), 0 0 22px rgba(139,92,246,0.18);
+    color: #D7FF5A;
+  }
+
+  .shimmer-effect {
+    animation: shimmer 2.6s infinite ease-in-out;
+  }
+
+  @keyframes shimmer {
+    0% { filter: brightness(1) drop-shadow(0 0 2px rgba(195,244,0,0.06)); }
+    50% { filter: brightness(1.08) drop-shadow(0 0 8px rgba(195,244,0,0.12)); }
+    100% { filter: brightness(1) drop-shadow(0 0 2px rgba(195,244,0,0.06)); }
+  }
+
+  .waveform-bar {
+    transition: height 120ms cubic-bezier(0.4,0,0.2,1), opacity 200ms ease, box-shadow 120ms ease;
+    border-top-left-radius: 9999px;
+    border-top-right-radius: 9999px;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+  }
+
+  .archetype-card.active {
+    box-shadow: 0 6px 30px rgba(220,184,255,0.12);
+    transform: translateY(-6px);
+  }
+}

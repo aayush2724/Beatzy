@@ -1,69 +1,56 @@
-import { useEffect, useRef } from 'react';
-import WaveSurfer from 'wavesurfer.js';
-import { Play, Pause, Volume2 } from 'lucide-react';
-import { useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 
-export default function WaveformVisualizer({ audioUrl, file }) {
+export default function WaveformVisualizer({ barCount = 52 }) {
   const containerRef = useRef(null);
-  const wavesurfer = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
+  const barsRef = useRef([]);
+  const rafRef = useRef(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const bars = barsRef.current;
+    const start = () => {
+      const time = Date.now() / 1000;
+      bars.forEach((bar, index) => {
+        if (!bar) return;
+        const ratio = index / barCount;
 
-    wavesurfer.current = WaveSurfer.create({
-      container: containerRef.current,
-      waveColor: '#2650ea',
-      progressColor: '#6090fa',
-      cursorColor: '#90b4fd',
-      barWidth: 2,
-      barRadius: 2,
-      barGap: 1,
-      height: 80,
-      normalize: true,
-      backend: 'WebAudio',
-    });
+        const wave1 = Math.sin(index * 0.12 + time * 1.8) * 70;
+        const wave2 = Math.sin(index * 0.35 - time * 2.8) * 40;
+        const wave3 = Math.cos(time * 1.1 + index * 0.08) * 50;
 
-    if (audioUrl) wavesurfer.current.load(audioUrl);
-    else if (file) wavesurfer.current.loadBlob(file);
+        const spectralProfile = Math.sin(ratio * Math.PI) * 140;
+        const baseHeight = 40 + spectralProfile;
+        let finalHeight = baseHeight + wave1 + wave2 + wave3;
+        finalHeight = Math.max(16, Math.min(420, finalHeight));
+        bar.style.height = `${finalHeight}px`;
 
-    wavesurfer.current.on('ready', () => setDuration(wavesurfer.current.getDuration()));
-    wavesurfer.current.on('audioprocess', (t) => setCurrentTime(t));
-    wavesurfer.current.on('play', () => setIsPlaying(true));
-    wavesurfer.current.on('pause', () => setIsPlaying(false));
+        const dynamicOpacity = 0.5 + (Math.sin(time * 1.5 + index * 0.15) * 0.4);
+        bar.style.opacity = dynamicOpacity;
 
-    return () => wavesurfer.current?.destroy();
-  }, [audioUrl, file]);
+        const intensity = (finalHeight / 420) * 0.8;
+        const glowColor = ratio < 0.7 ? '195, 244, 0' : '220, 184, 255';
+        bar.style.boxShadow = `0 0 ${12 + intensity * 24}px rgba(${glowColor}, ${0.1 + intensity})`;
+      });
+      rafRef.current = requestAnimationFrame(start);
+    };
 
-  function toggle() {
-    wavesurfer.current?.playPause();
-  }
-
-  function formatTime(s) {
-    const m = Math.floor(s / 60);
-    return `${m}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
-  }
+    rafRef.current = requestAnimationFrame(start);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [barCount]);
 
   return (
-    <div className="card">
-      <div className="flex items-center gap-4 mb-4">
-        <button
-          onClick={toggle}
-          className="w-10 h-10 bg-brand-600 hover:bg-brand-500 rounded-full flex items-center justify-center transition-colors shrink-0"
-        >
-          {isPlaying ? <Pause size={18} /> : <Play size={18} />}
-        </button>
-        <div className="flex-1">
-          <div ref={containerRef} className="waveform-container" />
-        </div>
-        <Volume2 size={18} className="text-gray-500 shrink-0" />
-      </div>
-      <div className="flex justify-between text-xs text-gray-500 font-mono">
-        <span>{formatTime(currentTime)}</span>
-        <span>{formatTime(duration)}</span>
-      </div>
+    <div className="w-full h-full flex items-end justify-center gap-1 pb-12 px-6" ref={containerRef}>
+      {Array.from({ length: barCount }).map((_, i) => {
+        const ratio = i / barCount;
+        const bg = ratio < 0.7 ? '#c3f400' : '#dcb8ff';
+        return (
+          <div
+            key={i}
+            ref={(el) => (barsRef.current[i] = el)}
+            className="waveform-bar w-2 rounded-t-full shimmer-effect"
+            style={{ backgroundColor: bg, height: '80px', opacity: 0.8 }}
+          />
+        );
+      })}
     </div>
   );
 }
