@@ -1,0 +1,100 @@
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
+
+const { Worker } = require('bullmq');
+const axios = require('axios');
+const { pool } = require('../db/client');
+const logger = require('../utils/logger');
+
+const connection = {
+  host: process.env.REDIS_HOST || 'localhost',
+  port: parseInt(process.env.REDIS_PORT || '6379'),
+  password: process.env.REDIS_PASSWORD,
+};
+
+const ML_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+
+const worker = new Worker('audio-analysis', async (job) => {
+  const { jobId, userId, s3Key, s3Url } = job.data;
+  logger.info('Processing analysis job', { jobId });
+
+  await pool.query("UPDATE audio_jobs SET status = 'processing', started_at = NOW() WHERE id = $1", [jobId]);
+
+  let mlResult;
+  try {
+    const response = await axios.post(`${ML_URL}/analyze`, {
+      job_id: jobId,
+      s3_key: s3Key,
+      s3_url: s3Url,
+    }, { timeout: 120000 });
+    mlResult = response.data;
+  } catch (err) {
+    logger.error('ML service failed', { jobId, error: err.message });
+    await pool.query(
+      "UPDATE audio_jobs SET status = 'failed', error_message = $1, completed_at = NOW() WHERE id = $2",
+      [err.message, jobId]
+    );
+    throw err;
+  }
+
+  await pool.query(
+    `INSERT INTO analysis_results (
+      job_id, song_title, song_artist, song_album, song_release_year,
+      isrc, acr_id, bpm, energy_level, mood, key_signature, time_signature,
+      spectral_centroid, spectral_rolloff, zero_crossing_rate,
+      yamnet_labels, confidence_scores, raw_acr_response, raw_ml_response
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
+    ON CONFLICT (job_id) DO UPDATE SET
+      song_title = EXCLUDED.song_title,
+      song_artist = EXCLUDED.song_artist,
+      updated_at = NOW()`,
+    [
+      jobId,
+      mlResult.song?.title,
+      mlResult.song?.artist,
+      mlResult.song?.album,
+      mlResult.song?.release_year,
+      mlResult.song?.isrc,
+      mlResult.song?.acr_id,
+      mlResult.audio?.bpm,
+      mlResult.audio?.energy_level,
+      mlResult.audio?.mood,
+      mlResult.audio?.key_signature,
+      mlResult.audio?.time_signature,
+      mlResult.audio?.spectral_centroid,
+      mlResult.audio?.spectral_rolloff,
+      mlResult.audio?.zero_crossing_rate,
+      JSON.stringify(mlResult.yamnet?.labels || []),
+      JSON.stringify(mlResult.yamnet?.confidence_scores || []),
+      JSON.stringify(mlResult.song || {}),
+      JSON.stringify(mlResult),
+    ]
+  );
+
+  await pool.query(
+    "UPDATE audio_jobs SET status = 'completed', completed_at = NOW() WHERE id = $1",
+    [jobId]
+  );
+
+  await pool.query(
+    `INSERT INTO usage_tracking (user_id, job_id, action, plan_at_time)
+     VALUES ($1, $2, 'analysis_completed', (SELECT plan FROM users WHERE id = $1))`,
+    [userId, jobId]
+  );
+
+  logger.info('Analysis job completed', { jobId });
+  return { jobId, status: 'completed' };
+}, {
+  connection,
+  concurrency: 4,
+});
+
+worker.on('failed', (job, err) => {
+  logger.error('Job permanently failed', { jobId: job?.data?.jobId, error: err.message });
+});
+
+worker.on('completed', (job) => {
+  logger.info('Worker completed job', { bullJobId: job.id });
+});
+
+logger.info('Analysis worker started');
+module.exports = { worker };
