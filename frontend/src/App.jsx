@@ -12,6 +12,7 @@ import Pricing from './pages/Pricing';
 import ApiKeys from './pages/ApiKeys';
 import Profile from './pages/Profile';
 import BillingSuccess from './pages/BillingSuccess';
+import ArtistEchoes from './pages/ArtistEchoes';
 
 function ProtectedRoute({ children }) {
   const { token } = useAuthStore();
@@ -32,6 +33,7 @@ export default function App() {
       <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/billing/success" element={<BillingSuccess />} />
+      <Route path="/artist-echoes" element={<ArtistEchoes />} />
       <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/upload" element={<Upload />} />
