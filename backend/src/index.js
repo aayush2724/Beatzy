@@ -63,6 +63,9 @@ async function bootstrap() {
   }
 }
 
-bootstrap();
+// Only bootstrap when this file is run directly, not when required by tests
+if (require.main === module) {
+  bootstrap();
+}
 
 module.exports = app;

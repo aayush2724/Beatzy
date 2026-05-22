@@ -13,25 +13,29 @@ const logger = require('../utils/logger');
 
 const router = express.Router();
 
-passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: `${process.env.BACKEND_URL || 'http://localhost:3000'}/api/auth/google/callback`,
-}, async (accessToken, refreshToken, profile, done) => {
-  try {
-    const email = profile.emails[0].value;
-    const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (rows[0]) return done(null, rows[0]);
-    const { rows: newUser } = await pool.query(
-      `INSERT INTO users (id, name, email, google_id, plan, is_active)
-       VALUES ($1, $2, $3, $4, 'free', true) RETURNING *`,
-      [uuidv4(), profile.displayName, email, profile.id]
-    );
-    done(null, newUser[0]);
-  } catch (err) {
-    done(err);
-  }
-}));
+const googleOAuthEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+
+if (googleOAuthEnabled) {
+  passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: `${process.env.BACKEND_URL || 'http://localhost:3000'}/api/auth/google/callback`,
+  }, async (accessToken, refreshToken, profile, done) => {
+    try {
+      const email = profile.emails[0].value;
+      const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+      if (rows[0]) return done(null, rows[0]);
+      const { rows: newUser } = await pool.query(
+        `INSERT INTO users (id, name, email, google_id, plan, is_active)
+         VALUES ($1, $2, $3, $4, 'free', true) RETURNING *`,
+        [uuidv4(), profile.displayName, email, profile.id]
+      );
+      done(null, newUser[0]);
+    } catch (err) {
+      done(err);
+    }
+  }));
+}
 
 function generateTokens(userId) {
   const accessToken = jwt.sign({ sub: userId }, process.env.JWT_SECRET, {
@@ -96,9 +100,19 @@ router.post('/refresh', async (req, res) => {
   res.json({ success: true, data: tokens });
 });
 
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
+router.get('/google', (req, res, next) => {
+  if (!googleOAuthEnabled) {
+    return res.status(503).json({ success: false, message: 'Google OAuth is not configured' });
+  }
+  return passport.authenticate('google', { scope: ['profile', 'email'], session: false })(req, res, next);
+});
 
-router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: `${process.env.FRONTEND_URL}/auth/error` }), (req, res) => {
+router.get('/google/callback', (req, res, next) => {
+  if (!googleOAuthEnabled) {
+    return res.status(503).json({ success: false, message: 'Google OAuth is not configured' });
+  }
+  return passport.authenticate('google', { session: false, failureRedirect: `${process.env.FRONTEND_URL}/auth/error` })(req, res, next);
+}, (req, res) => {
   const tokens = generateTokens(req.user.id);
   res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${tokens.accessToken}&refresh=${tokens.refreshToken}`);
 });
