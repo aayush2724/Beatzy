@@ -86,7 +86,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./ml-service/app:/app/app
+      - ./ml-service/app:/app/app:z
       - ml_models:/app/models
 
   frontend:
@@ -103,7 +103,7 @@ services:
     ports:
       - "5173:5173"
     volumes:
-      - ./frontend/src:/app/src
+      - ./frontend/src:/app/src:z
 
 volumes:
   postgres_data:

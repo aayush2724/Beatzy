@@ -3,10 +3,12 @@ import WaveformVisualizer from '../components/WaveformVisualizer';
 import ArchetypeSelector from '../components/ArchetypeSelector';
 import StyleDNAChart from '../components/StyleDNAChart';
 import MetricCards from '../components/MetricCards';
+import Navbar from '../components/Navbar';
 
 export default function ArtistEchoes() {
   return (
     <div className="min-h-screen w-full bg-background pt-20 pb-16 px-6 md:px-margin-desktop">
+      <Navbar />
       {/* Page Header */}
       <div className="max-w-container-max mx-auto mb-12">
         <h1 className="font-headline-xl text-primary mb-4">Artist Echoes</h1>

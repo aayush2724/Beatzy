@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
 import api from '../api/client';
+import Navbar from '../components/Navbar';
 
 const plans = [
   {
@@ -82,32 +83,7 @@ export default function Pricing() {
         <div className="absolute inset-0 technical-grid" />
       </div>
 
-      <nav className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20 shadow-[0_0_20px_rgba(0,245,255,0.05)]">
-        <div className="flex justify-between items-center px-margin-desktop py-4 max-w-container-max mx-auto">
-          <Link to="/" className="font-headline-xl text-headline-lg tracking-tighter text-sonic-lime">
-            Beatzy AI
-          </Link>
-          <div className="hidden md:flex space-x-8">
-            <Link className="font-body-md text-body-md text-on-surface-variant hover:text-primary-fixed transition-all" to="/">
-              Main Stage
-            </Link>
-            <Link className="font-body-md text-body-md text-on-surface-variant hover:text-primary-fixed transition-all" to="/artist-echoes">
-              Inside the Wave
-            </Link>
-            <Link className="font-body-md text-body-md text-on-surface-variant hover:text-primary-fixed transition-all" to="/artist-echoes">
-              Artist Echoes
-            </Link>
-            <Link className="font-body-md text-body-md text-on-surface-variant hover:text-primary-fixed transition-all" to="/pricing">
-              Production Suite
-            </Link>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Link to={token ? '/dashboard' : '/login'} className="material-symbols-outlined text-on-surface hover:text-sonic-lime transition-colors">
-              account_circle
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="relative z-10 pt-40 pb-24 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
         <header className="text-center mb-20 max-w-2xl mx-auto">
