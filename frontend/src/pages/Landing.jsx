@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import Navbar from '../components/Navbar';
 
 const stats = [
   { value: '< 5s', label: 'Avg analysis time' },
@@ -37,23 +38,9 @@ const features = [
 ];
 
 export default function Landing() {
-  const navRef = useRef(null);
   const heroImageRef = useRef(null);
 
   useEffect(() => {
-    function handleScroll() {
-      const nav = navRef.current;
-      if (!nav) return;
-
-      if (window.scrollY > 50) {
-        nav.classList.add('bg-surface/95');
-        nav.classList.remove('bg-surface/80');
-      } else {
-        nav.classList.add('bg-surface/80');
-        nav.classList.remove('bg-surface/95');
-      }
-    }
-
     function handleMouseMove(e) {
       const heroImage = heroImageRef.current;
       if (!heroImage) return;
@@ -63,44 +50,16 @@ export default function Landing() {
       heroImage.style.transform = `translateX(${x}px) translateY(${y}px)`;
     }
 
-    window.addEventListener('scroll', handleScroll);
     window.addEventListener('mousemove', handleMouseMove);
-    handleScroll();
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
 
   return (
     <div className="min-h-screen bg-background text-on-surface overflow-x-hidden">
-      <nav ref={navRef} className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20 shadow-[0_0_20px_rgba(0,245,255,0.05)] transition-colors">
-        <div className="max-w-container-max mx-auto px-margin-desktop py-4 flex justify-between items-center">
-          <Link to="/" className="font-headline-lg text-headline-lg tracking-tighter text-secondary-fixed-dim">
-            Beatzy AI
-          </Link>
-          <div className="hidden md:flex space-x-8 items-center">
-            <Link className="font-body-md text-body-md text-secondary-fixed-dim border-b-2 border-secondary-fixed-dim pb-1" to="/">
-              Main Stage
-            </Link>
-            <Link className="font-body-md text-body-md text-on-surface-variant hover:text-primary-fixed transition-all" to="/artist-echoes">
-              Inside the Wave
-            </Link>
-            <Link className="font-body-md text-body-md text-on-surface-variant hover:text-primary-fixed transition-all" to="/artist-echoes">
-              Artist Echoes
-            </Link>
-            <Link className="font-body-md text-body-md text-on-surface-variant hover:text-primary-fixed transition-all" to="/pricing">
-              Production Suite
-            </Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link to="/login" className="material-symbols-outlined text-on-surface hover:backdrop-brightness-125 cursor-pointer p-2 rounded-full transition-all">
-              account_circle
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <header className="relative min-h-screen flex items-center pt-24 overflow-hidden">
         <div className="absolute inset-0 z-0">
