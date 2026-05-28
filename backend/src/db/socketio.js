@@ -18,9 +18,12 @@ let io = null;
  * @returns {Server}
  */
 function initIO(httpServer) {
+  const rawFrontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const frontendUrl = rawFrontendUrl.trim().replace(/^["']|["']$/g, '');
+
   io = new Server(httpServer, {
     cors: {
-      origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+      origin: frontendUrl,
       credentials: true,
     },
     transports: ['websocket', 'polling'],

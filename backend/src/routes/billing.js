@@ -7,6 +7,7 @@ const logger = require('../utils/logger');
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').trim().replace(/^["']|["']$/g, '');
 
 const PLANS = [
   { id: 'free', name: 'Free', price: 0, requests: 100, features: ['100 analyses/mo', 'Basic insights', 'Web dashboard'] },
@@ -39,8 +40,8 @@ router.post('/subscribe', authenticate, async (req, res) => {
     customer: customerId,
     mode: 'subscription',
     line_items: [{ price: plan.priceId, quantity: 1 }],
-    success_url: `${process.env.FRONTEND_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.FRONTEND_URL}/pricing`,
+    success_url: `${frontendUrl}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${frontendUrl}/pricing`,
     metadata: { userId: req.user.id, planId },
   });
 
@@ -111,7 +112,7 @@ router.post('/portal', authenticate, async (req, res) => {
   if (!rows[0]?.stripe_customer_id) throw createError(400, 'No active subscription');
   const session = await stripe.billingPortal.sessions.create({
     customer: rows[0].stripe_customer_id,
-    return_url: `${process.env.FRONTEND_URL}/dashboard`,
+    return_url: `${frontendUrl}/dashboard`,
   });
   res.json({ success: true, data: { url: session.url } });
 });
