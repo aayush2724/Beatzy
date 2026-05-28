@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+import Layout from '../components/Layout';
 import { useAuthStore } from '../store/authStore';
 
 export default function Landing() {
@@ -46,7 +46,7 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-surface-dim text-on-surface selection:bg-sonic-lime/30 overflow-x-hidden font-body text-body-md relative">
-      <Navbar />
+      
 
       {/* Cinematic Background Image Layer */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
@@ -177,5 +177,7 @@ export default function Landing() {
         }
       `}</style>
     </div>
-  );
+  </div>
+  </Layout>
+);
 }
