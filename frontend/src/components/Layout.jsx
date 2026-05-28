@@ -1,20 +1,19 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import {
-  LayoutDashboard, Upload, Key, User, LogOut, Music2, ChevronRight
-} from 'lucide-react';
+import { useState } from 'react';
 import clsx from 'clsx';
 
 const navItems = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/upload', icon: Upload, label: 'Analyze Audio' },
-  { to: '/api-keys', icon: Key, label: 'API Keys' },
-  { to: '/profile', icon: User, label: 'Profile' },
+  { to: '/dashboard', icon: 'analytics', label: 'Dashboard' },
+  { to: '/upload', icon: 'waves', label: 'Spectral Engine' },
+  { to: '/api-keys', icon: 'key', label: 'API Keys' },
+  { to: '/profile', icon: 'account_circle', label: 'Operator Profile' },
 ];
 
 export default function Layout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const [isSidebarHovered, setIsSidebarHovered] = useState(false);
 
   function handleLogout() {
     logout();
@@ -22,57 +21,85 @@ export default function Layout() {
   }
 
   return (
-    <div className="flex h-screen bg-dark-900 overflow-hidden">
-      <aside className="w-64 bg-dark-800 border-r border-dark-600 flex flex-col shrink-0">
-        <div className="p-6 border-b border-dark-600">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-brand-600 rounded-xl flex items-center justify-center">
-              <Music2 size={20} />
-            </div>
-            <span className="text-xl font-bold tracking-tight">Beatzy</span>
+    <div className="flex h-screen bg-[#080808] overflow-hidden text-on-surface font-body selection:bg-sonic-lime/30 relative">
+      {/* Decorative Grid Overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(215,255,90,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(215,255,90,0.01)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0"></div>
+
+      {/* SideNavBar - Premium Obsidian OS design */}
+      <aside 
+        onMouseEnter={() => setIsSidebarHovered(true)}
+        onMouseLeave={() => setIsSidebarHovered(false)}
+        className={clsx(
+          "h-full z-40 bg-[#080808]/85 backdrop-blur-3xl border-r border-glass-border flex flex-col pt-8 pb-6 transition-all duration-300 select-none shadow-[5px_0_30px_rgba(0,0,0,0.5)] relative shrink-0",
+          isSidebarHovered ? "w-64" : "w-20"
+        )}
+      >
+        {/* Core Header */}
+        <div className="px-6 mb-10 flex items-center space-x-4 overflow-hidden shrink-0">
+          <div className="w-8 h-8 rounded bg-sonic-lime/10 flex items-center justify-center border border-sonic-lime/30 shrink-0 shadow-[0_0_12px_rgba(215,255,90,0.15)] animate-pulse">
+            <span className="material-symbols-outlined text-sonic-lime text-base" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+          </div>
+          <div className={clsx("transition-opacity duration-300 whitespace-nowrap", isSidebarHovered ? "opacity-100" : "opacity-0")}>
+            <p className="text-sonic-lime font-bold text-lg leading-none tracking-tight">Spectral OS</p>
+            <p className="font-mono text-[9px] text-on-surface-variant tracking-[0.15em] uppercase">AI Core v4.2</p>
           </div>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
-          {navItems.map(({ to, icon: Icon, label }) => (
+        {/* Navigation Items */}
+        <nav className="flex-1 space-y-1">
+          {navItems.map(({ to, icon, label }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) => clsx(
-                'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-150',
+                'flex items-center px-6 py-3.5 transition-all relative overflow-hidden group',
                 isActive
-                  ? 'bg-brand-600/20 text-brand-400 border border-brand-600/30'
-                  : 'text-gray-400 hover:text-white hover:bg-dark-700'
+                  ? 'bg-sonic-lime/10 text-sonic-lime border-r-4 border-sonic-lime'
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-white/[0.03]'
               )}
             >
-              <Icon size={18} />
-              {label}
+              <span className="material-symbols-outlined text-xl">{icon}</span>
+              <span className={clsx(
+                "ml-6 font-mono text-[11px] tracking-[0.1em] uppercase transition-all duration-300 whitespace-nowrap",
+                isSidebarHovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"
+              )}>
+                {label}
+              </span>
             </NavLink>
           ))}
         </nav>
 
-        <div className="p-4 border-t border-dark-600">
-          <div className="flex items-center gap-3 px-4 py-3 mb-2 rounded-xl bg-dark-700">
-            <div className="w-8 h-8 bg-brand-700 rounded-full flex items-center justify-center text-sm font-bold">
+        {/* User Card & Logout */}
+        <div className="px-4 mt-auto border-t border-glass-border pt-4">
+          <div className="flex items-center gap-3 px-3 py-3.5 mb-2 rounded-lg bg-white/[0.02] border border-glass-border overflow-hidden max-w-full">
+            <div className="w-8 h-8 bg-sonic-lime/20 border border-sonic-lime/30 text-sonic-lime rounded-full flex items-center justify-center text-sm font-bold shrink-0">
               {user?.name?.[0]?.toUpperCase() || 'U'}
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user?.name}</p>
-              <p className="text-xs text-gray-500 capitalize">{user?.plan} plan</p>
+            <div className={clsx("flex-1 min-w-0 transition-opacity duration-300", isSidebarHovered ? "opacity-100" : "opacity-0")}>
+              <p className="text-xs font-semibold truncate text-on-surface leading-none mb-1">{user?.name}</p>
+              <p className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest leading-none capitalize">{user?.plan} plan</p>
             </div>
           </div>
+          
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-dark-700 transition-all"
+            className="flex items-center gap-6 w-full px-5 py-3 rounded-lg text-xs font-mono tracking-widest text-on-surface-variant hover:text-white hover:bg-white/[0.03] transition-all"
           >
-            <LogOut size={18} />
-            Sign out
+            <span className="material-symbols-outlined text-lg shrink-0">logout</span>
+            <span className={clsx("transition-opacity duration-300 whitespace-nowrap uppercase", isSidebarHovered ? "opacity-100" : "opacity-0")}>
+              Sign out
+            </span>
           </button>
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-6xl mx-auto p-8">
+      {/* Main Content Layout */}
+      <main className="flex-1 overflow-y-auto z-10 relative">
+        {/* Dynamic Glowing background nodes */}
+        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-sonic-lime/3 blur-[150px] rounded-full pointer-events-none z-0"></div>
+        <div className="absolute bottom-0 left-1/3 w-[500px] h-[500px] bg-prism-violet/3 blur-[150px] rounded-full pointer-events-none z-0"></div>
+
+        <div className="max-w-6xl mx-auto p-8 relative z-10">
           <Outlet />
         </div>
       </main>
