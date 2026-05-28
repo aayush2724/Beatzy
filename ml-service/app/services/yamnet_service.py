@@ -18,7 +18,6 @@ class YAMNetService:
 
     def _load_sync(self):
         try:
-            import tensorflow as tf
             import tensorflow_hub as hub
             self.model = hub.load(YAMNET_MODEL_URL)
             class_map_path = self.model.class_map_path().numpy().decode()
@@ -39,7 +38,6 @@ class YAMNetService:
 
     def _classify_sync(self, audio_path: str) -> dict:
         try:
-            import tensorflow as tf
             import soundfile as sf
 
             waveform, sr = sf.read(audio_path, dtype="float32")

@@ -57,7 +57,9 @@ router.get('/subscription', authenticate, async (req, res) => {
   if (user.subscription_id) {
     try {
       subscription = await stripe.subscriptions.retrieve(user.subscription_id);
-    } catch {}
+    } catch (err) {
+      logger.warn('Failed to retrieve stripe subscription', { error: err.message });
+    }
   }
   res.json({ success: true, data: { plan: user.plan, subscription } });
 });
