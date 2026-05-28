@@ -106,7 +106,7 @@ def train():
 
     # 4. Evaluate on held‑out test set
     y_pred = clf.predict(X_test)
-    print(f"\n[4/4] Test‑set classification report:\n")
+    print("\n[4/4] Test‑set classification report:\n")
     print(classification_report(y_test, y_pred, digits=3))
 
     # 5. Save model
