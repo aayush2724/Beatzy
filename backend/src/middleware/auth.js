@@ -11,7 +11,7 @@ async function authenticate(req, res, next) {
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     const { rows } = await pool.query(
-      'SELECT id, email, name, plan, is_active FROM users WHERE id = $1',
+      'SELECT id, email, name, plan, is_active, is_admin FROM users WHERE id = $1',
       [payload.sub]
     );
     if (!rows[0] || !rows[0].is_active) {

@@ -35,7 +35,9 @@
     "pg": "^8.11.3",
     "rate-limit-redis": "^4.2.0",
     "redis": "^4.6.10",
+    "socket.io": "^4.7.4",
     "stripe": "^14.10.0",
+    "swagger-ui-express": "^5.0.0",
     "uuid": "^9.0.0",
     "winston": "^3.11.0",
     "zod": "^3.22.4"

@@ -3,15 +3,19 @@ import { useAuthStore } from '../store/authStore';
 import { useState } from 'react';
 import clsx from 'clsx';
 
-const navItems = [
-  { to: '/dashboard', icon: 'analytics', label: 'Dashboard' },
-  { to: '/upload', icon: 'waves', label: 'Spectral Engine' },
-  { to: '/api-keys', icon: 'key', label: 'API Keys' },
-  { to: '/profile', icon: 'account_circle', label: 'Operator Profile' },
-];
-
 export default function Layout() {
   const { user, logout } = useAuthStore();
+
+  const navItems = [
+    { to: '/dashboard', icon: 'analytics', label: 'Dashboard' },
+    { to: '/upload', icon: 'waves', label: 'Spectral Engine' },
+    { to: '/api-keys', icon: 'key', label: 'API Keys' },
+    { to: '/profile', icon: 'account_circle', label: 'Operator Profile' },
+  ];
+
+  if (user?.is_admin) {
+    navItems.push({ to: '/admin', icon: 'admin_panel_settings', label: 'Admin Terminal' });
+  }
   const navigate = useNavigate();
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
 

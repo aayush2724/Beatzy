@@ -1,9 +1,11 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import UploadProgressBar from '../components/UploadProgressBar';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import WaveformVisualizer from '../components/WaveformVisualizer';
 import { uploadAudio, pollForResults } from '../api/audio';
+import { useJobSocket } from '../hooks/useJobSocket';
 import { useDropzone } from 'react-dropzone';
 import clsx from 'clsx';
 
@@ -20,7 +22,11 @@ export default function Upload() {
   const [file, setFile] = useState(null);
   const [progress, setProgress] = useState(0);
   const [elapsed, setElapsed] = useState(0);
+  const [jobId, setJobId] = useState(null);
   const navigate = useNavigate();
+
+  // Real-time socket progress
+  const { status: socketStatus, progress: socketProgress } = useJobSocket(jobId);
 
   // Elapsed timer simulation for scanning feedback
   useEffect(() => {
@@ -35,14 +41,33 @@ export default function Upload() {
     return () => clearInterval(timer);
   }, [step]);
 
+  // React to socket events for step transitions
+  useEffect(() => {
+    if (!jobId) return;
+    if (socketStatus === 'completed') {
+      setStep('done');
+      setTimeout(() => navigate(`/results/${jobId}`), 1200);
+    } else if (socketStatus === 'failed') {
+      toast.error('Analysis pipeline failed');
+      setStep('upload');
+      setFile(null);
+      setProgress(0);
+      setJobId(null);
+    } else if (socketStatus === 'analyzing' || socketStatus === 'saving') {
+      setStep('analyzing');
+    }
+  }, [socketStatus, jobId, navigate]);
+
   const handleFile = useCallback(async (f) => {
     setFile(f);
     setStep('uploading');
     try {
       const { data } = await uploadAudio(f, setProgress);
       const id = data.data.jobId;
+      setJobId(id);
       setStep('analyzing');
       toast.success('Signal captured! Syncing neural core...');
+      // Polling as fallback if socket doesn't fire
       await pollForResults(id);
       setStep('done');
       setTimeout(() => navigate(`/results/${id}`), 1200);
@@ -51,6 +76,7 @@ export default function Upload() {
       setStep('upload');
       setFile(null);
       setProgress(0);
+      setJobId(null);
     }
   }, [navigate]);
 
@@ -64,10 +90,15 @@ export default function Upload() {
 
   const rejected = fileRejections[0]?.errors[0]?.message;
   
-  // Progress calculations mapped to simulated analyzer states
-  const visibleProgress = step === 'analyzing' || step === 'done'
-    ? Math.min(99, Math.max(68, Math.floor(68 + (elapsed * 2.5))))
-    : progress;
+  // Progress calculations — use socket progress when available, else simulated
+  const liveProgress = socketProgress > 0 ? socketProgress : null;
+  const visibleProgress = step === 'done'
+    ? 100
+    : liveProgress != null
+      ? liveProgress
+      : step === 'analyzing'
+        ? Math.min(99, Math.max(68, Math.floor(68 + (elapsed * 2.5))))
+        : progress;
 
   return (
     <div className="space-y-gutter pb-16">
@@ -173,9 +204,15 @@ export default function Upload() {
                 {/* Sub-process telemetry grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter w-full mt-4">
                   {[
-                    { icon: 'search', title: 'Identification', engine: 'ACRCloud Core', status: step === 'uploading' ? 'Buffered' : 'Matching signature...', active: step === 'analyzing' },
-                    { icon: 'equalizer', title: 'Spectral DNA', engine: 'librosa engine', status: step === 'uploading' ? 'Buffered' : 'Extracting metrics...', active: step === 'analyzing' },
-                    { icon: 'architecture', title: 'Classifiers', engine: 'YAMNet Array', status: 'Queued', active: false },
+                    { icon: 'search', title: 'Identification', engine: 'ACRCloud Core',
+                      status: step === 'uploading' ? 'Buffered' : socketStatus === 'processing' ? 'Loading model...' : 'Matching signature...',
+                      active: step === 'analyzing' && (socketStatus === 'processing' || socketStatus === 'analyzing') },
+                    { icon: 'equalizer', title: 'Spectral DNA', engine: 'librosa engine',
+                      status: step === 'uploading' ? 'Buffered' : socketStatus === 'analyzing' ? 'Extracting metrics...' : socketStatus === 'saving' ? 'Complete' : 'Queued',
+                      active: step === 'analyzing' && socketStatus === 'analyzing' },
+                    { icon: 'architecture', title: 'Classifiers', engine: 'YAMNet Array',
+                      status: socketStatus === 'saving' ? 'Persisting results...' : socketStatus === 'completed' ? 'Complete' : 'Queued',
+                      active: socketStatus === 'saving' },
                   ].map((card) => (
                     <div 
                       key={card.title}
@@ -212,26 +249,7 @@ export default function Upload() {
 
                 {/* Progress bar visualizer */}
                 {step === 'uploading' && (
-                  <motion.div 
-                    initial={{ opacity: 0 }} 
-                    animate={{ opacity: 1 }}
-                    className="mt-8 glass-panel rounded-lg p-5 border border-glass-border w-full bg-[#131313]/30"
-                  >
-                    {file && <WaveformVisualizer file={file} />}
-                    <div className="mt-4">
-                      <div className="flex justify-between text-xs mb-1.5 font-mono">
-                        <span className="text-on-surface-variant truncate max-w-sm uppercase tracking-wider">Sending: {file?.name}</span>
-                        <span className="text-sonic-lime font-bold">{progress}%</span>
-                      </div>
-                      <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                        <motion.div
-                          className="h-full bg-sonic-lime shadow-[0_0_10px_rgba(215,255,90,0.5)] rounded-full"
-                          animate={{ width: `${progress}%` }}
-                          transition={{ duration: 0.1 }}
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
+                  <UploadProgressBar progress={visibleProgress} status={step} fileName={file?.name} />
                 )}
 
                 {/* Technical status bottom telemetry bar */}

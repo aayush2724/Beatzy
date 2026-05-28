@@ -1,9 +1,35 @@
 import asyncio
+import pathlib
 import numpy as np
 import librosa
 import structlog
 
 logger = structlog.get_logger()
+
+# ── Model loading (singleton) ────────────────────────────────────────────────
+
+_MODEL_PATH = pathlib.Path(__file__).resolve().parent.parent.parent / "models" / "mood_classifier.joblib"
+_mood_model = None
+
+
+def _load_mood_model():
+    """Lazily load the trained mood classifier (once per process)."""
+    global _mood_model
+    if _mood_model is not None:
+        return _mood_model
+
+    if not _MODEL_PATH.exists():
+        logger.warning("Mood model not found, falling back to rule‑based inference", path=str(_MODEL_PATH))
+        return None
+
+    try:
+        import joblib
+        _mood_model = joblib.load(_MODEL_PATH)
+        logger.info("Mood model loaded", path=str(_MODEL_PATH))
+        return _mood_model
+    except Exception as e:
+        logger.error("Failed to load mood model", error=str(e))
+        return None
 
 
 class AudioAnalysisService:
@@ -41,13 +67,16 @@ class AudioAnalysisService:
         # Time signature (simplified)
         time_signature = "4/4"
 
-        # Mood inference from audio features
-        mood = self._infer_mood(bpm, energy_level, spectral_centroid, mfcc_means)
+        # Mood inference — ML model with rule‑based fallback
+        mood, mood_confidence = self._predict_mood(
+            bpm, energy_level, spectral_centroid, zero_crossing_rate, mfcc_means,
+        )
 
         return {
             "bpm": bpm,
             "energy_level": energy_level,
             "mood": mood,
+            "mood_confidence": mood_confidence,
             "key_signature": key_signature,
             "time_signature": time_signature,
             "spectral_centroid": round(spectral_centroid, 4),
@@ -56,7 +85,32 @@ class AudioAnalysisService:
             "mfcc_means": mfcc_means,
         }
 
-    def _infer_mood(self, bpm: float, energy: float, centroid: float, mfccs: list) -> str:
+    # ── ML‑based mood prediction ─────────────────────────────────────────────
+
+    def _predict_mood(
+        self, bpm: float, energy: float, centroid: float, zcr: float, mfccs: list,
+    ) -> tuple[str, float]:
+        """Return (mood_label, confidence).  Uses trained model when available."""
+        model_data = _load_mood_model()
+
+        if model_data is not None:
+            try:
+                clf = model_data["model"]
+                features = np.array([[bpm, energy, centroid, zcr, *mfccs]])
+                proba = clf.predict_proba(features)[0]
+                idx = int(np.argmax(proba))
+                label = clf.classes_[idx]
+                confidence = float(round(proba[idx], 4))
+                logger.debug("ML mood prediction", mood=label, confidence=confidence)
+                return label, confidence
+            except Exception as e:
+                logger.warning("ML prediction failed, falling back to rules", error=str(e))
+
+        # Fallback: original rule‑based heuristic
+        return self._infer_mood_rules(bpm, energy, centroid, mfccs), 0.0
+
+    def _infer_mood_rules(self, bpm: float, energy: float, centroid: float, mfccs: list) -> str:
+        """Legacy rule‑based mood inference (kept as fallback)."""
         if bpm > 140 and energy > 0.08:
             return "energetic"
         elif bpm > 120 and energy > 0.05:

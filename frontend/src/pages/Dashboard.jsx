@@ -3,6 +3,30 @@ import { Link } from 'react-router-dom';
 import { getHistory } from '../api/audio';
 import { useAuthStore } from '../store/authStore';
 import clsx from 'clsx';
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  BarChart,
+  Bar,
+  Cell,
+  CartesianGrid
+} from 'recharts';
+
+const CustomTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="glass-panel p-3 border border-glass-border rounded-lg text-xs font-mono">
+        <p className="text-white font-bold">{payload[0].payload.name}</p>
+        <p className="text-sonic-lime mt-1">{payload[0].value} {payload[0].unit || ''}</p>
+      </div>
+    );
+  }
+  return null;
+};
 
 const STATUS_BADGES = {
   completed: { bg: 'bg-sonic-lime/10 border border-sonic-lime/30', text: 'text-sonic-lime', label: 'Aligned' },
@@ -36,6 +60,48 @@ export default function Dashboard() {
       setLoading(false);
     });
   }, []);
+
+  // Prepare analytics data
+  const chartData = history
+    .filter(h => h.status === 'completed' && h.bpm)
+    .reverse()
+    .map((h, i) => ({
+      name: h.song_title || `Signal ${i + 1}`,
+      bpm: Math.round(h.bpm),
+    }));
+
+  const mockChartData = [
+    { name: 'Sim Beta', bpm: 122 },
+    { name: 'Sim Gamma', bpm: 128 },
+    { name: 'Sim Epsilon', bpm: 115 },
+    { name: 'Sim Zeta', bpm: 140 },
+    { name: 'Sim Eta', bpm: 125 },
+    { name: 'Sim Theta', bpm: 132 },
+  ];
+
+  const activeChartData = chartData.length > 0 ? chartData : mockChartData;
+
+  const moodCounts = history
+    .filter(h => h.status === 'completed' && h.mood)
+    .reduce((acc, curr) => {
+      const mood = curr.mood.charAt(0).toUpperCase() + curr.mood.slice(1);
+      acc[mood] = (acc[mood] || 0) + 1;
+      return acc;
+    }, {});
+
+  const moodData = Object.keys(moodCounts).map(mood => ({
+    name: mood,
+    value: moodCounts[mood],
+  }));
+
+  const mockMoodData = [
+    { name: 'Energetic', value: 4 },
+    { name: 'Chill', value: 3 },
+    { name: 'Epic', value: 2 },
+    { name: 'Dark', value: 1 },
+  ];
+
+  const activeMoodData = moodData.length > 0 ? moodData : mockMoodData;
 
   // Complex multi-dimensional audio visualization animation
   useEffect(() => {
@@ -305,6 +371,55 @@ export default function Dashboard() {
           </div>
 
           <span className="font-mono text-[9px] text-on-surface-variant uppercase mt-3 tracking-widest text-center">Interactive saturation throttle</span>
+        </section>
+      </div>
+
+      {/* Telemetry Analytics Section */}
+      <div className="grid grid-cols-12 gap-gutter">
+        <section className="col-span-12 md:col-span-8 glass-panel rounded-xl border border-glass-border p-6 h-[320px] flex flex-col justify-between">
+          <div>
+            <h3 className="font-headline font-bold text-sm text-sonic-lime uppercase tracking-wider">Signal Tempo Trend</h3>
+            <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest">Historical BPM timeline metrics</span>
+          </div>
+          <div className="w-full h-[200px] mt-4 font-mono text-[9px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={activeChartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorBpm" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#D7FF5A" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="#D7FF5A" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+                <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" tickLine={false} />
+                <YAxis domain={['dataMin - 10', 'dataMax + 10']} stroke="rgba(255,255,255,0.3)" tickLine={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Area type="monotone" dataKey="bpm" unit="BPM" stroke="#D7FF5A" strokeWidth={2} fillOpacity={1} fill="url(#colorBpm)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+
+        <section className="col-span-12 md:col-span-4 glass-panel rounded-xl border border-glass-border p-6 h-[320px] flex flex-col justify-between">
+          <div>
+            <h3 className="font-headline font-bold text-sm text-sonic-lime uppercase tracking-wider">Acoustic Mood Profile</h3>
+            <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest">Frequency of mood categorizations</span>
+          </div>
+          <div className="w-full h-[200px] mt-4 font-mono text-[9px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={activeMoodData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+                <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" tickLine={false} />
+                <YAxis allowDecimals={false} stroke="rgba(255,255,255,0.3)" tickLine={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="value" unit=" tracks">
+                  {activeMoodData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#D7FF5A' : '#8B5CF6'} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </section>
       </div>
 

@@ -1,0 +1,408 @@
+openapi: '3.1.0'
+info:
+  title: Beatzy API
+  version: 1.0.0
+  description: |
+    Beatzy Music Intelligence Engine — analyse audio tracks, identify songs,
+    extract spectral features, and receive real-time processing updates.
+  contact:
+    name: Beatzy Engineering
+    url: https://github.com/beatzy
+
+servers:
+  - url: http://localhost:3000
+    description: Local development
+  - url: https://api.beatzy.app
+    description: Production
+
+tags:
+  - name: Auth
+    description: Authentication, registration, and token management
+  - name: Audio
+    description: Upload and analyse audio files
+  - name: Results
+    description: Retrieve analysis results
+  - name: Users
+    description: User profile and usage data
+  - name: Admin
+    description: Platform administration (requires admin role)
+  - name: API Keys
+    description: API key management
+  - name: Billing
+    description: Stripe billing & subscriptions
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+            code:
+              type: integer
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        plan:
+          type: string
+          enum: [free, pro, enterprise]
+        is_active:
+          type: boolean
+
+    TokenPair:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+
+    AnalysisResult:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        job_id:
+          type: string
+          format: uuid
+        song_title:
+          type: string
+        song_artist:
+          type: string
+        bpm:
+          type: number
+        mood:
+          type: string
+        mood_confidence:
+          type: number
+        key_signature:
+          type: string
+        spotify_features:
+          type: object
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: beatzy-backend
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  # ── Auth ────────────────────────────────────────────────────────────────
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    allOf:
+                      - $ref: '#/components/schemas/User'
+                      - $ref: '#/components/schemas/TokenPair'
+        '409':
+          description: Email already registered
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Log in with email & password
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+        '401':
+          description: Invalid credentials
+
+  /api/auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Rotate refresh token
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: New token pair
+        '401':
+          description: Invalid or revoked refresh token
+
+  /api/auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current user
+      operationId: getMe
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user profile
+
+  /api/auth/logout:
+    post:
+      tags: [Auth]
+      summary: Log out (invalidate refresh token)
+      operationId: logout
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logged out
+
+  # ── Audio ───────────────────────────────────────────────────────────────
+  /api/audio/upload:
+    post:
+      tags: [Audio]
+      summary: Upload audio file for analysis
+      operationId: uploadAudio
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                audio:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Upload accepted, job queued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      jobId:
+                        type: string
+                        format: uuid
+
+  /api/audio/jobs/{jobId}:
+    get:
+      tags: [Audio]
+      summary: Get job status
+      operationId: getJobStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Job status
+
+  # ── Results ─────────────────────────────────────────────────────────────
+  /api/results/{jobId}:
+    get:
+      tags: [Results]
+      summary: Get analysis results for a job
+      operationId: getResults
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Analysis results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/AnalysisResult'
+
+  # ── Users ───────────────────────────────────────────────────────────────
+  /api/users/me:
+    get:
+      tags: [Users]
+      summary: Get user profile with stats
+      operationId: getUserProfile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User profile with job counts
+
+    patch:
+      tags: [Users]
+      summary: Update user profile
+      operationId: updateProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+      responses:
+        '200':
+          description: Profile updated
+
+  /api/users/usage:
+    get:
+      tags: [Users]
+      summary: Get usage statistics (30-day)
+      operationId: getUsage
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Daily usage data
+
+  # ── Admin ───────────────────────────────────────────────────────────────
+  /api/admin/users:
+    get:
+      tags: [Admin]
+      summary: List all users (paginated)
+      operationId: adminListUsers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 25
+      responses:
+        '200':
+          description: Paginated user list
+        '403':
+          description: Admin access required
+
+  /api/admin/stats:
+    get:
+      tags: [Admin]
+      summary: Platform-wide KPIs
+      operationId: adminStats
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Platform statistics
+
+  /api/admin/audit-log:
+    get:
+      tags: [Admin]
+      summary: Paginated audit log
+      operationId: adminAuditLog
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Audit log entries
