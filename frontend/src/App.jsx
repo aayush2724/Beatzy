@@ -13,6 +13,7 @@ import ApiKeys from './pages/ApiKeys';
 import Profile from './pages/Profile';
 import BillingSuccess from './pages/BillingSuccess';
 import ArtistEchoes from './pages/ArtistEchoes';
+import Admin from './pages/Admin';
 
 function ProtectedRoute({ children }) {
   const { token } = useAuthStore();
@@ -22,6 +23,12 @@ function ProtectedRoute({ children }) {
 function PublicRoute({ children }) {
   const { token } = useAuthStore();
   return !token ? children : <Navigate to="/dashboard" replace />;
+}
+
+function AdminRoute({ children }) {
+  const { token, user } = useAuthStore();
+  if (!token) return <Navigate to="/login" replace />;
+  return user?.is_admin ? children : <Navigate to="/dashboard" replace />;
 }
 
 export default function App() {
@@ -40,6 +47,7 @@ export default function App() {
         <Route path="/results/:jobId" element={<Results />} />
         <Route path="/api-keys" element={<ApiKeys />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

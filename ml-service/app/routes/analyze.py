@@ -4,6 +4,7 @@ import structlog
 
 from app.services.audio_service import AudioAnalysisService
 from app.services.acr_service import ACRCloudService
+from app.services.spotify_service import SpotifyService
 from app.services.storage_service import StorageService
 
 logger = structlog.get_logger()
@@ -16,7 +17,16 @@ class AnalyzeRequest(BaseModel):
     s3_url: str
 
 
-@router.post("/analyze")
+class AnalyzeResponse(BaseModel):
+    """Typed response for the /analyze endpoint."""
+    job_id: str
+    song: dict
+    audio: dict
+    yamnet: dict
+    spotify: dict
+
+
+@router.post("/analyze", response_model=AnalyzeResponse)
 async def analyze_audio(req: AnalyzeRequest, request: Request):
     log = logger.bind(job_id=req.job_id)
     log.info("Starting audio analysis")
@@ -25,23 +35,41 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
     audio_path = await storage.download_from_s3(req.s3_key, req.job_id)
 
     try:
+        # Core audio features (BPM, mood via ML model, energy, MFCCs, key …)
         audio_service = AudioAnalysisService()
         audio_features = await audio_service.analyze(audio_path)
 
+        # ACRCloud song identification
         acr_service = ACRCloudService()
         song_info = await acr_service.identify(audio_path)
 
+        # YAMNet classification
         yamnet = request.app.state.yamnet
         yamnet_result = await yamnet.classify(audio_path)
+
+        # Spotify enrichment (ISRC from ACRCloud → audio‑features)
+        spotify_service = SpotifyService()
+        spotify_features = await spotify_service.enrich(
+            isrc=song_info.get("isrc"),
+            title=song_info.get("title"),
+            artist=song_info.get("artist"),
+        )
 
         result = {
             "job_id": req.job_id,
             "song": song_info,
             "audio": audio_features,
             "yamnet": yamnet_result,
+            "spotify": spotify_features,
         }
 
-        log.info("Analysis complete", bpm=audio_features.get("bpm"), mood=audio_features.get("mood"))
+        log.info(
+            "Analysis complete",
+            bpm=audio_features.get("bpm"),
+            mood=audio_features.get("mood"),
+            mood_confidence=audio_features.get("mood_confidence"),
+            spotify_match=bool(spotify_features),
+        )
         return result
 
     except Exception as e:

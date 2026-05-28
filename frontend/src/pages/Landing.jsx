@@ -177,7 +177,5 @@ export default function Landing() {
         }
       `}</style>
     </div>
-  </div>
-  </Layout>
-);
+  );
 }
