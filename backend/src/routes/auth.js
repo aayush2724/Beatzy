@@ -14,6 +14,7 @@ const { logAudit } = require('../services/audit');
 const logger = require('../utils/logger');
 
 const router = express.Router();
+const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').trim().replace(/^["']|["']$/g, '');
 
 const googleOAuthEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
 
@@ -147,11 +148,11 @@ router.get('/google/callback', (req, res, next) => {
   if (!googleOAuthEnabled) {
     return res.status(503).json({ success: false, message: 'Google OAuth is not configured' });
   }
-  return passport.authenticate('google', { session: false, failureRedirect: `${process.env.FRONTEND_URL}/auth/error` })(req, res, next);
+  return passport.authenticate('google', { session: false, failureRedirect: `${frontendUrl}/auth/error` })(req, res, next);
 }, async (req, res) => {
   const tokens = await generateTokens(req.user.id);
   await logAudit({ userId: req.user.id, action: 'user.login_google', ip: req.ip });
-  res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${tokens.accessToken}&refresh=${tokens.refreshToken}`);
+  res.redirect(`${frontendUrl}/auth/callback?token=${tokens.accessToken}&refresh=${tokens.refreshToken}`);
 });
 
 router.get('/me', authenticate, async (req, res) => {

@@ -34,8 +34,11 @@ const PORT = process.env.PORT || 3000;
 
 app.use(helmet());
 app.use(compression());
+const rawFrontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+const frontendUrl = rawFrontendUrl.trim().replace(/^["']|["']$/g, '');
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: frontendUrl,
   credentials: true,
 }));
 
