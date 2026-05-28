@@ -17,6 +17,23 @@
   <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" />
 </p>
 
+<p align="center">
+  <a href="https://beatzy-zeta.vercel.app"><img src="https://img.shields.io/badge/🎵_Live_Demo-beatzy--zeta.vercel.app-D7FF5A?style=for-the-badge" alt="Live Demo" /></a>
+</p>
+
+---
+
+## 🌐 Live Deployment
+
+| Service | URL |
+|---------|-----|
+| **Frontend** | [beatzy-zeta.vercel.app](https://beatzy-zeta.vercel.app) |
+| **Backend API** | [beatzy-tvrl.onrender.com](https://beatzy-tvrl.onrender.com) |
+| **ML Service** | [aayush-27-beatzy-ml.hf.space](https://aayush-27-beatzy-ml.hf.space) |
+| **API Docs** | [beatzy-tvrl.onrender.com/api/docs](https://beatzy-tvrl.onrender.com/api/docs) |
+
+> **Note:** The backend runs on Render's free tier and may take ~30 seconds to wake up on first request.
+
 ---
 
 ## ✨ Features
