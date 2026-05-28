@@ -1,7 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import WaveformVisualizer from '../components/WaveformVisualizer';
 import { uploadAudio, pollForResults } from '../api/audio';
@@ -20,7 +19,21 @@ export default function Upload() {
   const [step, setStep] = useState('upload');
   const [file, setFile] = useState(null);
   const [progress, setProgress] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
   const navigate = useNavigate();
+
+  // Elapsed timer simulation for scanning feedback
+  useEffect(() => {
+    let timer;
+    if (step === 'uploading' || step === 'analyzing') {
+      timer = setInterval(() => {
+        setElapsed(e => e + 0.1);
+      }, 100);
+    } else {
+      setElapsed(0);
+    }
+    return () => clearInterval(timer);
+  }, [step]);
 
   const handleFile = useCallback(async (f) => {
     setFile(f);
@@ -29,12 +42,12 @@ export default function Upload() {
       const { data } = await uploadAudio(f, setProgress);
       const id = data.data.jobId;
       setStep('analyzing');
-      toast.success('Uploaded! Analyzing your audio...');
+      toast.success('Signal captured! Syncing neural core...');
       await pollForResults(id);
       setStep('done');
       setTimeout(() => navigate(`/results/${id}`), 1200);
     } catch (err) {
-      toast.error(err.message || 'Upload failed');
+      toast.error(err.message || 'Signal transmission failed');
       setStep('upload');
       setFile(null);
       setProgress(0);
@@ -50,180 +63,146 @@ export default function Upload() {
   });
 
   const rejected = fileRejections[0]?.errors[0]?.message;
+  
+  // Progress calculations mapped to simulated analyzer states
   const visibleProgress = step === 'analyzing' || step === 'done'
-    ? Math.max(progress, step === 'done' ? 99 : 68)
+    ? Math.min(99, Math.max(68, Math.floor(68 + (elapsed * 2.5))))
     : progress;
 
   return (
-    <div className="min-h-full text-on-surface font-body-md overflow-x-hidden" style={{
-      backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(195, 244, 0, 0.04) 1px, transparent 0)',
-      backgroundSize: '24px 24px',
-    }}>
-      <style>{`
-        .glass-morphism {
-          background: rgba(26, 26, 26, 0.6);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .glow-border-upload:hover {
-          box-shadow: 0 0 30px rgba(195, 244, 0, 0.15);
-          border-color: rgba(195, 244, 0, 0.4);
-        }
-        .sonic-glow-upload {
-          filter: drop-shadow(0 0 15px rgba(215, 255, 90, 0.4));
-        }
-        .loader-ring-upload {
-          border: 2px solid transparent;
-          border-top-color: #abd600;
-          border-radius: 50%;
-          animation: spin-upload 1.5s linear infinite;
-        }
-        @keyframes spin-upload {
-          to { transform: rotate(360deg); }
-        }
-        .upload-waveform-bar {
-          animation: waveform-upload 1.2s ease-in-out infinite;
-        }
-        @keyframes waveform-upload {
-          0%, 100% { height: 8px; }
-          50% { height: 24px; }
-        }
-        @keyframes pulse-ring-upload {
-          0% { transform: scale(0.8); opacity: 0.8; }
-          50% { transform: scale(1.1); opacity: 0.3; }
-          100% { transform: scale(0.8); opacity: 0.8; }
-        }
-        @keyframes scan-line-upload {
-          0% { top: 0%; opacity: 0; }
-          50% { opacity: 1; }
-          100% { top: 100%; opacity: 0; }
-        }
-      `}</style>
+    <div className="space-y-gutter pb-16">
+      {/* Dynamic Header */}
+      <header className="mb-8">
+        <h1 className="font-headline text-3xl font-extrabold text-white tracking-tight">Audio Extraction Engine</h1>
+        <p className="font-sans text-sm text-on-surface-variant mt-1">
+          Transmit your sonic waves to the Neural Core for multi-dimensional stem analysis and identification.
+        </p>
+      </header>
 
-      {/* Page header */}
-      <div className="mb-10">
-        <h1 className="text-2xl font-bold text-on-surface mb-1">Analyze Audio</h1>
-        <p className="text-outline text-sm">Upload a track to identify it and extract deep spectral insights.</p>
-      </div>
-
-      {/* Background accent */}
-      <div className="relative">
-        <div
-          className="absolute inset-0 z-0 rounded-2xl opacity-30 mix-blend-screen pointer-events-none"
+      {/* Main Board Area with Cinematic Visual Backdrop */}
+      <div className="relative glass-panel rounded-xl border border-glass-border overflow-hidden p-8 min-h-[460px] flex items-center justify-center">
+        {/* Cinematic Backdrop Image Layer */}
+        <div 
+          className="absolute inset-0 z-0 opacity-20 pointer-events-none mix-blend-screen bg-cover bg-center"
           style={{
             backgroundImage: "url('https://lh3.googleusercontent.com/aida/ADBb0uh-0FrOXxKO8zCLpEu9COZ0NjPhmB0M3CYTC6MslAizqy6oxpikKSbjwlpDXof1V0WMkPJ7cyidwHydp6SqsjFYeVEcmD12VIQik4t_eplJ4U5iYbjT0Rn5DNBDAA6ti-ldnBv36jMOHmtXuadMmlIS4uVbzY8bmdTU2FNk8GjctXeogZL1KXNqVRDSV-SEsugB75GEfoAj9Kp9n68EjvxslX-eaUZgS5bkumai5w1EuID5XvbiDZp5kg')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
           }}
         />
-        <div className="absolute inset-0 z-0 bg-gradient-to-t from-dark-900 via-transparent to-dark-900 rounded-2xl pointer-events-none" />
+        <div className="absolute inset-0 z-0 bg-gradient-to-t from-[#080808] via-transparent to-[#080808]" />
 
-        <div className="relative z-10 flex flex-col items-center py-8">
+        <div className="relative z-10 w-full max-w-2xl flex flex-col items-center">
           <AnimatePresence mode="wait">
-            {/* ── STEP 1: Dropzone ── */}
+            {/* ── STEP 1: DROPZONE ── */}
             {step === 'upload' && (
               <motion.div
                 key="dropzone"
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                className="w-full max-w-xl flex flex-col items-center"
+                exit={{ opacity: 0, y: -12 }}
+                className="w-full flex flex-col items-center"
               >
                 <div
                   {...getRootProps()}
                   className={clsx(
-                    'relative border-2 border-dashed rounded-2xl p-16 text-center cursor-pointer transition-all duration-300 w-full glass-morphism glow-border-upload',
-                    isDragActive && !isDragReject && 'border-secondary-fixed bg-secondary-fixed/5 shadow-[0_0_30px_rgba(195,244,0,0.15)]',
+                    'relative border border-dashed rounded-xl p-12 text-center cursor-pointer transition-all duration-300 w-full bg-[#131313]/60 backdrop-blur-md select-none',
+                    isDragActive && !isDragReject && 'border-sonic-lime bg-sonic-lime/5 shadow-[0_0_30px_rgba(215,255,90,0.1)]',
                     isDragReject && 'border-red-500 bg-red-500/5',
-                    !isDragActive && 'border-white/10 hover:border-secondary-fixed/50'
+                    !isDragActive && 'border-white/10 hover:border-sonic-lime/40 hover:shadow-[0_0_25px_rgba(215,255,90,0.05)]'
                   )}
                 >
                   <input {...getInputProps()} />
                   <div className="flex flex-col items-center gap-6">
-                    <div className="w-20 h-20 bg-secondary-fixed/10 border border-secondary-fixed/20 rounded-2xl flex items-center justify-center text-secondary-fixed shadow-[0_0_20px_rgba(195,244,0,0.1)]">
-                      <span className="material-symbols-outlined" style={{ fontSize: '2.5rem' }}>upload_file</span>
+                    <div className="w-16 h-16 bg-sonic-lime/10 border border-sonic-lime/20 rounded-lg flex items-center justify-center text-sonic-lime shadow-[0_0_15px_rgba(215,255,90,0.1)]">
+                      <span className="material-symbols-outlined text-3xl">upload_file</span>
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-on-surface mb-2">
-                        {isDragActive ? 'Drop the audio signature' : 'Load Audio Signature'}
-                      </h2>
-                      <p className="text-outline text-sm">Drag & drop your file, or click to browse</p>
-                      <p className="text-outline/40 text-xs mt-4">MP3 · WAV · FLAC · OGG · M4A &nbsp;·&nbsp; Max 50 MB</p>
+                      <h2 className="text-lg font-bold text-white mb-1 tracking-tight">Load Audio Signature</h2>
+                      <p className="text-xs text-on-surface-variant font-medium">Drag & drop your wave file here, or browse local volumes</p>
+                      <p className="text-[10px] font-mono text-on-surface-variant/40 tracking-wider uppercase mt-4">
+                        MP3 · WAV · FLAC · OGG · M4A &nbsp;·&nbsp; MAXIMUM SIZE 50 MB
+                      </p>
                     </div>
-                    {rejected && <p className="text-red-400 text-sm">{rejected}</p>}
+                    {rejected && <p className="text-red-400 font-mono text-xs uppercase tracking-wider">{rejected}</p>}
                   </div>
                 </div>
 
-                <p className="text-on-surface-variant text-sm text-center mt-8 max-w-md leading-relaxed">
-                  Our spectral engine processes harmonics, rhythm, mood, and emotional metadata to deliver sub-millisecond classification.
+                <p className="text-on-surface-variant text-xs font-medium text-center mt-6 max-w-sm leading-relaxed">
+                  Our system decodes signals at deep sub-millisecond levels, cataloging transient curves and key vectors.
                 </p>
               </motion.div>
             )}
 
-            {/* ── STEPS 2-4: Processing ── */}
-            {step !== 'upload' && (
+            {/* ── STEP 2 & 3: UPLOADING & ANALYZING ── */}
+            {(step === 'uploading' || step === 'analyzing') && (
               <motion.div
                 key="processing"
-                initial={{ opacity: 0, scale: 0.96 }}
+                initial={{ opacity: 0, scale: 0.97 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
                 className="w-full flex flex-col items-center"
               >
-                {/* Pulsing rings */}
-                <div className="relative mb-20">
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-secondary-fixed/20"
-                    style={{ animation: 'pulse-ring-upload 3s ease-out infinite' }} />
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full border border-secondary-fixed/40"
-                    style={{ animation: 'pulse-ring-upload 3s ease-out infinite 1s' }} />
-                  <div className="relative w-40 h-40 flex items-center justify-center bg-surface-container-high/50 backdrop-blur-2xl rounded-full border-2 border-secondary-fixed/30 sonic-glow-upload overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary-fixed/30 to-transparent w-full h-[2px] z-10"
-                      style={{ animation: 'scan-line-upload 2.5s linear infinite' }} />
-                    <div className="flex items-end gap-1 h-12">
+                {/* Immersive Pulse Scanning Core */}
+                <div className="relative mb-16">
+                  {/* Glowing orbital expanders */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full border border-sonic-lime/15 animate-[ping_3s_ease-out_infinite]" />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-36 h-36 rounded-full border border-sonic-lime/25 animate-[ping_3s_ease-out_infinite_1.2s]" />
+
+                  {/* Core Orb */}
+                  <div className="relative w-28 h-28 flex items-center justify-center bg-[#131313]/90 backdrop-blur-2xl rounded-full border border-sonic-lime/30 shadow-[0_0_20px_rgba(215,255,90,0.15)] overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-sonic-lime/20 to-transparent w-full h-[1.5px] z-10 animate-[scan-line_2.2s_linear_infinite]" />
+                    <div className="flex items-end gap-1 h-10">
                       {[0.1, 0.3, 0.5, 0.2, 0.4, 0.6].map((delay, i) => (
-                        <div key={i} className="upload-waveform-bar w-1 bg-secondary-fixed rounded-t-full"
-                          style={{ animationDelay: `${delay}s` }} />
+                        <div 
+                          key={i} 
+                          className="w-1 bg-sonic-lime rounded-t-full animate-[waveform-upload_1.2s_ease-in-out_infinite]"
+                          style={{ animationDelay: `${delay}s`, height: '8px' }} 
+                        />
                       ))}
                     </div>
                   </div>
+
+                  {/* Dynamic percentage stats */}
                   <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-center whitespace-nowrap">
-                    <span className="font-headline-xl text-headline-xl text-on-surface">{Math.floor(visibleProgress)}%</span>
-                    <div className="font-label-sm text-label-sm text-secondary-fixed uppercase tracking-widest mt-1">
-                      {step === 'uploading' ? 'Uploading Signal' : step === 'analyzing' ? 'Analyzing Signal' : 'Analysis Complete'}
+                    <span className="font-mono text-2xl font-bold text-white tracking-tight">{Math.floor(visibleProgress)}%</span>
+                    <div className="font-mono text-[9px] text-sonic-lime uppercase tracking-[0.15em] mt-0.5">
+                      {step === 'uploading' ? 'Transmitting Data' : 'Synthesizing Signal'}
                     </div>
                   </div>
                 </div>
 
-                {/* Metric cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                {/* Sub-process telemetry grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter w-full mt-4">
                   {[
-                    { icon: 'search', title: 'Song Identification', sub: 'ACRCloud Engine', status: 'Verifying matches...', active: true },
-                    { icon: 'equalizer', title: 'Tempo & Spectral', sub: 'librosa Toolkit', status: 'Extracting BPM...', active: true },
-                    { icon: 'architecture', title: 'Audio Event Class', sub: 'YAMNet Neural Net', status: 'Queueing...', active: false },
+                    { icon: 'search', title: 'Identification', engine: 'ACRCloud Core', status: step === 'uploading' ? 'Buffered' : 'Matching signature...', active: step === 'analyzing' },
+                    { icon: 'equalizer', title: 'Spectral DNA', engine: 'librosa engine', status: step === 'uploading' ? 'Buffered' : 'Extracting metrics...', active: step === 'analyzing' },
+                    { icon: 'architecture', title: 'Classifiers', engine: 'YAMNet Array', status: 'Queued', active: false },
                   ].map((card) => (
-                    <div key={card.title}
+                    <div 
+                      key={card.title}
                       className={clsx(
-                        'glass-morphism p-6 rounded-xl flex flex-col gap-4 border-l-4 transition-all hover:-translate-y-0.5',
-                        card.active ? 'border-l-secondary-fixed' : 'border-l-secondary-fixed/30 opacity-80'
+                        'glass-panel p-5 rounded-lg flex flex-col gap-3 border border-glass-border hover:border-sonic-lime/10 transition-all',
+                        card.active ? 'border-l-2 border-l-sonic-lime bg-white/[0.01]' : 'opacity-60'
                       )}
                     >
                       <div className="flex justify-between items-start">
-                        <div className="p-2 bg-surface-container-highest rounded">
-                          <span className={clsx('material-symbols-outlined', card.active ? 'text-secondary-fixed' : 'text-outline')}>
+                        <div className="p-1.5 bg-white/[0.03] border border-glass-border rounded">
+                          <span className={clsx('material-symbols-outlined text-base', card.active ? 'text-sonic-lime' : 'text-on-surface-variant')}>
                             {card.icon}
                           </span>
                         </div>
-                        {card.active
-                          ? <div className="loader-ring-upload w-5 h-5" />
-                          : <div className="w-5 h-5 border-2 border-outline/20 rounded-full" />
-                        }
+                        {card.active ? (
+                          <div className="w-4 h-4 border border-t-transparent border-sonic-lime rounded-full animate-spin" />
+                        ) : (
+                          <div className="w-4 h-4 border border-white/10 rounded-full" />
+                        )}
                       </div>
                       <div>
-                        <h3 className="text-base font-semibold text-on-surface mb-0.5">{card.title}</h3>
-                        <p className="text-xs text-outline">{card.sub}</p>
+                        <h4 className="text-xs font-bold text-white tracking-wide">{card.title}</h4>
+                        <p className="font-mono text-[8px] text-on-surface-variant uppercase tracking-widest mt-0.5">{card.engine}</p>
                       </div>
-                      <div className="mt-auto pt-4 flex items-center gap-2">
-                        <div className={clsx('w-2 h-2 rounded-full', card.active ? 'bg-secondary-fixed animate-pulse' : 'bg-outline/30')} />
-                        <span className={clsx('text-[10px] uppercase tracking-wider', card.active ? 'text-secondary-fixed' : 'text-outline')}>
+                      <div className="mt-2 pt-2 border-t border-glass-border flex items-center gap-1.5">
+                        <div className={clsx('w-1.5 h-1.5 rounded-full', card.active ? 'bg-sonic-lime animate-pulse' : 'bg-white/10')} />
+                        <span className={clsx('font-mono text-[8px] uppercase tracking-wider', card.active ? 'text-sonic-lime' : 'text-on-surface-variant')}>
                           {card.status}
                         </span>
                       </div>
@@ -231,51 +210,68 @@ export default function Upload() {
                   ))}
                 </div>
 
-                {/* Status bar */}
-                <div className="mt-10 w-full flex justify-between items-center px-2 text-xs text-outline font-mono">
-                  <span>BUFFER: 2048 SAMPLES &nbsp;|&nbsp; ENGINE: V3-NEURAL</span>
-                  <span>ELAPSED: {new Date().toISOString().substr(14, 5)}s</span>
-                </div>
-
-                {/* Upload progress */}
+                {/* Progress bar visualizer */}
                 {step === 'uploading' && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                    className="mt-8 glass-morphism rounded-xl p-8 border border-glass-border w-full"
+                  <motion.div 
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }}
+                    className="mt-8 glass-panel rounded-lg p-5 border border-glass-border w-full bg-[#131313]/30"
                   >
                     {file && <WaveformVisualizer file={file} />}
-                    <div className="mt-6">
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-on-surface-variant truncate max-w-xs">Uploading {file?.name}</span>
-                        <span className="font-mono text-secondary-fixed ml-4">{progress}%</span>
+                    <div className="mt-4">
+                      <div className="flex justify-between text-xs mb-1.5 font-mono">
+                        <span className="text-on-surface-variant truncate max-w-sm uppercase tracking-wider">Sending: {file?.name}</span>
+                        <span className="text-sonic-lime font-bold">{progress}%</span>
                       </div>
-                      <div className="h-2 bg-surface-container-high rounded-full overflow-hidden">
+                      <div className="h-1 bg-white/5 rounded-full overflow-hidden">
                         <motion.div
-                          className="h-full bg-secondary-fixed rounded-full"
+                          className="h-full bg-sonic-lime shadow-[0_0_10px_rgba(215,255,90,0.5)] rounded-full"
                           animate={{ width: `${progress}%` }}
-                          transition={{ duration: 0.3 }}
+                          transition={{ duration: 0.1 }}
                         />
                       </div>
                     </div>
                   </motion.div>
                 )}
 
-                {/* Done */}
-                {step === 'done' && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="mt-8 glass-morphism rounded-xl p-8 border border-glass-border text-center w-full"
-                  >
-                    <CheckCircle size={48} className="text-secondary-fixed mx-auto mb-4" />
-                    <h2 className="text-xl font-semibold mb-2">Analysis complete!</h2>
-                    <p className="text-on-surface-variant">Redirecting to results...</p>
-                  </motion.div>
-                )}
+                {/* Technical status bottom telemetry bar */}
+                <div className="mt-8 w-full flex justify-between items-center px-1 font-mono text-[9px] text-on-surface-variant uppercase tracking-widest">
+                  <span>BUFFERED IN CORE: 2048 SAMPLES</span>
+                  <span>ELAPSED: {elapsed.toFixed(1)}s</span>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ── STEP 4: ANALYSIS COMPLETE ── */}
+            {step === 'done' && (
+              <motion.div
+                key="done"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="w-full max-w-sm glass-panel p-8 border border-glass-border rounded-xl text-center"
+              >
+                <div className="w-14 h-14 bg-sonic-lime/10 border border-sonic-lime/25 rounded-full flex items-center justify-center text-sonic-lime mx-auto mb-4 animate-bounce">
+                  <span className="material-symbols-outlined text-2xl">check_circle</span>
+                </div>
+                <h3 className="font-headline text-lg font-bold text-white mb-1">Signal Aligned</h3>
+                <p className="text-xs text-on-surface-variant font-medium">Telemetry matrices updated. Redirecting to spectral outputs...</p>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       </div>
+
+      <style>{`
+        @keyframes scan-line {
+          0% { top: 0%; opacity: 0; }
+          50% { opacity: 1; }
+          100% { top: 100%; opacity: 0; }
+        }
+        @keyframes waveform-upload {
+          0%, 100% { height: 8px; }
+          50% { height: 32px; }
+        }
+      `}</style>
     </div>
   );
 }
