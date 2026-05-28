@@ -8,11 +8,13 @@ logger = structlog.get_logger()
 
 class StorageService:
     def __init__(self):
+        endpoint_url = os.getenv("AWS_S3_ENDPOINT")
         self.s3 = boto3.client(
             "s3",
             region_name=os.getenv("AWS_REGION", "us-east-1"),
             aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
             aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+            endpoint_url=endpoint_url,
         )
         self.bucket = os.getenv("AWS_S3_BUCKET", "beatzy-audio")
 
