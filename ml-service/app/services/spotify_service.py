@@ -45,6 +45,13 @@ class SpotifyService:
 
     # ── Public API ───────────────────────────────────────────────────────────
 
+    async def search_tracks(self, query: str, limit: int = 10) -> list[dict]:
+        """Search Spotify for tracks matching *query* and return structured metadata."""
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None, self._search_tracks_sync, query, limit,
+        )
+
     async def enrich(self, *, isrc: str | None = None,
                      title: str | None = None,
                      artist: str | None = None) -> dict:
@@ -92,6 +99,40 @@ class SpotifyService:
         except Exception as e:
             logger.error("Spotify enrichment failed", error=str(e))
             return {}
+
+    def _search_tracks_sync(self, query: str, limit: int) -> list[dict]:
+        sp = self._get_client()
+        if sp is None:
+            return []
+
+        try:
+            results = sp.search(q=query, type="track", limit=limit)
+            items = results.get("tracks", {}).get("items", [])
+            tracks = []
+            for item in items:
+                artists = ", ".join(a["name"] for a in item.get("artists", []))
+                album = item.get("album", {})
+                images = album.get("images", [])
+                cover = images[0]["url"] if images else None
+                # Extract ISRC from external_ids
+                external_ids = item.get("external_ids", {})
+                isrc = external_ids.get("isrc")
+
+                tracks.append({
+                    "spotify_id": item["id"],
+                    "title": item["name"],
+                    "artist": artists,
+                    "album": album.get("name", ""),
+                    "cover_url": cover,
+                    "isrc": isrc,
+                    "preview_url": item.get("preview_url"),
+                    "duration_ms": item.get("duration_ms"),
+                    "popularity": item.get("popularity"),
+                })
+            return tracks
+        except Exception as e:
+            logger.error("Spotify search failed", error=str(e))
+            return []
 
     @staticmethod
     def _find_track(sp, isrc, title, artist) -> str | None:

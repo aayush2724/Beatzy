@@ -1,4 +1,9 @@
 import os
+import scipy.signal
+import scipy.signal.windows
+if not hasattr(scipy.signal, 'hann'):
+    scipy.signal.hann = scipy.signal.windows.hann
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager

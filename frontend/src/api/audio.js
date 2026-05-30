@@ -17,6 +17,12 @@ export const getHistory = (page = 1, limit = 20) =>
   api.get('/api/audio/history', { params: { page, limit } });
 export const deleteJob = (jobId) => api.delete(`/api/audio/jobs/${jobId}`);
 
+export const searchSongs = (q, limit = 10) =>
+  api.get('/api/audio/search', { params: { q, limit } });
+
+export const analyzeUrl = (url, title, artist) =>
+  api.post('/api/audio/analyze-url', { url, title, artist });
+
 export const pollForResults = async (jobId, maxAttempts = 60, intervalMs = 3000) => {
   for (let i = 0; i < maxAttempts; i++) {
     const { data } = await getResults(jobId);

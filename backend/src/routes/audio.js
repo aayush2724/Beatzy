@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
+const axios = require('axios');
 const { authenticate, authenticateApiKey } = require('../middleware/auth');
 const { planRateLimit, PLAN_LIMITS } = require('../middleware/rateLimit');
 const { pool } = require('../db/client');
@@ -10,6 +11,8 @@ const { enqueueAnalysisJob } = require('../services/queue');
 const logger = require('../utils/logger');
 
 const router = express.Router();
+
+const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
 
 const ALLOWED_MIME = ['audio/mpeg', 'audio/wav', 'audio/mp4', 'audio/ogg', 'audio/flac', 'audio/x-flac'];
 
@@ -53,6 +56,69 @@ router.post('/upload', authenticateApiKey, planRateLimit, upload.single('audio')
       status: rows[0].status,
       createdAt: rows[0].created_at,
       message: 'Audio uploaded and queued for analysis',
+    },
+  });
+});
+
+// ── Search songs via Spotify (proxy to ML service) ──────────────────────────
+router.get('/search', authenticateApiKey, async (req, res) => {
+  const { q, limit } = req.query;
+  if (!q) throw createError(400, 'Query parameter "q" is required');
+
+  try {
+    const { data } = await axios.get(`${ML_SERVICE_URL}/spotify/search`, {
+      params: { q, limit: limit || 10 },
+      timeout: 15000,
+    });
+    res.json(data);
+  } catch (err) {
+    logger.error('Spotify search proxy failed', { error: err.message });
+    throw createError(502, 'Song search service unavailable');
+  }
+});
+
+// ── Analyze a remote audio URL (e.g. Spotify preview) ───────────────────────
+router.post('/analyze-url', authenticateApiKey, planRateLimit, async (req, res) => {
+  const { url, title, artist } = req.body;
+  if (!url) throw createError(400, 'Field "url" is required');
+
+  // Download the remote audio into a buffer
+  let audioBuffer;
+  try {
+    const response = await axios.get(url, {
+      responseType: 'arraybuffer',
+      timeout: 30000,
+      maxContentLength: 50 * 1024 * 1024,
+    });
+    audioBuffer = Buffer.from(response.data);
+  } catch (err) {
+    logger.error('Failed to download remote audio', { url, error: err.message });
+    throw createError(502, 'Could not download audio from the provided URL');
+  }
+
+  const jobId = uuidv4();
+  const filename = `${(title || 'preview').replace(/[^a-zA-Z0-9]/g, '_')}.mp3`;
+  const s3Key = `audio/${req.user.id}/${jobId}/${filename}`;
+
+  const s3Url = await uploadToS3(audioBuffer, s3Key, 'audio/mpeg');
+
+  const { rows } = await pool.query(
+    `INSERT INTO audio_jobs (id, user_id, original_filename, s3_key, s3_url, file_size, mime_type, status)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, 'queued') RETURNING id, status, created_at`,
+    [jobId, req.user.id, filename, s3Key, s3Url, audioBuffer.length, 'audio/mpeg']
+  );
+
+  await enqueueAnalysisJob({ jobId, userId: req.user.id, s3Key, s3Url });
+
+  logger.info('Remote audio job queued', { jobId, userId: req.user.id, title, artist });
+
+  res.status(202).json({
+    success: true,
+    data: {
+      jobId: rows[0].id,
+      status: rows[0].status,
+      createdAt: rows[0].created_at,
+      message: 'Audio downloaded and queued for analysis',
     },
   });
 });
