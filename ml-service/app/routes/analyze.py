@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Query
 from pydantic import BaseModel
 import structlog
 
@@ -9,6 +9,19 @@ from app.services.storage_service import StorageService
 
 logger = structlog.get_logger()
 router = APIRouter()
+
+
+# ── Spotify Search ────────────────────────────────────────────────────────────
+
+@router.get("/spotify/search")
+async def spotify_search(
+    q: str = Query(..., min_length=1, description="Search query (song name, artist, etc.)"),
+    limit: int = Query(10, ge=1, le=20, description="Max results to return"),
+):
+    """Search Spotify for tracks by name/artist and return metadata + preview URLs."""
+    service = SpotifyService()
+    tracks = await service.search_tracks(q, limit)
+    return {"success": True, "data": tracks}
 
 
 class AnalyzeRequest(BaseModel):
