@@ -36,7 +36,9 @@ function emitToUser(userId, event, payload) {
   try {
     const { getIO } = require('../db/socketio');
     getIO().to(`user:${userId}`).emit(event, payload);
-  } catch {}
+  } catch (e) {
+    /* ignore */
+  }
 }
 
 let worker;
@@ -117,7 +119,9 @@ try {
          VALUES ($1, $2, 'analysis_completed', (SELECT plan FROM users WHERE id = $1))`,
         [userId, jobId]
       );
-    } catch {}
+    } catch (e) {
+      /* ignore */
+    }
 
     emitToUser(userId, 'job:completed', { jobId, status: 'completed', progress: 100 });
     logger.info('Analysis job completed', { jobId });
