@@ -1,0 +1,1 @@
+- [Beatzy setup decisions](beatzy-setup.md) — multi-service app with Replit-specific infra fallbacks for Redis/S3/BullMQ
