@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Hanken+Grotesk:wght@400;500;600;700;800;900&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -39,7 +38,6 @@
 
 .waveform-container canvas { border-radius: 8px; }
 
-/* Project visual polish: glass panels, neon glows, shimmer and waveform tweaks */
 @layer components {
   .glass-panel {
     background: rgba(5,5,5,0.6);
@@ -76,5 +74,44 @@
   .archetype-card.active {
     box-shadow: 0 6px 30px rgba(220,184,255,0.12);
     transform: translateY(-6px);
+  }
+
+  .scan-line-anim {
+    animation: scan-line-css 2.2s linear infinite;
+  }
+
+  @keyframes scan-line-css {
+    0% { top: 0%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+
+  .bar-pulse {
+    animation: bar-pulse-css 1.2s ease-in-out infinite;
+  }
+
+  @keyframes bar-pulse-css {
+    0%, 100% { height: 8px; }
+    50% { height: 32px; }
+  }
+
+  .glow-pulse {
+    animation: glow-pulse-css 2s ease-in-out infinite;
+  }
+
+  @keyframes glow-pulse-css {
+    0%, 100% { box-shadow: 0 0 8px rgba(215,255,90,0.2); }
+    50% { box-shadow: 0 0 24px rgba(215,255,90,0.5), 0 0 48px rgba(215,255,90,0.15); }
+  }
+
+  .particle {
+    animation: float-particle linear infinite;
+  }
+
+  @keyframes float-particle {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0.2; }
+    50% { opacity: 0.5; }
+    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
   }
 }

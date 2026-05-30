@@ -1,5 +1,5 @@
 const rateLimit = require('express-rate-limit');
-const { redisClient } = require('../db/redis');
+const logger = require('../utils/logger');
 
 const PLAN_LIMITS = {
   free: { requestsPerDay: 100, uploadSizeMB: 10 },
@@ -27,18 +27,23 @@ async function planRateLimit(req, res, next) {
   const limits = PLAN_LIMITS[plan];
   if (limits.requestsPerDay === Infinity) return next();
 
-  const key = `usage:${req.user.id}:${new Date().toISOString().slice(0, 10)}`;
-  const count = await redisClient.incr(key);
-  if (count === 1) await redisClient.expire(key, 86400);
+  try {
+    const { redisClient } = require('../db/redis');
+    const key = `usage:${req.user.id}:${new Date().toISOString().slice(0, 10)}`;
+    const count = await redisClient.incr(key);
+    if (count === 1) await redisClient.expire(key, 86400);
 
-  res.setHeader('X-RateLimit-Limit', limits.requestsPerDay);
-  res.setHeader('X-RateLimit-Remaining', Math.max(0, limits.requestsPerDay - count));
+    res.setHeader('X-RateLimit-Limit', limits.requestsPerDay);
+    res.setHeader('X-RateLimit-Remaining', Math.max(0, limits.requestsPerDay - count));
 
-  if (count > limits.requestsPerDay) {
-    return res.status(429).json({
-      success: false,
-      error: { message: `Daily limit of ${limits.requestsPerDay} requests reached. Upgrade your plan.` },
-    });
+    if (count > limits.requestsPerDay) {
+      return res.status(429).json({
+        success: false,
+        error: { message: `Daily limit of ${limits.requestsPerDay} requests reached.` },
+      });
+    }
+  } catch (err) {
+    logger.warn('Rate limit check failed (skipping)', { error: err.message });
   }
   next();
 }

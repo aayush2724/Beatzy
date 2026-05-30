@@ -1,34 +1,105 @@
 const { createClient } = require('redis');
 const logger = require('../utils/logger');
 
-const redisClient = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379',
-});
+let redisClient = null;
+let redisAvailable = false;
 
-redisClient.on('error', (err) => logger.error('Redis error', { error: err.message }));
-redisClient.on('connect', () => logger.info('Redis connected'));
+const _cache = new Map();
+const _counters = new Map();
+
+const mockClient = {
+  isReady: false,
+  get: async (key) => _cache.get(key) ?? null,
+  set: async (key, val) => { _cache.set(key, val); },
+  setEx: async (key, ttl, val) => {
+    _cache.set(key, val);
+    setTimeout(() => _cache.delete(key), ttl * 1000);
+  },
+  del: async (key) => { _cache.delete(key); _counters.delete(key); },
+  incr: async (key) => {
+    const v = (_counters.get(key) || 0) + 1;
+    _counters.set(key, v);
+    return v;
+  },
+  expire: async (key, ttl) => {
+    setTimeout(() => { _cache.delete(key); _counters.delete(key); }, ttl * 1000);
+  },
+};
+
+function parseRedisUrl(url) {
+  try {
+    const u = new URL(url);
+    return {
+      host: u.hostname || 'localhost',
+      port: parseInt(u.port || '6379'),
+      password: u.password || undefined,
+    };
+  } catch {
+    return { host: 'localhost', port: 6379 };
+  }
+}
 
 async function connectRedis() {
-  await redisClient.connect();
+  const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+  try {
+    const real = createClient({ url: redisUrl });
+    real.on('error', () => {});
+    await Promise.race([
+      real.connect(),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 2000)),
+    ]);
+    redisClient = real;
+    redisAvailable = true;
+    logger.info('Redis connected');
+  } catch (err) {
+    logger.warn('Redis unavailable, using in-memory fallback', { error: err.message });
+    try { await real.disconnect(); } catch {}
+    redisClient = mockClient;
+    redisAvailable = false;
+  }
+}
+
+function getRedisClient() {
+  return redisClient || mockClient;
 }
 
 async function getCache(key) {
-  const val = await redisClient.get(key);
-  return val ? JSON.parse(val) : null;
+  try {
+    const val = await getRedisClient().get(key);
+    return val ? JSON.parse(val) : null;
+  } catch {
+    return null;
+  }
 }
 
 async function setCache(key, value, ttlSeconds = 3600) {
-  await redisClient.setEx(key, ttlSeconds, JSON.stringify(value));
+  try {
+    await getRedisClient().setEx(key, ttlSeconds, JSON.stringify(value));
+  } catch {}
 }
 
 async function deleteCache(key) {
-  await redisClient.del(key);
+  try {
+    await getRedisClient().del(key);
+  } catch {}
 }
 
 async function incrementCounter(key, ttlSeconds = 86400) {
-  const count = await redisClient.incr(key);
-  if (count === 1) await redisClient.expire(key, ttlSeconds);
-  return count;
+  try {
+    const count = await getRedisClient().incr(key);
+    if (count === 1) await getRedisClient().expire(key, ttlSeconds);
+    return count;
+  } catch {
+    return 1;
+  }
 }
 
-module.exports = { redisClient, connectRedis, getCache, setCache, deleteCache, incrementCounter };
+module.exports = {
+  get redisClient() { return getRedisClient(); },
+  get redisAvailable() { return redisAvailable; },
+  connectRedis,
+  getCache,
+  setCache,
+  deleteCache,
+  incrementCounter,
+};

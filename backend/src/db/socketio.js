@@ -1,41 +1,24 @@
-/**
- * Socket.IO singleton — lazy‑initialised and attached to the HTTP server.
- *
- * Usage:
- *   const { initIO, getIO } = require('./socketio');
- *   initIO(httpServer);            // called once in index.js
- *   getIO().to(`user:${id}`).emit('job:progress', payload);
- */
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const logger = require('../utils/logger');
 
 let io = null;
+const isDev = process.env.NODE_ENV !== 'production';
 
-/**
- * Initialise the Socket.IO server.
- * @param {import('http').Server} httpServer
- * @returns {Server}
- */
 function initIO(httpServer) {
-  const rawFrontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-  const frontendUrl = rawFrontendUrl.trim().replace(/^["']|["']$/g, '');
-
   io = new Server(httpServer, {
     cors: {
-      origin: frontendUrl,
+      origin: isDev ? true : (process.env.FRONTEND_URL || 'http://localhost:5000'),
       credentials: true,
     },
     transports: ['websocket', 'polling'],
   });
 
-  // Authenticate every socket connection via JWT
   io.use((socket, next) => {
     const token = socket.handshake.auth?.token;
     if (!token) return next(new Error('Authentication required'));
-
     try {
-      const payload = jwt.verify(token, process.env.JWT_SECRET);
+      const payload = jwt.verify(token, process.env.JWT_SECRET || 'dev_secret');
       socket.userId = payload.sub;
       next();
     } catch {
@@ -44,11 +27,9 @@ function initIO(httpServer) {
   });
 
   io.on('connection', (socket) => {
-    // Join user‑specific room so we can target events
     const room = `user:${socket.userId}`;
     socket.join(room);
     logger.info('Socket connected', { userId: socket.userId, socketId: socket.id });
-
     socket.on('disconnect', (reason) => {
       logger.debug('Socket disconnected', { userId: socket.userId, reason });
     });
@@ -58,12 +39,8 @@ function initIO(httpServer) {
   return io;
 }
 
-/**
- * Get the running Socket.IO instance.
- * @returns {Server}
- */
 function getIO() {
-  if (!io) throw new Error('Socket.IO not initialised — call initIO(server) first');
+  if (!io) throw new Error('Socket.IO not initialised');
   return io;
 }
 
