@@ -41,7 +41,7 @@ async function initQueue() {
   } catch (err) {
     logger.warn('BullMQ unavailable, using inline processing', { error: err.message });
     useQueue = false;
-    if (q) { try { await q.close(); } catch {} }
+    if (q) { try { await q.close(); } catch (e) { /* ignore */ } }
   }
 }
 
@@ -55,7 +55,9 @@ async function processJobDirectly(data) {
     try {
       const { getIO } = require('../db/socketio');
       getIO().to(`user:${userId}`).emit(event, payload);
-    } catch {}
+    } catch (e) {
+      /* ignore */
+    }
   }
 
   try {
@@ -121,7 +123,9 @@ async function processJobDirectly(data) {
          VALUES ($1, $2, 'analysis_completed', (SELECT plan FROM users WHERE id = $1))`,
         [userId, jobId]
       );
-    } catch {}
+    } catch (e) {
+      /* ignore */
+    }
 
     emit('job:completed', { jobId, status: 'completed', progress: 100 });
     logger.info('Inline job completed', { jobId });

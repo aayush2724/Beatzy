@@ -66,7 +66,9 @@ async function deleteFromS3(key) {
     try {
       const fullPath = path.join(LOCAL_STORAGE_DIR, key);
       if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
-    } catch {}
+    } catch (e) {
+      /* ignore */
+    }
     return;
   }
   const { DeleteObjectCommand } = require('@aws-sdk/client-s3');

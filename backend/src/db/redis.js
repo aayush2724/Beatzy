@@ -26,23 +26,11 @@ const mockClient = {
   },
 };
 
-function parseRedisUrl(url) {
-  try {
-    const u = new URL(url);
-    return {
-      host: u.hostname || 'localhost',
-      port: parseInt(u.port || '6379'),
-      password: u.password || undefined,
-    };
-  } catch {
-    return { host: 'localhost', port: 6379 };
-  }
-}
-
 async function connectRedis() {
   const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+  let real = null;
   try {
-    const real = createClient({ url: redisUrl });
+    real = createClient({ url: redisUrl });
     real.on('error', () => {});
     await Promise.race([
       real.connect(),
@@ -53,7 +41,13 @@ async function connectRedis() {
     logger.info('Redis connected');
   } catch (err) {
     logger.warn('Redis unavailable, using in-memory fallback', { error: err.message });
-    try { await real.disconnect(); } catch {}
+    try {
+      if (real) {
+        await real.disconnect();
+      }
+    } catch (e) {
+      /* ignore */
+    }
     redisClient = mockClient;
     redisAvailable = false;
   }
@@ -75,13 +69,17 @@ async function getCache(key) {
 async function setCache(key, value, ttlSeconds = 3600) {
   try {
     await getRedisClient().setEx(key, ttlSeconds, JSON.stringify(value));
-  } catch {}
+  } catch {
+    /* ignore */
+  }
 }
 
 async function deleteCache(key) {
   try {
     await getRedisClient().del(key);
-  } catch {}
+  } catch {
+    /* ignore */
+  }
 }
 
 async function incrementCounter(key, ttlSeconds = 86400) {
