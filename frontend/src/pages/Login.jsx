@@ -45,7 +45,7 @@ export default function Login() {
       toast.success('Access Granted!');
       navigate('/dashboard');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed');
+      toast.error(err.response?.data?.error?.message || err.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
