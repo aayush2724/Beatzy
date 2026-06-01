@@ -5,7 +5,7 @@ import structlog
 
 logger = structlog.get_logger()
 
-_USE_LOCAL = not os.getenv("AWS_ACCESS_KEY_ID") or os.getenv("AWS_ACCESS_KEY_ID") == "your_aws_key"
+_USE_LOCAL = not os.getenv("AWS_ACCESS_KEY_ID") or os.getenv("AWS_ACCESS_KEY_ID") == "your_aws_access_key"
 
 
 class StorageService:

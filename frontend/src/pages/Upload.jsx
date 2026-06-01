@@ -66,16 +66,16 @@ export default function Upload() {
   }, [step]);
 
   useEffect(() => {
-    if (!jobId) return;
-    if (socketStatus === 'completed') {
-      setStep('done');
-      setTimeout(() => navigate(`/results/${jobId}`), 1200);
-    } else if (socketStatus === 'failed') {
-      toast.error('Analysis pipeline failed', { style: { background: '#0c0c0c', color: '#fff' } });
-      resetState();
-    } else if (['analyzing', 'saving', 'processing'].includes(socketStatus)) {
-      setStep('analyzing');
-    }
+      if (!jobId) return;
+      if (socketStatus === 'completed') {
+        setStep('done');
+        setTimeout(() => navigate(`/results/${jobId}`), 1200);
+      } else if (socketStatus === 'failed') {
+        toast.error('Analysis pipeline failed', { style: { background: '#0c0c0c', color: '#fff' } });
+        resetState();
+      } else if (['analyzing', 'saving', 'processing'].includes(socketStatus || '')) {
+        setStep('analyzing');
+      }
   }, [socketStatus, jobId, navigate]);
 
   function resetState() {
