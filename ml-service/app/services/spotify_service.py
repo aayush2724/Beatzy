@@ -12,6 +12,13 @@ import structlog
 
 logger = structlog.get_logger()
 
+try:
+    import spotipy
+except ImportError:
+    spotipy = None
+except ImportError:
+    pass
+
 
 class SpotifyService:
     def __init__(self):
@@ -28,8 +35,11 @@ class SpotifyService:
             logger.warning("Spotify credentials not set — enrichment disabled")
             return None
 
+        if spotipy is None:
+            logger.error("Spotipy is not installed — install it to enable Spotify features")
+            return None
+
         try:
-            import spotipy
             from spotipy.oauth2 import SpotifyClientCredentials
 
             auth = SpotifyClientCredentials(

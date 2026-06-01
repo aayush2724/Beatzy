@@ -228,7 +228,7 @@ export default function Results() {
                     Audio Analyzed
                   </span>
                 )}
-                <span className="text-on-surface-variant font-mono text-[9px] tracking-wider">#{result.id?.substring(0, 14)}</span>
+                <span className="font-mono text-[9px] text-on-surface-variant tracking-wider">#{jobId.substring(0, 14)}</span>
               </div>
 
               <h1 className="font-headline text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight mb-1">
