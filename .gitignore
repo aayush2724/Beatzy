@@ -57,3 +57,6 @@ htmlcov/
 # Temp
 tmp/
 temp/
+
+# Nested git repositories (should not exist in submodules)
+**/.git
