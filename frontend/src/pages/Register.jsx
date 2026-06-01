@@ -43,7 +43,7 @@ export default function Register() {
       localStorage.setItem('rememberMe', 'true');
       navigate('/dashboard');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Registration failed');
+      toast.error(err.response?.data?.error?.message || err.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
