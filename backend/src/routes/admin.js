@@ -65,6 +65,16 @@ router.get('/users/:id', async (req, res) => {
 
 // ── Update user flags ───────────────────────────────────────────────────────
 router.patch('/users/:id', async (req, res) => {
+  // Prevent admins from locking themselves out or deactivating their own account
+  if (req.params.id === req.user.id) {
+    if (typeof req.body.is_admin === 'boolean' && req.body.is_admin === false) {
+      throw createError(403, 'Cannot revoke your own admin privileges');
+    }
+    if (typeof req.body.is_active === 'boolean' && req.body.is_active === false) {
+      throw createError(403, 'Cannot deactivate your own account');
+    }
+  }
+
   const { is_active, plan, is_admin } = req.body;
   const sets = [];
   const vals = [];

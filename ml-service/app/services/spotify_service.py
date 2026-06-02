@@ -16,8 +16,6 @@ try:
     import spotipy
 except ImportError:
     spotipy = None
-except ImportError:
-    pass
 
 
 class SpotifyService:
@@ -124,7 +122,6 @@ class SpotifyService:
                 album = item.get("album", {})
                 images = album.get("images", [])
                 cover = images[0]["url"] if images else None
-                # Extract ISRC from external_ids
                 external_ids = item.get("external_ids", {})
                 isrc = external_ids.get("isrc")
 
