@@ -33,7 +33,9 @@ export default function Login() {
       const { data } = await login(form);
       setAuth(data.data.user, data.data.accessToken, data.data.refreshToken);
       toast.success('Access Granted!');
-      navigate('/dashboard');
+      // Yield to event loop so Zustand persist can flush to localStorage
+      await new Promise(r => setTimeout(r, 0));
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       toast.error(err.response?.data?.error?.message || err.response?.data?.message || 'Login failed');
     } finally { setLoading(false); }

@@ -16,7 +16,7 @@ export default function AuthCallback() {
 
   useEffect(() => {
     const token = params.get('token');
-    const refresh = params.get('refresh');
+    const refresh = params.get('refresh') ?? undefined; // Guard against null becoming "null"
 
     if (!token) {
       navigate('/login');
