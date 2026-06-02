@@ -38,7 +38,7 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(compression());
 
 app.use(cors({
-  origin: isDev ? true : (process.env.FRONTEND_URL || 'http://localhost:5000'),
+  origin: isDev ? true : (process.env.FRONTEND_URL || 'http://localhost:5000').trim().replace(/^["']|["']$/g, ''),
   credentials: true,
 }));
 
