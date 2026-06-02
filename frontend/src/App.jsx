@@ -14,6 +14,7 @@ import Profile from './pages/Profile';
 import BillingSuccess from './pages/BillingSuccess';
 import ArtistEchoes from './pages/ArtistEchoes';
 import Admin from './pages/Admin';
+import History from './pages/History';
 
 function ProtectedRoute({ children }) {
   const { token } = useAuthStore();
@@ -44,6 +45,7 @@ export default function App() {
       <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/upload" element={<Upload />} />
+        <Route path="/history" element={<History />} />
         <Route path="/results/:jobId" element={<Results />} />
         <Route path="/api-keys" element={<ApiKeys />} />
         <Route path="/profile" element={<Profile />} />
