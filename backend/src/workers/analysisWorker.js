@@ -19,13 +19,7 @@ function parseRedisUrl(url) {
 }
 
 const connection = {
-  ...(process.env.REDIS_HOST
-    ? {
-        host: process.env.REDIS_HOST,
-        port: parseInt(process.env.REDIS_PORT || '6379'),
-        password: process.env.REDIS_PASSWORD,
-      }
-    : parseRedisUrl(process.env.REDIS_URL)),
+  ...parseRedisUrl(process.env.REDIS_URL),
   enableOfflineQueue: false,
   maxRetriesPerRequest: 0,
 };
