@@ -9,6 +9,7 @@ export default function Layout() {
   const navItems = [
     { to: '/dashboard', icon: 'analytics', label: 'Dashboard' },
     { to: '/upload', icon: 'waves', label: 'Spectral Engine' },
+    { to: '/history', icon: 'history', label: 'Track History' },
     { to: '/api-keys', icon: 'key', label: 'API Keys' },
     { to: '/profile', icon: 'account_circle', label: 'Operator Profile' },
   ];

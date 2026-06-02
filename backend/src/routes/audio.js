@@ -141,20 +141,53 @@ router.get('/history', authenticateApiKey, async (req, res) => {
   const limit = Math.min(50, parseInt(req.query.limit) || 20);
   const offset = (page - 1) * limit;
 
+  const { mood, bpm_min, bpm_max, key, search } = req.query;
+
+  const conditions = ['j.user_id = $1'];
+  const params = [req.user.id];
+  let idx = 2;
+
+  if (mood) {
+    conditions.push(`r.mood = $${idx++}`);
+    params.push(mood.toLowerCase());
+  }
+  if (bpm_min) {
+    conditions.push(`r.bpm >= $${idx++}`);
+    params.push(parseFloat(bpm_min));
+  }
+  if (bpm_max) {
+    conditions.push(`r.bpm <= $${idx++}`);
+    params.push(parseFloat(bpm_max));
+  }
+  if (key) {
+    conditions.push(`r.key_signature ILIKE $${idx++}`);
+    params.push(`%${key}%`);
+  }
+  if (search) {
+    conditions.push(`(r.song_title ILIKE $${idx} OR r.song_artist ILIKE $${idx} OR j.original_filename ILIKE $${idx})`);
+    params.push(`%${search}%`);
+    idx++;
+  }
+
+  const where = conditions.join(' AND ');
+
   const { rows } = await pool.query(
     `SELECT j.id, j.original_filename, j.status, j.created_at, j.completed_at,
-            r.song_title, r.song_artist, r.bpm, r.mood
+            r.song_title, r.song_artist, r.bpm, r.mood, r.key_signature,
+            r.energy_level, r.spotify_features
      FROM audio_jobs j
      LEFT JOIN analysis_results r ON r.job_id = j.id
-     WHERE j.user_id = $1
+     WHERE ${where}
      ORDER BY j.created_at DESC
-     LIMIT $2 OFFSET $3`,
-    [req.user.id, limit, offset]
+     LIMIT $${idx} OFFSET $${idx + 1}`,
+    [...params, limit, offset]
   );
 
   const { rows: countRows } = await pool.query(
-    'SELECT COUNT(*) FROM audio_jobs WHERE user_id = $1',
-    [req.user.id]
+    `SELECT COUNT(*) FROM audio_jobs j
+     LEFT JOIN analysis_results r ON r.job_id = j.id
+     WHERE ${where}`,
+    params
   );
 
   res.json({

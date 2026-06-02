@@ -13,8 +13,8 @@ export const uploadAudio = (file, onProgress) => {
 
 export const getJob = (jobId) => api.get(`/api/audio/jobs/${jobId}`);
 export const getResults = (jobId) => api.get(`/api/results/${jobId}`);
-export const getHistory = (page = 1, limit = 20) =>
-  api.get('/api/audio/history', { params: { page, limit } });
+export const getHistory = (page = 1, limit = 20, filters = {}) =>
+  api.get('/api/audio/history', { params: { page, limit, ...filters } });
 export const deleteJob = (jobId) => api.delete(`/api/audio/jobs/${jobId}`);
 
 export const searchSongs = (q, limit = 10) =>
