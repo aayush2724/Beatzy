@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
+import { useEffect, useState } from 'react';
 import Layout from './components/Layout';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -33,6 +34,18 @@ function AdminRoute({ children }) {
 }
 
 export default function App() {
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    // Wait for Zustand persist to rehydrate from localStorage before rendering routes
+    const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true));
+    // If already hydrated (e.g. store was ready synchronously), set immediately
+    if (useAuthStore.persist.hasHydrated()) setHydrated(true);
+    return unsub;
+  }, []);
+
+  if (!hydrated) return null;
+
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
