@@ -3,16 +3,22 @@ const logger = require('../utils/logger');
 let analysisQueue = null;
 let useQueue = false;
 
+function parseRedisConnection() {
+  const url = process.env.REDIS_URL || 'redis://localhost:6379';
+  try {
+    const parsed = new URL(url);
+    return {
+      host: parsed.hostname || 'localhost',
+      port: parseInt(parsed.port || '6379'),
+      password: parsed.password || undefined,
+    };
+  } catch {
+    return { host: 'localhost', port: 6379 };
+  }
+}
+
 const redisConnection = {
-  host: process.env.REDIS_HOST || (() => {
-    try { return new URL(process.env.REDIS_URL || 'redis://localhost:6379').hostname; } catch { return 'localhost'; }
-  })(),
-  port: parseInt(process.env.REDIS_PORT || (() => {
-    try { return new URL(process.env.REDIS_URL || 'redis://localhost:6379').port || '6379'; } catch { return '6379'; }
-  })()),
-  password: process.env.REDIS_PASSWORD || (() => {
-    try { return new URL(process.env.REDIS_URL || '').password || undefined; } catch { return undefined; }
-  })(),
+  ...parseRedisConnection(),
   enableOfflineQueue: false,
   maxRetriesPerRequest: 0,
   lazyConnect: true,
