@@ -73,3 +73,13 @@ externalPort = 80
 [[ports]]
 localPort = 8000
 externalPort = 8000
+
+[userenv]
+
+[userenv.shared]
+BACKEND_URL = "https://8469904e-6f3f-47ea-b7ca-26fcef385527-00-148riespnxzhd.sisko.replit.dev"
+FRONTEND_URL = "https://8469904e-6f3f-47ea-b7ca-26fcef385527-00-148riespnxzhd.sisko.replit.dev"
+NODE_ENV = "development"
+PORT = "3000"
+ML_SERVICE_URL = "http://localhost:8000"
+CORS_ORIGIN = "https://8469904e-6f3f-47ea-b7ca-26fcef385527-00-148riespnxzhd.sisko.replit.dev"
