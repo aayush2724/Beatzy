@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { getResults } from '../api/audio';
 
+const SG = { fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" };
+
 const container = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { staggerChildren: 0.08 } },
@@ -231,7 +233,7 @@ export default function Results() {
                 <span className="font-mono text-[9px] text-on-surface-variant tracking-wider">#{jobId.substring(0, 14)}</span>
               </div>
 
-              <h1 className="font-headline text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight mb-1">
+              <h1 className="font-headline text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight mb-1" style={SG}>
                 {result.song_title || result.original_filename || 'Unknown Signal'}
               </h1>
               {result.song_artist && (
@@ -345,7 +347,7 @@ export default function Results() {
         {/* Spectral Features */}
         <section className="col-span-12 lg:col-span-6 glass-panel border border-glass-border p-6 rounded-xl">
           <div className="flex justify-between items-center mb-5">
-            <h3 className="font-headline font-bold text-sm text-sonic-lime uppercase tracking-wider">Spectral Profile</h3>
+            <h3 className="font-headline font-bold text-sm text-sonic-lime uppercase tracking-wider" style={SG}>Spectral Profile</h3>
             <span className="font-mono text-[9px] text-on-surface-variant uppercase">librosa engine</span>
           </div>
           <div className="space-y-4">
@@ -402,7 +404,7 @@ export default function Results() {
         {/* YAMNet Classification */}
         <section className="col-span-12 lg:col-span-6 glass-panel border border-glass-border p-6 rounded-xl">
           <div className="flex justify-between items-center mb-5">
-            <h3 className="font-headline font-bold text-sm text-sonic-lime uppercase tracking-wider">YAMNet Signal Density</h3>
+            <h3 className="font-headline font-bold text-sm text-sonic-lime uppercase tracking-wider" style={SG}>YAMNet Signal Density</h3>
             <span className="font-mono text-[9px] text-on-surface-variant uppercase">Audio Classifier</span>
           </div>
           <div className="space-y-4">
@@ -466,7 +468,7 @@ export default function Results() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-headline font-bold text-sm text-white uppercase tracking-wider">Spotify Match</h3>
+                  <h3 className="font-headline font-bold text-sm text-white uppercase tracking-wider" style={SG}>Spotify Match</h3>
                   <span className="font-mono text-[9px] text-on-surface-variant">Track identified via Spotify API</span>
                 </div>
               </div>

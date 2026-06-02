@@ -45,7 +45,7 @@ export default function Layout() {
             <span className="material-symbols-outlined text-sonic-lime text-base" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
           </div>
           <div className={clsx("transition-opacity duration-300 whitespace-nowrap", isSidebarHovered ? "opacity-100" : "opacity-0")}>
-            <p className="text-sonic-lime font-bold text-lg leading-none tracking-tight">Spectral OS</p>
+            <p className="text-sonic-lime font-bold text-lg leading-none tracking-tight" style={{ fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" }}>BEATZY</p>
             <p className="font-mono text-[9px] text-on-surface-variant tracking-[0.15em] uppercase">AI Core v4.2</p>
           </div>
         </div>

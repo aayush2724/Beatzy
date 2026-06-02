@@ -16,6 +16,8 @@ import {
   CartesianGrid
 } from 'recharts';
 
+const SG = { fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" };
+
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
@@ -167,7 +169,7 @@ export default function Dashboard() {
       {/* Upper Dashboard Meta Header */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-4">
         <div>
-          <h1 className="font-headline text-3xl font-extrabold text-white tracking-tight">Spectral Operator</h1>
+          <h1 className="font-headline text-3xl font-extrabold text-white tracking-tight" style={SG}>Spectral Operator</h1>
           <p className="font-sans text-sm text-on-surface-variant flex items-center gap-2 mt-1">
             Welcome, operator {user?.name?.split(' ')[0]}
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-sonic-lime animate-pulse" />
@@ -191,7 +193,7 @@ export default function Dashboard() {
 
           <div className="z-10 flex justify-between items-start">
             <div>
-              <h2 className="font-headline text-lg font-bold text-sonic-lime tracking-tight">Spectral Resonance</h2>
+              <h2 className="font-headline text-lg font-bold text-sonic-lime tracking-tight" style={SG}>Spectral Resonance</h2>
               <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest">Multi-dimensional real-time projection</span>
             </div>
             <div className="font-mono text-[10px] text-on-surface-variant text-right">
@@ -220,7 +222,7 @@ export default function Dashboard() {
           {/* Stem Separation checklist */}
           <section className="glass-panel rounded-xl p-6 border border-glass-border flex flex-col justify-between flex-grow">
             <div>
-              <h3 className="font-headline font-bold text-sm text-sonic-lime uppercase tracking-wider mb-5">Stem Multi-Track</h3>
+              <h3 className="font-headline font-bold text-sm text-sonic-lime uppercase tracking-wider mb-5" style={SG}>Stem Multi-Track</h3>
               <div className="space-y-4">
                 {/* Stem Vocals */}
                 <div className="flex items-center justify-between">
@@ -378,7 +380,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-12 gap-gutter">
         <section className="col-span-12 md:col-span-8 glass-panel rounded-xl border border-glass-border p-6 h-[320px] flex flex-col justify-between">
           <div>
-            <h3 className="font-headline font-bold text-sm text-sonic-lime uppercase tracking-wider">Signal Tempo Trend</h3>
+            <h3 className="font-headline font-bold text-sm text-sonic-lime uppercase tracking-wider" style={SG}>Signal Tempo Trend</h3>
             <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest">Historical BPM timeline metrics</span>
           </div>
           <div className="w-full h-[200px] mt-4 font-mono text-[9px]">
@@ -402,7 +404,7 @@ export default function Dashboard() {
 
         <section className="col-span-12 md:col-span-4 glass-panel rounded-xl border border-glass-border p-6 h-[320px] flex flex-col justify-between">
           <div>
-            <h3 className="font-headline font-bold text-sm text-sonic-lime uppercase tracking-wider">Acoustic Mood Profile</h3>
+            <h3 className="font-headline font-bold text-sm text-sonic-lime uppercase tracking-wider" style={SG}>Acoustic Mood Profile</h3>
             <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest">Frequency of mood categorizations</span>
           </div>
           <div className="w-full h-[200px] mt-4 font-mono text-[9px]">
@@ -427,7 +429,7 @@ export default function Dashboard() {
       <div className="glass-panel rounded-xl border border-glass-border overflow-hidden">
         <div className="px-6 py-4 border-b border-glass-border flex justify-between items-center bg-white/[0.01]">
           <div>
-            <h3 className="font-headline font-bold text-white text-base">Telemetry History</h3>
+            <h3 className="font-headline font-bold text-white text-base" style={SG}>Telemetry History</h3>
             <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest">Registered signal archives</span>
           </div>
           <Link to="/upload" className="text-xs font-mono tracking-wider text-sonic-lime hover:underline uppercase flex items-center gap-1">
