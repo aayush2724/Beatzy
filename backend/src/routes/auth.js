@@ -15,6 +15,7 @@ const logger = require('../utils/logger');
 
 const router = express.Router();
 const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').trim().replace(/^["']|["']$/g, '');
+const backendUrl = (process.env.BACKEND_URL || 'http://localhost:3000').trim().replace(/^["']|["']$/g, '');
 
 const googleOAuthEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
 
@@ -22,7 +23,7 @@ if (googleOAuthEnabled) {
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: `${process.env.BACKEND_URL || 'http://localhost:3000'}/api/auth/google/callback`,
+    callbackURL: `${backendUrl}/api/auth/google/callback`,
   }, async (accessToken, refreshToken, profile, done) => {
     try {
       const email = profile.emails[0].value;
