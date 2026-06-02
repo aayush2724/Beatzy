@@ -96,7 +96,7 @@ export default function Results() {
     } catch { return []; }
   })();
 
-  const spotifyFeatures = (() => {
+  const spotifyMeta = (() => {
     try {
       const raw = result?.spotify_features;
       if (!raw) return null;
@@ -199,8 +199,8 @@ export default function Results() {
         <div className="flex flex-col lg:flex-row gap-6 relative z-10">
           {/* Cover art placeholder */}
           <div className="w-full lg:w-48 aspect-square bg-[#0d0d0d] border border-glass-border relative overflow-hidden rounded-lg flex-shrink-0 flex items-center justify-center">
-            {spotifyFeatures?.album_art ? (
-              <img src={spotifyFeatures.album_art} alt="Album" className="w-full h-full object-cover" />
+            {spotifyMeta?.cover_url ? (
+              <img src={spotifyMeta.cover_url} alt="Album" className="w-full h-full object-cover" />
             ) : (
               <div className="flex flex-col items-center gap-2 opacity-30">
                 <span className="material-symbols-outlined text-4xl text-sonic-lime">album</span>
@@ -450,56 +450,122 @@ export default function Results() {
         </section>
       </motion.div>
 
-      {/* Spotify Features Section (if available) */}
+      {/* Spotify Metadata Card */}
       <AnimatePresence>
-        {spotifyFeatures && (
+        {spotifyMeta && (
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="glass-panel border border-prism-violet/20 p-6 rounded-xl"
           >
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-8 h-8 bg-prism-violet/20 rounded-lg flex items-center justify-center border border-prism-violet/30">
-                <span className="material-symbols-outlined text-prism-violet text-base">music_note</span>
-              </div>
-              <div>
-                <h3 className="font-headline font-bold text-sm text-prism-violet uppercase tracking-wider">Spotify Audio Features</h3>
-                <span className="font-mono text-[9px] text-on-surface-variant">Enriched via Spotify API</span>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { label: 'Danceability', key: 'danceability' },
-                { label: 'Valence', key: 'valence' },
-                { label: 'Acousticness', key: 'acousticness' },
-                { label: 'Instrumentalness', key: 'instrumentalness' },
-              ]
-                .filter(f => spotifyFeatures[f.key] !== undefined)
-                .map((f, i) => {
-                  const val = Math.round(spotifyFeatures[f.key] * 100);
-                  return (
-                    <div key={f.key}>
-                      <div className="flex justify-between mb-1.5">
-                        <span className="font-mono text-[9px] text-on-surface uppercase tracking-wider">{f.label}</span>
-                        <span className="font-mono text-[10px] text-prism-violet font-bold">{val}%</span>
-                      </div>
-                      <AnimatedBar value={val} color="#8B5CF6" delay={i * 100} />
-                    </div>
-                  );
-                })}
-            </div>
-            {spotifyFeatures.tempo && (
-              <div className="mt-4 pt-4 border-t border-glass-border flex gap-6">
-                <div>
-                  <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider block">Spotify BPM</span>
-                  <span className="font-mono text-lg font-bold text-white">{Math.round(spotifyFeatures.tempo)}</span>
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-[#1DB954]/10 rounded-lg flex items-center justify-center border border-[#1DB954]/30">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="#1DB954">
+                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                  </svg>
                 </div>
-                {spotifyFeatures.loudness && (
-                  <div>
-                    <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider block">Loudness</span>
-                    <span className="font-mono text-lg font-bold text-white">{spotifyFeatures.loudness.toFixed(1)} dB</span>
-                  </div>
-                )}
+                <div>
+                  <h3 className="font-headline font-bold text-sm text-white uppercase tracking-wider">Spotify Match</h3>
+                  <span className="font-mono text-[9px] text-on-surface-variant">Track identified via Spotify API</span>
+                </div>
+              </div>
+              {spotifyMeta.spotify_url && (
+                <a
+                  href={spotifyMeta.spotify_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1DB954]/10 border border-[#1DB954]/30 rounded text-[#1DB954] font-mono text-[9px] uppercase tracking-wider hover:bg-[#1DB954]/20 transition-all"
+                >
+                  <span className="material-symbols-outlined text-xs">open_in_new</span>
+                  Open in Spotify
+                </a>
+              )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-5">
+              {/* Cover art */}
+              {spotifyMeta.cover_url && (
+                <img
+                  src={spotifyMeta.cover_url}
+                  alt={spotifyMeta.album || 'Album art'}
+                  className="w-24 h-24 rounded-lg object-cover border border-glass-border flex-shrink-0 shadow-[0_0_20px_rgba(29,185,84,0.15)]"
+                />
+              )}
+
+              {/* Track details */}
+              <div className="flex-1 min-w-0">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                  {spotifyMeta.title && (
+                    <div>
+                      <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider block mb-1">Track</span>
+                      <span className="font-mono text-xs text-white font-bold truncate block">{spotifyMeta.title}</span>
+                    </div>
+                  )}
+                  {spotifyMeta.artist && (
+                    <div>
+                      <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider block mb-1">Artist</span>
+                      <span className="font-mono text-xs text-white truncate block">{spotifyMeta.artist}</span>
+                    </div>
+                  )}
+                  {spotifyMeta.album && (
+                    <div>
+                      <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider block mb-1">Album</span>
+                      <span className="font-mono text-xs text-white truncate block">{spotifyMeta.album}</span>
+                    </div>
+                  )}
+                  {spotifyMeta.release_date && (
+                    <div>
+                      <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider block mb-1">Released</span>
+                      <span className="font-mono text-xs text-white">{spotifyMeta.release_date}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Popularity + Duration */}
+                <div className="flex flex-wrap items-center gap-4 pt-3 border-t border-glass-border">
+                  {spotifyMeta.popularity !== undefined && (
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider">Popularity</span>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-20 h-1 bg-white/5 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-1000"
+                            style={{ width: `${spotifyMeta.popularity}%`, background: '#1DB954', boxShadow: '0 0 6px rgba(29,185,84,0.4)' }}
+                          />
+                        </div>
+                        <span className="font-mono text-[10px] font-bold text-[#1DB954]">{spotifyMeta.popularity}</span>
+                      </div>
+                    </div>
+                  )}
+                  {spotifyMeta.duration_ms && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-xs text-on-surface-variant">schedule</span>
+                      <span className="font-mono text-[10px] text-on-surface-variant">
+                        {Math.floor(spotifyMeta.duration_ms / 60000)}:{String(Math.floor((spotifyMeta.duration_ms % 60000) / 1000)).padStart(2, '0')}
+                      </span>
+                    </div>
+                  )}
+                  {spotifyMeta.isrc && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-xs text-on-surface-variant">fingerprint</span>
+                      <span className="font-mono text-[10px] text-on-surface-variant">{spotifyMeta.isrc}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* 30-second preview player */}
+            {spotifyMeta.preview_url && (
+              <div className="mt-4 pt-4 border-t border-glass-border">
+                <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider block mb-2">30s Preview</span>
+                <audio
+                  controls
+                  src={spotifyMeta.preview_url}
+                  className="w-full h-8"
+                  style={{ accentColor: '#1DB954' }}
+                />
               </div>
             )}
           </motion.section>

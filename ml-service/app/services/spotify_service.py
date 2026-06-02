@@ -1,9 +1,12 @@
 """
 Beatzy — Spotify Enrichment Service.
 
-Wraps Spotipy to search for tracks by ISRC / title+artist and return
-Spotify audio‑features (danceability, valence, acousticness, etc.).
-Gracefully degrades when credentials are missing.
+Uses only free Spotify Web API endpoints:
+  - Track search (title + artist / ISRC)
+  - Track metadata (cover art, popularity, preview URL, Spotify link)
+
+Audio-features endpoint is intentionally excluded as it requires
+extended quota approval from Spotify since late 2024.
 """
 
 import os
@@ -25,7 +28,6 @@ class SpotifyService:
         self._sp = None
 
     def _get_client(self):
-        """Lazily create an authenticated Spotipy client (client‑credentials flow)."""
         if self._sp is not None:
             return self._sp
 
@@ -34,12 +36,11 @@ class SpotifyService:
             return None
 
         if spotipy is None:
-            logger.error("Spotipy is not installed — install it to enable Spotify features")
+            logger.error("Spotipy not installed")
             return None
 
         try:
             from spotipy.oauth2 import SpotifyClientCredentials
-
             auth = SpotifyClientCredentials(
                 client_id=self.client_id,
                 client_secret=self.client_secret,
@@ -51,25 +52,16 @@ class SpotifyService:
             logger.error("Failed to create Spotify client", error=str(e))
             return None
 
-    # ── Public API ───────────────────────────────────────────────────────────
-
     async def search_tracks(self, query: str, limit: int = 10) -> list[dict]:
-        """Search Spotify for tracks matching *query* and return structured metadata."""
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(
-            None, self._search_tracks_sync, query, limit,
-        )
+        return await loop.run_in_executor(None, self._search_tracks_sync, query, limit)
 
     async def enrich(self, *, isrc: str | None = None,
                      title: str | None = None,
                      artist: str | None = None) -> dict:
-        """Return Spotify audio‑features dict or {} on failure / no creds."""
+        """Return free Spotify track metadata or {} on failure / no creds."""
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(
-            None, self._enrich_sync, isrc, title, artist,
-        )
-
-    # ── Private implementation ───────────────────────────────────────────────
+        return await loop.run_in_executor(None, self._enrich_sync, isrc, title, artist)
 
     def _enrich_sync(self, isrc: str | None,
                      title: str | None, artist: str | None) -> dict:
@@ -78,31 +70,29 @@ class SpotifyService:
             return {}
 
         try:
-            track_id = self._find_track(sp, isrc, title, artist)
-            if not track_id:
+            track = self._find_track_full(sp, isrc, title, artist)
+            if not track:
                 logger.info("No Spotify match found", isrc=isrc, title=title, artist=artist)
                 return {}
 
-            features = sp.audio_features([track_id])
-            if not features or not features[0]:
-                return {}
+            artists = ", ".join(a["name"] for a in track.get("artists", []))
+            album = track.get("album", {})
+            images = album.get("images", [])
+            cover_url = images[0]["url"] if images else None
+            external_ids = track.get("external_ids", {})
 
-            f = features[0]
             return {
-                "spotify_track_id": track_id,
-                "danceability": f.get("danceability"),
-                "energy": f.get("energy"),
-                "valence": f.get("valence"),
-                "acousticness": f.get("acousticness"),
-                "instrumentalness": f.get("instrumentalness"),
-                "speechiness": f.get("speechiness"),
-                "liveness": f.get("liveness"),
-                "tempo": f.get("tempo"),
-                "loudness": f.get("loudness"),
-                "duration_ms": f.get("duration_ms"),
-                "time_signature": f.get("time_signature"),
-                "mode": f.get("mode"),          # 0 = minor, 1 = major
-                "key": f.get("key"),            # Pitch‑class
+                "spotify_track_id": track["id"],
+                "spotify_url": track.get("external_urls", {}).get("spotify"),
+                "cover_url": cover_url,
+                "preview_url": track.get("preview_url"),
+                "popularity": track.get("popularity"),
+                "title": track.get("name"),
+                "artist": artists,
+                "album": album.get("name"),
+                "release_date": album.get("release_date"),
+                "isrc": external_ids.get("isrc"),
+                "duration_ms": track.get("duration_ms"),
             }
         except Exception as e:
             logger.error("Spotify enrichment failed", error=str(e))
@@ -122,11 +112,10 @@ class SpotifyService:
                 album = item.get("album", {})
                 images = album.get("images", [])
                 cover = images[0]["url"] if images else None
-                external_ids = item.get("external_ids", {})
-                isrc = external_ids.get("isrc")
-
+                isrc = item.get("external_ids", {}).get("isrc")
                 tracks.append({
                     "spotify_id": item["id"],
+                    "spotify_url": item.get("external_urls", {}).get("spotify"),
                     "title": item["name"],
                     "artist": artists,
                     "album": album.get("name", ""),
@@ -135,6 +124,7 @@ class SpotifyService:
                     "preview_url": item.get("preview_url"),
                     "duration_ms": item.get("duration_ms"),
                     "popularity": item.get("popularity"),
+                    "release_date": album.get("release_date"),
                 })
             return tracks
         except Exception as e:
@@ -142,19 +132,17 @@ class SpotifyService:
             return []
 
     @staticmethod
-    def _find_track(sp, isrc, title, artist) -> str | None:
-        """Try ISRC lookup first, then fall back to title+artist search."""
-        # 1. ISRC lookup (most precise)
+    def _find_track_full(sp, isrc, title, artist) -> dict | None:
+        """Return full track object. Try ISRC first, then title+artist search."""
         if isrc:
             try:
                 results = sp.search(q=f"isrc:{isrc}", type="track", limit=1)
                 items = results.get("tracks", {}).get("items", [])
                 if items:
-                    return items[0]["id"]
+                    return items[0]
             except Exception:
-                pass  # fall through
+                pass
 
-        # 2. Title + artist text search
         if title:
             query = f"track:{title}"
             if artist:
@@ -163,7 +151,7 @@ class SpotifyService:
                 results = sp.search(q=query, type="track", limit=1)
                 items = results.get("tracks", {}).get("items", [])
                 if items:
-                    return items[0]["id"]
+                    return items[0]
             except Exception:
                 pass
 
