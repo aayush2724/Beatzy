@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { getHistory, deleteJob } from '../api/audio';
 import toast from 'react-hot-toast';
 
+const SG = { fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" };
+
 const MOODS = ['', 'energetic', 'happy', 'chill', 'sad', 'dark', 'epic', 'calm', 'aggressive'];
 const KEYS = ['', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
@@ -208,7 +210,7 @@ export default function History() {
       {/* Header */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="font-headline text-3xl font-extrabold text-white tracking-tight">Track History</h1>
+          <h1 className="font-headline text-3xl font-extrabold text-white tracking-tight" style={SG}>Track History</h1>
           <p className="font-mono text-[10px] text-on-surface-variant uppercase tracking-wider mt-1">
             {pagination.total} signal{pagination.total !== 1 ? 's' : ''} archived
           </p>

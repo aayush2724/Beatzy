@@ -1,7 +1,40 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../api/client';
 import { useAuthStore } from '../store/authStore';
+
+const SG = { fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" };
+
+function Section({ icon, title, children }) {
+  return (
+    <section className="rounded-2xl p-7 border transition-all hover:border-white/10" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(215,255,90,0.08)', border: '1px solid rgba(215,255,90,0.2)' }}>
+          <span className="material-symbols-outlined text-sonic-lime text-base" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+        </div>
+        <h2 className="font-bold text-base text-white" style={SG}>{title}</h2>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function Field({ label, children }) {
+  return (
+    <div className="space-y-2">
+      <label className="font-mono text-[9px] text-white/35 uppercase tracking-[0.2em] block">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+const inputCls = "w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/20 outline-none transition-all";
+const inputStyle = { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' };
+const inputFocus = e => e.target.style.borderColor = 'rgba(215,255,90,0.4)';
+const inputBlur = e => e.target.style.borderColor = 'rgba(255,255,255,0.08)';
+
+const PLAN_PRICES = { pro: '$19.99 / cycle', enterprise: '$99.99 / cycle', free: '$0 / cycle' };
 
 export default function Profile() {
   const { user, setUser } = useAuthStore();
@@ -16,10 +49,8 @@ export default function Profile() {
     try {
       const { data } = await api.patch('/api/users/me', { name });
       setUser(data.data);
-      toast.success('Name updated');
-    } finally {
-      setSavingName(false);
-    }
+      toast.success('Name updated', { style: { background: '#0c0c0c', color: '#D7FF5A', border: '1px solid rgba(215,255,90,0.3)' } });
+    } finally { setSavingName(false); }
   }
 
   async function savePassword(e) {
@@ -27,197 +58,98 @@ export default function Profile() {
     if (passwords.new !== passwords.confirm) return toast.error('Passwords do not match');
     setSavingPw(true);
     try {
-      await api.patch('/api/users/me/password', {
-        currentPassword: passwords.current,
-        newPassword: passwords.new,
-      });
-      toast.success('Password updated');
+      await api.patch('/api/users/me/password', { currentPassword: passwords.current, newPassword: passwords.new });
+      toast.success('Password updated', { style: { background: '#0c0c0c', color: '#D7FF5A', border: '1px solid rgba(215,255,90,0.3)' } });
       setPasswords({ current: '', new: '', confirm: '' });
-    } finally {
-      setSavingPw(false);
-    }
+    } finally { setSavingPw(false); }
   }
 
   async function openBillingPortal() {
     try {
       const { data } = await api.post('/api/billing/portal');
       window.location.href = data.data.url;
-    } catch {
-      toast.error('No active subscription');
-    }
+    } catch { toast.error('No active subscription'); }
   }
 
   return (
-    <div className="min-h-screen bg-deep-obsidian text-on-surface overflow-x-hidden">
-      <div className="hero-mesh" aria-hidden="true" />
-
-      <header className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-glass-border shadow-[0_0_20px_rgba(0,245,255,0.05)]">
-        <div className="flex justify-between items-center px-margin-desktop py-4">
-          <div className="flex items-center gap-8">
-            <span className="font-display-lg text-headline-md tracking-tighter text-neon-cyan uppercase">Beatzy AI</span>
-            <nav className="hidden lg:flex items-center gap-6">
-              <a className="font-body-md text-body-md text-on-surface-variant hover:text-primary-fixed transition-all" href="#">Main Stage</a>
-              <a className="font-body-md text-body-md text-on-surface-variant hover:text-primary-fixed transition-all" href="#">Inside the Wave</a>
-              <a className="font-body-md text-body-md text-on-surface-variant hover:text-primary-fixed transition-all" href="#">Artist Echoes</a>
-              <a className="font-body-md text-body-md text-on-surface-variant hover:text-primary-fixed transition-all" href="#">Production Suite</a>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="p-2 text-on-surface-variant hover:text-neon-cyan transition-colors active:scale-95">
-              <span className="material-symbols-outlined">search</span>
-            </button>
-            <div className="h-8 w-[1px] bg-glass-border mx-2"></div>
-            <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-neon-cyan border border-neon-cyan/30 bg-neon-cyan/5 active:scale-95 transition-transform">
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>account_circle</span>
-              <span className="font-label-md text-label-md uppercase">Operator</span>
-            </button>
-          </div>
+    <div className="space-y-6 pb-16">
+      {/* Header */}
+      <header className="flex items-center gap-4 mb-2">
+        <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-bold text-black flex-shrink-0" style={{ background: '#D7FF5A', boxShadow: '0 0 24px rgba(215,255,90,0.25)', ...SG }}>
+          {user?.name?.[0]?.toUpperCase() || 'U'}
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-white" style={SG}>{user?.name}</h1>
+          <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest">{user?.email}</p>
+        </div>
+        <div className="ml-auto px-3 py-1 rounded-full font-mono text-[9px] uppercase tracking-wider font-bold" style={{ background: 'rgba(215,255,90,0.1)', border: '1px solid rgba(215,255,90,0.25)', color: '#D7FF5A' }}>
+          {user?.plan || 'free'} plan
         </div>
       </header>
 
-      <aside className="fixed left-0 top-0 h-full w-[280px] z-40 bg-deep-obsidian/90 backdrop-blur-lg border-r border-glass-border flex flex-col pt-24 pb-8 hidden md:flex">
-        <div className="px-6 mb-8">
-          <h2 className="font-headline-md text-neon-cyan uppercase tracking-wider">Operator</h2>
-          <p className="font-label-sm text-label-sm text-outline opacity-60">v2.4.0-Stable</p>
+      {/* Personal Info */}
+      <Section icon="person" title="Personal Information">
+        <div className="space-y-5">
+          <Field label="Master Identity (Email)">
+            <input disabled value={user?.email || ''} className={`${inputCls} opacity-40 cursor-not-allowed`} style={inputStyle} />
+            <p className="font-mono text-[8px] text-white/20 mt-1">Master identity cannot be altered within this node.</p>
+          </Field>
+          <form onSubmit={saveName}>
+            <Field label="Resonance Label (Display Name)">
+              <div className="flex flex-col md:flex-row gap-3 mt-2">
+                <input value={name} onChange={e => setName(e.target.value)} placeholder="Pulse Operator" required minLength={2} className={inputCls} style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
+                <button type="submit" disabled={savingName} className="px-6 py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.98] disabled:opacity-50 shrink-0" style={{ background: '#D7FF5A', color: '#050505', ...SG }}>
+                  {savingName ? 'Saving...' : 'Update'}
+                </button>
+              </div>
+            </Field>
+          </form>
         </div>
-        <div className="flex-1 space-y-1">
-          <a className="flex items-center gap-4 px-6 py-4 text-outline hover:text-on-surface-variant hover:bg-surface-variant/30 transition-colors active:translate-x-1" href="#">
-            <span className="material-symbols-outlined">dashboard</span>
-            <span className="font-label-md text-label-md uppercase">Dashboard</span>
-          </a>
-          <a className="flex items-center gap-4 px-6 py-4 text-outline hover:text-on-surface-variant hover:bg-surface-variant/30 transition-colors active:translate-x-1" href="#">
-            <span className="material-symbols-outlined">analytics</span>
-            <span className="font-label-md text-label-md uppercase">Spectral</span>
-          </a>
-          <a className="flex items-center gap-4 px-6 py-4 text-outline hover:text-on-surface-variant hover:bg-surface-variant/30 transition-colors active:translate-x-1" href="#">
-            <span className="material-symbols-outlined">mic_external_on</span>
-            <span className="font-label-md text-label-md uppercase">Studio</span>
-          </a>
-          <a className="flex items-center gap-4 px-6 py-4 text-outline hover:text-on-surface-variant hover:bg-surface-variant/30 transition-colors active:translate-x-1" href="#">
-            <span className="material-symbols-outlined">library_music</span>
-            <span className="font-label-md text-label-md uppercase">Library</span>
-          </a>
-        </div>
-        <div className="px-6 space-y-1 mt-auto">
-          <a className="flex items-center gap-4 px-4 py-3 rounded-lg text-neon-cyan bg-primary-container/10 border-r-4 border-neon-cyan active:translate-x-1 transition-transform" href="#">
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>settings</span>
-            <span className="font-label-md text-label-md uppercase">Settings</span>
-          </a>
-        </div>
-      </aside>
+      </Section>
 
-      <main className="md:ml-[280px] pt-32 pb-24 px-margin-mobile md:px-margin-desktop min-h-screen">
-        <div className="max-w-[800px] mx-auto">
-          <header className="mb-12">
-            <h1 className="font-headline-xl text-headline-xl text-on-surface mb-2">Profile Settings</h1>
-            <p className="text-on-surface-variant font-body-lg">Manage your cryptographic identity and resonance protocols.</p>
-          </header>
+      {/* Change Password */}
+      <Section icon="key" title="Change Password">
+        <form onSubmit={savePassword} className="space-y-5">
+          <Field label="Current Access Key">
+            <input type="password" value={passwords.current} onChange={e => setPasswords(p => ({ ...p, current: e.target.value }))} required className={`${inputCls} mt-2`} style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
+          </Field>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field label="New Access Key">
+              <input type="password" value={passwords.new} onChange={e => setPasswords(p => ({ ...p, new: e.target.value }))} required minLength={8} className={`${inputCls} mt-2`} style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
+            </Field>
+            <Field label="Confirm Access Key">
+              <input type="password" value={passwords.confirm} onChange={e => setPasswords(p => ({ ...p, confirm: e.target.value }))} required minLength={8} className={`${inputCls} mt-2`} style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
+            </Field>
+          </div>
+          <button type="submit" disabled={savingPw} className="px-7 py-3 rounded-xl font-mono text-xs uppercase tracking-wider transition-all active:scale-[0.98] disabled:opacity-50" style={{ border: '1px solid rgba(215,255,90,0.3)', color: '#D7FF5A' }}>
+            {savingPw ? 'Updating...' : 'Re-encrypt Account'}
+          </button>
+        </form>
+      </Section>
 
-          <div className="space-y-8">
-            <section className="glass-card p-8 rounded-xl technical-border">
-              <div className="flex items-center gap-3 mb-6">
-                <span className="material-symbols-outlined text-sonic-lime">person</span>
-                <h2 className="font-headline-lg text-headline-lg">Personal Information</h2>
-              </div>
-              <div className="grid grid-cols-1 gap-6">
-                <div className="space-y-2">
-                  <label className="font-label-sm text-label-sm text-outline uppercase">Master Identity (Email)</label>
-                  <input className="w-full bg-surface-container-lowest border border-outline-variant text-outline rounded-lg px-4 py-3 cursor-not-allowed font-label-md" disabled value={user?.email} type="email" />
-                  <p className="text-[10px] text-outline italic">Master identity cannot be altered within this node.</p>
-                </div>
-                <form onSubmit={saveName} className="space-y-2">
-                  <label className="font-label-sm text-label-sm text-outline uppercase">Resonance Label (Display Name)</label>
-                  <div className="flex flex-col md:flex-row gap-3">
-                    <input className="w-full bg-primary-container border border-outline-variant focus:border-sonic-lime text-on-surface rounded-lg px-4 py-3 transition-colors outline-none font-body-md" placeholder="Pulse Operator" value={name} onChange={(e) => setName(e.target.value)} required minLength={2} />
-                    <button type="submit" className="bg-sonic-lime text-deep-obsidian font-label-md px-8 py-3 rounded-lg uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all shrink-0" disabled={savingName}>
-                      {savingName ? 'Saving...' : 'Update Identification'}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </section>
-
-            <section className="glass-card p-8 rounded-xl technical-border">
-              <div className="flex items-center gap-3 mb-6">
-                <span className="material-symbols-outlined text-sonic-lime">key</span>
-                <h2 className="font-headline-lg text-headline-lg">Change Password</h2>
-              </div>
-              <form onSubmit={savePassword} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="font-label-sm text-label-sm text-outline uppercase">Current Access Key</label>
-                  <input type="password" className="w-full bg-primary-container border border-outline-variant focus:border-sonic-lime text-on-surface rounded-lg px-4 py-3 transition-colors outline-none font-body-md" value={passwords.current} onChange={(e) => setPasswords((p) => ({ ...p, current: e.target.value }))} required />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="font-label-sm text-label-sm text-outline uppercase">New Access Key</label>
-                    <input type="password" className="w-full bg-primary-container border border-outline-variant focus:border-sonic-lime text-on-surface rounded-lg px-4 py-3 transition-colors outline-none font-body-md" value={passwords.new} minLength={8} onChange={(e) => setPasswords((p) => ({ ...p, new: e.target.value }))} required />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="font-label-sm text-label-sm text-outline uppercase">Confirm Access Key</label>
-                    <input type="password" className="w-full bg-primary-container border border-outline-variant focus:border-sonic-lime text-on-surface rounded-lg px-4 py-3 transition-colors outline-none font-body-md" value={passwords.confirm} minLength={8} onChange={(e) => setPasswords((p) => ({ ...p, confirm: e.target.value }))} required />
-                  </div>
-                </div>
-                <div className="pt-4">
-                  <button type="submit" className="border border-sonic-lime/30 text-sonic-lime hover:bg-sonic-lime/5 font-label-md px-8 py-3 rounded-lg uppercase tracking-wider active:scale-95 transition-all" disabled={savingPw}>
-                    {savingPw ? 'Updating...' : 'Re-encrypt Account'}
-                  </button>
-                </div>
-              </form>
-            </section>
-
-            <section className="glass-card p-8 rounded-xl technical-border overflow-hidden relative">
-              <div className="flex items-center gap-3 mb-6">
-                <span className="material-symbols-outlined text-sonic-lime">verified</span>
-                <h2 className="font-headline-lg text-headline-lg">Subscription Protocol</h2>
-              </div>
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 bg-surface-container-low rounded-lg border border-glass-border">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-label-sm text-label-sm text-outline uppercase">Active Plan:</span>
-                    <span className="bg-sonic-lime text-deep-obsidian font-label-md px-3 py-1 rounded text-[10px] uppercase font-bold">{user?.plan ? `${user.plan} Resonance` : 'Free Resonance'}</span>
-                  </div>
-                  <p className="text-on-surface font-headline-md">{user?.plan === 'pro' ? '$29.99 / Cycle' : user?.plan === 'enterprise' ? '$99.99 / Cycle' : '$0 / Cycle'}</p>
-                  <p className="text-on-surface-variant font-label-sm">Manage billing, invoices, and plan changes</p>
-                </div>
-                <div className="flex flex-col gap-3">
-                  <button onClick={openBillingPortal} className="bg-secondary text-on-secondary font-label-md px-6 py-2.5 rounded-lg uppercase tracking-wider hover:bg-on-surface active:scale-95 transition-all text-center">
-                    Billing Portal
-                  </button>
-                  <button className="text-error font-label-sm uppercase tracking-widest text-center hover:underline" type="button">
-                    Terminate Protocol
-                  </button>
-                </div>
-              </div>
-              <div className="absolute top-0 right-0 p-4 pointer-events-none opacity-20">
-                <div className="flex gap-1">
-                  <div className="w-1 h-8 bg-sonic-lime"></div>
-                  <div className="w-1 h-6 bg-sonic-lime"></div>
-                  <div className="w-1 h-10 bg-sonic-lime"></div>
-                </div>
-              </div>
-            </section>
+      {/* Subscription */}
+      <Section icon="verified" title="Subscription Protocol">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-5 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[9px] text-white/35 uppercase tracking-wider">Active Plan:</span>
+              <span className="px-2.5 py-0.5 rounded font-mono text-[9px] font-bold uppercase tracking-wider" style={{ background: '#D7FF5A', color: '#050505' }}>
+                {user?.plan ? `${user.plan} Resonance` : 'Free Resonance'}
+              </span>
+            </div>
+            <p className="text-lg font-bold text-white" style={SG}>{PLAN_PRICES[user?.plan] || PLAN_PRICES.free}</p>
+            <p className="font-mono text-[9px] text-white/30">Manage billing, invoices, and plan changes</p>
+          </div>
+          <div className="flex flex-col gap-2.5">
+            <button onClick={openBillingPortal} className="px-6 py-2.5 rounded-xl font-mono text-xs uppercase tracking-wider font-bold transition-all active:scale-[0.98]" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.8)' }}>
+              Billing Portal
+            </button>
+            <Link to="/pricing" className="text-center font-mono text-[9px] uppercase tracking-wider text-sonic-lime/60 hover:text-sonic-lime transition-colors">
+              View Plans
+            </Link>
           </div>
         </div>
-      </main>
-
-      <footer className="md:ml-[280px] bg-surface-container-lowest border-t border-glass-border w-full py-12">
-        <div className="max-w-container-max mx-auto px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex flex-col gap-2">
-            <span className="font-headline-md text-on-surface uppercase">Beatzy AI</span>
-            <p className="font-code-sm text-code-sm text-outline">© 2024 Beatzy AI. Protocols Reserved.</p>
-          </div>
-          <nav className="flex flex-wrap justify-center gap-8">
-            <a className="font-code-sm text-code-sm text-outline hover:text-neon-cyan transition-colors" href="#">Architecture</a>
-            <a className="font-code-sm text-code-sm text-outline hover:text-neon-cyan transition-colors" href="#">Privacy</a>
-            <a className="font-code-sm text-code-sm text-outline hover:text-neon-cyan transition-colors" href="#">API Documentation</a>
-            <a className="font-code-sm text-code-sm text-outline hover:text-neon-cyan transition-colors" href="#">Terms of Resonance</a>
-          </nav>
-          <div className="flex items-center gap-4">
-            <div className="w-3 h-3 rounded-full bg-sonic-lime animate-pulse"></div>
-            <span className="font-label-sm text-label-sm text-sonic-lime uppercase tracking-widest">Mainframe Operational</span>
-          </div>
-        </div>
-      </footer>
+      </Section>
     </div>
   );
 }

@@ -278,7 +278,7 @@ export default function Upload() {
   return (
     <div className="space-y-5 pb-16">
       <header className="mb-6">
-        <h1 className="font-headline text-3xl font-extrabold text-white tracking-tight">Audio Extraction Engine</h1>
+        <h1 className="font-headline text-3xl font-extrabold text-white tracking-tight" style={{ fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" }}>Audio Extraction Engine</h1>
         <p className="font-sans text-sm text-on-surface-variant mt-1">
           Upload audio, use your microphone to listen, or search songs directly to identify tempo, mood, and spectral characteristics.
         </p>
