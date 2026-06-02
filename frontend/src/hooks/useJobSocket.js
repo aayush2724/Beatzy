@@ -27,6 +27,12 @@ export function useJobSocket(jobId) {
   const connect = useCallback(() => {
     if (!token) return;
 
+    // Disconnect any existing socket before creating a new one
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+      socketRef.current = null;
+    }
+
     const socket = io(SOCKET_URL, {
       auth: { token },
       transports: ['websocket', 'polling'],
@@ -75,5 +81,6 @@ export function useJobSocket(jobId) {
     };
   }, [connect]);
 
-  return { status, progress, error, socket: socketRef.current };
+  // Return a getter function instead of the stale ref value
+  return { status, progress, error, getSocket: () => socketRef.current };
 }

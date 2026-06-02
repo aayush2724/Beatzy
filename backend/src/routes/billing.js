@@ -65,7 +65,7 @@ router.get('/subscription', authenticate, async (req, res) => {
   res.json({ success: true, data: { plan: user.plan, subscription } });
 });
 
-router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+router.post('/webhook', async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
   try {

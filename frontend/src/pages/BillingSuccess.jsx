@@ -11,26 +11,13 @@ export default function BillingSuccess() {
   const [syncComplete, setSyncComplete] = useState(false);
 
   useEffect(() => {
-    const progressBar = document.getElementById('progress-bar');
-    const syncText = document.getElementById('sync-text');
-    const ctaContainer = document.getElementById('cta-container');
-
     const progressTimer = window.setTimeout(() => {
+      const progressBar = document.getElementById('progress-bar');
       if (progressBar) progressBar.style.width = '100%';
     }, 100);
 
     const syncTimer = window.setTimeout(() => {
       setSyncComplete(true);
-      if (syncText) {
-        syncText.innerText = 'ENCRYPTION SYNC COMPLETE';
-        syncText.classList.remove('text-on-surface-variant/60');
-        syncText.classList.add('text-sonic-lime');
-      }
-
-      if (ctaContainer) {
-        ctaContainer.classList.remove('opacity-0', 'translate-y-4');
-        ctaContainer.classList.add('opacity-100', 'translate-y-0');
-      }
 
       const timer = window.setInterval(() => {
         setCountdown((current) => {
@@ -123,12 +110,12 @@ export default function BillingSuccess() {
               className={`font-mono text-[8px] uppercase tracking-widest transition-colors ${syncComplete ? 'text-sonic-lime' : 'text-on-surface-variant/60'}`} 
               id="sync-text"
             >
-              Initializing Profile Sync...
+              {syncComplete ? 'ENCRYPTION SYNC COMPLETE' : 'Initializing Profile Sync...'}
             </span>
           </div>
 
           {/* CTA redirect actions */}
-          <div className="opacity-0 translate-y-4 transition-all duration-700 delay-[1200ms]" id="cta-container">
+          <div className={`transition-all duration-700 delay-[1200ms] ${syncComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} id="cta-container">
             <Link
               to="/dashboard"
               className="w-full bg-sonic-lime text-black font-mono text-xs font-bold uppercase tracking-wider py-3.5 rounded flex items-center justify-center gap-2 hover:bg-sonic-lime/90 hover:shadow-[0_0_20px_rgba(215,255,90,0.3)] active:scale-95 transition-all group"
