@@ -31,7 +31,9 @@ export default function Register() {
       const { data } = await register(form);
       setAuth(data.data.user, data.data.accessToken, data.data.refreshToken);
       toast.success('Account created!');
-      navigate('/dashboard');
+      // Yield to event loop so Zustand persist can flush to localStorage
+      await new Promise(r => setTimeout(r, 0));
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       toast.error(err.response?.data?.error?.message || err.response?.data?.message || 'Registration failed');
     } finally { setLoading(false); }

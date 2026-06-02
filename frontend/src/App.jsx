@@ -34,18 +34,17 @@ function AdminRoute({ children }) {
 }
 
 export default function App() {
-  // Zustand persist hydrates synchronously from localStorage in modern browsers,
-  // but we guard against the async case too.
-  const [hydrated, setHydrated] = useState(
-    () => useAuthStore.persist.hasHydrated()
-  );
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    if (!hydrated) {
+    // Check if already hydrated synchronously, otherwise wait for event
+    if (useAuthStore.persist.hasHydrated()) {
+      setHydrated(true);
+    } else {
       const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true));
       return unsub;
     }
-  }, [hydrated]);
+  }, []);
 
   if (!hydrated) return null;
 
