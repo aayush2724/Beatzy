@@ -94,15 +94,9 @@ export default function Landing() {
       {/* Particle layer */}
       <div ref={particleRef} className="fixed inset-0 pointer-events-none z-0" />
 
-      {/* Cinematic background */}
+      {/* Pure CSS gradient orb background - no external images */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <img
-          alt=""
-          className="w-full h-full object-cover opacity-[0.12] grayscale brightness-50 transition-transform duration-700 ease-out"
-          style={{ transform: `scale(1.08) translate(${bgX}px,${bgY}px)` }}
-          src="https://lh3.googleusercontent.com/aida/ADBb0uh-0FrOXxKO8zCLpEu9COZ0NjPhmB0M3CYTC6MslAizqy6oxpikKSbjwlpDXof1V0WMkPJ7cyidwHydp6SqsjFYeVEcmD12VIQik4t_eplJ4U5iYbjT0Rn5DNBDAA6ti-ldnBv36jMOHmtXuadMmlIS4uVbzY8bmdTU2FNk8GjctXeogZL1KXNqVRDSV-SEsugB75GEfoAj9Kp9n68EjvxslX-eaUZgS5bkumai5w1EuID5XvbiDZp5kg"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/95 via-[#050505]/50 to-[#050505]" />
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 30% 30%, rgba(139,92,246,0.15) 0%, transparent 50%), radial-gradient(ellipse at 70% 70%, rgba(215,255,90,0.1) 0%, transparent 60%), radial-gradient(ellipse at 50% 50%, rgba(0,245,255,0.08) 0%, transparent 50%)' }} />
       </div>
 
       {/* Orb glows */}

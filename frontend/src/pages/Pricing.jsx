@@ -47,10 +47,9 @@ export default function Pricing() {
       {/* Scanline */}
       <div className="fixed inset-0 pointer-events-none z-50" style={{ background: 'linear-gradient(to bottom, transparent 50%, rgba(212,255,63,0.018) 50%)', backgroundSize: '100% 4px' }} />
 
-      {/* Background */}
+      {/* Pure CSS gradient orb background - no external images */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.08]" style={{ backgroundImage: 'url(https://lh3.googleusercontent.com/aida/ADBb0uh-0FrOXxKO8zCLpEu9COZ0NjPhmB0M3CYTC6MslAizqy6oxpikKSbjwlpDXof1V0WMkPJ7cyidwHydp6SqsjFYeVEcmD12VIQik4t_eplJ4U5iYbjT0Rn5DNBDAA6ti-ldnBv36jMOHmtXuadMmlIS4uVbzY8bmdTU2FNk8GjctXeogZL1KXNqVRDSV-SEsugB75GEfoAj9Kp9n68EjvxslX-eaUZgS5bkumai5w1EuID5XvbiDZp5kg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.6) 50%, #050505 100%)' }} />
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 30%, rgba(139,92,246,0.12) 0%, transparent 60%), radial-gradient(ellipse at 20% 80%, rgba(215,255,90,0.08) 0%, transparent 50%)' }} />
         <div className="absolute rounded-full" style={{ width: 700, height: 700, top: '20%', left: '50%', transform: 'translateX(-50%)', background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)', filter: 'blur(80px)' }} />
         <div className="absolute rounded-full" style={{ width: 400, height: 400, bottom: '10%', left: '10%', background: 'radial-gradient(circle, rgba(215,255,90,0.06) 0%, transparent 70%)', filter: 'blur(60px)' }} />
       </div>
@@ -150,8 +149,17 @@ export default function Pricing() {
           </div>
           <div className="relative">
             <div className="absolute -inset-2 rounded-2xl" style={{ background: 'radial-gradient(ellipse, rgba(215,255,90,0.06) 0%, transparent 70%)', filter: 'blur(20px)' }} />
-            <div className="relative rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
-              <img alt="Audio Studio" className="w-full h-48 object-cover opacity-60 mix-blend-lighten" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_pkozwv4tUeEeMKk17RANc_M6HA_fR44nrlDEPtztvtk6m1bj70E7x437bwarJKkmrEhQrPE1THfpSYb4s11r0XPtg5V4sk2pGx-nOuy1zZgOJS6oaRrZEiKqwQUeuDmCUFnbG_6RJ51RGVlBmR65vSCyNcZ6LLNDljZMJSDk2SLNgBWe4RONNkCS2lFdk5WnDkJ3UfPBaSh2z_bf1_AJ1uZHWXwDX8Y1sZVAOC_tMf2OdsFgChPINKq451hWKN4-Cza0HQGWaA" />
+            <div className="relative rounded-2xl overflow-hidden h-48 flex items-center justify-center" style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.15) 0%, rgba(215,255,90,0.05) 100%)' }}>
+              <div className="flex items-center gap-8 opacity-30">
+                {['AudioLabs', 'Waveform Co', 'Spectral Inc'].map((brand, i) => (
+                  <div key={brand} className="flex flex-col items-center gap-2">
+                    <div className="w-12 h-12 rounded-xl bg-sonic-lime/10 border border-sonic-lime/20 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-sonic-lime">graphic_eq</span>
+                    </div>
+                    <span className="font-mono text-[8px] text-white/50 uppercase tracking-widest">{brand}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>

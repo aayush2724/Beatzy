@@ -17,7 +17,7 @@ export default function Navbar() {
     };
 
     window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Check initially
+    handleScroll();
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -26,10 +26,17 @@ export default function Navbar() {
     return location.pathname === path;
   };
 
+  const glassClasses = scrolled 
+    ? 'bg-surface-container-low/95 backdrop-blur-xl' 
+    : 'bg-surface-container-low/80 backdrop-blur-lg';
+
   return (
-    <nav className={`fixed top-0 w-full z-50 border-b border-outline-variant/20 shadow-[0_0_20px_rgba(0,245,255,0.05)] transition-all duration-300 ${scrolled ? 'bg-surface/95 py-3' : 'bg-surface/80 py-4'}`}>
-      <div className="flex justify-between items-center px-margin-desktop max-w-container-max mx-auto">
-        <Link to="/" className="font-headline-xl text-headline-lg tracking-tighter text-sonic-lime hover:brightness-110 transition-all">
+    <nav className={`fixed top-0 w-full z-50 border-b border-glass-border shadow-[0_0_20px_rgba(0,245,255,0.05)] transition-all duration-300 ${glassClasses}`}>
+      <div className="flex justify-between items-center px-8 py-4 max-w-[1280px] mx-auto">
+        <Link 
+          to="/" 
+          className="font-headline-xl text-headline-lg tracking-tighter gradient-text hover:brightness-110 transition-all"
+        >
           Beatzy AI
         </Link>
         <div className="hidden md:flex space-x-8 items-center">
@@ -42,16 +49,6 @@ export default function Navbar() {
             to="/"
           >
             Main Stage
-          </Link>
-          <Link
-            className={`font-body-md text-body-md transition-all ${
-              isLinkActive('/artist-echoes')
-                ? 'text-sonic-lime border-b-2 border-sonic-lime pb-1'
-                : 'text-on-surface-variant hover:text-primary-fixed'
-            }`}
-            to="/artist-echoes"
-          >
-            Inside the Wave
           </Link>
           <Link
             className={`font-body-md text-body-md transition-all ${
@@ -77,7 +74,7 @@ export default function Navbar() {
         <div className="flex items-center space-x-4">
           <Link
             to={token ? '/dashboard' : '/login'}
-            className="material-symbols-outlined text-on-surface hover:text-sonic-lime transition-all cursor-pointer p-2 rounded-full hover:backdrop-brightness-125"
+            className="material-symbols-outlined text-on-surface hover:text-sonic-lime transition-all cursor-pointer p-2 rounded-full hover:bg-white/5"
           >
             account_circle
           </Link>

@@ -58,14 +58,9 @@ export default function BillingSuccess() {
       {/* Decorative Grid Overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(215,255,90,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(215,255,90,0.01)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-10"></div>
       
-      {/* Interactive moving backdrop */}
+      {/* Pure CSS gradient background - no external images */}
       <div className="absolute inset-0 z-0">
-        <img
-          ref={bgRef}
-          alt="Atmospheric sound wave patterns"
-          className="w-full h-full object-cover opacity-25 mix-blend-screen scale-105 transition-transform duration-300 ease-out"
-          src="https://lh3.googleusercontent.com/aida/ADBb0uh-0FrOXxKO8zCLpEu9COZ0NjPhmB0M3CYTC6MslAizqy6oxpikKSbjwlpDXof1V0WMkPJ7cyidwHydp6SqsjFYeVEcmD12VIQik4t_eplJ4U5iYbjT0Rn5DNBDAA6ti-ldnBv36jMOHmtXuadMmlIS4uVbzY8bmdTU2FNk8GjctXeogZL1KXNqVRDSV-SEsugB75GEfoAj9Kp9n68EjvxslX-eaUZgS5bkumai5w1EuID5XvbiDZp5kg"
-        />
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(215,255,90,0.08) 0%, transparent 60%), radial-gradient(ellipse at 30% 70%, rgba(139,92,246,0.12) 0%, transparent 50%)' }} />
         <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-[#080808]/40"></div>
       </div>
 
