@@ -4,6 +4,21 @@ import { ResponsiveContainer, BarChart, Bar, Cell, XAxis, YAxis, Tooltip } from 
 import clsx from 'clsx';
 import toast from 'react-hot-toast';
 
+const CustomTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="glass-card p-3 border border-glass-border rounded-lg text-xs font-mono backdrop-blur-xl" style={{ 
+        background: 'rgba(11, 11, 18, 0.9)', 
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)' 
+      }}>
+        <p className="text-white font-bold">{payload[0].payload.name}</p>
+        <p className="text-sonic-lime mt-1">{payload[0].value} {payload[0].unit || ''}</p>
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function Admin() {
   const [tab, setTab] = useState('overview');
   const [stats, setStats] = useState(null);
@@ -165,7 +180,7 @@ export default function Admin() {
                       <BarChart data={planData} margin={{ left: -25, right: 10 }}>
                         <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" />
                         <YAxis stroke="rgba(255,255,255,0.3)" />
-                        <Tooltip cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
+                        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
                         <Bar dataKey="value">
                           {planData.map((e, i) => (
                             <Cell key={`cell-${i}`} fill={i % 3 === 0 ? '#D7FF5A' : i % 3 === 1 ? '#8B5CF6' : '#FFFFFF'} />
@@ -184,7 +199,7 @@ export default function Admin() {
                       <BarChart data={jobData} margin={{ left: -25, right: 10 }}>
                         <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" />
                         <YAxis stroke="rgba(255,255,255,0.3)" />
-                        <Tooltip cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
+                        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
                         <Bar dataKey="value">
                           {jobData.map((e, i) => (
                             <Cell key={`cell-${i}`} fill={e.name === 'Completed' ? '#D7FF5A' : e.name === 'Failed' ? '#EF4444' : '#8B5CF6'} />
