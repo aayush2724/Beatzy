@@ -183,7 +183,7 @@ export default function Admin() {
                         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
                         <Bar dataKey="value">
                           {planData.map((e, i) => (
-                            <Cell key={`cell-${i}`} fill={i % 3 === 0 ? '#D7FF5A' : i % 3 === 1 ? '#8B5CF6' : '#FFFFFF'} />
+                            <Cell key={`cell-${i}`} fill={i % 3 === 0 ? '#ff2e97' : i % 3 === 1 ? '#9d4edd' : '#FFFFFF'} />
                           ))}
                         </Bar>
                       </BarChart>
@@ -202,7 +202,7 @@ export default function Admin() {
                         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
                         <Bar dataKey="value">
                           {jobData.map((e, i) => (
-                            <Cell key={`cell-${i}`} fill={e.name === 'Completed' ? '#D7FF5A' : e.name === 'Failed' ? '#EF4444' : '#8B5CF6'} />
+                            <Cell key={`cell-${i}`} fill={e.name === 'Completed' ? '#ff2e97' : e.name === 'Failed' ? '#EF4444' : '#9d4edd'} />
                           ))}
                         </Bar>
                       </BarChart>
@@ -240,7 +240,7 @@ export default function Admin() {
                             <select
                               value={u.plan}
                               onChange={(e) => handleChangePlan(u, e.target.value)}
-                              className="bg-[#121212] border border-glass-border text-xs font-mono text-white rounded px-2.5 py-1.5 focus:border-sonic-lime focus:outline-none"
+                              className="bg-[#160f2b] border border-glass-border text-xs font-mono text-white rounded px-2.5 py-1.5 focus:border-sonic-lime focus:outline-none"
                             >
                               <option value="free">Free</option>
                               <option value="pro">Pro</option>

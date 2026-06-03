@@ -60,19 +60,71 @@ router.post('/upload', authenticateApiKey, planRateLimit, upload.single('audio')
   });
 });
 
-// ── Search songs via Spotify (proxy to ML service) ──────────────────────────
+// ── Search songs via Spotify ────────────────────────────────────────────────
 router.get('/search', authenticateApiKey, async (req, res) => {
   const { q, limit } = req.query;
   if (!q) throw createError(400, 'Query parameter "q" is required');
 
   try {
-    const { data } = await axios.get(`${ML_SERVICE_URL}/spotify/search`, {
-      params: { q, limit: limit || 10 },
-      timeout: 15000,
+    // Try ML service first
+    try {
+      const { data } = await axios.get(`${ML_SERVICE_URL}/spotify/search`, {
+        params: { q, limit: limit || 10 },
+        timeout: 5000,
+      });
+      return res.json(data);
+    } catch (mlErr) {
+      // ML service unavailable, use direct Spotify fallback
+      logger.warn('ML service unavailable, using direct Spotify search');
+    }
+
+    // Direct Spotify API fallback
+    const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID || '5e94e8c6f99c4b5a9c2b4e8c6f99c4b5';
+    const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET || 'a9c2b4e8c6f99c4b5a9c2b4e8c6f99c4';
+    
+    // Get Spotify access token
+    const tokenResponse = await axios.post(
+      'https://accounts.spotify.com/api/token',
+      'grant_type=client_credentials',
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': 'Basic ' + Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64')
+        }
+      }
+    );
+
+    const accessToken = tokenResponse.data.access_token;
+
+    // Search Spotify
+    const searchResponse = await axios.get('https://api.spotify.com/v1/search', {
+      params: {
+        q,
+        type: 'track',
+        limit: limit || 10,
+        market: 'US'
+      },
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
     });
-    res.json(data);
+
+    const tracks = searchResponse.data.tracks.items.map(track => ({
+      spotify_id: track.id,
+      title: track.name,
+      artist: track.artists.map(a => a.name).join(', '),
+      album: track.album.name,
+      cover_url: track.album.images[0]?.url || null,
+      preview_url: track.preview_url,
+      duration_ms: track.duration_ms
+    }));
+
+    res.json({
+      success: true,
+      data: tracks
+    });
   } catch (err) {
-    logger.error('Spotify search proxy failed', { error: err.message });
+    logger.error('Spotify search failed', { error: err.message });
     throw createError(502, 'Song search service unavailable');
   }
 });

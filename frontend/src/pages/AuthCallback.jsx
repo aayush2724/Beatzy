@@ -72,7 +72,7 @@ export default function AuthCallback() {
       setConsoleLine('HANDSHAKE: SUCCESS');
       timeouts.push(
         window.setTimeout(() => {
-          if (!canceled) navigate('/dashboard');
+          if (!canceled) navigate('/upload');
         }, 1500),
       );
     };
@@ -105,7 +105,7 @@ export default function AuthCallback() {
       const draw = () => {
         if (!ctx || canceled) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = '#c3f400';
+        ctx.strokeStyle = '#ff2e97';
         ctx.lineWidth = 1;
 
         for (let j = 0; j < 3; j += 1) {
@@ -143,8 +143,8 @@ export default function AuthCallback() {
     <div className="relative min-h-screen bg-deep-obsidian text-on-background overflow-hidden">
       <style>{`
         :root {
-          --sonic-lime: #c3f400;
-          --deep-obsidian: #080808;
+          --vibe-magenta: #ff2e97;
+          --deep-obsidian: #0a0613;
         }
 
         .sonic-ring {
@@ -158,21 +158,21 @@ export default function AuthCallback() {
 
         .ring-layer {
           position: absolute;
-          border: 1px solid rgba(195, 244, 0, 0.1);
+          border: 1px solid rgba(255, 46, 151, 0.1);
           border-radius: 50%;
           animation: pulse-ring 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
 
         .ring-layer:nth-child(1) { width: 100%; height: 100%; animation-delay: 0s; }
-        .ring-layer:nth-child(2) { width: 80%; height: 80%; animation-delay: 0.5s; border-color: rgba(195, 244, 0, 0.2); }
-        .ring-layer:nth-child(3) { width: 60%; height: 60%; animation-delay: 1s; border-color: rgba(195, 244, 0, 0.3); }
+        .ring-layer:nth-child(2) { width: 80%; height: 80%; animation-delay: 0.5s; border-color: rgba(255, 46, 151, 0.2); }
+        .ring-layer:nth-child(3) { width: 60%; height: 60%; animation-delay: 1s; border-color: rgba(255, 46, 151, 0.3); }
 
         .core {
           width: 12px;
           height: 12px;
-          background-color: var(--sonic-lime);
+          background-color: var(--vibe-magenta);
           border-radius: 50%;
-          box-shadow: 0 0 20px var(--sonic-lime), 0 0 40px rgba(195, 244, 0, 0.4);
+          box-shadow: 0 0 20px var(--vibe-magenta), 0 0 40px rgba(255, 46, 151, 0.4);
           animation: core-glow 2s ease-in-out infinite;
         }
 
@@ -192,7 +192,7 @@ export default function AuthCallback() {
           left: 0;
           width: 100%;
           height: 100%;
-          background: linear-gradient(to bottom, transparent, rgba(195, 244, 0, 0.05), transparent);
+          background: linear-gradient(to bottom, transparent, rgba(255, 46, 151, 0.05), transparent);
           animation: scan 3s linear infinite;
           pointer-events: none;
         }
@@ -213,7 +213,7 @@ export default function AuthCallback() {
       `}</style>
 
       <div className="fixed inset-0 pointer-events-none opacity-20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(195,244,0,0.03)_0%,transparent_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,46,151,0.03)_0%,transparent_70%)]" />
         <div className="scan-line" />
       </div>
 
@@ -241,7 +241,7 @@ export default function AuthCallback() {
 
         <div className="mt-12 w-64 h-[2px] bg-surface-variant/30 relative overflow-hidden">
           <div
-            className="absolute top-0 left-0 h-full bg-secondary-container transition-all duration-300 ease-out shadow-[0_0_10px_#c3f400]"
+            className="absolute top-0 left-0 h-full bg-secondary-container transition-all duration-300 ease-out shadow-[0_0_10px_#ff2e97]"
             id="progress-bar"
             style={{ width: `${progress}%` }}
           />

@@ -21,12 +21,12 @@ export default function ArtistEchoes() {
           {/* Waveform Panel */}
           <div className="glass-panel rounded-xl p-8 relative overflow-hidden h-[460px] flex flex-col border border-glass-border">
             {/* Cinematic Background grid */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(215,255,90,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(215,255,90,0.01)_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none"></div>
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,46,151,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,46,151,0.01)_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none"></div>
             
             <div className="relative z-20">
               <h2 className="font-headline text-lg font-bold text-white tracking-tight">Inside the Wave</h2>
               <div className="flex items-center mt-1.5 gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-sonic-lime animate-pulse shadow-[0_0_8px_rgba(215,255,90,0.5)]"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-sonic-lime animate-pulse shadow-[0_0_8px_rgba(255,46,151,0.5)]"></span>
                 <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest">
                   Real-time Spectral Extraction
                 </span>
@@ -56,7 +56,7 @@ export default function ArtistEchoes() {
               <div className="flex items-center justify-between">
                 <span className="font-mono text-lg font-bold text-sonic-lime">98.4%</span>
                 <div className="w-12 h-1 bg-white/5 rounded-full overflow-hidden shrink-0 ml-2">
-                  <div className="bg-sonic-lime h-full w-[98.4%] shadow-[0_0_6px_rgba(215,255,90,0.4)]"></div>
+                  <div className="bg-sonic-lime h-full w-[98.4%] shadow-[0_0_6px_rgba(255,46,151,0.4)]"></div>
                 </div>
               </div>
             </div>

@@ -24,8 +24,8 @@ export default function StyleDNAChart() {
           {/* Current Analysis polygon */}
           <polygon
             points="100,60 130,100 110,140 90,120 70,90"
-            fill="rgba(220,184,255,0.12)"
-            stroke="#dcb8ff"
+            fill="rgba(201,167,255,0.12)"
+            stroke="#c9a7ff"
             strokeWidth="1.5"
             strokeLinejoin="round"
           />

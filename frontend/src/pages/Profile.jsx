@@ -10,7 +10,7 @@ function Section({ icon, title, children }) {
   return (
     <section className="rounded-2xl p-7 border transition-all hover:border-white/10" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(215,255,90,0.08)', border: '1px solid rgba(215,255,90,0.2)' }}>
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,46,151,0.08)', border: '1px solid rgba(255,46,151,0.2)' }}>
           <span className="material-symbols-outlined text-sonic-lime text-base" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
         </div>
         <h2 className="font-bold text-base text-white" style={SG}>{title}</h2>
@@ -31,7 +31,7 @@ function Field({ label, children }) {
 
 const inputCls = "w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/20 outline-none transition-all";
 const inputStyle = { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' };
-const inputFocus = e => e.target.style.borderColor = 'rgba(215,255,90,0.4)';
+const inputFocus = e => e.target.style.borderColor = 'rgba(255,46,151,0.4)';
 const inputBlur = e => e.target.style.borderColor = 'rgba(255,255,255,0.08)';
 
 const PLAN_PRICES = { pro: '$19.99 / cycle', enterprise: '$99.99 / cycle', free: '$0 / cycle' };
@@ -49,7 +49,7 @@ export default function Profile() {
     try {
       const { data } = await api.patch('/api/users/me', { name });
       setUser(data.data);
-      toast.success('Name updated', { style: { background: '#0c0c0c', color: '#D7FF5A', border: '1px solid rgba(215,255,90,0.3)' } });
+      toast.success('Name updated', { style: { background: '#0f0a20', color: '#ff2e97', border: '1px solid rgba(255,46,151,0.3)' } });
     } finally { setSavingName(false); }
   }
 
@@ -59,7 +59,7 @@ export default function Profile() {
     setSavingPw(true);
     try {
       await api.patch('/api/users/me/password', { currentPassword: passwords.current, newPassword: passwords.new });
-      toast.success('Password updated', { style: { background: '#0c0c0c', color: '#D7FF5A', border: '1px solid rgba(215,255,90,0.3)' } });
+      toast.success('Password updated', { style: { background: '#0f0a20', color: '#ff2e97', border: '1px solid rgba(255,46,151,0.3)' } });
       setPasswords({ current: '', new: '', confirm: '' });
     } finally { setSavingPw(false); }
   }
@@ -75,14 +75,14 @@ export default function Profile() {
     <div className="space-y-6 pb-16">
       {/* Header */}
       <header className="flex items-center gap-4 mb-2">
-        <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-bold text-black flex-shrink-0" style={{ background: '#D7FF5A', boxShadow: '0 0 24px rgba(215,255,90,0.25)', ...SG }}>
+        <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-bold text-black flex-shrink-0" style={{ background: '#ff2e97', boxShadow: '0 0 24px rgba(255,46,151,0.25)', ...SG }}>
           {user?.name?.[0]?.toUpperCase() || 'U'}
         </div>
         <div>
           <h1 className="text-2xl font-bold text-white" style={SG}>{user?.name}</h1>
           <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest">{user?.email}</p>
         </div>
-        <div className="ml-auto px-3 py-1 rounded-full font-mono text-[9px] uppercase tracking-wider font-bold" style={{ background: 'rgba(215,255,90,0.1)', border: '1px solid rgba(215,255,90,0.25)', color: '#D7FF5A' }}>
+        <div className="ml-auto px-3 py-1 rounded-full font-mono text-[9px] uppercase tracking-wider font-bold" style={{ background: 'rgba(255,46,151,0.1)', border: '1px solid rgba(255,46,151,0.25)', color: '#ff2e97' }}>
           {user?.plan || 'free'} plan
         </div>
       </header>
@@ -98,7 +98,7 @@ export default function Profile() {
             <Field label="Resonance Label (Display Name)">
               <div className="flex flex-col md:flex-row gap-3 mt-2">
                 <input value={name} onChange={e => setName(e.target.value)} placeholder="Pulse Operator" required minLength={2} className={inputCls} style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
-                <button type="submit" disabled={savingName} className="px-6 py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.98] disabled:opacity-50 shrink-0" style={{ background: '#D7FF5A', color: '#050505', ...SG }}>
+                <button type="submit" disabled={savingName} className="px-6 py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.98] disabled:opacity-50 shrink-0" style={{ background: '#ff2e97', color: '#0a0613', ...SG }}>
                   {savingName ? 'Saving...' : 'Update'}
                 </button>
               </div>
@@ -121,7 +121,7 @@ export default function Profile() {
               <input type="password" value={passwords.confirm} onChange={e => setPasswords(p => ({ ...p, confirm: e.target.value }))} required minLength={8} className={`${inputCls} mt-2`} style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
             </Field>
           </div>
-          <button type="submit" disabled={savingPw} className="px-7 py-3 rounded-xl font-mono text-xs uppercase tracking-wider transition-all active:scale-[0.98] disabled:opacity-50" style={{ border: '1px solid rgba(215,255,90,0.3)', color: '#D7FF5A' }}>
+          <button type="submit" disabled={savingPw} className="px-7 py-3 rounded-xl font-mono text-xs uppercase tracking-wider transition-all active:scale-[0.98] disabled:opacity-50" style={{ border: '1px solid rgba(255,46,151,0.3)', color: '#ff2e97' }}>
             {savingPw ? 'Updating...' : 'Re-encrypt Account'}
           </button>
         </form>
@@ -133,7 +133,7 @@ export default function Profile() {
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
               <span className="font-mono text-[9px] text-white/35 uppercase tracking-wider">Active Plan:</span>
-              <span className="px-2.5 py-0.5 rounded font-mono text-[9px] font-bold uppercase tracking-wider" style={{ background: '#D7FF5A', color: '#050505' }}>
+              <span className="px-2.5 py-0.5 rounded font-mono text-[9px] font-bold uppercase tracking-wider" style={{ background: '#ff2e97', color: '#0a0613' }}>
                 {user?.plan ? `${user.plan} Resonance` : 'Free Resonance'}
               </span>
             </div>

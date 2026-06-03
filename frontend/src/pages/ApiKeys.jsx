@@ -36,7 +36,7 @@ export default function ApiKeys() {
       setKeys(prev => [data.data, ...prev]);
       setNewName('');
       setShowForm(false);
-      toast.success('API Key authorized!', { style: { background: '#0c0c0c', color: '#D7FF5A', border: '1px solid rgba(215,255,90,0.3)' } });
+      toast.success('API Key authorized!', { style: { background: '#0f0a20', color: '#ff2e97', border: '1px solid rgba(255,46,151,0.3)' } });
     } catch (err) {
       toast.error(err.message || 'Key authorization failure');
     } finally { setCreating(false); }
@@ -53,7 +53,7 @@ export default function ApiKeys() {
 
   function copyKey(key) {
     navigator.clipboard.writeText(key);
-    toast.success('Copied to clipboard!', { style: { background: '#0c0c0c', color: '#D7FF5A', border: '1px solid rgba(215,255,90,0.3)' } });
+    toast.success('Copied to clipboard!', { style: { background: '#0f0a20', color: '#ff2e97', border: '1px solid rgba(255,46,151,0.3)' } });
   }
 
   if (!canUseApiKeys) return (
@@ -64,7 +64,7 @@ export default function ApiKeys() {
         </div>
         <h2 className="text-2xl font-bold text-white mb-3" style={SG}>API Console Restricted</h2>
         <p className="font-mono text-xs text-white/30 mb-8 leading-relaxed">Upgrade to Pro or Enterprise to provision secure API keys and access the programmatic pipeline.</p>
-        <Link to="/pricing" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.98]" style={{ background: '#D7FF5A', color: '#050505' }}>
+        <Link to="/pricing" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.98]" style={{ background: '#ff2e97', color: '#0a0613' }}>
           <span className="material-symbols-outlined text-sm">bolt</span>
           Upgrade Protocol
         </Link>
@@ -79,7 +79,7 @@ export default function ApiKeys() {
           <h1 className="text-2xl font-bold text-white" style={SG}>API Key Matrix</h1>
           <p className="font-mono text-[10px] text-white/30 uppercase tracking-wider mt-1">Programmatic access to the high-frequency audio analysis pipeline</p>
         </div>
-        <button onClick={() => setShowForm(f => !f)} className="flex items-center gap-2 px-5 py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.98] self-start" style={{ background: '#D7FF5A', color: '#050505', boxShadow: '0 0 20px rgba(215,255,90,0.15)', ...SG }}>
+        <button onClick={() => setShowForm(f => !f)} className="flex items-center gap-2 px-5 py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.98] self-start" style={{ background: '#ff2e97', color: '#0a0613', boxShadow: '0 0 20px rgba(255,46,151,0.15)', ...SG }}>
           <span className="material-symbols-outlined text-sm">{showForm ? 'close' : 'add'}</span>
           {showForm ? 'Cancel' : 'Provision Key'}
         </button>
@@ -89,7 +89,7 @@ export default function ApiKeys() {
         <div className="lg:col-span-8 space-y-4">
           {/* New key banner */}
           {newKey && (
-            <div className="rounded-2xl p-6 relative overflow-hidden" style={{ background: 'rgba(215,255,90,0.04)', border: '1px solid rgba(215,255,90,0.2)' }}>
+            <div className="rounded-2xl p-6 relative overflow-hidden" style={{ background: 'rgba(255,46,151,0.04)', border: '1px solid rgba(255,46,151,0.2)' }}>
               <div className="absolute top-0 left-0 w-0.5 h-full bg-sonic-lime" />
               <div className="flex items-center gap-2 mb-3 text-sonic-lime">
                 <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
@@ -112,8 +112,8 @@ export default function ApiKeys() {
             <div className="rounded-2xl p-6" style={panelStyle}>
               <h3 className="font-bold text-sm text-white mb-4" style={SG}>Provision Key Credentials</h3>
               <form onSubmit={createKey} className="flex flex-col md:flex-row gap-3">
-                <input className="flex-grow px-4 py-3 rounded-xl text-xs text-white outline-none transition-all placeholder:text-white/20" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }} placeholder="Scope Identifier (e.g. Production Web Core)" value={newName} onChange={e => setNewName(e.target.value)} required onFocus={e => e.target.style.borderColor = 'rgba(215,255,90,0.4)'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'} />
-                <button type="submit" disabled={creating} className="px-5 py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-all shrink-0 disabled:opacity-50" style={{ background: '#D7FF5A', color: '#050505' }}>
+                <input className="flex-grow px-4 py-3 rounded-xl text-xs text-white outline-none transition-all placeholder:text-white/20" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }} placeholder="Scope Identifier (e.g. Production Web Core)" value={newName} onChange={e => setNewName(e.target.value)} required onFocus={e => e.target.style.borderColor = 'rgba(255,46,151,0.4)'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'} />
+                <button type="submit" disabled={creating} className="px-5 py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-all shrink-0 disabled:opacity-50" style={{ background: '#ff2e97', color: '#0a0613' }}>
                   {creating ? 'Authorizing...' : 'Authorize'}
                 </button>
               </form>
@@ -126,11 +126,11 @@ export default function ApiKeys() {
             {loading ? (
               <div className="space-y-3">{[...Array(2)].map((_, i) => <div key={i} className="h-20 rounded-2xl animate-pulse" style={panelStyle} />)}</div>
             ) : keys.length > 0 ? keys.map(key => (
-              <div key={key.id} className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl mb-3 transition-all hover:border-white/12" style={{ ...panelStyle, borderLeft: '2px solid #D7FF5A' }}>
+              <div key={key.id} className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl mb-3 transition-all hover:border-white/12" style={{ ...panelStyle, borderLeft: '2px solid #ff2e97' }}>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2.5 mb-1">
                     <h4 className="font-bold text-sm text-white truncate" style={SG}>{key.name}</h4>
-                    <span className="px-2 py-0.5 rounded font-mono text-[8px] font-bold uppercase tracking-wider" style={{ background: 'rgba(215,255,90,0.1)', border: '1px solid rgba(215,255,90,0.2)', color: '#D7FF5A' }}>Active</span>
+                    <span className="px-2 py-0.5 rounded font-mono text-[8px] font-bold uppercase tracking-wider" style={{ background: 'rgba(255,46,151,0.1)', border: '1px solid rgba(255,46,151,0.2)', color: '#ff2e97' }}>Active</span>
                   </div>
                   <code className="font-mono text-xs text-white/30">{key.key_prefix}••••••••</code>
                 </div>

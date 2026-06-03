@@ -32,23 +32,23 @@ export default function Login() {
       setAuth(data.data.user, data.data.accessToken, data.data.refreshToken);
       toast.success('Access Granted!');
       await new Promise(r => setTimeout(r, 0));
-      navigate('/dashboard', { replace: true });
+      navigate('/upload', { replace: true });
     } catch (err) {
       toast.error(err.response?.data?.error?.message || err.response?.data?.message || 'Login failed');
     } finally { setLoading(false); }
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center overflow-hidden" style={{ background: '#050505' }}>
+    <div className="fixed inset-0 flex items-center justify-center overflow-hidden" style={{ background: '#0a0613' }}>
       {/* Scanline */}
       <div className="fixed inset-0 pointer-events-none z-50" style={{ background: 'linear-gradient(to bottom, transparent 50%, rgba(212,255,63,0.018) 50%)', backgroundSize: '100% 4px' }} />
 
       {/* Pure CSS gradient orb background - no external images */}
-      <div className="absolute inset-0 z-0" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(215,255,90,0.1) 0%, transparent 50%), radial-gradient(ellipse at 20% 80%, rgba(0,245,255,0.08) 0%, transparent 50%)' }} />
+      <div className="absolute inset-0 z-0" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(157,78,221,0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(255,46,151,0.1) 0%, transparent 50%), radial-gradient(ellipse at 20% 80%, rgba(34,211,238,0.08) 0%, transparent 50%)' }} />
       
       {/* Orb glows */}
-      <div className="absolute pointer-events-none z-0 rounded-full" style={{ width: 600, height: 600, top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%)', filter: 'blur(60px)' }} />
-      <div className="absolute pointer-events-none z-0 rounded-full" style={{ width: 300, height: 300, top: '20%', right: '15%', background: 'radial-gradient(circle, rgba(215,255,90,0.07) 0%, transparent 70%)', filter: 'blur(50px)' }} />
+      <div className="absolute pointer-events-none z-0 rounded-full" style={{ width: 600, height: 600, top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'radial-gradient(circle, rgba(157,78,221,0.1) 0%, transparent 70%)', filter: 'blur(60px)' }} />
+      <div className="absolute pointer-events-none z-0 rounded-full" style={{ width: 300, height: 300, top: '20%', right: '15%', background: 'radial-gradient(circle, rgba(255,46,151,0.07) 0%, transparent 70%)', filter: 'blur(50px)' }} />
 
       <main className="relative z-10 w-full max-w-[420px] px-4">
         <div ref={cardRef} className="rounded-2xl p-8 space-y-7 transition-transform duration-100" style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 32px 64px rgba(0,0,0,0.6)' }}>
@@ -56,7 +56,7 @@ export default function Login() {
           {/* Header */}
           <div className="text-center space-y-1">
             <div className="flex items-center justify-center gap-2 mb-3">
-              <div className="w-7 h-7 bg-sonic-lime/10 border border-sonic-lime/40 rounded flex items-center justify-center" style={{ boxShadow: '0 0 14px rgba(215,255,90,0.2)' }}>
+              <div className="w-7 h-7 bg-sonic-lime/10 border border-sonic-lime/40 rounded flex items-center justify-center" style={{ boxShadow: '0 0 14px rgba(255,46,151,0.2)' }}>
                 <span className="material-symbols-outlined text-sonic-lime text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
               </div>
               <span className="font-bold text-lg text-sonic-lime" style={SG}>BEATZY</span>
@@ -82,7 +82,7 @@ export default function Login() {
               <label className="font-mono text-[9px] text-white/35 uppercase tracking-[0.2em] block mb-2">Email Protocol</label>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25 text-base">alternate_email</span>
-                <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="operator@beatzy.ai" required className="w-full pl-10 pr-4 py-3 rounded-xl text-sm text-white placeholder:text-white/20 outline-none transition-all" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }} onFocus={e => e.target.style.borderColor = 'rgba(215,255,90,0.4)'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'} />
+                <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="operator@beatzy.ai" required className="w-full pl-10 pr-4 py-3 rounded-xl text-sm text-white placeholder:text-white/20 outline-none transition-all" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }} onFocus={e => e.target.style.borderColor = 'rgba(255,46,151,0.4)'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'} />
               </div>
             </div>
             <div>
@@ -92,17 +92,17 @@ export default function Login() {
               </div>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25 text-base">lock</span>
-                <input type={showPassword ? 'text' : 'password'} value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="••••••••••••" required className="w-full pl-10 pr-12 py-3 rounded-xl text-sm text-white placeholder:text-white/20 outline-none transition-all" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }} onFocus={e => e.target.style.borderColor = 'rgba(215,255,90,0.4)'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'} />
+                <input type={showPassword ? 'text' : 'password'} value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="••••••••••••" required className="w-full pl-10 pr-12 py-3 rounded-xl text-sm text-white placeholder:text-white/20 outline-none transition-all" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }} onFocus={e => e.target.style.borderColor = 'rgba(255,46,151,0.4)'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'} />
                 <button type="button" onClick={() => setShowPassword(p => !p)} className="material-symbols-outlined absolute right-3.5 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/60 text-base transition-colors cursor-pointer">{showPassword ? 'visibility_off' : 'visibility'}</button>
               </div>
             </div>
 
             <div className="flex items-center gap-2.5 pt-1">
-              <input type="checkbox" id="remember" className="w-3.5 h-3.5 rounded cursor-pointer" style={{ accentColor: '#D7FF5A' }} />
+              <input type="checkbox" id="remember" className="w-3.5 h-3.5 rounded cursor-pointer" style={{ accentColor: '#ff2e97' }} />
               <label htmlFor="remember" className="font-mono text-[9px] text-white/30 uppercase tracking-wider cursor-pointer">Stay Authenticated</label>
             </div>
 
-            <button type="submit" disabled={loading} className="w-full py-3.5 rounded-xl font-bold text-sm uppercase tracking-[0.15em] transition-all active:scale-[0.98] disabled:opacity-50" style={{ ...SG, background: '#D7FF5A', color: '#050505', boxShadow: loading ? 'none' : '0 0 30px rgba(215,255,90,0.25)' }}>
+            <button type="submit" disabled={loading} className="w-full py-3.5 rounded-xl font-bold text-sm uppercase tracking-[0.15em] transition-all active:scale-[0.98] disabled:opacity-50" style={{ ...SG, background: '#ff2e97', color: '#0a0613', boxShadow: loading ? 'none' : '0 0 30px rgba(255,46,151,0.25)' }}>
               {loading ? <span className="flex items-center justify-center gap-2"><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Synchronizing...</span> : 'Initialize Session'}
             </button>
           </form>

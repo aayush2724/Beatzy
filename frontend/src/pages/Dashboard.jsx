@@ -121,7 +121,7 @@ export default function Dashboard() {
       const bar = document.createElement('div');
       bar.className = 'waveform-bar w-[5px] rounded-t-full transition-all duration-75';
       const ratio = i / barCount;
-      bar.style.backgroundColor = ratio < 0.70 ? '#D7FF5A' : '#8B5CF6';
+      bar.style.backgroundColor = ratio < 0.70 ? '#ff2e97' : '#9d4edd';
       container.appendChild(bar);
       bars.push(bar);
     }
@@ -153,7 +153,7 @@ export default function Dashboard() {
         bar.style.opacity = opacity.toString();
         
         const glowRadius = (finalHeight / 320) * 15;
-        const glowColor = ratio < 0.70 ? '215, 255, 90' : '139, 92, 246';
+        const glowColor = ratio < 0.70 ? '255,46,151' : '157,78,221';
         bar.style.boxShadow = `0 0 ${glowRadius}px rgba(${glowColor}, 0.25)`;
       });
       animationFrameRef.current = requestAnimationFrame(animate);
@@ -181,7 +181,7 @@ export default function Dashboard() {
         </div>
         <Link 
           to="/upload" 
-          className="px-6 py-3 bg-sonic-lime text-black rounded font-mono text-xs font-bold uppercase tracking-wider hover:bg-sonic-lime/90 active:scale-95 transition-all shadow-[0_0_20px_rgba(215,255,90,0.2)] flex items-center gap-2"
+          className="px-6 py-3 bg-sonic-lime text-black rounded font-mono text-xs font-bold uppercase tracking-wider hover:bg-sonic-lime/90 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,46,151,0.2)] flex items-center gap-2"
         >
           <span className="material-symbols-outlined text-base">waves</span>
           Analyze Waveform
@@ -192,7 +192,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-12 gap-gutter">
         {/* Core Audio Visualizer */}
         <section className="col-span-12 lg:col-span-8 glass-panel rounded-xl border border-glass-border p-6 flex flex-col justify-between h-[420px] relative overflow-hidden group hover:border-sonic-lime/20 transition-all">
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(215,255,90,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(215,255,90,0.015)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,46,151,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,46,151,0.015)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
 
           <div className="z-10 flex justify-between items-start">
             <div>
@@ -359,7 +359,7 @@ export default function Dashboard() {
                 cy="64" 
                 fill="transparent" 
                 r="56" 
-                stroke="#D7FF5A" 
+                stroke="#ff2e97" 
                 strokeDasharray="351.8" 
                 strokeDashoffset={351.8 - (351.8 * saturation) / 100} 
                 strokeWidth="5"
@@ -391,15 +391,15 @@ export default function Dashboard() {
               <AreaChart data={activeChartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorBpm" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#D7FF5A" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#D7FF5A" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#ff2e97" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="#ff2e97" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
                 <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" tickLine={false} />
                 <YAxis domain={['dataMin - 10', 'dataMax + 10']} stroke="rgba(255,255,255,0.3)" tickLine={false} />
                 <Tooltip content={<CustomTooltip />} />
-                <Area type="monotone" dataKey="bpm" unit="BPM" stroke="#D7FF5A" strokeWidth={2} fillOpacity={1} fill="url(#colorBpm)" />
+                <Area type="monotone" dataKey="bpm" unit="BPM" stroke="#ff2e97" strokeWidth={2} fillOpacity={1} fill="url(#colorBpm)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -419,7 +419,7 @@ export default function Dashboard() {
                 <Tooltip content={<CustomTooltip />} />
                 <Bar dataKey="value" unit=" tracks">
                   {activeMoodData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#D7FF5A' : '#8B5CF6'} />
+                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#ff2e97' : '#9d4edd'} />
                   ))}
                 </Bar>
               </BarChart>

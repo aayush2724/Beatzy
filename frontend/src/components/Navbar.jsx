@@ -31,7 +31,7 @@ export default function Navbar() {
     : 'bg-surface-container-low/80 backdrop-blur-lg';
 
   return (
-    <nav className={`fixed top-0 w-full z-50 border-b border-glass-border shadow-[0_0_20px_rgba(0,245,255,0.05)] transition-all duration-300 ${glassClasses}`}>
+    <nav className={`fixed top-0 w-full z-50 border-b border-glass-border shadow-[0_0_20px_rgba(34,211,238,0.05)] transition-all duration-300 ${glassClasses}`}>
       <div className="flex justify-between items-center px-8 py-4 max-w-[1280px] mx-auto">
         <Link 
           to="/" 

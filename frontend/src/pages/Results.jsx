@@ -16,7 +16,7 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
 };
 
-function AnimatedBar({ value, color = '#D7FF5A', delay = 0 }) {
+function AnimatedBar({ value, color = '#ff2e97', delay = 0 }) {
   const [width, setWidth] = useState(0);
   useEffect(() => {
     const t = setTimeout(() => setWidth(value), 300 + delay);
@@ -76,8 +76,8 @@ export default function Results() {
     navigator.clipboard.writeText(JSON.stringify(result, null, 2));
     setCopied(true);
     toast.success('Telemetry copied to clipboard!', {
-      style: { background: '#0c0c0c', color: '#D7FF5A', border: '1px solid rgba(215,255,90,0.3)' },
-      iconTheme: { primary: '#D7FF5A', secondary: '#000' },
+      style: { background: '#0f0a20', color: '#ff2e97', border: '1px solid rgba(255,46,151,0.3)' },
+      iconTheme: { primary: '#ff2e97', secondary: '#000' },
     });
     setTimeout(() => setCopied(false), 2000);
   }
@@ -183,7 +183,7 @@ export default function Results() {
           </button>
           <Link
             to="/upload"
-            className="px-4 py-2 bg-sonic-lime text-black rounded font-mono text-[10px] font-bold tracking-wider hover:bg-sonic-lime/90 transition-all flex items-center gap-1.5 uppercase shadow-[0_0_15px_rgba(215,255,90,0.2)]"
+            className="px-4 py-2 bg-sonic-lime text-black rounded font-mono text-[10px] font-bold tracking-wider hover:bg-sonic-lime/90 transition-all flex items-center gap-1.5 uppercase shadow-[0_0_15px_rgba(255,46,151,0.2)]"
           >
             <span className="material-symbols-outlined text-xs">add</span>
             New Analysis
@@ -196,11 +196,11 @@ export default function Results() {
         variants={item}
         className="glass-panel border border-glass-border p-6 relative overflow-hidden group hover:border-sonic-lime/20 transition-all rounded-xl"
       >
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(215,255,90,0.008)_1px,transparent_1px),linear-gradient(90deg,rgba(215,255,90,0.008)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,46,151,0.008)_1px,transparent_1px),linear-gradient(90deg,rgba(255,46,151,0.008)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
 
         <div className="flex flex-col lg:flex-row gap-6 relative z-10">
           {/* Cover art placeholder */}
-          <div className="w-full lg:w-48 aspect-square bg-[#0d0d0d] border border-glass-border relative overflow-hidden rounded-lg flex-shrink-0 flex items-center justify-center">
+          <div className="w-full lg:w-48 aspect-square bg-[#0f0a20] border border-glass-border relative overflow-hidden rounded-lg flex-shrink-0 flex items-center justify-center">
             {spotifyMeta?.cover_url ? (
               <img src={spotifyMeta.cover_url} alt="Album" className="w-full h-full object-cover" />
             ) : (
@@ -211,7 +211,7 @@ export default function Results() {
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             {hasSongId && (
-              <div className="absolute bottom-2 right-2 w-6 h-6 bg-sonic-lime rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(215,255,90,0.4)]">
+              <div className="absolute bottom-2 right-2 w-6 h-6 bg-sonic-lime rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(255,46,151,0.4)]">
                 <span className="material-symbols-outlined text-black text-xs">check</span>
               </div>
             )}
@@ -299,8 +299,8 @@ export default function Results() {
                     transition={{ delay: 0.5 + i * 0.04, duration: 0.5, ease: 'easeOut' }}
                     className="w-1.5 rounded-t-full"
                     style={{
-                      background: i > 6 ? '#8B5CF6' : '#D7FF5A',
-                      boxShadow: i > 6 ? '0 0 6px rgba(139,92,246,0.4)' : '0 0 6px rgba(215,255,90,0.4)',
+                      background: i > 6 ? '#9d4edd' : '#ff2e97',
+                      boxShadow: i > 6 ? '0 0 6px rgba(157,78,221,0.4)' : '0 0 6px rgba(255,46,151,0.4)',
                     }}
                   />
                 ))}
@@ -355,28 +355,28 @@ export default function Results() {
               {
                 label: 'Energy Level',
                 val: result.energy_level ? Math.round(result.energy_level * 100) : 0,
-                color: '#D7FF5A',
+                color: '#ff2e97',
               },
               {
                 label: 'Spectral Centroid',
                 val: result.spectral_centroid
                   ? Math.min(100, Math.round((result.spectral_centroid / 8000) * 100))
                   : 0,
-                color: '#D7FF5A',
+                color: '#ff2e97',
               },
               {
                 label: 'Zero Crossing Rate',
                 val: result.zero_crossing_rate
                   ? Math.min(100, Math.round(result.zero_crossing_rate * 2000))
                   : 0,
-                color: '#8B5CF6',
+                color: '#9d4edd',
               },
               {
                 label: 'Spectral Rolloff',
                 val: result.spectral_rolloff
                   ? Math.min(100, Math.round((result.spectral_rolloff / 16000) * 100))
                   : 0,
-                color: '#8B5CF6',
+                color: '#9d4edd',
               },
             ].map((feat, i) => (
               <div key={feat.label} className="group">
@@ -412,7 +412,7 @@ export default function Results() {
               ? yamnetLabels.map((label, i) => {
                   const score = yamnetScores[i] ?? 0;
                   const pct = Math.round(score * 100);
-                  const color = i % 2 === 0 ? '#D7FF5A' : '#8B5CF6';
+                  const color = i % 2 === 0 ? '#ff2e97' : '#9d4edd';
                   return (
                     <div key={label} className="group">
                       <div className="flex justify-between items-end mb-1.5">
@@ -426,10 +426,10 @@ export default function Results() {
                   );
                 })
               : [
-                  { label: 'Music', val: 90, color: '#D7FF5A' },
-                  { label: 'Musical Instrument', val: 76, color: '#D7FF5A' },
-                  { label: 'Singing', val: 12, color: '#8B5CF6' },
-                  { label: 'Ambient Noise', val: 4, color: '#8B5CF6' },
+                  { label: 'Music', val: 90, color: '#ff2e97' },
+                  { label: 'Musical Instrument', val: 76, color: '#ff2e97' },
+                  { label: 'Singing', val: 12, color: '#9d4edd' },
+                  { label: 'Ambient Noise', val: 4, color: '#9d4edd' },
                 ].map((f, i) => (
                   <div key={f.label} className="group">
                     <div className="flex justify-between items-end mb-1.5">
@@ -606,7 +606,7 @@ export default function Results() {
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="border-t border-glass-border bg-[#060606] p-4 font-mono text-[10px] leading-relaxed overflow-auto max-h-80">
+              <div className="border-t border-glass-border bg-[#0a0613] p-4 font-mono text-[10px] leading-relaxed overflow-auto max-h-80">
                 <pre className="text-on-surface-variant select-all whitespace-pre-wrap break-all">
                   {JSON.stringify(result.raw_ml_response || result, null, 2)}
                 </pre>

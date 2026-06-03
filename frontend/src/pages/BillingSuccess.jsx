@@ -54,18 +54,18 @@ export default function BillingSuccess() {
   }, [setUser, navigate]);
 
   return (
-    <div className="bg-[#080808] text-on-surface min-h-screen flex flex-col justify-between overflow-hidden relative font-body select-none">
+    <div className="bg-[#0c0818]/70 backdrop-blur-sm text-on-surface min-h-screen flex flex-col justify-between overflow-hidden relative font-body select-none">
       {/* Decorative Grid Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(215,255,90,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(215,255,90,0.01)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-10"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,46,151,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,46,151,0.01)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-10"></div>
       
       {/* Pure CSS gradient background - no external images */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(215,255,90,0.08) 0%, transparent 60%), radial-gradient(ellipse at 30% 70%, rgba(139,92,246,0.12) 0%, transparent 50%)' }} />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-[#080808]/40"></div>
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(255,46,151,0.08) 0%, transparent 60%), radial-gradient(ellipse at 30% 70%, rgba(157,78,221,0.12) 0%, transparent 50%)' }} />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0c0818] via-transparent to-[#0c0818]/40"></div>
       </div>
 
       <div className="flex-grow flex items-center justify-center p-8 z-20">
-        <div className="max-w-md w-full glass-panel border border-glass-border rounded-xl p-8 text-center relative overflow-hidden shadow-[0_0_50px_rgba(215,255,90,0.05)] bg-[#131313]/60 backdrop-blur-3xl">
+        <div className="max-w-md w-full glass-panel border border-glass-border rounded-xl p-8 text-center relative overflow-hidden shadow-[0_0_50px_rgba(255,46,151,0.05)] bg-[#160f2b]/60 backdrop-blur-3xl">
           {/* Pulsing visual core */}
           <div className="mb-6 relative inline-block">
             <div className="absolute inset-0 bg-sonic-lime/10 blur-2xl rounded-full scale-150 animate-pulse"></div>
@@ -97,7 +97,7 @@ export default function BillingSuccess() {
           <div className="flex flex-col items-center gap-2 mb-8">
             <div className="w-48 h-1 bg-white/5 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-sonic-lime w-0 transition-all duration-[2000ms] ease-out shadow-[0_0_8px_rgba(215,255,90,0.5)]" 
+                className="h-full bg-sonic-lime w-0 transition-all duration-[2000ms] ease-out shadow-[0_0_8px_rgba(255,46,151,0.5)]" 
                 id="progress-bar"
               />
             </div>
@@ -113,7 +113,7 @@ export default function BillingSuccess() {
           <div className={`transition-all duration-700 delay-[1200ms] ${syncComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} id="cta-container">
             <Link
               to="/dashboard"
-              className="w-full bg-sonic-lime text-black font-mono text-xs font-bold uppercase tracking-wider py-3.5 rounded flex items-center justify-center gap-2 hover:bg-sonic-lime/90 hover:shadow-[0_0_20px_rgba(215,255,90,0.3)] active:scale-95 transition-all group"
+              className="w-full bg-sonic-lime text-black font-mono text-xs font-bold uppercase tracking-wider py-3.5 rounded flex items-center justify-center gap-2 hover:bg-sonic-lime/90 hover:shadow-[0_0_20px_rgba(255,46,151,0.3)] active:scale-95 transition-all group"
             >
               Enter Dashboard
               <span className="material-symbols-outlined text-sm font-bold group-hover:translate-x-1 transition-transform">arrow_forward</span>

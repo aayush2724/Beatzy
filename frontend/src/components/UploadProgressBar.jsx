@@ -25,7 +25,7 @@ export default function UploadProgressBar({ progress, status, fileName }) {
       : '';
 
   return (
-    <div className="mt-8 glass-panel rounded-lg p-5 border border-glass-border w-full bg-[#131313]/30">
+    <div className="mt-8 glass-panel rounded-lg p-5 border border-glass-border w-full bg-[#160f2b]/30">
       {/* Optional filename display */}
       {fileName && (
         <div className="flex justify-between text-xs mb-1.5 font-mono">
@@ -38,7 +38,7 @@ export default function UploadProgressBar({ progress, status, fileName }) {
       {/* Bar background */}
       <div className="h-1 bg-white/5 rounded-full overflow-hidden">
         <motion.div
-          className="h-full bg-sonic-lime shadow-[0_0_10px_rgba(215,255,90,0.5)] rounded-full"
+          className="h-full bg-sonic-lime shadow-[0_0_10px_rgba(255,46,151,0.5)] rounded-full"
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.1 }}
         />
