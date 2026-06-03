@@ -31,7 +31,6 @@ export default function Register() {
       const { data } = await register(form);
       setAuth(data.data.user, data.data.accessToken, data.data.refreshToken);
       toast.success('Account created!');
-      // Yield to event loop so Zustand persist can flush to localStorage
       await new Promise(r => setTimeout(r, 0));
       navigate('/dashboard', { replace: true });
     } catch (err) {
@@ -44,9 +43,8 @@ export default function Register() {
       {/* Scanline */}
       <div className="fixed inset-0 pointer-events-none z-50" style={{ background: 'linear-gradient(to bottom, transparent 50%, rgba(212,255,63,0.018) 50%)', backgroundSize: '100% 4px' }} />
 
-      {/* Background image */}
-      <div className="absolute inset-0 z-0" style={{ backgroundImage: 'url(https://lh3.googleusercontent.com/aida/ADBb0uh-0FrOXxKO8zCLpEu9COZ0NjPhmB0M3CYTC6MslAizqy6oxpikKSbjwlpDXof1V0WMkPJ7cyidwHydp6SqsjFYeVEcmD12VIQik4t_eplJ4U5iYbjT0Rn5DNBDAA6ti-ldnBv36jMOHmtXuadMmlIS4uVbzY8bmdTU2FNk8GjctXeogZL1KXNqVRDSV-SEsugB75GEfoAj9Kp9n68EjvxslX-eaUZgS5bkumai5w1EuID5XvbiDZp5kg)', backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.1 }} />
-      <div className="absolute inset-0 z-0" style={{ background: 'linear-gradient(135deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0.7) 50%, #050505 100%)' }} />
+      {/* Pure CSS gradient orb background - no external images */}
+      <div className="absolute inset-0 z-0" style={{ background: 'radial-gradient(ellipse at 20% 80%, rgba(139,92,246,0.18) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(215,255,90,0.12) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(0,245,255,0.08) 0%, transparent 60%)' }} />
 
       {/* Orb glows */}
       <div className="absolute pointer-events-none z-0 rounded-full" style={{ width: 500, height: 500, bottom: '-10%', left: '-10%', background: 'radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%)', filter: 'blur(60px)' }} />

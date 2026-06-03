@@ -7,48 +7,48 @@ const MOOD_COLORS = {
   sad: 'text-blue-400 bg-blue-400/10',
   calm: 'text-green-400 bg-green-400/10',
   excited: 'text-pink-400 bg-pink-400/10',
-  melancholic: 'text-purple-400 bg-purple-400/10',
-  neutral: 'text-gray-400 bg-gray-400/10',
+  melancholic: 'text-prism-violet bg-prism-violet/10',
+  neutral: 'text-on-surface-variant bg-surface-container',
 };
 
-function MetricCard({ icon: Icon, label, value, sub, color = 'text-brand-400' }) {
+function MetricCard({ icon: Icon, label, value, sub, color = 'text-sonic-lime' }) {
   return (
-    <div className="card hover:border-dark-500 transition-colors">
+    <div className="glass-card hover:border-sonic-lime/30 transition-colors">
       <div className="flex items-start justify-between mb-3">
-        <div className="w-10 h-10 bg-dark-700 rounded-xl flex items-center justify-center">
+        <div className="w-10 h-10 bg-surface-container-low rounded-xl flex items-center justify-center border border-glass-border">
           <Icon size={20} className={color} />
         </div>
       </div>
-      <p className="text-2xl font-bold mb-1">{value ?? '—'}</p>
-      <p className="text-sm font-medium text-gray-300">{label}</p>
-      {sub && <p className="text-xs text-gray-500 mt-1">{sub}</p>}
+      <p className="text-2xl font-bold mb-1 text-on-surface">{value ?? '—'}</p>
+      <p className="text-sm font-medium text-on-surface-variant">{label}</p>
+      {sub && <p className="text-xs text-outline mt-1">{sub}</p>}
     </div>
   );
 }
 
 export function SongCard({ result }) {
   return (
-    <div className="card border-brand-600/30 bg-gradient-to-br from-brand-600/10 to-dark-800">
+    <div className="glass-card border-sonic-lime/30 bg-gradient-to-br from-sonic-lime/5 to-surface-container-low">
       <div className="flex items-start gap-4">
-        <div className="w-16 h-16 bg-brand-600/20 rounded-xl flex items-center justify-center shrink-0">
-          <Music2 size={32} className="text-brand-400" />
+        <div className="w-16 h-16 bg-sonic-lime/10 rounded-xl flex items-center justify-center shrink-0 border border-sonic-lime/30">
+          <Music2 size={32} className="text-sonic-lime" />
         </div>
         <div className="flex-1 min-w-0">
-          <h2 className="text-2xl font-bold truncate">
+          <h2 className="text-2xl font-bold truncate text-on-surface">
             {result.song_title || 'Unknown Track'}
           </h2>
-          <p className="text-gray-400 text-lg truncate">
+          <p className="text-on-surface-variant text-lg truncate">
             {result.song_artist || 'Unknown Artist'}
           </p>
           {result.song_album && (
-            <p className="text-gray-500 text-sm mt-1 truncate">{result.song_album}</p>
+            <p className="text-outline text-sm mt-1 truncate">{result.song_album}</p>
           )}
           {result.isrc && (
-            <p className="text-xs text-gray-600 font-mono mt-2">ISRC: {result.isrc}</p>
+            <p className="text-xs text-outline-variant font-mono mt-2">ISRC: {result.isrc}</p>
           )}
         </div>
         {result.song_release_year && (
-          <span className="badge bg-dark-700 text-gray-300 shrink-0">{result.song_release_year}</span>
+          <span className="badge bg-surface-container-high text-on-surface-variant shrink-0">{result.song_release_year}</span>
         )}
       </div>
     </div>
@@ -75,14 +75,14 @@ export function AudioMetricsGrid({ result }) {
         label="Energy Level"
         value={energyPercent}
         sub="Audio energy intensity"
-        color="text-yellow-400"
+        color="text-sonic-lime"
       />
-      <div className="card hover:border-dark-500 transition-colors">
-        <div className="w-10 h-10 bg-dark-700 rounded-xl flex items-center justify-center mb-3">
+      <div className="glass-card hover:border-sonic-lime/30 transition-colors">
+        <div className="w-10 h-10 bg-surface-container-low rounded-xl flex items-center justify-center mb-3 border border-glass-border">
           <Heart size={20} className="text-pink-400" />
         </div>
-        <p className="text-2xl font-bold mb-1 capitalize">{result.mood || '—'}</p>
-        <p className="text-sm font-medium text-gray-300">Mood</p>
+        <p className="text-2xl font-bold mb-1 capitalize text-on-surface">{result.mood || '—'}</p>
+        <p className="text-sm font-medium text-on-surface-variant">Mood</p>
         {result.mood && (
           <span className={clsx('badge mt-2 capitalize', moodClass)}>{result.mood}</span>
         )}
@@ -92,14 +92,14 @@ export function AudioMetricsGrid({ result }) {
         label="Key Signature"
         value={result.key_signature}
         sub="Musical key"
-        color="text-purple-400"
+        color="text-prism-violet"
       />
       <MetricCard
         icon={Clock}
         label="Time Signature"
         value={result.time_signature}
         sub="Rhythmic structure"
-        color="text-blue-400"
+        color="text-neon-cyan"
       />
       <MetricCard
         icon={Activity}
@@ -119,22 +119,22 @@ export function YAMNetCard({ result }) {
   if (!labels.length) return null;
 
   return (
-    <div className="card">
+    <div className="glass-card">
       <div className="flex items-center gap-2 mb-4">
-        <Tag size={18} className="text-brand-400" />
-        <h3 className="font-semibold">Audio Event Classification</h3>
-        <span className="badge bg-dark-700 text-gray-400 ml-auto text-xs">YAMNet</span>
+        <Tag size={18} className="text-sonic-lime" />
+        <h3 className="font-semibold text-on-surface">Audio Event Classification</h3>
+        <span className="badge bg-surface-container-high text-on-surface-variant ml-auto text-xs">YAMNet</span>
       </div>
       <div className="space-y-3">
         {labels.map((label, i) => (
           <div key={label}>
             <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-300">{label}</span>
-              <span className="text-gray-500 font-mono">{scores[i] ? `${Math.round(scores[i] * 100)}%` : ''}</span>
+              <span className="text-on-surface-variant">{label}</span>
+              <span className="text-outline font-mono">{scores[i] ? `${Math.round(scores[i] * 100)}%` : ''}</span>
             </div>
-            <div className="h-1.5 bg-dark-700 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-surface-container-high rounded-full overflow-hidden">
               <div
-                className="h-full bg-brand-600 rounded-full transition-all duration-700"
+                className="h-full bg-gradient-to-r from-sonic-lime to-neon-cyan rounded-full transition-all duration-700"
                 style={{ width: `${(scores[i] || 0) * 100}%` }}
               />
             </div>

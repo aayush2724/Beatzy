@@ -13,14 +13,12 @@ export default function Login() {
   const { setAuth } = useAuthStore();
   const navigate = useNavigate();
   const cardRef = useRef(null);
-  const bgRef = useRef(null);
 
   useEffect(() => {
     function onMove(e) {
       const x = e.clientX - window.innerWidth / 2;
       const y = e.clientY - window.innerHeight / 2;
       if (cardRef.current) cardRef.current.style.transform = `translate(${x * 0.008}px, ${y * 0.008}px)`;
-      if (bgRef.current) bgRef.current.style.transform = `scale(1.06) translate(${x * -0.004}px, ${y * -0.004}px)`;
     }
     document.addEventListener('mousemove', onMove);
     return () => document.removeEventListener('mousemove', onMove);
@@ -33,7 +31,6 @@ export default function Login() {
       const { data } = await login(form);
       setAuth(data.data.user, data.data.accessToken, data.data.refreshToken);
       toast.success('Access Granted!');
-      // Yield to event loop so Zustand persist can flush to localStorage
       await new Promise(r => setTimeout(r, 0));
       navigate('/dashboard', { replace: true });
     } catch (err) {
@@ -46,10 +43,9 @@ export default function Login() {
       {/* Scanline */}
       <div className="fixed inset-0 pointer-events-none z-50" style={{ background: 'linear-gradient(to bottom, transparent 50%, rgba(212,255,63,0.018) 50%)', backgroundSize: '100% 4px' }} />
 
-      {/* Background */}
-      <div ref={bgRef} className="absolute inset-0 z-0 transition-transform duration-100" style={{ backgroundImage: 'url(https://lh3.googleusercontent.com/aida/ADBb0uh-0FrOXxKO8zCLpEu9COZ0NjPhmB0M3CYTC6MslAizqy6oxpikKSbjwlpDXof1V0WMkPJ7cyidwHydp6SqsjFYeVEcmD12VIQik4t_eplJ4U5iYbjT0Rn5DNBDAA6ti-ldnBv36jMOHmtXuadMmlIS4uVbzY8bmdTU2FNk8GjctXeogZL1KXNqVRDSV-SEsugB75GEfoAj9Kp9n68EjvxslX-eaUZgS5bkumai5w1EuID5XvbiDZp5kg)', backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.12 }} />
-      <div className="absolute inset-0 z-0" style={{ background: 'linear-gradient(to bottom, rgba(5,5,5,0.9), rgba(5,5,5,0.5), #050505)' }} />
-
+      {/* Pure CSS gradient orb background - no external images */}
+      <div className="absolute inset-0 z-0" style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(215,255,90,0.1) 0%, transparent 50%), radial-gradient(ellipse at 20% 80%, rgba(0,245,255,0.08) 0%, transparent 50%)' }} />
+      
       {/* Orb glows */}
       <div className="absolute pointer-events-none z-0 rounded-full" style={{ width: 600, height: 600, top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%)', filter: 'blur(60px)' }} />
       <div className="absolute pointer-events-none z-0 rounded-full" style={{ width: 300, height: 300, top: '20%', right: '15%', background: 'radial-gradient(circle, rgba(215,255,90,0.07) 0%, transparent 70%)', filter: 'blur(50px)' }} />

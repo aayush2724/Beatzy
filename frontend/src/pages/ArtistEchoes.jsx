@@ -145,22 +145,18 @@ export default function ArtistEchoes() {
       {/* Secondary CTA Section */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
         <div className="glass-panel rounded-lg p-6 flex items-center gap-6 group hover:bg-white/[0.01] transition-all cursor-pointer border border-glass-border">
-          <img
-            alt="Console"
-            className="w-16 h-16 rounded object-cover border border-white/5 grayscale group-hover:grayscale-0 transition-all duration-700"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDf0XsMOopIp-qynUKg6htG9bCFbQaWdI9_hPMux8ZeMi4UxPfDRsCln4G-WCAOp_2xyhr-rguQL2p1L9tqqjsi_pDCFClGgDqNDq8fP3jIDG7fts4ExkD9_V2wMJCvhqDash7Z4ajnA9zh0xSKgEOOM9qbCyvJ4oCEJRkvf7t8QKMrBga46zTVpj2T4-LUkqfJy_0L2AzH_g0taySjLmYaSxeQz30425fy1VafbAJUAOO6a2NFg0gnodp2yui1wP--0h_zWSbPSQ"
-          />
+          <div className="w-16 h-16 rounded bg-sonic-lime/10 border border-sonic-lime/20 flex items-center justify-center shrink-0 group-hover:bg-sonic-lime/15 transition-all">
+            <span className="material-symbols-outlined text-sonic-lime text-2xl">tune</span>
+          </div>
           <div>
             <h4 className="font-headline font-bold text-xs text-sonic-lime uppercase tracking-wider">Precision Tuning</h4>
             <p className="font-sans text-xs text-on-surface-variant mt-1 leading-relaxed">Adjust frequency-specific depth via manual override.</p>
           </div>
         </div>
         <div className="glass-panel rounded-lg p-6 flex items-center gap-6 group hover:bg-white/[0.01] transition-all cursor-pointer border border-glass-border">
-          <img
-            alt="Flow"
-            className="w-16 h-16 rounded object-cover border border-white/5 grayscale group-hover:grayscale-0 transition-all duration-700"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWUyVS8QzfsyB7S8wndB8djiYjgqGXfD22GLNMVBsKUT3E9FXB5pV_JQBwGlK_4YCaZEFuST5tosvNo3exY6KLiHM9C8VdSTCBxtZO_kC2bnq6CTind1-dQPl_w9o1GLXpqnudbNZ2tWQ-4n45A3Aj3QAmfzuTx4SS3IrkXO0ajhtD49qJiIr0aJltaEc-QeNm7Z_Vi4xbU7QMCKS__qZ1Ygke4_5f9sZ07xMas_JVBNusNPxjPAw4NQXg7j-l7S3QVuXO-G1TJw"
-          />
+          <div className="w-16 h-16 rounded bg-prism-violet/10 border border-prism-violet/20 flex items-center justify-center shrink-0 group-hover:bg-prism-violet/15 transition-all">
+            <span className="material-symbols-outlined text-prism-violet text-2xl">dashboard</span>
+          </div>
           <div>
             <h4 className="font-headline font-bold text-xs text-sonic-lime uppercase tracking-wider">Spectral Mapping</h4>
             <p className="font-sans text-xs text-on-surface-variant mt-1 leading-relaxed">Review the heat map of style overlap across projects.</p>

@@ -5,7 +5,7 @@ const DEFAULT_ARCHETYPES = [
     id: 'daft',
     name: 'Daft Punk',
     desc: 'Electronic Precision',
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAmvPWy4WAYyDVWQwzjpG-zTw1OfIHBJ3SkKtz6-LaFE671VhCZuSi0IhyqKRHWVNd_F9cGe6ysHXPm0xCDcl3hmY38_8AK_PHNCt_RY5sc4d4LAOHmIvOVkBc6YhB8i7ZdZez_D4Lk74tCYWYxdFVgIV6edkPLT0V-7IqybQllLInxAcPBx2qPvzAnKTyxeN5UiVDUj-wo41lZ36qNwely4BZOBqYoNL-5G-HS7DBi7K8mmVTAz1Kme-_GKCREzldu9feFJsD4cA',
+    img: '',
   },
   { id: 'pink', name: 'Pink Floyd', desc: 'Psychedelic Depth', img: '' },
   { id: 'queen', name: 'Queen', desc: 'Orchestral Power', img: '' },
@@ -27,19 +27,19 @@ export default function ArchetypeSelector({ onSelect }) {
           <div
             key={a.id}
             onClick={() => handleSelect(a.id)}
-            className={`archetype-card cursor-pointer group flex flex-col items-center p-6 border rounded-lg w-[160px] ${selected === a.id ? 'active border-white/20' : 'border-white/5'}`}
+            className={`archetype-card cursor-pointer group flex flex-col items-center p-6 glass-card rounded-lg w-[160px] transition-all ${selected === a.id ? 'active border-sonic-lime/40' : 'border-glass-border hover:border-sonic-lime/20'}`}
           >
-            <div className="w-20 h-20 mb-4 rounded-full overflow-hidden border-2 border-primary/20 flex items-center justify-center bg-surface-container-high">
-              {a.img ? <img src={a.img} alt={a.name} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-3xl">music_note</span>}
+            <div className="w-20 h-20 mb-4 rounded-full overflow-hidden border-2 border-sonic-lime/20 flex items-center justify-center bg-surface-container-high">
+              {a.img ? <img src={a.img} alt={a.name} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-3xl text-sonic-lime">music_note</span>}
             </div>
-            <span className="font-label-md text-primary mb-1">{a.name}</span>
+            <span className="font-label-md text-on-surface mb-1">{a.name}</span>
             <span className="font-label-sm text-outline text-[10px]">{a.desc}</span>
           </div>
         ))}
       </div>
       <button
         onClick={() => alert(`Resonate -> ${selected}`)}
-        className="mt-8 bg-secondary text-surface font-label-md px-8 py-3 rounded-full hover:bg-primary transition-all flex items-center gap-2"
+        className="mt-8 btn-primary flex items-center gap-2"
       >
         <span className="material-symbols-outlined">bolt</span>
         Resonate
