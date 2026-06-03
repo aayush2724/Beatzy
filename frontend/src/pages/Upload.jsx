@@ -25,7 +25,7 @@ function AudioWave({ active, bars = 12 }) {
           className="rounded-t-full transition-all"
           style={{
             width: '5px',
-            background: i % 3 === 0 ? '#D7FF5A' : i % 3 === 1 ? '#8B5CF6' : '#D7FF5A88',
+            background: i % 3 === 0 ? '#ff2e97' : i % 3 === 1 ? '#9d4edd' : '#ff2e9788',
             animation: active ? `bar-pulse-css ${0.8 + Math.random() * 0.8}s ease-in-out infinite` : 'none',
             animationDelay: `${i * 0.07}s`,
             height: active ? undefined : '6px',
@@ -71,7 +71,7 @@ export default function Upload() {
         setStep('done');
         setTimeout(() => navigate(`/results/${jobId}`), 1200);
       } else if (socketStatus === 'failed') {
-        toast.error('Analysis pipeline failed', { style: { background: '#0c0c0c', color: '#fff' } });
+        toast.error('Analysis pipeline failed', { style: { background: '#0f0a20', color: '#fff' } });
         resetState();
       } else if (['analyzing', 'saving', 'processing'].includes(socketStatus || '')) {
         setStep('analyzing');
@@ -99,8 +99,8 @@ export default function Upload() {
       setStep('analyzing');
 
       toast.success('Signal captured! Neural core syncing...', {
-        style: { background: '#0c0c0c', color: '#D7FF5A', border: '1px solid rgba(215,255,90,0.3)' },
-        iconTheme: { primary: '#D7FF5A', secondary: '#000' },
+        style: { background: '#0f0a20', color: '#ff2e97', border: '1px solid rgba(255,46,151,0.3)' },
+        iconTheme: { primary: '#ff2e97', secondary: '#000' },
       });
 
       // Polling fallback
@@ -152,8 +152,8 @@ export default function Upload() {
       setStep('analyzing');
 
       toast.success('Remote track cached! Analyzing...', {
-        style: { background: '#0c0c0c', color: '#D7FF5A', border: '1px solid rgba(215,255,90,0.3)' },
-        iconTheme: { primary: '#D7FF5A', secondary: '#000' },
+        style: { background: '#0f0a20', color: '#ff2e97', border: '1px solid rgba(255,46,151,0.3)' },
+        iconTheme: { primary: '#ff2e97', secondary: '#000' },
       });
 
       // Polling fallback
@@ -298,7 +298,7 @@ export default function Upload() {
               className={clsx(
                 'flex items-center gap-2 px-4 py-2 rounded-lg font-mono text-xs uppercase tracking-wider transition-all duration-300',
                 tab === t.id
-                  ? 'bg-sonic-lime text-black font-bold shadow-[0_0_15px_rgba(215,255,90,0.3)]'
+                  ? 'bg-sonic-lime text-black font-bold shadow-[0_0_15px_rgba(255,46,151,0.3)]'
                   : 'text-on-surface-variant hover:text-white hover:bg-white/5'
               )}
             >
@@ -313,7 +313,7 @@ export default function Upload() {
         {/* Background glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-sonic-lime/3 blur-[120px] rounded-full pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-prism-violet/3 blur-[80px] rounded-full pointer-events-none" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(215,255,90,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(215,255,90,0.01)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,46,151,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,46,151,0.01)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
 
         <div className="relative z-10 w-full max-w-2xl flex flex-col items-center">
           <AnimatePresence mode="wait">
@@ -333,16 +333,16 @@ export default function Upload() {
                     {...getRootProps()}
                     className={clsx(
                       'relative border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all duration-300 w-full backdrop-blur-sm select-none',
-                      isDragActive && !isDragReject && 'border-sonic-lime bg-sonic-lime/5 shadow-[0_0_40px_rgba(215,255,90,0.12)]',
+                      isDragActive && !isDragReject && 'border-sonic-lime bg-sonic-lime/5 shadow-[0_0_40px_rgba(255,46,151,0.12)]',
                       isDragReject && 'border-red-500 bg-red-500/5',
-                      !isDragActive && 'border-white/10 bg-black/20 hover:border-sonic-lime/50 hover:bg-sonic-lime/[0.02] hover:shadow-[0_0_30px_rgba(215,255,90,0.06)]'
+                      !isDragActive && 'border-white/10 bg-black/20 hover:border-sonic-lime/50 hover:bg-sonic-lime/[0.02] hover:shadow-[0_0_30px_rgba(255,46,151,0.06)]'
                     )}
                   >
                     <input {...getInputProps()} />
                     <div className="flex flex-col items-center gap-6">
                       <div className={clsx(
                         'w-20 h-20 rounded-2xl flex items-center justify-center border transition-all duration-300',
-                        isDragActive ? 'bg-sonic-lime/20 border-sonic-lime/50 shadow-[0_0_30px_rgba(215,255,90,0.3)]' : 'bg-sonic-lime/10 border-sonic-lime/20 shadow-[0_0_15px_rgba(215,255,90,0.1)]'
+                        isDragActive ? 'bg-sonic-lime/20 border-sonic-lime/50 shadow-[0_0_30px_rgba(255,46,151,0.3)]' : 'bg-sonic-lime/10 border-sonic-lime/20 shadow-[0_0_15px_rgba(255,46,151,0.1)]'
                       )}>
                         <span className="material-symbols-outlined text-sonic-lime text-4xl">
                           {isDragActive ? 'download' : 'upload_file'}
@@ -471,7 +471,7 @@ export default function Upload() {
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-52 h-52 rounded-full border border-sonic-lime/10 animate-ping" style={{ animationDuration: '3s' }} />
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full border border-sonic-lime/20 animate-ping" style={{ animationDuration: '3s', animationDelay: '1s' }} />
 
-                  <div className="relative w-32 h-32 flex items-center justify-center bg-[#0a0a0a]/90 backdrop-blur-2xl rounded-full border border-sonic-lime/30 glow-pulse overflow-hidden">
+                  <div className="relative w-32 h-32 flex items-center justify-center bg-[#0c0818]/90 backdrop-blur-2xl rounded-full border border-sonic-lime/30 glow-pulse overflow-hidden">
                     <div
                       className="absolute w-full h-[1.5px] bg-gradient-to-r from-transparent via-sonic-lime to-transparent scan-line-anim"
                       style={{ top: 0 }}
@@ -492,7 +492,7 @@ export default function Upload() {
                   <div className="h-1 bg-white/5 rounded-full overflow-hidden">
                     <motion.div
                       className="h-full bg-sonic-lime rounded-full"
-                      style={{ boxShadow: '0 0 10px rgba(215,255,90,0.5)' }}
+                      style={{ boxShadow: '0 0 10px rgba(255,46,151,0.5)' }}
                       initial={{ width: 0 }}
                       animate={{ width: `${visibleProgress}%` }}
                       transition={{ duration: 0.5 }}
@@ -571,7 +571,7 @@ export default function Upload() {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                  className="w-20 h-20 bg-sonic-lime/15 border-2 border-sonic-lime/40 rounded-full flex items-center justify-center text-sonic-lime mb-6 shadow-[0_0_40px_rgba(215,255,90,0.25)]"
+                  className="w-20 h-20 bg-sonic-lime/15 border-2 border-sonic-lime/40 rounded-full flex items-center justify-center text-sonic-lime mb-6 shadow-[0_0_40px_rgba(255,46,151,0.25)]"
                 >
                   <span className="material-symbols-outlined text-4xl">check_circle</span>
                 </motion.div>

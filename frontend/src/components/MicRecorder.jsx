@@ -1,142 +1,254 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
+import toast from 'react-hot-toast';
 
 export default function MicRecorder({ onRecorded, disabled }) {
-  const [state, setState] = useState('idle'); // idle | requesting | recording | done
-  const [countdown, setCountdown] = useState(10);
-  const mediaRef = useRef(null);
-  const chunksRef = useRef([]);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(0);
+  
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
   const timerRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
+  const animationFrameRef = useRef(null);
 
-  useEffect(() => () => {
-    clearInterval(timerRef.current);
-    mediaRef.current?.stop();
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopRecording();
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      if (audioContextRef.current) audioContextRef.current.close();
+    };
   }, []);
 
-  const start = async () => {
-    setState('requesting');
+  const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-      chunksRef.current = [];
-      recorder.ondataavailable = e => { if (e.data.size > 0) chunksRef.current.push(e.data); };
-      recorder.onstop = () => {
-        stream.getTracks().forEach(t => t.stop());
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        const file = new File([blob], 'mic-recording.webm', { type: 'audio/webm' });
-        setState('done');
-        onRecorded(file);
+      
+      // Set up audio analysis for volume visualization
+      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioContextRef.current.createMediaStreamSource(stream);
+      analyserRef.current = audioContextRef.current.createAnalyser();
+      analyserRef.current.fftSize = 256;
+      source.connect(analyserRef.current);
+      
+      const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+      
+      const updateVolume = () => {
+        analyserRef.current.getByteFrequencyData(dataArray);
+        const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+        setVolume(Math.min(100, (average / 256) * 150));
+        animationFrameRef.current = requestAnimationFrame(updateVolume);
       };
-      mediaRef.current = recorder;
-      recorder.start(100);
-      setState('recording');
-      setCountdown(10);
-      let secs = 10;
+      updateVolume();
+
+      // Set up media recorder
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg'
+      });
+      
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const audioFile = new File([audioBlob], `recording-${Date.now()}.webm`, { type: 'audio/webm' });
+        
+        // Stop all tracks
+        stream.getTracks().forEach(track => track.stop());
+        
+        // Call parent handler
+        if (onRecorded) {
+          onRecorded(audioFile);
+        }
+        
+        // Reset state
+        setIsRecording(false);
+        setIsPaused(false);
+        setDuration(0);
+        setVolume(0);
+        audioChunksRef.current = [];
+        
+        if (timerRef.current) clearInterval(timerRef.current);
+        if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+        if (audioContextRef.current) audioContextRef.current.close();
+      };
+
+      mediaRecorder.start(100); // Collect data every 100ms
+      setIsRecording(true);
+      
+      // Start duration timer
       timerRef.current = setInterval(() => {
-        secs -= 1;
-        setCountdown(secs);
-        if (secs <= 0) { clearInterval(timerRef.current); recorder.stop(); }
+        setDuration(d => d + 1);
       }, 1000);
-    } catch {
-      setState('idle');
-      alert('Microphone access denied. Please allow microphone permissions.');
+
+      toast.success('Recording started', { duration: 2000 });
+    } catch (error) {
+      console.error('Microphone access error:', error);
+      toast.error('Could not access microphone. Please check permissions.');
     }
   };
 
-  const stop = () => {
-    clearInterval(timerRef.current);
-    mediaRef.current?.stop();
+  const pauseRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.pause();
+      setIsPaused(true);
+      if (timerRef.current) clearInterval(timerRef.current);
+      toast.success('Recording paused');
+    }
   };
 
-  const progress = ((10 - countdown) / 10) * 100;
+  const resumeRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'paused') {
+      mediaRecorderRef.current.resume();
+      setIsPaused(false);
+      timerRef.current = setInterval(() => {
+        setDuration(d => d + 1);
+      }, 1000);
+      toast.success('Recording resumed');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+      toast.success('Processing recording...');
+    }
+  };
+
+  const formatDuration = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   return (
-    <div className="flex flex-col items-center gap-8 py-4">
-      <div className="relative w-40 h-40 flex items-center justify-center">
-        {/* Circular progress ring */}
-        <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 160 160">
-          <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(215,255,90,0.08)" strokeWidth="6" />
-          {state === 'recording' && (
-            <motion.circle
-              cx="80" cy="80" r="70" fill="none"
-              stroke="#D7FF5A" strokeWidth="6"
-              strokeLinecap="round"
-              strokeDasharray={`${2 * Math.PI * 70}`}
-              strokeDashoffset={`${2 * Math.PI * 70 * (1 - progress / 100)}`}
-              transition={{ duration: 0.3 }}
-            />
+    <div className="w-full flex flex-col items-center gap-6">
+      {/* Recording visualization */}
+      <div className="relative w-full max-w-md">
+        <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent rounded-2xl" />
+        
+        <div className={clsx(
+          'relative p-12 rounded-2xl border transition-all duration-300',
+          isRecording 
+            ? 'border-white/30 bg-white/5 shadow-[0_0_40px_rgba(255,255,255,0.1)]' 
+            : 'border-white/10 bg-black/20'
+        )}>
+          {/* Microphone icon */}
+          <div className={clsx(
+            'w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-6 transition-all duration-300',
+            isRecording 
+              ? 'bg-white/20 border-2 border-white/40 shadow-[0_0_30px_rgba(255,255,255,0.2)]' 
+              : 'bg-white/10 border border-white/20'
+          )}>
+            <span className={clsx(
+              'material-symbols-outlined text-5xl transition-all duration-300',
+              isRecording ? 'text-white' : 'text-gray-400'
+            )}>
+              {isPaused ? 'pause' : 'mic'}
+            </span>
+          </div>
+
+          {/* Volume bars visualization */}
+          {isRecording && !isPaused && (
+            <div className="flex items-end justify-center gap-1 h-16 mb-4">
+              {Array.from({ length: 20 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="w-1.5 bg-gradient-to-t from-white to-gray-400 rounded-full transition-all duration-75"
+                  style={{
+                    height: `${Math.max(10, Math.min(100, volume + (Math.random() * 20 - 10)))}%`,
+                    opacity: 0.3 + (volume / 150)
+                  }}
+                />
+              ))}
+            </div>
           )}
-        </svg>
-        {/* Ping rings when recording */}
-        {state === 'recording' && (
+
+          {/* Duration display */}
+          {isRecording && (
+            <div className="text-center mb-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-black/30 rounded-full border border-white/10">
+                <div className={clsx(
+                  'w-2 h-2 rounded-full',
+                  isPaused ? 'bg-yellow-400' : 'bg-red-500 animate-pulse'
+                )} />
+                <span className="font-mono text-xl text-white font-bold">
+                  {formatDuration(duration)}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Status text */}
+          <p className="text-center text-sm text-gray-400 font-medium">
+            {!isRecording 
+              ? 'Click the button below to start recording'
+              : isPaused
+              ? 'Recording paused'
+              : 'Recording... Speak or play audio near your microphone'
+            }
+          </p>
+        </div>
+      </div>
+
+      {/* Control buttons */}
+      <div className="flex items-center gap-3">
+        {!isRecording ? (
+          <button
+            onClick={startRecording}
+            disabled={disabled}
+            className="px-8 py-3 bg-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold rounded-lg transition-all flex items-center gap-2 shadow-lg hover:shadow-xl"
+          >
+            <span className="material-symbols-outlined">mic</span>
+            Start Recording
+          </button>
+        ) : (
           <>
-            <div className="absolute inset-0 rounded-full border border-sonic-lime/20 animate-ping" style={{ animationDuration: '2s' }} />
-            <div className="absolute inset-4 rounded-full border border-sonic-lime/10 animate-ping" style={{ animationDuration: '2s', animationDelay: '0.5s' }} />
+            {!isPaused ? (
+              <button
+                onClick={pauseRecording}
+                className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-bold rounded-lg transition-all flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined">pause</span>
+                Pause
+              </button>
+            ) : (
+              <button
+                onClick={resumeRecording}
+                className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-all flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined">play_arrow</span>
+                Resume
+              </button>
+            )}
+            
+            <button
+              onClick={stopRecording}
+              className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg transition-all flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined">stop</span>
+              Stop & Analyze
+            </button>
           </>
         )}
-        <button
-          onClick={state === 'recording' ? stop : start}
-          disabled={disabled || state === 'requesting' || state === 'done'}
-          className={clsx(
-            'relative z-10 w-24 h-24 rounded-full flex flex-col items-center justify-center gap-1 border-2 transition-all duration-300',
-            state === 'recording'
-              ? 'bg-red-500/20 border-red-400 shadow-[0_0_30px_rgba(239,68,68,0.3)]'
-              : 'bg-sonic-lime/10 border-sonic-lime/40 hover:bg-sonic-lime/20 hover:border-sonic-lime shadow-[0_0_20px_rgba(215,255,90,0.1)]'
-          )}
-        >
-          <span className={clsx(
-            'material-symbols-outlined text-4xl transition-colors',
-            state === 'recording' ? 'text-red-400' : 'text-sonic-lime'
-          )} style={{ fontVariationSettings: "'FILL' 1" }}>
-            {state === 'recording' ? 'stop_circle' : 'mic'}
-          </span>
-        </button>
       </div>
 
-      <div className="text-center">
-        <AnimatePresence mode="wait">
-          {state === 'idle' && (
-            <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <p className="font-mono text-xs text-sonic-lime uppercase tracking-widest">Ready to Listen</p>
-              <p className="text-sm text-on-surface-variant mt-1">Click the mic, then hold your device near the speaker</p>
-            </motion.div>
-          )}
-          {state === 'requesting' && (
-            <motion.div key="req" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <p className="font-mono text-xs text-prism-violet uppercase tracking-widest animate-pulse">Requesting Mic Access…</p>
-            </motion.div>
-          )}
-          {state === 'recording' && (
-            <motion.div key="rec" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center">
-              <p className="font-headline text-5xl font-bold text-white tabular-nums">{countdown}</p>
-              <p className="font-mono text-xs text-red-400 uppercase tracking-widest mt-1 animate-pulse">● Recording</p>
-              <button onClick={stop} className="mt-3 font-mono text-[10px] text-on-surface-variant hover:text-white uppercase tracking-wider transition-colors">
-                Stop Early
-              </button>
-            </motion.div>
-          )}
-          {state === 'done' && (
-            <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}>
-              <span className="material-symbols-outlined text-sonic-lime text-3xl">check_circle</span>
-              <p className="font-mono text-xs text-sonic-lime uppercase tracking-widest mt-1">Captured! Sending to analyzer…</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      <div className="grid grid-cols-3 gap-3 w-full max-w-sm text-center">
-        {[
-          { icon: 'graphic_eq', label: 'Live Capture', sub: 'MediaRecorder' },
-          { icon: 'fingerprint', label: 'Song ID', sub: 'ACRCloud' },
-          { icon: 'mood', label: 'Mood & BPM', sub: 'ML Model' },
-        ].map(f => (
-          <div key={f.label} className="glass-panel p-3 rounded-lg border border-glass-border">
-            <span className="material-symbols-outlined text-sonic-lime text-lg block mb-1">{f.icon}</span>
-            <p className="text-[10px] font-bold text-white">{f.label}</p>
-            <p className="font-mono text-[8px] text-on-surface-variant uppercase">{f.sub}</p>
-          </div>
-        ))}
+      {/* Instructions */}
+      <div className="max-w-md text-center">
+        <p className="text-xs text-gray-500 leading-relaxed">
+          Record at least 10 seconds of audio for best results. The system will analyze the audio fingerprint and identify the song, tempo, mood, and more.
+        </p>
       </div>
     </div>
   );

@@ -43,21 +43,21 @@ export default function Pricing() {
   }
 
   return (
-    <div className="min-h-screen text-white selection:bg-sonic-lime/20" style={{ background: '#050505' }}>
+    <div className="min-h-screen text-white selection:bg-vibe-magenta/20" style={{ background: 'rgba(10,6,19,0.6)' }}>
       {/* Scanline */}
       <div className="fixed inset-0 pointer-events-none z-50" style={{ background: 'linear-gradient(to bottom, transparent 50%, rgba(212,255,63,0.018) 50%)', backgroundSize: '100% 4px' }} />
 
       {/* Pure CSS gradient orb background - no external images */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 30%, rgba(139,92,246,0.12) 0%, transparent 60%), radial-gradient(ellipse at 20% 80%, rgba(215,255,90,0.08) 0%, transparent 50%)' }} />
-        <div className="absolute rounded-full" style={{ width: 700, height: 700, top: '20%', left: '50%', transform: 'translateX(-50%)', background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)', filter: 'blur(80px)' }} />
-        <div className="absolute rounded-full" style={{ width: 400, height: 400, bottom: '10%', left: '10%', background: 'radial-gradient(circle, rgba(215,255,90,0.06) 0%, transparent 70%)', filter: 'blur(60px)' }} />
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 30%, rgba(157,78,221,0.12) 0%, transparent 60%), radial-gradient(ellipse at 20% 80%, rgba(255,46,151,0.08) 0%, transparent 50%)' }} />
+        <div className="absolute rounded-full" style={{ width: 700, height: 700, top: '20%', left: '50%', transform: 'translateX(-50%)', background: 'radial-gradient(circle, rgba(157,78,221,0.08) 0%, transparent 70%)', filter: 'blur(80px)' }} />
+        <div className="absolute rounded-full" style={{ width: 400, height: 400, bottom: '10%', left: '10%', background: 'radial-gradient(circle, rgba(255,46,151,0.06) 0%, transparent 70%)', filter: 'blur(60px)' }} />
       </div>
 
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-8 py-5" style={{ background: 'linear-gradient(to bottom, rgba(5,5,5,0.95), transparent)', backdropFilter: 'blur(8px)' }}>
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-sonic-lime/10 border border-sonic-lime/40 rounded flex items-center justify-center" style={{ boxShadow: '0 0 14px rgba(215,255,90,0.2)' }}>
+          <div className="w-7 h-7 bg-sonic-lime/10 border border-sonic-lime/40 rounded flex items-center justify-center" style={{ boxShadow: '0 0 14px rgba(255,46,151,0.2)' }}>
             <span className="material-symbols-outlined text-sonic-lime text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
           </div>
           <span className="font-bold text-lg text-sonic-lime" style={SG}>BEATZY</span>
@@ -65,7 +65,7 @@ export default function Pricing() {
         <div className="flex items-center gap-4">
           <Link to="/" className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/35 hover:text-white/70 transition-colors">Home</Link>
           {token ? (
-            <Link to="/dashboard" className="px-4 py-2 rounded-xl font-mono text-[10px] uppercase tracking-[0.15em] transition-all" style={{ border: '1px solid rgba(215,255,90,0.3)', color: '#D7FF5A' }}>Dashboard</Link>
+            <Link to="/dashboard" className="px-4 py-2 rounded-xl font-mono text-[10px] uppercase tracking-[0.15em] transition-all" style={{ border: '1px solid rgba(255,46,151,0.3)', color: '#ff2e97' }}>Dashboard</Link>
           ) : (
             <Link to="/login" className="px-4 py-2 rounded-xl font-mono text-[10px] uppercase tracking-[0.15em] transition-all" style={{ border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)' }}>Sign In</Link>
           )}
@@ -75,7 +75,7 @@ export default function Pricing() {
       <main className="relative z-10 pt-36 pb-24 px-6 max-w-5xl mx-auto">
         {/* Header */}
         <header className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 mb-5 px-3 py-1.5 rounded-full" style={{ border: '1px solid rgba(215,255,90,0.2)', background: 'rgba(215,255,90,0.05)' }}>
+          <div className="inline-flex items-center gap-2 mb-5 px-3 py-1.5 rounded-full" style={{ border: '1px solid rgba(255,46,151,0.2)', background: 'rgba(255,46,151,0.05)' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-sonic-lime animate-pulse" />
             <span className="font-mono text-[9px] text-sonic-lime/80 uppercase tracking-[0.25em]">Protocol Active</span>
           </div>
@@ -90,13 +90,13 @@ export default function Pricing() {
           {plans.map(plan => (
             <div key={plan.id} className={`relative rounded-2xl p-7 flex flex-col transition-all duration-300 hover:-translate-y-1 ${plan.highlight ? '' : ''}`}
               style={{
-                background: plan.highlight ? 'rgba(215,255,90,0.04)' : 'rgba(255,255,255,0.025)',
-                border: plan.highlight ? '1px solid rgba(215,255,90,0.25)' : '1px solid rgba(255,255,255,0.07)',
-                boxShadow: plan.highlight ? '0 0 60px rgba(215,255,90,0.06)' : 'none',
+                background: plan.highlight ? 'rgba(255,46,151,0.04)' : 'rgba(255,255,255,0.025)',
+                border: plan.highlight ? '1px solid rgba(255,46,151,0.25)' : '1px solid rgba(255,255,255,0.07)',
+                boxShadow: plan.highlight ? '0 0 60px rgba(255,46,151,0.06)' : 'none',
               }}
             >
               {plan.highlight && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider" style={{ background: '#D7FF5A', color: '#050505' }}>
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider" style={{ background: '#ff2e97', color: '#0a0613' }}>
                   Most Popular
                 </div>
               )}
@@ -114,7 +114,7 @@ export default function Pricing() {
               <ul className="space-y-3 mb-8 flex-grow">
                 {plan.features.map(f => (
                   <li key={f} className="flex items-center gap-3">
-                    <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(215,255,90,0.1)', border: '1px solid rgba(215,255,90,0.25)' }}>
+                    <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,46,151,0.1)', border: '1px solid rgba(255,46,151,0.25)' }}>
                       <span className="material-symbols-outlined text-sonic-lime" style={{ fontSize: 10, fontVariationSettings: "'FILL' 1" }}>check</span>
                     </div>
                     <span className={`font-mono text-xs ${plan.highlight ? 'text-white/70' : 'text-white/40'}`}>{f}</span>
@@ -127,7 +127,7 @@ export default function Pricing() {
                   {user?.plan === 'free' ? 'Current plan' : 'Get started free'}
                 </Link>
               ) : (
-                <button onClick={() => handleUpgrade(plan.id)} disabled={loading === plan.id || user?.plan === plan.id} className="w-full py-3.5 rounded-xl font-mono text-xs uppercase tracking-[0.15em] font-bold transition-all active:scale-[0.98] disabled:opacity-50" style={plan.highlight ? { background: '#D7FF5A', color: '#050505', boxShadow: '0 0 30px rgba(215,255,90,0.2)', ...SG } : { border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>
+                <button onClick={() => handleUpgrade(plan.id)} disabled={loading === plan.id || user?.plan === plan.id} className="w-full py-3.5 rounded-xl font-mono text-xs uppercase tracking-[0.15em] font-bold transition-all active:scale-[0.98] disabled:opacity-50" style={plan.highlight ? { background: '#ff2e97', color: '#0a0613', boxShadow: '0 0 30px rgba(255,46,151,0.2)', ...SG } : { border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>
                   {loading === plan.id ? 'Redirecting...' : user?.plan === plan.id ? 'Current plan' : plan.id === 'pro' ? 'Upgrade to Pro' : 'Upgrade to Enterprise'}
                 </button>
               )}
@@ -148,8 +148,8 @@ export default function Pricing() {
             </div>
           </div>
           <div className="relative">
-            <div className="absolute -inset-2 rounded-2xl" style={{ background: 'radial-gradient(ellipse, rgba(215,255,90,0.06) 0%, transparent 70%)', filter: 'blur(20px)' }} />
-            <div className="relative rounded-2xl overflow-hidden h-48 flex items-center justify-center" style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.15) 0%, rgba(215,255,90,0.05) 100%)' }}>
+            <div className="absolute -inset-2 rounded-2xl" style={{ background: 'radial-gradient(ellipse, rgba(255,46,151,0.06) 0%, transparent 70%)', filter: 'blur(20px)' }} />
+            <div className="relative rounded-2xl overflow-hidden h-48 flex items-center justify-center" style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'radial-gradient(ellipse at 50% 50%, rgba(157,78,221,0.15) 0%, rgba(255,46,151,0.05) 100%)' }}>
               <div className="flex items-center gap-8 opacity-30">
                 {['AudioLabs', 'Waveform Co', 'Spectral Inc'].map((brand, i) => (
                   <div key={brand} className="flex flex-col items-center gap-2">

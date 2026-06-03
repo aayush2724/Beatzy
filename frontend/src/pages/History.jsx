@@ -10,9 +10,9 @@ const MOODS = ['', 'energetic', 'happy', 'chill', 'sad', 'dark', 'epic', 'calm',
 const KEYS = ['', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
 const MOOD_COLORS = {
-  energetic: '#D7FF5A',
+  energetic: '#ff2e97',
   happy: '#FFD700',
-  chill: '#60D4F7',
+  chill: '#22d3ee',
   sad: '#7CA9E6',
   dark: '#9B59B6',
   epic: '#FF6B6B',
@@ -63,7 +63,7 @@ function TrackCard({ job, onDelete }) {
     } catch { return null; }
   })();
 
-  const moodColor = MOOD_COLORS[job.mood] || '#D7FF5A';
+  const moodColor = MOOD_COLORS[job.mood] || '#ff2e97';
   const isCompleted = job.status === 'completed';
   const title = job.song_title || job.original_filename || 'Unknown Signal';
   const dateStr = new Date(job.created_at).toLocaleDateString('en-US', {
@@ -73,7 +73,7 @@ function TrackCard({ job, onDelete }) {
   return (
     <motion.div variants={card} className="group relative glass-panel border border-glass-border rounded-xl overflow-hidden hover:border-sonic-lime/20 transition-all">
       {/* Cover art strip */}
-      <div className="relative h-28 bg-[#0d0d0d] flex items-center justify-center overflow-hidden">
+      <div className="relative h-28 bg-[#0f0a20] flex items-center justify-center overflow-hidden">
         {spotifyMeta?.cover_url ? (
           <img
             src={spotifyMeta.cover_url}
@@ -192,7 +192,7 @@ export default function History() {
     deleteJob(jobId)
       .then(() => {
         toast.success('Analysis deleted', {
-          style: { background: '#0c0c0c', color: '#D7FF5A', border: '1px solid rgba(215,255,90,0.3)' },
+          style: { background: '#0f0a20', color: '#ff2e97', border: '1px solid rgba(255,46,151,0.3)' },
         });
         fetchHistory();
       })
@@ -217,7 +217,7 @@ export default function History() {
         </div>
         <Link
           to="/upload"
-          className="px-5 py-2.5 bg-sonic-lime text-black rounded font-mono text-xs font-bold uppercase tracking-wider hover:bg-sonic-lime/90 transition-all shadow-[0_0_20px_rgba(215,255,90,0.15)] flex items-center gap-2"
+          className="px-5 py-2.5 bg-sonic-lime text-black rounded font-mono text-xs font-bold uppercase tracking-wider hover:bg-sonic-lime/90 transition-all shadow-[0_0_20px_rgba(255,46,151,0.15)] flex items-center gap-2"
         >
           <span className="material-symbols-outlined text-sm">waves</span>
           New Analysis

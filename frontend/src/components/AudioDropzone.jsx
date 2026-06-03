@@ -25,36 +25,53 @@ export default function AudioDropzone({ onFile, disabled }) {
     <div
       {...getRootProps()}
       className={clsx(
-        'glass-card relative border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-200',
-        isDragActive && !isDragReject && 'border-sonic-lime bg-sonic-lime/5',
-        isDragReject && 'border-red-500 bg-red-500/5',
-        !isDragActive && !isDragReject && 'border-glass-border hover:border-sonic-lime/50 hover:bg-white/5',
-        disabled && 'opacity-50 cursor-not-allowed'
+        'relative overflow-hidden group cursor-pointer rounded-3xl border backdrop-blur-2xl p-16 md:p-24 transition-all duration-500 ease-out shadow-2xl',
+        isDragActive && !isDragReject ? 'scale-105 border-white/40 bg-white/10 shadow-white/10' : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 hover:scale-[1.02]',
+        isDragReject && 'border-red-500/50 bg-red-500/10',
+        disabled && 'opacity-50 pointer-events-none'
       )}
     >
+      {/* Subtle internal hover glow */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/0 via-transparent to-white/0 group-hover:from-white/5 group-hover:to-transparent transition-all duration-700" />
+      
       <input {...getInputProps()} />
-      <div className="flex flex-col items-center gap-4">
+      
+      <div className="relative z-10 flex flex-col items-center text-center gap-6">
+        {/* Massive Icon Container */}
         <div className={clsx(
-          'w-16 h-16 rounded-2xl flex items-center justify-center backdrop-blur-sm',
-          isDragReject ? 'bg-red-500/20' : 'bg-sonic-lime/10 border border-sonic-lime/30'
+          'w-28 h-28 rounded-full border flex items-center justify-center transition-transform duration-500',
+          isDragActive && !isDragReject ? 'bg-white/20 border-white/50 scale-110' : 'bg-white/5 border-white/10 group-hover:scale-110',
+          isDragReject && 'bg-red-500/20 border-red-500/50'
         )}>
-          {isDragReject
-            ? <AlertCircle size={32} className="text-red-400" />
-            : isDragActive
-            ? <Music size={32} className="text-sonic-lime animate-bounce" />
-            : <Upload size={32} className="text-sonic-lime" />}
+          {isDragReject ? (
+            <AlertCircle size={48} className="text-red-400" />
+          ) : isDragActive ? (
+            <Music size={48} className="text-white animate-pulse" />
+          ) : (
+            <Upload size={48} className="text-gray-300 group-hover:text-white transition-colors" />
+          )}
         </div>
+
         <div>
-          <p className="text-lg font-semibold mb-1 text-on-surface">
-            {isDragActive ? 'Drop it here!' : 'Drop your audio file'}
+          <h3 className="font-headline text-3xl md:text-4xl font-semibold text-white mb-3 tracking-tight">
+            {isDragReject ? 'Unsupported Audio Format' : isDragActive ? 'Drop track to analyze' : 'Drag & Drop your track'}
+          </h3>
+          <p className="text-gray-400 text-lg font-light">
+            or <span className="text-white underline decoration-white/30 underline-offset-4 hover:decoration-white transition-all">browse files</span>
           </p>
-          <p className="text-on-surface-variant text-sm">or click to browse</p>
-          <p className="text-outline text-xs mt-2">MP3, WAV, FLAC, OGG, M4A · Max 50MB</p>
+          {rejected && <p className="text-red-400 text-sm mt-4 font-mono">{rejected}</p>}
         </div>
-        {rejected && (
-          <p className="text-red-400 text-sm">{rejected}</p>
-        )}
+
+        {/* Format Badges */}
+        <div className="flex flex-wrap justify-center gap-3 mt-4">
+          {['WAV', 'MP3', 'FLAC', 'OGG'].map(ext => (
+            <span key={ext} className="text-[10px] uppercase tracking-widest text-gray-400 border border-white/10 rounded-full px-4 py-1.5 bg-black/20">
+              {ext}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );
 }
+

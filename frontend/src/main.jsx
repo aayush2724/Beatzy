@@ -16,8 +16,8 @@ const toastConfig = {
   },
   success: {
     iconTheme: {
-      primary: '#D7FF5A',
-      secondary: '#080808'
+      primary: '#ff2e97',
+      secondary: '#0c0818'
     }
   },
   error: {

@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { useEffect, useState } from 'react';
 import Layout from './components/Layout';
+import Ambient3D from './components/Ambient3D';
+import FloatingArtists from './components/FloatingArtists';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -24,13 +26,13 @@ function ProtectedRoute({ children }) {
 
 function PublicRoute({ children }) {
   const { token } = useAuthStore();
-  return !token ? children : <Navigate to="/dashboard" replace />;
+  return !token ? children : <Navigate to="/upload" replace />;
 }
 
 function AdminRoute({ children }) {
   const { token, user } = useAuthStore();
   if (!token) return <Navigate to="/login" replace />;
-  return user?.is_admin ? children : <Navigate to="/dashboard" replace />;
+  return user?.is_admin ? children : <Navigate to="/upload" replace />;
 }
 
 export default function App() {
@@ -49,7 +51,10 @@ export default function App() {
   if (!hydrated) return null;
 
   return (
-    <Routes>
+    <>
+      <FloatingArtists />
+      <Ambient3D />
+      <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
@@ -68,5 +73,6 @@ export default function App() {
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   );
 }

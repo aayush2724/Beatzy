@@ -32,23 +32,23 @@ export default function Register() {
       setAuth(data.data.user, data.data.accessToken, data.data.refreshToken);
       toast.success('Account created!');
       await new Promise(r => setTimeout(r, 0));
-      navigate('/dashboard', { replace: true });
+      navigate('/upload', { replace: true });
     } catch (err) {
       toast.error(err.response?.data?.error?.message || err.response?.data?.message || 'Registration failed');
     } finally { setLoading(false); }
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center overflow-hidden" style={{ background: '#050505' }}>
+    <div className="fixed inset-0 flex items-center justify-center overflow-hidden" style={{ background: '#0a0613' }}>
       {/* Scanline */}
       <div className="fixed inset-0 pointer-events-none z-50" style={{ background: 'linear-gradient(to bottom, transparent 50%, rgba(212,255,63,0.018) 50%)', backgroundSize: '100% 4px' }} />
 
       {/* Pure CSS gradient orb background - no external images */}
-      <div className="absolute inset-0 z-0" style={{ background: 'radial-gradient(ellipse at 20% 80%, rgba(139,92,246,0.18) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(215,255,90,0.12) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(0,245,255,0.08) 0%, transparent 60%)' }} />
+      <div className="absolute inset-0 z-0" style={{ background: 'radial-gradient(ellipse at 20% 80%, rgba(157,78,221,0.18) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(255,46,151,0.12) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(34,211,238,0.08) 0%, transparent 60%)' }} />
 
       {/* Orb glows */}
-      <div className="absolute pointer-events-none z-0 rounded-full" style={{ width: 500, height: 500, bottom: '-10%', left: '-10%', background: 'radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%)', filter: 'blur(60px)' }} />
-      <div className="absolute pointer-events-none z-0 rounded-full" style={{ width: 300, height: 300, top: '10%', right: '10%', background: 'radial-gradient(circle, rgba(215,255,90,0.07) 0%, transparent 70%)', filter: 'blur(50px)' }} />
+      <div className="absolute pointer-events-none z-0 rounded-full" style={{ width: 500, height: 500, bottom: '-10%', left: '-10%', background: 'radial-gradient(circle, rgba(157,78,221,0.12) 0%, transparent 70%)', filter: 'blur(60px)' }} />
+      <div className="absolute pointer-events-none z-0 rounded-full" style={{ width: 300, height: 300, top: '10%', right: '10%', background: 'radial-gradient(circle, rgba(255,46,151,0.07) 0%, transparent 70%)', filter: 'blur(50px)' }} />
 
       <main className="relative z-10 w-full max-w-[440px] px-4 max-h-screen overflow-y-auto py-8">
         <div ref={cardRef} className="rounded-2xl p-8 space-y-6 transition-transform duration-100" style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 32px 64px rgba(0,0,0,0.6)' }}>
@@ -56,7 +56,7 @@ export default function Register() {
           {/* Header */}
           <div className="text-center space-y-1">
             <div className="flex items-center justify-center gap-2 mb-3">
-              <div className="w-7 h-7 bg-sonic-lime/10 border border-sonic-lime/40 rounded flex items-center justify-center" style={{ boxShadow: '0 0 14px rgba(215,255,90,0.2)' }}>
+              <div className="w-7 h-7 bg-sonic-lime/10 border border-sonic-lime/40 rounded flex items-center justify-center" style={{ boxShadow: '0 0 14px rgba(255,46,151,0.2)' }}>
                 <span className="material-symbols-outlined text-sonic-lime text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
               </div>
               <span className="font-bold text-lg text-sonic-lime" style={SG}>BEATZY</span>
@@ -87,12 +87,12 @@ export default function Register() {
                 <label className="font-mono text-[9px] text-white/35 uppercase tracking-[0.2em] block mb-2">{label}</label>
                 <div className="relative">
                   <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25 text-base">{icon}</span>
-                  <input type={type} value={form[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} placeholder={placeholder} required minLength={key === 'password' ? 8 : key === 'name' ? 2 : undefined} className="w-full pl-10 pr-4 py-3 rounded-xl text-sm text-white placeholder:text-white/20 outline-none transition-all" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }} onFocus={e => e.target.style.borderColor = 'rgba(215,255,90,0.4)'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'} />
+                  <input type={type} value={form[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} placeholder={placeholder} required minLength={key === 'password' ? 8 : key === 'name' ? 2 : undefined} className="w-full pl-10 pr-4 py-3 rounded-xl text-sm text-white placeholder:text-white/20 outline-none transition-all" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }} onFocus={e => e.target.style.borderColor = 'rgba(255,46,151,0.4)'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'} />
                 </div>
               </div>
             ))}
 
-            <button type="submit" disabled={loading} className="w-full py-3.5 rounded-xl font-bold text-sm uppercase tracking-[0.15em] transition-all active:scale-[0.98] disabled:opacity-50 mt-2" style={{ ...SG, background: '#D7FF5A', color: '#050505', boxShadow: '0 0 30px rgba(215,255,90,0.2)' }}>
+            <button type="submit" disabled={loading} className="w-full py-3.5 rounded-xl font-bold text-sm uppercase tracking-[0.15em] transition-all active:scale-[0.98] disabled:opacity-50 mt-2" style={{ ...SG, background: '#ff2e97', color: '#0a0613', boxShadow: '0 0 30px rgba(255,46,151,0.2)' }}>
               {loading ? 'Creating account...' : 'Create account'}
             </button>
           </form>
