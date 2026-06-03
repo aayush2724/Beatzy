@@ -21,7 +21,10 @@ const SG = { fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" };
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="glass-panel p-3 border border-glass-border rounded-lg text-xs font-mono">
+      <div className="glass-card p-3 border border-glass-border rounded-lg text-xs font-mono backdrop-blur-xl" style={{ 
+        background: 'rgba(11, 11, 18, 0.9)', 
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)' 
+      }}>
         <p className="text-white font-bold">{payload[0].payload.name}</p>
         <p className="text-sonic-lime mt-1">{payload[0].value} {payload[0].unit || ''}</p>
       </div>

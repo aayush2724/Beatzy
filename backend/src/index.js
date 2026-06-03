@@ -1,6 +1,25 @@
 require('dotenv').config();
 require('express-async-errors');
 
+// Basic environment validation
+function validateEnv() {
+  const required = ['DATABASE_URL', 'JWT_SECRET', 'JWT_REFRESH_SECRET'];
+  const missing = required.filter(key => !process.env[key]);
+  if (missing.length > 0) {
+    console.error(`❌ Missing required environment variables: ${missing.join(', ')}`);
+    process.exit(1);
+  }
+  
+  // Warn about important optional vars
+  const optional = ['STRIPE_SECRET_KEY', 'AWS_ACCESS_KEY_ID', 'ACRCLOUD_ACCESS_KEY'];
+  const missingOptional = optional.filter(key => !process.env[key]);
+  if (missingOptional.length > 0) {
+    console.warn(`⚠️  Missing optional environment variables: ${missingOptional.join(', ')}`);
+  }
+}
+
+validateEnv();
+
 const http = require('http');
 const express = require('express');
 const cors = require('cors');
@@ -38,7 +57,21 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(compression());
 
 app.use(cors({
-  origin: isDev ? true : (process.env.FRONTEND_URL || 'http://localhost:5000').trim().replace(/^["']|["']$/g, ''),
+  origin: isDev ? true : function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      process.env.FRONTEND_URL?.trim().replace(/^["']|["']$/g, '') || 'http://localhost:5173',
+      process.env.BACKEND_URL?.trim().replace(/^["']|["']$/g, ''), // For same-origin requests
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:3000'
+    ].filter(Boolean);
+    
+    const isAllowed = allowedOrigins.some(allowed => origin.startsWith(allowed));
+    callback(null, isAllowed);
+  },
   credentials: true,
 }));
 
@@ -77,6 +110,15 @@ async function bootstrap() {
 
     server.listen(PORT, () => {
       logger.info(`Beatzy backend running on port ${PORT}`);
+    });
+
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        logger.error(`Port ${PORT} is already in use. Kill the process with: fuser -k ${PORT}/tcp`);
+        process.exit(1);
+      } else {
+        throw err;
+      }
     });
 
     if (process.env.NODE_ENV !== 'test') {
