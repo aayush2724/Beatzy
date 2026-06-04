@@ -120,7 +120,7 @@ export default function ArtistEchoes() {
                 <div key={idx} className="flex gap-4 items-start border-l border-white/10 pl-4 relative">
                   <div className="absolute -left-[3px] top-1 w-1.5 h-1.5 rounded-full bg-primary" />
                   <div>
-                    <p className="font-mono text-[8px] text-white/30 uppercase tracking-widest">{event.time} // {event.status}</p>
+                    <p className="font-mono text-[8px] text-white/30 uppercase tracking-widest">{event.time} · {event.status}</p>
                     <p className="font-sans text-xs text-white/80 mt-1 leading-relaxed">{event.text}</p>
                   </div>
                 </div>

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { CHORD_SHAPES, getChordShape } from '../data/chordShapes';
+import clsx from 'clsx';
+import { getChordShape } from '../data/chordShapes';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const INSTRUMENTS = ['Guitar', 'Piano', 'Ukulele'];

@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import os
 import scipy.signal
 import scipy.signal.windows
