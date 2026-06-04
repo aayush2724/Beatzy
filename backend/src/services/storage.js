@@ -57,7 +57,7 @@ async function uploadToS3(buffer, key, contentType) {
     ? `${process.env.AWS_S3_ENDPOINT}/${BUCKET}/${key}`
     : `https://${BUCKET}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${key}`;
 
-  logger.info('File uploaded to S3', { key, url });
+  logger.info('File uploaded to S3', { key, bucket: BUCKET, contentType, endpoint: process.env.AWS_S3_ENDPOINT || 'aws' });
   return url;
 }
 
@@ -73,6 +73,7 @@ async function deleteFromS3(key) {
   }
   const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
   await getS3().send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
+  logger.info('Deleted object from storage', { key, bucket: BUCKET });
 }
 
 async function getPresignedUrl(key, expiresIn = 3600) {
