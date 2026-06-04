@@ -51,63 +51,63 @@ export default function Pricing() {
         }}
       />
 
-      <nav className="relative z-20 flex items-center justify-between px-6 md:px-12 py-8">
-        <Link to="/" className="font-headline text-lg tracking-[0.25em] text-white hover:text-gray-200 transition">
+      <nav className="relative z-20 flex items-center justify-between px-6 md:px-12 py-10">
+        <Link to="/" className="font-headline text-xl tracking-[0.25em] text-white hover:text-gray-200 transition">
           BEATZY
         </Link>
-        <div className="flex items-center gap-6 md:gap-10 text-xs tracking-[0.1em] uppercase text-gray-400">
+        <div className="flex items-center gap-8 md:gap-12 text-sm tracking-[0.1em] uppercase text-gray-400">
           <Link to="/" className="hover:text-white transition">Home</Link>
           {token ? (
-            <Link to="/dashboard" className="btn-primary py-2 px-4 text-[10px] tracking-[0.15em]">Dashboard</Link>
+            <Link to="/dashboard" className="btn-primary py-2.5 px-6 text-xs tracking-[0.15em]">Dashboard</Link>
           ) : (
             <Link to="/login" className="hover:text-white transition">Sign In</Link>
           )}
         </div>
       </nav>
 
-      <main className="relative z-10 pt-8 pb-24 px-6 max-w-5xl mx-auto">
-        <header className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 mb-5 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03]">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-            <span className="font-mono text-[9px] text-gray-400 uppercase tracking-[0.25em]">Plans</span>
+      <main className="relative z-10 pt-10 pb-32 px-6 max-w-5xl mx-auto">
+        <header className="text-center mb-20">
+          <div className="inline-flex items-center gap-3 mb-6 px-4 py-2 rounded-full border border-white/10 bg-white/[0.03]">
+            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+            <span className="font-mono text-xs text-gray-400 uppercase tracking-[0.25em]">Plans</span>
           </div>
-          <h1 className="font-headline text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
+          <h1 className="font-headline text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight">
             Simple, transparent pricing
           </h1>
-          <p className="text-sm text-gray-400">Start free. Upgrade when you need more power.</p>
+          <p className="text-base text-gray-400">Start free. Upgrade when you need more power.</p>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-24">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-32">
           {plans.map(plan => (
             <div
               key={plan.id}
-              className={`relative rounded-2xl p-7 flex flex-col transition-all duration-300 hover:-translate-y-1 glass-panel ${
+              className={`relative rounded-2xl p-8 flex flex-col transition-all duration-300 hover:-translate-y-1 glass-panel ${
                 plan.highlight ? 'border-white/20 shadow-[0_24px_80px_rgba(0,0,0,0.5)]' : ''
               }`}
             >
               {plan.highlight && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider bg-white text-black">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full font-mono text-[10px] font-bold uppercase tracking-wider bg-white text-black">
                   Most Popular
                 </div>
               )}
 
-              <div className="mb-6">
-                <span className={`font-mono text-[9px] uppercase tracking-[0.2em] block mb-2 ${plan.highlight ? 'text-white' : 'text-gray-500'}`}>{plan.tier}</span>
-                <h3 className="font-headline text-2xl font-bold text-white mb-1">{plan.name}</h3>
-                <div className="flex items-baseline gap-1 mb-3">
-                  <span className="font-headline text-4xl font-bold text-white">${plan.price}</span>
-                  <span className="font-mono text-sm text-gray-500">{plan.period}</span>
+              <div className="mb-8">
+                <span className={`font-mono text-xs uppercase tracking-[0.2em] block mb-3 ${plan.highlight ? 'text-white' : 'text-gray-500'}`}>{plan.tier}</span>
+                <h3 className="font-headline text-3xl font-bold text-white mb-2">{plan.name}</h3>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="font-headline text-5xl font-bold text-white">${plan.price}</span>
+                  <span className="font-mono text-base text-gray-500">{plan.period}</span>
                 </div>
-                <p className="text-xs text-gray-500">{plan.description}</p>
+                <p className="text-sm text-gray-500">{plan.description}</p>
               </div>
 
-              <ul className="space-y-3 mb-8 flex-grow">
+              <ul className="space-y-4 mb-10 flex-grow">
                 {plan.features.map(f => (
-                  <li key={f} className="flex items-center gap-3">
-                    <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 bg-white/5 border border-white/15">
-                      <span className="material-symbols-outlined text-white" style={{ fontSize: 10, fontVariationSettings: "'FILL' 1" }}>check</span>
+                  <li key={f} className="flex items-center gap-4">
+                    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 bg-white/5 border border-white/15">
+                      <span className="material-symbols-outlined text-white" style={{ fontSize: 12, fontVariationSettings: "'FILL' 1" }}>check</span>
                     </div>
-                    <span className={`text-xs ${plan.highlight ? 'text-gray-300' : 'text-gray-500'}`}>{f}</span>
+                    <span className={`text-sm ${plan.highlight ? 'text-gray-300' : 'text-gray-500'}`}>{f}</span>
                   </li>
                 ))}
               </ul>
@@ -115,7 +115,7 @@ export default function Pricing() {
               {plan.id === 'free' ? (
                 <Link
                   to={token ? '/dashboard' : '/register'}
-                  className="btn-secondary w-full py-3.5 text-center text-xs uppercase tracking-[0.15em]"
+                  className="btn-secondary w-full py-4 text-center text-sm uppercase tracking-[0.15em]"
                 >
                   {user?.plan === 'free' ? 'Current plan' : 'Get started free'}
                 </Link>
@@ -123,7 +123,7 @@ export default function Pricing() {
                 <button
                   onClick={() => handleUpgrade(plan.id)}
                   disabled={loading === plan.id || user?.plan === plan.id}
-                  className={`w-full py-3.5 rounded-xl text-xs uppercase tracking-[0.15em] font-bold transition-all active:scale-[0.98] disabled:opacity-50 ${
+                  className={`w-full py-4 rounded-xl text-sm uppercase tracking-[0.15em] font-bold transition-all active:scale-[0.98] disabled:opacity-50 ${
                     plan.highlight ? 'btn-primary' : 'btn-secondary'
                   }`}
                 >
@@ -134,27 +134,27 @@ export default function Pricing() {
           ))}
         </div>
 
-        <section className="pt-16 border-t border-white/10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <section className="pt-20 border-t border-white/10 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
           <div>
-            <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-gray-500 mb-4">Built for scale</p>
-            <h2 className="font-headline text-2xl font-bold text-white mb-4 tracking-tight">Engineered for technical mastery</h2>
-            <p className="text-xs text-gray-500 leading-relaxed mb-6">
+            <p className="font-mono text-xs uppercase tracking-[0.25em] text-gray-500 mb-6">Built for scale</p>
+            <h2 className="font-headline text-3xl font-bold text-white mb-6 tracking-tight">Engineered for technical mastery</h2>
+            <p className="text-sm text-gray-500 leading-relaxed mb-8">
               Sub-millisecond classification latency for real-time production environments. Join thousands of engineers who trust Beatzy.
             </p>
-            <div className="flex gap-6">
+            <div className="flex gap-8">
               {['AudioLabs', 'Waveform Co.', 'Spectral Inc.'].map(b => (
-                <span key={b} className="font-mono text-[9px] uppercase tracking-widest text-gray-600">{b}</span>
+                <span key={b} className="font-mono text-xs uppercase tracking-widest text-gray-600">{b}</span>
               ))}
             </div>
           </div>
-          <div className="glass-panel h-48 flex items-center justify-center">
-            <div className="flex items-center gap-8 opacity-40">
+          <div className="glass-panel h-56 flex items-center justify-center">
+            <div className="flex items-center gap-10 opacity-40">
               {['AudioLabs', 'Waveform Co', 'Spectral Inc'].map(brand => (
-                <div key={brand} className="flex flex-col items-center gap-2">
-                  <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-white">graphic_eq</span>
+                <div key={brand} className="flex flex-col items-center gap-3">
+                  <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                    <span className="material-symbols-outlined text-white text-2xl">graphic_eq</span>
                   </div>
-                  <span className="font-mono text-[8px] text-gray-500 uppercase tracking-widest">{brand}</span>
+                  <span className="font-mono text-xs text-gray-500 uppercase tracking-widest">{brand}</span>
                 </div>
               ))}
             </div>
@@ -162,14 +162,14 @@ export default function Pricing() {
         </section>
       </main>
 
-      <footer className="relative z-10 border-t border-white/10 py-10 px-8 flex flex-col md:flex-row justify-between items-center gap-5">
-        <span className="font-headline text-lg tracking-[0.25em] text-white">BEATZY</span>
-        <div className="flex gap-8">
+      <footer className="relative z-10 border-t border-white/10 py-16 px-8 flex flex-col md:flex-row justify-between items-center gap-10">
+        <span className="font-headline text-xl tracking-[0.25em] text-white">BEATZY</span>
+        <div className="flex gap-10">
           {['Architecture', 'Privacy', 'API Docs', 'Terms'].map(l => (
-            <Link key={l} to="/" className="font-mono text-[9px] uppercase tracking-[0.2em] text-gray-600 hover:text-white transition-colors">{l}</Link>
+            <Link key={l} to="/" className="font-mono text-xs uppercase tracking-[0.2em] text-gray-600 hover:text-white transition-colors">{l}</Link>
           ))}
         </div>
-        <span className="font-mono text-[9px] text-gray-600 uppercase tracking-widest">© 2026 Beatzy AI</span>
+        <span className="font-mono text-xs text-gray-600 uppercase tracking-widest">© 2026 Beatzy AI</span>
       </footer>
     </div>
   );
