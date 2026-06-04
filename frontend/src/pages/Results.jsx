@@ -1,9 +1,8 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, Sphere, MeshDistortMaterial } from '@react-three/drei';
-import toast from 'react-hot-toast';
 import WaveSurfer from 'wavesurfer.js';
 import { getResults } from '../api/audio';
 import InstrumentChordPanel from '../components/InstrumentChordPanel';
