@@ -1,10 +1,15 @@
+import asyncio
+import os
+
 from fastapi import APIRouter, HTTPException, Request, Query
 from pydantic import BaseModel
 import structlog
 
 from app.services.audio_service import AudioAnalysisService
-from app.services.audd_service import AuddService
+from app.services.acoustid_service import AcoustIDService
 from app.services.spotify_service import SpotifyService
+from app.services.itunes_service import iTunesService
+from app.services.song_metadata import parse_filename, clean_title
 from app.services.storage_service import StorageService
 from app.services.lyrics_service import LyricsService
 
@@ -19,9 +24,12 @@ async def spotify_search(
     q: str = Query(..., min_length=1, description="Search query (song name, artist, etc.)"),
     limit: int = Query(10, ge=1, le=20, description="Max results to return"),
 ):
-    """Search Spotify for tracks by name/artist and return metadata + preview URLs."""
-    service = SpotifyService()
-    tracks = await service.search_tracks(q, limit)
+    """Search tracks by name/artist; falls back to iTunes when Spotify is blocked."""
+    spotify = SpotifyService()
+    tracks = await spotify.search_tracks(q, limit)
+    if not tracks:
+        itunes = iTunesService()
+        tracks = await itunes.search_tracks(q, limit)
     return {"success": True, "data": tracks}
 
 
@@ -55,40 +63,80 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
         audio_service = AudioAnalysisService()
         audio_features = await audio_service.analyze(audio_path)
 
-        # --- AudD Song Identification ---
-        audd_service = AuddService()
-        song_info = await audd_service.identify(audio_path)
+        # --- Song identification: AcoustID → filename → iTunes ---
+        song_info = None
+        ext = AcoustIDService.extension_from_path(audio_path)
+        sample_bytes = AcoustIDService.read_fingerprint_sample(audio_path)
 
-        # --- Local Filename Fallback (if AudD fails / no API key) ---
-        if not song_info or not song_info.get("title"):
-            filename = req.original_filename or ""
-            clean_name = filename.replace(".mp3", "").replace(".wav", "").replace(".m4a", "").replace("_", " ")
-            if "-" in clean_name:
-                parts = clean_name.split("-", 1)
-                song_info = {"artist": parts[0].strip(), "title": parts[1].strip(), "isrc": None}
-            elif clean_name.strip():
-                song_info = {"artist": "", "title": clean_name.strip(), "isrc": None}
+        acoustid_service = AcoustIDService()
+        loop = asyncio.get_event_loop()
+        song_info = await loop.run_in_executor(
+            None,
+            acoustid_service.identify_from_bytes,
+            sample_bytes,
+            ext,
+        )
+
+        if not song_info and req.original_filename:
+            song_info = parse_filename(req.original_filename)
+            if song_info.get("title"):
+                song_info["title"] = clean_title(song_info["title"])
             if song_info:
-                logger.info("Used local filename fallback", extracted=song_info)
-        # ---------------------------------
+                log.info("Used local filename fallback", extracted=song_info)
+
+        if not song_info and req.original_filename:
+            basename = os.path.splitext(req.original_filename)[0].replace("_", " ").strip()
+            if basename:
+                itunes = iTunesService()
+                hit = await itunes.enrich(title=clean_title(basename))
+                if hit:
+                    song_info = {
+                        "title": hit.get("title"),
+                        "artist": hit.get("artist"),
+                        "source": "itunes",
+                        "isrc": None,
+                    }
+                    log.info("Used iTunes filename search fallback", extracted=song_info)
+
+        song_info = song_info or {}
+        # ---------------------------------------------------------
 
         # YAMNet classification
         yamnet = request.app.state.yamnet
         yamnet_result = await yamnet.classify(audio_path)
 
-        # Spotify enrichment
+        # Spotify enrichment (iTunes fallback when Spotify dev app is restricted)
         spotify_service = SpotifyService()
         spotify_features = await spotify_service.enrich(
             isrc=song_info.get("isrc"),
             title=song_info.get("title"),
             artist=song_info.get("artist"),
         )
+        if not spotify_features and song_info.get("title"):
+            itunes = iTunesService()
+            itunes_hit = await itunes.enrich(
+                title=clean_title(song_info.get("title")),
+                artist=song_info.get("artist"),
+            )
+            if itunes_hit:
+                spotify_features = {
+                    "spotify_track_id": itunes_hit.get("spotify_id"),
+                    "spotify_url": itunes_hit.get("spotify_url"),
+                    "cover_url": itunes_hit.get("cover_url"),
+                    "preview_url": itunes_hit.get("preview_url"),
+                    "title": itunes_hit.get("title"),
+                    "artist": itunes_hit.get("artist"),
+                    "album": itunes_hit.get("album"),
+                    "release_date": itunes_hit.get("release_date"),
+                    "duration_ms": itunes_hit.get("duration_ms"),
+                    "source": "itunes",
+                }
 
         # FETCH LYRICS
         lyrics_service = LyricsService()
         lyrics = await lyrics_service.fetch_lyrics(
             artist=song_info.get("artist"),
-            title=song_info.get("title")
+            title=clean_title(song_info.get("title") or ""),
         )
 
         result = {

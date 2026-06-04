@@ -11,7 +11,7 @@ function validateEnv() {
   }
   
   // Warn about important optional vars
-  const optional = ['STRIPE_SECRET_KEY', 'AWS_ACCESS_KEY_ID', 'ACRCLOUD_ACCESS_KEY'];
+  const optional = ['STRIPE_SECRET_KEY', 'AWS_ACCESS_KEY_ID', 'ACOUSTID_API_KEY'];
   const missingOptional = optional.filter(key => !process.env[key]);
   if (missingOptional.length > 0) {
     console.warn(`⚠️  Missing optional environment variables: ${missingOptional.join(', ')}`);

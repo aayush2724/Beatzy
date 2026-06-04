@@ -93,21 +93,45 @@ export default function Results() {
     return () => wavesurfer.current.destroy();
   }, [result]);
 
+  const mlData = useMemo(() => {
+    try {
+      const raw = result?.raw_ml_response;
+      if (!raw) return null;
+      return typeof raw === 'string' ? JSON.parse(raw) : raw;
+    } catch {
+      return null;
+    }
+  }, [result]);
+
+  const normalizeChords = (segments) =>
+    (Array.isArray(segments) ? segments : []).map((c) => ({
+      chord: c.chord,
+      start_time: c.start_time ?? c.start ?? 0,
+      end_time: c.end_time ?? c.end ?? 0,
+    }));
+
   const chords = useMemo(() => {
+    const fromMl = normalizeChords(mlData?.audio?.chord_timeline);
+    if (fromMl.length) return fromMl;
     try {
       const raw = result?.chords;
       if (!raw) return [];
       const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
-      return Array.isArray(parsed) ? parsed : [];
-    } catch { return []; }
-  }, [result]);
+      return normalizeChords(parsed);
+    } catch {
+      return [];
+    }
+  }, [result, mlData]);
+
+  const lyricsText = mlData?.lyrics || result?.lyrics || null;
+  const chordSegments = chords;
 
   const currentChord = useMemo(() => {
     return chords.find(c => currentTime >= c.start_time && currentTime <= c.end_time)?.chord || 'N.C.';
   }, [chords, currentTime]);
 
   const lyricLines = useMemo(() => {
-    const raw = result?.synced_lyrics || result?.lyrics || '';
+    const raw = result?.synced_lyrics || lyricsText || '';
     if (result?.synced_lyrics) {
         // Parse LRC format: [mm:ss.xx] Lyrics
         return raw.split('\n').map(line => {
@@ -120,7 +144,7 @@ export default function Results() {
         }).filter(Boolean);
     }
     return raw.split('\n').map(text => ({ time: 0, text: text.trim() })).filter(l => l.text);
-  }, [result]);
+  }, [result, lyricsText]);
 
   const currentLyricIdx = useMemo(() => {
     if (!result?.synced_lyrics) return -1;
@@ -133,8 +157,12 @@ export default function Results() {
   }, [lyricLines, currentTime, result]);
 
   if (loading) return <div className="py-24 text-center font-mono text-primary animate-pulse">Syncing neural matrix...</div>;
+  if (error) return <div className="py-24 text-center text-red-400 font-mono">{error}</div>;
+  if (!result) return null;
 
-  const spotifyMeta = result?.spotify_features ? (typeof result.spotify_features === 'string' ? JSON.parse(result.spotify_features) : result.spotify_features) : null;
+  const spotifyMeta = result?.spotify_features
+    ? (typeof result.spotify_features === 'string' ? JSON.parse(result.spotify_features) : result.spotify_features)
+    : null;
 
   return (
     <PageWrapper className="space-y-8 pb-20 relative">
@@ -204,44 +232,65 @@ export default function Results() {
                       </div>
                   </div>
 
-                  {/* Scrolling Chord Timeline */}
+                  {/* Chord timeline from ML analysis */}
                   <div className="relative h-12 bg-white/[0.02] border border-glass-border rounded-lg overflow-hidden flex items-center px-4">
                       <div className="absolute left-1/2 top-0 bottom-0 w-[2px] bg-primary z-10 shadow-[0_0_10px_var(--color-primary)]" />
-                      <div className="flex gap-4 transition-transform duration-100" style={{ transform: `translateX(calc(50% - ${currentTime * 60}px))` }}>
-                          {chords.map((c, i) => (
-                              <div 
-                                key={i} 
-                                className={clsx(
-                                    "px-4 py-1 rounded font-mono font-bold text-xs transition-all duration-300 whitespace-nowrap",
-                                    currentTime >= c.start_time && currentTime <= c.end_time ? "bg-primary text-surface scale-110" : "text-white/40"
-                                )}
-                                style={{ width: (c.end_time - c.start_time) * 60 }}
-                              >
-                                  {c.chord}
-                              </div>
+                      {chordSegments.length > 0 ? (
+                        <div
+                          className="flex gap-4 transition-transform duration-100"
+                          style={{ transform: `translateX(calc(50% - ${currentTime * 60}px))` }}
+                        >
+                          {chordSegments.map((c, i) => (
+                            <div
+                              key={`${c.chord}-${c.start_time}-${i}`}
+                              className={clsx(
+                                'px-4 py-1 rounded font-mono font-bold text-xs transition-all duration-300 whitespace-nowrap',
+                                currentTime >= c.start_time && currentTime <= c.end_time
+                                  ? 'bg-primary text-surface scale-110'
+                                  : 'text-white/40'
+                              )}
+                              style={{ minWidth: Math.max(48, (c.end_time - c.start_time) * 60) }}
+                            >
+                              {c.chord}
+                            </div>
                           ))}
-                      </div>
+                        </div>
+                      ) : (
+                        <span className="mx-auto font-mono text-[10px] text-white/30 uppercase tracking-widest">
+                          Chord timeline unavailable
+                        </span>
+                      )}
                   </div>
               </div>
 
-              {/* Lyrics Panel */}
+              {/* Lyrics from ML / lyrics provider */}
               <div className="glass-panel p-8 border border-glass-border h-[400px] overflow-hidden flex flex-col">
-                  <h3 className="font-headline font-bold text-sm text-primary uppercase tracking-widest mb-8">Synced Transcript</h3>
+                  <h3 className="font-headline font-bold text-sm text-primary uppercase tracking-widest mb-8">
+                    {result?.synced_lyrics ? 'Synced Transcript' : 'Lyrics'}
+                  </h3>
                   <div className="flex-1 overflow-y-auto pr-4 space-y-6 scroll-smooth">
-                      {lyricLines.length > 0 ? lyricLines.map((line, i) => (
-                          <p 
-                            key={i} 
+                      {lyricLines.length > 0 ? (
+                        lyricLines.map((line, i) => (
+                          <p
+                            key={i}
                             className={clsx(
-                                "text-xl md:text-2xl font-medium transition-all duration-500",
-                                i === currentLyricIdx ? "text-white opacity-100 translate-x-2" : "text-white/20 hover:text-white/40"
+                              'text-xl md:text-2xl font-medium transition-all duration-500',
+                              i === currentLyricIdx
+                                ? 'text-white opacity-100 translate-x-2'
+                                : 'text-white/20 hover:text-white/40'
                             )}
                           >
-                              {line.text}
+                            {line.text}
                           </p>
-                      )) : (
-                          <div className="h-full flex items-center justify-center text-white/20 font-mono text-sm uppercase tracking-widest italic">
-                              Transcript data not found
-                          </div>
+                        ))
+                      ) : lyricsText ? (
+                        <pre className="text-white/80 text-sm md:text-base font-medium whitespace-pre-wrap leading-relaxed font-sans">
+                          {lyricsText}
+                        </pre>
+                      ) : (
+                        <div className="h-full flex items-center justify-center text-white/20 font-mono text-sm uppercase tracking-widest italic">
+                          Lyrics not found for this track
+                        </div>
                       )}
                   </div>
               </div>
@@ -260,7 +309,7 @@ export default function Results() {
                   <p className="mt-4 text-[10px] text-white/40 uppercase font-mono tracking-widest">Real-time chord tracking active</p>
               </div>
 
-              <InstrumentChordPanel chords={chords} />
+              <InstrumentChordPanel chords={chordSegments} />
 
               <div className="grid grid-cols-2 gap-4">
                   <StatCard icon="bolt" label="Energy" value={`${Math.round(result.energy_level * 100)}%`} color="text-secondary" />

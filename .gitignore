@@ -58,5 +58,12 @@ htmlcov/
 tmp/
 temp/
 
+# Accidental / local tooling (not part of Beatzy)
+cursor.AppImage
+*.AppImage
+kirocli/
+kirocli.zip
+.kilo/
+
 # Nested git repositories (should not exist in submodules)
 **/.git

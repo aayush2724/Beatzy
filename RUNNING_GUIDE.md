@@ -163,9 +163,7 @@ AWS_S3_BUCKET=beatzy-audio
 AWS_S3_ENDPOINT=http://localhost:9000
 
 # External APIs (optional for full functionality)
-ACRCLOUD_HOST=your_acrcloud_host
-ACRCLOUD_ACCESS_KEY=your_key
-ACRCLOUD_SECRET_KEY=your_secret
+ACOUSTID_API_KEY=your_acoustid_api_key
 STRIPE_SECRET_KEY=your_stripe_key
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_secret

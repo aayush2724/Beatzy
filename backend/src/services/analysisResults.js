@@ -5,7 +5,12 @@ const logger = require('../utils/logger');
 async function persistAnalysisResult({ jobId, mlResult }) {
   const songTitle = mlResult.song?.title;
   const songArtist = mlResult.song?.artist;
-  const lyricsResult = await fetchLyrics({ title: songTitle, artist: songArtist });
+  let lyricsResult = null;
+  if (mlResult.lyrics) {
+    lyricsResult = { lyrics: mlResult.lyrics, syncedLyrics: null, source: 'lyrics.ovh' };
+  } else {
+    lyricsResult = await fetchLyrics({ title: songTitle, artist: songArtist });
+  }
 
   if (lyricsResult) {
     logger.info('Lyrics fetched', {
@@ -68,7 +73,7 @@ async function persistAnalysisResult({ jobId, mlResult }) {
       mlResult.audio?.key_signature,
       mlResult.audio?.time_signature,
       mlResult.audio?.scale,
-      JSON.stringify(mlResult.audio?.chords || []),
+      JSON.stringify(mlResult.audio?.chord_timeline || mlResult.audio?.chords || []),
       mlResult.audio?.spectral_centroid,
       mlResult.audio?.spectral_rolloff,
       mlResult.audio?.zero_crossing_rate,

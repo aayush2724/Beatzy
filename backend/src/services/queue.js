@@ -52,7 +52,7 @@ async function initQueue() {
 }
 
 async function processJobDirectly(data) {
-  const { jobId, userId, s3Key, s3Url } = data;
+  const { jobId, userId, s3Key, s3Url, originalFilename } = data;
   const { pool } = require('../db/client');
   const { persistAnalysisResult } = require('./analysisResults');
   const axios = require('axios');
@@ -68,6 +68,15 @@ async function processJobDirectly(data) {
   }
 
   try {
+    let filename = originalFilename;
+    if (!filename) {
+      const { rows } = await pool.query(
+        'SELECT original_filename FROM audio_jobs WHERE id = $1',
+        [jobId]
+      );
+      filename = rows[0]?.original_filename;
+    }
+
     await pool.query("UPDATE audio_jobs SET status = 'processing', started_at = NOW() WHERE id = $1", [jobId]);
     emit('job:progress', { jobId, status: 'processing', progress: 10 });
 
@@ -76,7 +85,8 @@ async function processJobDirectly(data) {
       job_id: jobId,
       s3_key: s3Key,
       s3_url: s3Url,
-    }, { timeout: 180000 });
+      original_filename: filename,
+    }, { timeout: 240000 });
     const mlResult = response.data;
 
     emit('job:progress', { jobId, status: 'saving', progress: 70 });
