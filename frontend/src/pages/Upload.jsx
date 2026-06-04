@@ -104,6 +104,31 @@ export default function Upload() {
   const [playingUrl, setPlayingUrl] = useState(null);
   const audioRef = useRef(null);
 
+  // Debounced search logic for suggestions
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (query.trim().length >= 3 && tab === 'search') {
+        performSearch(query);
+      } else if (query.trim().length === 0) {
+        setTracks([]);
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [query, tab]);
+
+  const performSearch = async (searchTerm) => {
+    setSearching(true);
+    try {
+      const { data } = await searchSongs(searchTerm);
+      setTracks(data.data || []);
+    } catch (err) {
+      console.error('Search failed', err);
+    } finally {
+      setSearching(false);
+    }
+  };
+
   const { status: socketStatus, progress: socketProgress } = useJobSocket(jobId);
 
   useEffect(() => {
@@ -122,9 +147,17 @@ export default function Upload() {
         setStep('done');
         setTimeout(() => navigate(`/results/${jobId}`), 1200);
       } else if (socketStatus === 'failed') {
-        toast.error('Analysis pipeline failed', { style: { background: 'var(--color-surface-container)', color: '#fff' } });
-        resetState();
-      } else if (['analyzing', 'saving', 'processing'].includes(socketStatus || '')) {
+        // Try to fetch the specific error message from the job record
+        getResults(jobId).then(({ data }) => {
+            const msg = data.data?.error_message || 'Analysis pipeline failed';
+            toast.error(msg, { style: { background: 'var(--color-surface-container)', color: '#fff' } });
+        }).catch(() => {
+            toast.error('Analysis pipeline failed', { style: { background: 'var(--color-surface-container)', color: '#fff' } });
+        }).finally(() => {
+            resetState();
+        });
+      }
+ else if (['analyzing', 'saving', 'processing'].includes(socketStatus || '')) {
         setStep('analyzing');
       }
   }, [socketStatus, jobId, navigate]);
@@ -163,7 +196,9 @@ export default function Upload() {
             setTimeout(() => navigate(`/results/${id}`), 1200);
             return;
           }
-          if (rd.data?.status === 'failed') throw new Error('Analysis failed');
+          if (rd.data?.status === 'failed') {
+            throw new Error(rd.data?.error_message || 'Analysis failed');
+          }
           if (rd.data?.status === 'completed') {
             setStep('done');
             setTimeout(() => navigate(`/results/${id}`), 1200);
@@ -214,7 +249,9 @@ export default function Upload() {
             setTimeout(() => navigate(`/results/${id}`), 1200);
             return;
           }
-          if (rd.data?.status === 'failed') throw new Error('Analysis failed');
+          if (rd.data?.status === 'failed') {
+            throw new Error(rd.data?.error_message || 'Analysis failed');
+          }
           if (rd.data?.status === 'completed') {
             setStep('done');
             setTimeout(() => navigate(`/results/${id}`), 1200);
@@ -450,24 +487,26 @@ export default function Upload() {
                   <div className="w-full flex flex-col gap-6">
                     <form onSubmit={handleSearch} className="flex gap-2">
                       <div className="relative flex-1">
-                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4" />
                         <input
                           type="text"
                           value={query}
                           onChange={(e) => setQuery(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); performSearch(query); } }}
                           placeholder="Search for a song, artist, or album..."
                           className="input pl-11"
                         />
+                        {searching && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <div className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+                          </div>
+                        )}
                       </div>
-                      <button
-                        type="submit"
-                        disabled={searching || !query.trim()}
-                        className="btn-primary"
-                      >
-                        {searching ? '...' : 'Search'}
-                      </button>
-                    </form>
+                      </form>
 
+                      {query.trim().length > 0 && query.trim().length < 3 && tab === 'search' && (
+                      <p className="text-[10px] text-on-surface-variant/60 font-mono uppercase tracking-widest text-center">Type at least 3 characters...</p>
+                      )}
                     <div className="flex flex-col gap-2 max-h-[320px] overflow-y-auto pr-1">
                       {tracks.map((track) => (
                         <div key={track.spotify_id} className={clsx(
