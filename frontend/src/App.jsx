@@ -62,7 +62,6 @@ export default function App() {
           <Route path="/billing/success" element={<BillingSuccess />} />
           <Route path="/artist-echoes" element={<ArtistEchoes />} />
           <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-            <Route index element={<Navigate to="/upload" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/upload" element={<Upload />} />
             <Route path="/history" element={<History />} />

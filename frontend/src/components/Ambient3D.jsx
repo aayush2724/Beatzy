@@ -1,7 +1,6 @@
-import { useRef, useMemo, useState } from 'react';
+import { useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Float, MeshDistortMaterial, Sphere, Stars, useScroll } from '@react-three/drei';
-import * as THREE from 'three';
+import { Float, MeshDistortMaterial, Sphere, Stars } from '@react-three/drei';
 
 function FloatingObject({ position, color, speed = 1, size = 1, distort = 0.4 }) {
   const mesh = useRef();

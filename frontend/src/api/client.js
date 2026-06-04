@@ -2,6 +2,12 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
 
+const PUBLIC_PATHS = new Set(['/', '/pricing', '/login', '/register', '/artist-echoes']);
+
+function isPublicPath() {
+  return PUBLIC_PATHS.has(window.location.pathname);
+}
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '',
   timeout: 90000,
@@ -29,11 +35,11 @@ api.interceptors.response.use(
           return api(original);
         } catch {
           logout();
-          window.location.href = '/login';
+          if (!isPublicPath()) window.location.href = '/login';
         }
       } else {
         logout();
-        window.location.href = '/login';
+        if (!isPublicPath()) window.location.href = '/login';
       }
     }
     const message = err.response?.data?.error?.message || err.message || 'Something went wrong';
