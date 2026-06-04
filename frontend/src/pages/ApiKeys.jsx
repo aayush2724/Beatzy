@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import api from '../api/client';
 import PageWrapper from '../components/PageWrapper';
 import { useAuthStore } from '../store/authStore';
-import clsx from 'clsx';
 
 const SG = { fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" };
 

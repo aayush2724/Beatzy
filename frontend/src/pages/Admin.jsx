@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getStats, getUsers, updateUser, getAuditLogs } from '../api/admin';
 import { ResponsiveContainer, BarChart, Bar, Cell, XAxis, YAxis, Tooltip } from 'recharts';
-import { motion } from 'framer-motion';
 import PageWrapper from '../components/PageWrapper';
 import clsx from 'clsx';
 

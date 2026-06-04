@@ -6,11 +6,9 @@ import { getHistory } from '../api/audio';
 import GlassRecordSleeve from '../components/GlassRecordSleeve';
 import PageWrapper from '../components/PageWrapper';
 import { 
-  Plus, 
   Search, 
   Star, 
   Layers, 
-  Trash2, 
   Music,
   ArrowRightLeft
 } from 'lucide-react';

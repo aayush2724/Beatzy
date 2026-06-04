@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export const useAudioStore = create((set, get) => ({
+export const useAudioStore = create((set) => ({
   currentJob: null,
   uploadProgress: 0,
   isUploading: false,

@@ -15,7 +15,6 @@ import {
   Plus, 
   Music, 
   Activity, 
-  Zap, 
   Play, 
   Pause,
   CloudRain,

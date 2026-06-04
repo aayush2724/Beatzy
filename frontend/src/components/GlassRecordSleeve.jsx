@@ -1,6 +1,5 @@
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import clsx from 'clsx';
 
 export default function GlassRecordSleeve({ job }) {
   const x = useMotionValue(0);
