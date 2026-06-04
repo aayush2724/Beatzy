@@ -10,6 +10,7 @@ import { useJobSocket } from '../hooks/useJobSocket';
 import { useDropzone } from 'react-dropzone';
 import clsx from 'clsx';
 import MicRecorder from '../components/MicRecorder';
+import { Search } from 'lucide-react';
 import PageWrapper from '../components/PageWrapper';
 
 const ACCEPTED = {
