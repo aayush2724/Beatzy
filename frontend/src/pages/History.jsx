@@ -8,6 +8,15 @@ import GlassRecordSleeve from '../components/GlassRecordSleeve';
 import PageWrapper from '../components/PageWrapper';
 import toast from 'react-hot-toast';
 
+import { 
+  Plus, 
+  CloudOff, 
+  Disc, 
+  ChevronLeft, 
+  ChevronRight, 
+  Search 
+} from 'lucide-react';
+
 const SG = { fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" };
 
 function CassetteTape() {
@@ -89,9 +98,20 @@ export default function History() {
                 <h1 className="text-5xl font-headline font-extrabold text-white tracking-tighter mb-2" style={SG}>Signal Archives</h1>
                 <p className="font-mono text-xs text-white/30 uppercase tracking-[0.2em]">{pagination.total} Waveforms registered in database</p>
             </div>
-            <Link to="/upload" className="btn-primary flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">add</span> New Extraction
-            </Link>
+            
+            <div className="flex items-center gap-4 w-full md:w-auto">
+                <div className="relative flex-1 md:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4" />
+                    <input 
+                        type="text" 
+                        placeholder="Search archives..."
+                        className="input pl-11 py-2 text-xs"
+                    />
+                </div>
+                <Link to="/upload" className="btn-primary flex items-center gap-2 whitespace-nowrap px-6">
+                    <Plus className="w-4 h-4" /> New Extraction
+                </Link>
+            </div>
         </header>
 
         {loading ? (
@@ -102,13 +122,13 @@ export default function History() {
             </div>
         ) : error ? (
             <div className="h-64 glass-panel border border-dashed border-red-500/20 flex flex-col items-center justify-center text-center p-12 gap-4">
-                <span className="material-symbols-outlined text-4xl text-red-400/60">cloud_off</span>
+                <CloudOff className="w-10 h-10 text-red-400/60" />
                 <p className="text-white/50 font-mono text-xs uppercase tracking-widest">{error}</p>
                 <button onClick={fetchHistory} className="btn-secondary px-6 py-2 text-xs">Retry</button>
             </div>
         ) : jobs.length === 0 ? (
             <div className="h-64 glass-panel border border-dashed border-white/10 flex flex-col items-center justify-center text-center p-12">
-                <span className="material-symbols-outlined text-4xl text-white/10 mb-4">album</span>
+                <Disc className="w-10 h-10 text-white/10 mb-4" />
                 <p className="text-white/40 font-mono text-xs uppercase tracking-widest mb-6">No analyses yet</p>
                 <Link to="/upload" className="btn-primary px-6 py-2 text-xs">Upload your first track</Link>
             </div>
@@ -131,17 +151,17 @@ export default function History() {
                         <button 
                             disabled={page === 1}
                             onClick={() => setPage(p => p - 1)}
-                            className="px-6 py-2 rounded-lg border border-white/10 text-white/40 hover:text-white hover:border-white/30 transition-all disabled:opacity-20"
+                            className="flex items-center gap-2 px-6 py-2 rounded-lg border border-white/10 text-white/40 hover:text-white hover:border-white/30 transition-all disabled:opacity-20 font-mono text-xs uppercase tracking-widest"
                         >
-                            Previous
+                            <ChevronLeft className="w-4 h-4" /> Previous
                         </button>
                         <span className="font-mono text-xs text-white/20 uppercase tracking-widest">Archive Sector {page} of {pagination.pages}</span>
                         <button 
                             disabled={page === pagination.pages}
                             onClick={() => setPage(p => p + 1)}
-                            className="px-6 py-2 rounded-lg border border-white/10 text-white/40 hover:text-white hover:border-white/30 transition-all disabled:opacity-20"
+                            className="flex items-center gap-2 px-6 py-2 rounded-lg border border-white/10 text-white/40 hover:text-white hover:border-white/30 transition-all disabled:opacity-20 font-mono text-xs uppercase tracking-widest"
                         >
-                            Next
+                            Next <ChevronRight className="w-4 h-4" />
                         </button>
                     </div>
                 )}

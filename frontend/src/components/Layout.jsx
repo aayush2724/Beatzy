@@ -5,20 +5,30 @@ import clsx from 'clsx';
 import ThreeDStudio from './ThreeDStudio';
 import OnboardingTour from './OnboardingTour';
 import ThemeToggle from './ThemeToggle';
+import { 
+  Waves, 
+  LayoutDashboard, 
+  History, 
+  Key, 
+  UserCircle, 
+  ShieldCheck, 
+  LogOut,
+  Zap
+} from 'lucide-react';
 
 export default function Layout() {
   const { user, logout } = useAuthStore();
 
   const navItems = [
-    { to: '/upload', icon: 'waves', label: 'Spectral Engine' },
-    { to: '/dashboard', icon: 'analytics', label: 'Dashboard' },
-    { to: '/history', icon: 'history', label: 'Track History' },
-    { to: '/api-keys', icon: 'key', label: 'API Keys' },
-    { to: '/profile', icon: 'account_circle', label: 'Operator Profile' },
+    { to: '/upload', icon: Waves, label: 'Spectral Engine' },
+    { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/history', icon: History, label: 'Track History' },
+    { to: '/api-keys', icon: Key, label: 'API Keys' },
+    { to: '/profile', icon: UserCircle, label: 'Operator Profile' },
   ];
 
   if (user?.is_admin) {
-    navItems.push({ to: '/admin', icon: 'admin_panel_settings', label: 'Admin Terminal' });
+    navItems.push({ to: '/admin', icon: ShieldCheck, label: 'Admin Terminal' });
   }
   const navigate = useNavigate();
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
@@ -48,7 +58,7 @@ export default function Layout() {
         {/* Core Header */}
         <div className="px-6 mb-10 flex items-center space-x-4 overflow-hidden shrink-0">
           <div className="w-8 h-8 rounded bg-white/5 flex items-center justify-center border border-white/15 shrink-0">
-            <span className="material-symbols-outlined text-white text-base" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+            <Zap className="w-4 h-4 text-primary fill-primary" />
           </div>
           <div className={clsx("transition-opacity duration-300 whitespace-nowrap", isSidebarHovered ? "opacity-100" : "opacity-0")}>
             <p className="text-white font-bold text-lg leading-none tracking-tight font-headline">BEATZY</p>
@@ -58,7 +68,7 @@ export default function Layout() {
 
         {/* Navigation Items */}
         <nav className="flex-1 space-y-1">
-          {navItems.map(({ to, icon, label }) => (
+          {navItems.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}
@@ -69,7 +79,7 @@ export default function Layout() {
                   : 'text-on-surface-variant hover:text-on-surface hover:bg-white/[0.03]'
               )}
             >
-              <span className="material-symbols-outlined text-xl">{icon}</span>
+              <Icon className="w-5 h-5 shrink-0" />
               <span className={clsx(
                 "ml-6 font-mono text-[11px] tracking-[0.1em] uppercase transition-all duration-300 whitespace-nowrap",
                 isSidebarHovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"
@@ -97,7 +107,7 @@ export default function Layout() {
             onClick={handleLogout}
             className="flex items-center gap-6 w-full px-5 py-3 rounded-lg text-xs font-mono tracking-widest text-on-surface-variant hover:text-white hover:bg-white/[0.03] transition-all"
           >
-            <span className="material-symbols-outlined text-lg shrink-0">logout</span>
+            <LogOut className="w-5 h-5 shrink-0" />
             <span className={clsx("transition-opacity duration-300 whitespace-nowrap uppercase", isSidebarHovered ? "opacity-100" : "opacity-0")}>
               Sign out
             </span>

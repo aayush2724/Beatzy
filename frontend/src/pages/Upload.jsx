@@ -456,7 +456,7 @@ export default function Upload() {
                           value={query}
                           onChange={(e) => setQuery(e.target.value)}
                           placeholder="Search for a song, artist, or album..."
-                          className="input"
+                          className="input pl-11"
                         />
                       </div>
                       <button
@@ -470,7 +470,10 @@ export default function Upload() {
 
                     <div className="flex flex-col gap-2 max-h-[320px] overflow-y-auto pr-1">
                       {tracks.map((track) => (
-                        <div key={track.spotify_id} className="flex items-center justify-between p-3 glass-card hover:border-white/20 transition-all gap-4">
+                        <div key={track.spotify_id} className={clsx(
+                          "flex items-center justify-between p-3 glass-card hover:border-white/20 transition-all gap-4",
+                          !track.preview_url && "opacity-50 grayscale-[0.5]"
+                        )}>
                           <div className="flex items-center gap-3 min-w-0">
                             {track.cover_url ? (
                               <img src={track.cover_url} alt={track.album} className="w-10 h-10 rounded object-cover border border-glass-border flex-shrink-0" />
@@ -510,7 +513,10 @@ export default function Upload() {
                                 </button>
                               </>
                             ) : (
-                              <span className="text-[10px] font-mono text-on-surface-variant/40 uppercase select-none px-2">No Preview</span>
+                              <div className="flex flex-col items-end">
+                                <span className="text-[10px] font-mono text-on-surface-variant/40 uppercase select-none px-2">No Preview</span>
+                                <span className="text-[8px] font-mono text-on-surface-variant/20 uppercase px-2">Analysis restricted</span>
+                              </div>
                             )}
                           </div>
                         </div>
