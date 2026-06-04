@@ -43,7 +43,14 @@ class AudioAnalysisService:
 
     def _analyze_sync(self, audio_path: str) -> dict:
         logger.info("Loading audio file", path=audio_path)
-        y, sr = librosa.load(audio_path, sr=22050, mono=True, duration=60)
+        try:
+            y, sr = librosa.load(audio_path, sr=22050, mono=True, duration=60)
+        except Exception as e:
+            logger.error("Failed to load audio file", path=audio_path, error=str(e))
+            raise ValueError(f"Could not read audio file: {str(e)}")
+
+        if len(y) < 1024:
+            raise ValueError("Audio file too short for analysis")
 
         # BPM / Tempo
         tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)

@@ -27,22 +27,38 @@ class AcoustIDService:
                 tmp.write(audio_bytes)
                 tmp_path = tmp.name
 
-            for score, _recording_id, title, artist in acoustid.match(self.api_key, tmp_path):
+            try:
+                matches = list(acoustid.match(self.api_key, tmp_path))
+            except acoustid.WebServiceError as e:
+                if "invalid api key" in str(e).lower():
+                    logger.error("AcoustID API key is invalid")
+                    return None
+                raise e
+
+            if not matches:
+                logger.info("AcoustID found no match for this audio")
+                return None
+
+            # Sort by score descending (it should be already, but being safe)
+            matches.sort(key=lambda x: x[0], reverse=True)
+            
+            for score, recording_id, title, artist in matches:
                 if title and artist:
                     logger.info(
                         "AcoustID matched track",
                         title=title,
                         artist=artist,
                         score=round(float(score), 3),
+                        recording_id=recording_id
                     )
                     return {
                         "title": title,
                         "artist": artist,
                         "score": round(float(score), 3),
                         "source": "acoustid",
+                        "acr_id": recording_id,
                         "isrc": None,
                     }
-            logger.info("AcoustID found no match for this audio")
             return None
         except acoustid.NoBackendError:
             logger.error("fpcalc/chromaprint not installed — install libchromaprint-tools")
