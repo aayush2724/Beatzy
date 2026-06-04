@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
 
-export default function MagneticCta({ to, children, className = 'btn-primary px-8 py-4 text-xs' }) {
+export default function MagneticCta({ to, children, className = 'btn-primary px-8 py-4 text-sm' }) {
   const ref = useRef(null);
   const reducedMotion = useReducedMotion();
 
