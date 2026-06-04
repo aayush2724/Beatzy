@@ -169,6 +169,27 @@ GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_secret
 ```
 
+### Production storage (Cloudflare R2) — required for live uploads
+
+Render (backend) and Hugging Face (ML) **must use the same bucket**. Local MinIO will not work across hosts.
+
+1. Create an R2 bucket named `beatzy-audio` in the Cloudflare dashboard.
+2. Create an API token with Object Read & Write for that bucket.
+3. Set on **both** Render and Hugging Face (Secrets):
+
+| Variable | Example |
+|----------|---------|
+| `AWS_ACCESS_KEY_ID` | R2 access key id |
+| `AWS_SECRET_ACCESS_KEY` | R2 secret |
+| `AWS_S3_BUCKET` | `beatzy-audio` |
+| `AWS_S3_ENDPOINT` | `https://<account_id>.r2.cloudflarestorage.com` |
+| `AWS_REGION` | `auto` |
+
+4. Redeploy backend and ML Space after saving secrets.
+5. Verify: upload a track on https://beatzy-zeta.vercel.app — job should complete without `FileNotFoundError` in ML logs.
+
+See also `README.md` → Production environment variables.
+
 ---
 
 ## 🎨 Viewing the New UI Design

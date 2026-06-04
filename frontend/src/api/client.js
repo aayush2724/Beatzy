@@ -2,7 +2,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
 
-const PUBLIC_PATHS = new Set(['/', '/pricing', '/login', '/register', '/artist-echoes']);
+const PUBLIC_PATHS = new Set(['/', '/pricing', '/login', '/register', '/artist-echoes', '/auth/callback', '/billing/success']);
 
 function isPublicPath() {
   return PUBLIC_PATHS.has(window.location.pathname);
