@@ -39,8 +39,16 @@ function emitToUser(userId, event, payload) {
 let worker;
 try {
   worker = new Worker('audio-analysis', async (job) => {
-    const { jobId, userId, s3Key, s3Url, originalFilename } = job.data;
+    let { jobId, userId, s3Key, s3Url, originalFilename } = job.data;
     logger.info('Processing analysis job', { jobId });
+
+    if (!originalFilename) {
+      const { rows } = await pool.query(
+        'SELECT original_filename FROM audio_jobs WHERE id = $1',
+        [jobId]
+      );
+      originalFilename = rows[0]?.original_filename;
+    }
 
     await pool.query("UPDATE audio_jobs SET status = 'processing', started_at = NOW() WHERE id = $1", [jobId]);
     emitToUser(userId, 'job:progress', { jobId, status: 'processing', progress: 10 });
@@ -53,7 +61,7 @@ try {
         s3_key: s3Key,
         s3_url: s3Url,
         original_filename: originalFilename,
-      }, { timeout: 180000 });
+      }, { timeout: 240000 });
       mlResult = response.data;
       emitToUser(userId, 'job:progress', { jobId, status: 'saving', progress: 70 });
     } catch (err) {

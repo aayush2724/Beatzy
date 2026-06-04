@@ -3,8 +3,6 @@ import { useAuthStore } from './store/authStore';
 import { useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import Layout from './components/Layout';
-import Ambient3D from './components/Ambient3D';
-import FloatingArtists from './components/FloatingArtists';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -54,8 +52,6 @@ export default function App() {
 
   return (
     <>
-      <FloatingArtists />
-      <Ambient3D />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Landing />} />

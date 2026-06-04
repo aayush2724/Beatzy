@@ -34,13 +34,23 @@
 
 > **Note:** The backend runs on Render's free tier and may take ~30 seconds to wake up on first request.
 
+### Production environment variables
+
+| Platform | Variable | Value |
+|----------|----------|-------|
+| **Vercel** (frontend) | `VITE_API_URL` | `https://beatzy-tvrl.onrender.com` |
+| **Render** (backend) | `FRONTEND_URL` | `https://beatzy-zeta.vercel.app` |
+| **Render** (backend) | `ML_SERVICE_URL` | `https://aayush-27-beatzy-ml.hf.space` |
+| **Hugging Face** (ML) | `ACOUSTID_API_KEY` | Your [AcoustID](https://acoustid.org/new-application) API key |
+| **Hugging Face** (ML) | `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` | Spotify app credentials |
+
 ---
 
 ## ✨ Features
 
 | Category | Capability |
 |----------|-----------|
-| 🎵 **Song Identification** | ACRCloud audio fingerprinting with sub-second matching |
+| 🎵 **Song Identification** | AcoustID audio fingerprinting with filename + iTunes fallbacks |
 | 🧠 **Deep Audio Analysis** | BPM, energy, mood/emotion, key signature, time signature |
 | 🔊 **Audio Classification** | YAMNet neural event classification (500+ labels) |
 | 📊 **Real-time Dashboard** | Interactive Recharts analytics, live waveform visualizer |
@@ -75,7 +85,7 @@ graph TB
     subgraph ML["ML Service — Python / FastAPI"]
         LIBROSA["librosa<br/><i>BPM · Energy · Key</i>"]
         YAMNET["YAMNet<br/><i>Event Classification</i>"]
-        ACR["ACRCloud<br/><i>Fingerprint Matching</i>"]
+        ACOUSTID["AcoustID<br/><i>Fingerprint Matching</i>"]
         MOOD["Mood Classifier<br/><i>TensorFlow</i>"]
     end
 
@@ -101,7 +111,7 @@ graph TB
 
     API -->|BullMQ Job| ML
     LIBROSA --> S3
-    ACR --> S3
+    ACOUSTID --> S3
 
     ML -->|Results| PG
 
@@ -149,7 +159,7 @@ cd Beatzy
 cp backend/.env.example backend/.env
 cp ml-service/.env.example ml-service/.env
 cp frontend/.env.example frontend/.env
-# Edit the .env files with your API keys (ACRCloud, Stripe, AWS, etc.)
+# Edit the .env files with your API keys (AcoustID, Spotify, Stripe, AWS, etc.)
 
 # 3. Launch all services
 docker-compose up --build

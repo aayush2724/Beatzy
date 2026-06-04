@@ -1,5 +1,6 @@
 import aiohttp
 import structlog
+from urllib.parse import quote
 
 logger = structlog.get_logger()
 
@@ -13,11 +14,11 @@ class LyricsService:
         clean_title = title.split("(")[0].split("-")[0].strip()
         clean_artist = artist.split(",")[0].strip()
         
-        url = f"https://api.lyrics.ovh/v1/{clean_artist}/{clean_title}"
-        
+        url = f"https://api.lyrics.ovh/v1/{quote(clean_artist)}/{quote(clean_title)}"
+
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get(url, timeout=5) as response:
+                async with session.get(url, timeout=10) as response:
                     if response.status == 200:
                         data = await response.json()
                         lyrics = data.get("lyrics")
