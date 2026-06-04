@@ -32,43 +32,23 @@
 | **ML Service** | [aayush-27-beatzy-ml.hf.space](https://aayush-27-beatzy-ml.hf.space) |
 | **API Docs** | [beatzy-tvrl.onrender.com/api/docs](https://beatzy-tvrl.onrender.com/api/docs) |
 
-> **Note:** The backend runs on Render's free tier and may take ~30 seconds to wake up on first request.
-
-### Production environment variables
-
-Set these in each host’s dashboard (never commit real keys). **Render and Hugging Face must share the same S3-compatible bucket** so uploads from the backend can be downloaded by the ML service.
-
-| Platform | Variable | Value |
-|----------|----------|-------|
-| **Vercel** (frontend) | `VITE_API_URL` | `https://beatzy-tvrl.onrender.com` (no trailing slash) |
-| **Render** (backend) | `FRONTEND_URL` | `https://beatzy-zeta.vercel.app` |
-| **Render** (backend) | `ML_SERVICE_URL` | `https://aayush-27-beatzy-ml.hf.space` |
-| **Render + HF** (shared storage) | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | R2 or S3 access key pair |
-| **Render + HF** (shared storage) | `AWS_S3_BUCKET` | `beatzy-audio` |
-| **Render + HF** (shared storage) | `AWS_S3_ENDPOINT` | Supabase: `https://<project>.supabase.co/storage/v1/s3` — or R2: `https://<account_id>.r2.cloudflarestorage.com` |
-| **Render + HF** (shared storage) | `AWS_REGION` | Match provider (e.g. `ap-southeast-2` for Supabase; `auto` for R2) |
-| **Hugging Face** (ML) | `ACOUSTID_API_KEY` | Your [AcoustID](https://acoustid.org/new-application) API key |
-| **Hugging Face** (ML) | `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` | Spotify app credentials |
-| **Hugging Face** (ML, optional) | `ALLOWED_ORIGINS` | `https://beatzy-zeta.vercel.app` |
-
-**Production storage:** use the same S3-compatible bucket on **Render and Hugging Face** (Supabase Storage, Cloudflare R2, or AWS S3). Path-style addressing is configured in code. Source audio is deleted after analysis. Local dev can use MinIO via `docker-compose` (`AWS_S3_ENDPOINT=http://localhost:9000`); see `backend/.env.example` and `ml-service/.env.example`.
+> **Note:** The platform now features a high-performance **Audio Control Center** with real-time spectral decoding, chord synchronization, and beat-reactive visuals.
 
 ---
 
-## ✨ Features
+## ✨ Advanced Features
 
 | Category | Capability |
 |----------|-----------|
-| 🎵 **Song Identification** | AcoustID audio fingerprinting with filename + iTunes fallbacks |
-| 🧠 **Deep Audio Analysis** | BPM, energy, mood/emotion, key signature, time signature |
-| 🔊 **Audio Classification** | YAMNet neural event classification (500+ labels) |
-| 📊 **Real-time Dashboard** | Interactive Recharts analytics, live waveform visualizer |
-| 🛡️ **Admin Panel** | Telemetry overview, user directory, audit security logs |
-| 🔑 **SaaS API** | Tiered API key system with rate limiting per plan |
-| 💳 **Stripe Billing** | Subscriptions with checkout, webhooks, and billing portal |
-| 🔐 **Auth** | JWT + refresh token rotation + Google OAuth 2.0 |
-| ⚡ **Real-time** | Socket.IO for live upload progress and job status |
-| 📖 **API Docs** | Interactive Swagger UI at `/api/docs` |
+| 🎵 **Real-time Identification** | Fingerprinting with AcoustID + iTunes fallback and debounced song suggestions |
+| 🧠 **Neural Control Center** | Playback engine with live chord tracking, spectral stability metering, and neural phase sync |
+| 🔊 **Hybrid ML Analysis** | Tempo, mood (XGBoost), energy, and YAMNet neural event classification (527 labels) |
+| 📊 **Pro Dashboard** | Recharts analytics, spectral DNA mapping, and interactive force-directed artist echoes |
+| 🛡️ **Admin Terminal** | Telemetry overview, user directory, and automated audit security logs |
+| 🔑 **SaaS API** | Tiered API key system with rate limiting per plan and automated documentation |
+| 💳 **Stripe Billing** | Full subscription lifecycle with checkout, webhooks, and customer portal |
+| 🔐 **Enterprise Auth** | JWT + refresh token rotation + Google OAuth 2.0 integration |
+| ⚡ **Real-time Engine** | Socket.IO for live spectral upload progress and job orchestration |
 
 ---
 
@@ -142,11 +122,10 @@ graph TB
 | **ML Service** | Python 3.11, FastAPI, librosa, TensorFlow (YAMNet), Scikit-learn |
 | **Database** | PostgreSQL 16 |
 | **Cache / Queue** | Redis 7 |
-| **Storage** | AWS S3 |
+| **Storage** | AWS S3 / MinIO |
 | **Auth** | JWT (access + refresh rotation) + Google OAuth 2.0 |
 | **Payments** | Stripe (Checkout, Webhooks, Billing Portal) |
 | **Deployment** | Docker Compose (dev) · Kubernetes + Kustomize (prod) |
-| **CI/CD** | GitHub Actions |
 
 ---
 
@@ -182,40 +161,6 @@ docker-compose up --build
 | ML Service | http://localhost:8000 |
 | ML Docs (FastAPI) | http://localhost:8000/docs |
 
-### Manual Setup
-
-<details>
-<summary><strong>Backend</strong></summary>
-
-```bash
-cd backend
-npm install
-# Ensure PostgreSQL and Redis are running
-npm run migrate   # Run database migrations
-npm run dev       # Start with nodemon
-```
-</details>
-
-<details>
-<summary><strong>ML Service</strong></summary>
-
-```bash
-cd ml-service
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
-```
-</details>
-
-<details>
-<summary><strong>Frontend</strong></summary>
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-</details>
-
 ---
 
 ## ☸️ Kubernetes Deployment
@@ -223,142 +168,8 @@ npm run dev
 Production manifests are in the `k8s/` directory with Kustomize support.
 
 ```bash
-# 1. Create secrets from template
-cp k8s/secrets.yaml.template k8s/secrets.yaml
-# Fill in base64-encoded values in secrets.yaml
-
-# 2. Apply all manifests
-kubectl apply -f k8s/secrets.yaml
+# Apply all manifests
 kubectl apply -k k8s/
-
-# 3. Verify pods
-kubectl get pods -n beatzy
-```
-
-### Manifest Overview
-
-| File | Purpose |
-|------|---------|
-| `namespace.yaml` | `beatzy` namespace |
-| `configmap.yaml` | Non-sensitive environment config |
-| `secrets.yaml.template` | Template for sensitive credentials |
-| `database.yaml` | PostgreSQL StatefulSet + Redis Deployment |
-| `backend.yaml` | Backend Deployment (2 replicas) + ClusterIP Service |
-| `frontend.yaml` | Frontend Deployment (2 replicas) + ClusterIP Service |
-| `ml-service.yaml` | ML Service Deployment + PersistentVolumeClaim for models |
-| `ingress.yaml` | NGINX Ingress with TLS (Let's Encrypt) |
-| `kustomization.yaml` | Kustomize overlay for unified deployment |
-
----
-
-## 📂 Project Structure
-
-```
-beatzy/
-├── frontend/                  # React + Vite SPA
-│   └── src/
-│       ├── api/               # Axios API clients (audio, admin, client)
-│       ├── components/        # Reusable UI (Layout, Navbar, UploadProgressBar, ...)
-│       ├── hooks/             # Custom hooks (useJobSocket)
-│       ├── pages/             # Route-level pages (Dashboard, Upload, Results, Admin, ...)
-│       └── store/             # Zustand state management
-│
-├── backend/                   # Node.js API Gateway
-│   └── src/
-│       ├── routes/            # Express routers (auth, audio, results, billing, admin, ...)
-│       ├── middleware/        # Auth, rate limit, idempotency, validation, requireAdmin
-│       ├── services/          # Business logic (storage, queue, audit)
-│       ├── workers/           # BullMQ analysis worker
-│       ├── db/                # Database client, Redis, Socket.IO, migrations
-│       └── swagger.js         # OpenAPI 3.0 specification
-│
-├── ml-service/                # Python FastAPI ML Service
-│   └── app/
-│       ├── routes/            # FastAPI routers (analyze, waveform)
-│       └── services/          # audio_service, spotify_service
-│
-├── k8s/                       # Kubernetes manifests (Kustomize)
-├── .github/workflows/         # GitHub Actions CI
-├── docker-compose.yml         # Development orchestration
-└── docs/                      # Documentation assets
-```
-
----
-
-## 📡 API Reference
-
-Full interactive documentation is available at `/api/docs` (Swagger UI).
-
-### Authentication
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/auth/register` | Register new user |
-| `POST` | `/api/auth/login` | Login (email + password) |
-| `POST` | `/api/auth/refresh` | Rotate JWT tokens |
-| `GET` | `/api/auth/google` | Google OAuth redirect |
-| `GET` | `/api/auth/me` | Get current user |
-| `POST` | `/api/auth/logout` | Invalidate refresh token |
-
-### Audio Analysis
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/audio/upload` | Upload audio for analysis |
-| `GET` | `/api/audio/jobs/:id` | Get job status |
-| `GET` | `/api/audio/history` | Paginated analysis history |
-| `DELETE` | `/api/audio/jobs/:id` | Delete a job |
-
-### Results
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/results/:jobId` | Get analysis results |
-| `GET` | `/api/results` | List all user results |
-
-### API Keys (SaaS)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/keys` | List API keys |
-| `POST` | `/api/keys` | Generate new key (Pro+) |
-| `DELETE` | `/api/keys/:id` | Revoke a key |
-
-### Billing
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/billing/plans` | List subscription plans |
-| `POST` | `/api/billing/subscribe` | Create checkout session |
-| `GET` | `/api/billing/subscription` | Current subscription |
-| `POST` | `/api/billing/portal` | Stripe billing portal |
-
-### Admin (requires `is_admin`)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/admin/stats` | Platform KPIs |
-| `GET` | `/api/admin/users` | User directory |
-| `PATCH` | `/api/admin/users/:id` | Update user flags |
-| `GET` | `/api/admin/audit-log` | Security audit log |
-
----
-
-## 💰 Subscription Plans
-
-| Plan | Price | Requests/mo | Upload Limit | API Keys | Features |
-|------|-------|-------------|-------------|----------|----------|
-| **Free** | $0 | 100 | 50 MB | — | Basic analysis, Web dashboard |
-| **Pro** | $19/mo | 5,000 | 200 MB | 5 | Full AI insights, API access |
-| **Enterprise** | $99/mo | Unlimited | 200 MB | 20 | Priority processing, SLA support |
-
----
-
-## 🧪 Development
-
-```bash
-# Run backend tests
-cd backend && npm test
-
-# Run linter
-cd backend && npm run lint
-
-# Run database migrations
-cd backend && npm run migrate
 ```
 
 ---
