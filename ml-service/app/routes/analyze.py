@@ -3,9 +3,10 @@ from pydantic import BaseModel
 import structlog
 
 from app.services.audio_service import AudioAnalysisService
-from app.services.acr_service import ACRCloudService
+from app.services.audd_service import AuddService
 from app.services.spotify_service import SpotifyService
 from app.services.storage_service import StorageService
+from app.services.lyrics_service import LyricsService
 
 logger = structlog.get_logger()
 router = APIRouter()
@@ -28,6 +29,7 @@ class AnalyzeRequest(BaseModel):
     job_id: str
     s3_key: str
     s3_url: str
+    original_filename: str | None = None
 
 
 class AnalyzeResponse(BaseModel):
@@ -36,7 +38,8 @@ class AnalyzeResponse(BaseModel):
     song: dict
     audio: dict
     yamnet: dict
-    spotify: dict
+    spotify: dict | None
+    lyrics: str | None
 
 
 @router.post("/analyze", response_model=AnalyzeResponse)
@@ -52,20 +55,40 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
         audio_service = AudioAnalysisService()
         audio_features = await audio_service.analyze(audio_path)
 
-        # ACRCloud song identification
-        acr_service = ACRCloudService()
-        song_info = await acr_service.identify(audio_path)
+        # --- AudD Song Identification ---
+        audd_service = AuddService()
+        song_info = await audd_service.identify(audio_path)
+
+        # --- Local Filename Fallback (if AudD fails / no API key) ---
+        if not song_info or not song_info.get("title"):
+            filename = req.original_filename or ""
+            clean_name = filename.replace(".mp3", "").replace(".wav", "").replace(".m4a", "").replace("_", " ")
+            if "-" in clean_name:
+                parts = clean_name.split("-", 1)
+                song_info = {"artist": parts[0].strip(), "title": parts[1].strip(), "isrc": None}
+            elif clean_name.strip():
+                song_info = {"artist": "", "title": clean_name.strip(), "isrc": None}
+            if song_info:
+                logger.info("Used local filename fallback", extracted=song_info)
+        # ---------------------------------
 
         # YAMNet classification
         yamnet = request.app.state.yamnet
         yamnet_result = await yamnet.classify(audio_path)
 
-        # Spotify enrichment (ISRC from ACRCloud → audio‑features)
+        # Spotify enrichment
         spotify_service = SpotifyService()
         spotify_features = await spotify_service.enrich(
             isrc=song_info.get("isrc"),
             title=song_info.get("title"),
             artist=song_info.get("artist"),
+        )
+
+        # FETCH LYRICS
+        lyrics_service = LyricsService()
+        lyrics = await lyrics_service.fetch_lyrics(
+            artist=song_info.get("artist"),
+            title=song_info.get("title")
         )
 
         result = {
@@ -74,6 +97,7 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
             "audio": audio_features,
             "yamnet": yamnet_result,
             "spotify": spotify_features,
+            "lyrics": lyrics,
         }
 
         log.info(

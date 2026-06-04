@@ -3,6 +3,7 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env'
 const { Worker } = require('bullmq');
 const axios = require('axios');
 const { pool } = require('../db/client');
+const { persistAnalysisResult } = require('../services/analysisResults');
 const logger = require('../utils/logger');
 
 function parseRedisUrl(url) {
@@ -38,7 +39,7 @@ function emitToUser(userId, event, payload) {
 let worker;
 try {
   worker = new Worker('audio-analysis', async (job) => {
-    const { jobId, userId, s3Key, s3Url } = job.data;
+    const { jobId, userId, s3Key, s3Url, originalFilename } = job.data;
     logger.info('Processing analysis job', { jobId });
 
     await pool.query("UPDATE audio_jobs SET status = 'processing', started_at = NOW() WHERE id = $1", [jobId]);
@@ -51,6 +52,7 @@ try {
         job_id: jobId,
         s3_key: s3Key,
         s3_url: s3Url,
+        original_filename: originalFilename,
       }, { timeout: 180000 });
       mlResult = response.data;
       emitToUser(userId, 'job:progress', { jobId, status: 'saving', progress: 70 });
@@ -64,46 +66,7 @@ try {
       throw err;
     }
 
-    await pool.query(
-      `INSERT INTO analysis_results (
-        job_id, song_title, song_artist, song_album, song_release_year,
-        isrc, acr_id, bpm, energy_level, mood, mood_confidence,
-        key_signature, time_signature,
-        spectral_centroid, spectral_rolloff, zero_crossing_rate,
-        yamnet_labels, confidence_scores,
-        spotify_features,
-        raw_acr_response, raw_ml_response
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
-      ON CONFLICT (job_id) DO UPDATE SET
-        song_title = EXCLUDED.song_title,
-        song_artist = EXCLUDED.song_artist,
-        mood_confidence = EXCLUDED.mood_confidence,
-        spotify_features = EXCLUDED.spotify_features,
-        updated_at = NOW()`,
-      [
-        jobId,
-        mlResult.song?.title,
-        mlResult.song?.artist,
-        mlResult.song?.album,
-        mlResult.song?.release_year,
-        mlResult.song?.isrc,
-        mlResult.song?.acr_id,
-        mlResult.audio?.bpm,
-        mlResult.audio?.energy_level,
-        mlResult.audio?.mood,
-        mlResult.audio?.mood_confidence || 0,
-        mlResult.audio?.key_signature,
-        mlResult.audio?.time_signature,
-        mlResult.audio?.spectral_centroid,
-        mlResult.audio?.spectral_rolloff,
-        mlResult.audio?.zero_crossing_rate,
-        JSON.stringify(mlResult.yamnet?.labels || []),
-        JSON.stringify(mlResult.yamnet?.confidence_scores || []),
-        JSON.stringify(mlResult.spotify || {}),
-        JSON.stringify(mlResult.song || {}),
-        JSON.stringify(mlResult),
-      ]
-    );
+    await persistAnalysisResult({ jobId, mlResult });
 
     await pool.query("UPDATE audio_jobs SET status = 'completed', completed_at = NOW() WHERE id = $1", [jobId]);
 

@@ -610,3 +610,37 @@
   0% { transform: scaleY(0.5); transform-origin: bottom; }
   100% { transform: scaleY(1.4); transform-origin: bottom; }
 }
+
+/* =====================================================================
+   CINEMATIC ATMOSPHERE (from Design Asset)
+   ===================================================================== */
+.orb-glow { filter: blur(60px); opacity: 0.4; }
+.orbit { border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); transition: all 0.5s ease; }
+.orbit-1 { width: 300px; height: 300px; animation: spin-flat 20s linear infinite; border-style: dashed; }
+.orbit-2 { width: 450px; height: 450px; animation: spin-flat 35s linear infinite reverse; opacity: 0.6; }
+.orbit-3 { width: 600px; height: 600px; animation: spin-flat 50s linear infinite; border-style: dotted; opacity: 0.3; }
+
+.pulse { animation: pulse-css 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+@keyframes pulse-css {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+}
+
+.scanline {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent 50%, rgba(255, 255, 255, 0.02) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 50;
+}
+
+.floating { animation: float-css 6s ease-in-out infinite; }
+@keyframes float-css {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}

@@ -139,21 +139,21 @@ export default function MicRecorder({ onRecorded, disabled }) {
         <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent rounded-2xl" />
         
         <div className={clsx(
-          'relative p-12 rounded-2xl border transition-all duration-300',
+          'relative p-12 rounded-2xl border transition-all duration-300 backdrop-blur-xl',
           isRecording 
-            ? 'border-white/30 bg-white/5 shadow-[0_0_40px_rgba(255,255,255,0.1)]' 
-            : 'border-white/10 bg-black/20'
+            ? 'border-primary/30 bg-primary/5 shadow-[0_0_40px_rgba(255,255,255,0.05)]' 
+            : 'border-white/10 bg-white/[0.02]'
         )}>
           {/* Microphone icon */}
           <div className={clsx(
-            'w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-6 transition-all duration-300',
+            'w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6 transition-all duration-300',
             isRecording 
-              ? 'bg-white/20 border-2 border-white/40 shadow-[0_0_30px_rgba(255,255,255,0.2)]' 
+              ? 'bg-primary/20 border-2 border-primary/40 shadow-[0_0_30px_rgba(255,255,255,0.1)]' 
               : 'bg-white/10 border border-white/20'
           )}>
             <span className={clsx(
-              'material-symbols-outlined text-5xl transition-all duration-300',
-              isRecording ? 'text-white' : 'text-gray-400'
+              'material-symbols-outlined text-4xl transition-all duration-300',
+              isRecording ? 'text-primary' : 'text-gray-400'
             )}>
               {isPaused ? 'pause' : 'mic'}
             </span>
@@ -165,7 +165,7 @@ export default function MicRecorder({ onRecorded, disabled }) {
               {Array.from({ length: 20 }).map((_, i) => (
                 <div
                   key={i}
-                  className="w-1.5 bg-gradient-to-t from-white to-gray-400 rounded-full transition-all duration-75"
+                  className="w-1.5 bg-gradient-to-t from-primary to-secondary rounded-full transition-all duration-75"
                   style={{
                     height: `${Math.max(10, Math.min(100, volume + (Math.random() * 20 - 10)))}%`,
                     opacity: 0.3 + (volume / 150)
@@ -181,7 +181,7 @@ export default function MicRecorder({ onRecorded, disabled }) {
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-black/30 rounded-full border border-white/10">
                 <div className={clsx(
                   'w-2 h-2 rounded-full',
-                  isPaused ? 'bg-yellow-400' : 'bg-red-500 animate-pulse'
+                  isPaused ? 'bg-amber-400' : 'bg-red-500 animate-pulse'
                 )} />
                 <span className="font-mono text-xl text-white font-bold">
                   {formatDuration(duration)}
@@ -191,12 +191,12 @@ export default function MicRecorder({ onRecorded, disabled }) {
           )}
 
           {/* Status text */}
-          <p className="text-center text-sm text-gray-400 font-medium">
+          <p className="text-center text-xs text-on-surface-variant font-medium uppercase tracking-widest">
             {!isRecording 
-              ? 'Click the button below to start recording'
+              ? 'Click below to start capture'
               : isPaused
               ? 'Recording paused'
-              : 'Recording... Speak or play audio near your microphone'
+              : 'Capture Active... Monitoring signal'
             }
           </p>
         </div>
@@ -208,36 +208,36 @@ export default function MicRecorder({ onRecorded, disabled }) {
           <button
             onClick={startRecording}
             disabled={disabled}
-            className="px-8 py-3 bg-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold rounded-lg transition-all flex items-center gap-2 shadow-lg hover:shadow-xl"
+            className="btn-primary flex items-center gap-2"
           >
-            <span className="material-symbols-outlined">mic</span>
-            Start Recording
+            <span className="material-symbols-outlined text-lg">mic</span>
+            Start Capture
           </button>
         ) : (
           <>
             {!isPaused ? (
               <button
                 onClick={pauseRecording}
-                className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-bold rounded-lg transition-all flex items-center gap-2"
+                className="btn-secondary border-amber-500/50 text-amber-500 hover:bg-amber-500/10 flex items-center gap-2"
               >
-                <span className="material-symbols-outlined">pause</span>
+                <span className="material-symbols-outlined text-lg">pause</span>
                 Pause
               </button>
             ) : (
               <button
                 onClick={resumeRecording}
-                className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-all flex items-center gap-2"
+                className="btn-secondary border-green-500/50 text-green-500 hover:bg-green-500/10 flex items-center gap-2"
               >
-                <span className="material-symbols-outlined">play_arrow</span>
+                <span className="material-symbols-outlined text-lg">play_arrow</span>
                 Resume
               </button>
             )}
             
             <button
               onClick={stopRecording}
-              className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg transition-all flex items-center gap-2"
+              className="px-8 py-3 bg-red-500/80 hover:bg-red-500 text-white font-bold rounded-lg transition-all flex items-center gap-2"
             >
-              <span className="material-symbols-outlined">stop</span>
+              <span className="material-symbols-outlined text-lg">stop</span>
               Stop & Analyze
             </button>
           </>
@@ -246,8 +246,8 @@ export default function MicRecorder({ onRecorded, disabled }) {
 
       {/* Instructions */}
       <div className="max-w-md text-center">
-        <p className="text-xs text-gray-500 leading-relaxed">
-          Record at least 10 seconds of audio for best results. The system will analyze the audio fingerprint and identify the song, tempo, mood, and more.
+        <p className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest leading-relaxed">
+          Record at least 10s of audio for optimal fingerprinting.
         </p>
       </div>
     </div>
