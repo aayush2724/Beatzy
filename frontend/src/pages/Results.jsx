@@ -8,21 +8,36 @@ import { enableShare, exportReport, addFavorite } from '../api/library';
 import InstrumentChordPanel from '../components/InstrumentChordPanel';
 import PageWrapper from '../components/PageWrapper';
 
+import { 
+  Heart, 
+  Share2, 
+  Download, 
+  Plus, 
+  Music, 
+  Activity, 
+  Zap, 
+  Play, 
+  Pause,
+  CloudRain,
+  Radio,
+  Clock,
+  Layers,
+  FileText
+} from 'lucide-react';
+
 const ResultsAtmosphere = lazy(() => import('../components/ResultsAtmosphere'));
 
 import clsx from 'clsx';
 
 const SG = { fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" };
 
-function StatCard({ icon, label, value, sub, color = 'text-primary' }) {
+function StatCard({ icon: Icon, label, value, sub, color = 'text-primary' }) {
   return (
     <motion.div
       className="glass-panel p-5 rounded-xl border border-glass-border flex flex-col justify-between hover:border-white/20 transition-all group cursor-default"
     >
       <div className="flex justify-between items-start">
-        <span className={`material-symbols-outlined text-xl ${color} group-hover:scale-110 transition-transform`}>
-          {icon}
-        </span>
+        <Icon className={clsx('w-5 h-5 group-hover:scale-110 transition-transform', color)} />
         <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider">{label}</span>
       </div>
       <div className="mt-4">
@@ -232,11 +247,14 @@ export default function Results() {
     ? (typeof result.spotify_features === 'string' ? JSON.parse(result.spotify_features) : result.spotify_features)
     : null;
 
+  const bpm = result.bpm || 120;
+  const pulseDuration = 60 / bpm;
+
   return (
     <PageWrapper className="space-y-8 pb-20 relative">
         {/* Background 3D Atmosphere */}
         <Suspense fallback={null}>
-            <ResultsAtmosphere bpm={result.bpm} />
+            <ResultsAtmosphere bpm={bpm} />
         </Suspense>
 
       {/* Dynamic Header */}
@@ -248,7 +266,12 @@ export default function Results() {
           </div>
 
           <div className="relative z-10 flex gap-8 items-end w-full">
-              <img src={spotifyMeta?.cover_url || '/placeholder-art.jpg'} className="w-40 h-40 rounded-lg shadow-2xl border border-white/10" />
+              <motion.img 
+                animate={{ scale: [1, 1.02, 1] }}
+                transition={{ duration: pulseDuration, repeat: Infinity, ease: "easeInOut" }}
+                src={spotifyMeta?.cover_url || '/placeholder-art.jpg'} 
+                className="w-40 h-40 rounded-lg shadow-2xl border border-white/10" 
+              />
               <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
                       <span className="px-2 py-0.5 bg-primary/10 border border-primary/20 text-primary font-mono text-[9px] rounded uppercase tracking-widest">Spectral Report</span>
@@ -270,20 +293,28 @@ export default function Results() {
               </div>
                   <div className="flex items-center gap-3">
                       <button onClick={handleFavorite} className="p-2 rounded-full border border-white/10 hover:bg-white/5 text-white/60 hover:text-white transition-all">
-                          <span className="material-symbols-outlined text-sm">favorite</span>
+                          <Heart className="w-4 h-4" />
                       </button>
                       <button onClick={handleShare} className="p-2 rounded-full border border-white/10 hover:bg-white/5 text-white/60 hover:text-white transition-all">
-                          <span className="material-symbols-outlined text-sm">share</span>
+                          <Share2 className="w-4 h-4" />
                       </button>
                       <button onClick={handleExport} className="p-2 rounded-full border border-white/10 hover:bg-white/5 text-white/60 hover:text-white transition-all">
-                          <span className="material-symbols-outlined text-sm">download</span>
+                          <Download className="w-4 h-4" />
                       </button>
                       <Link to="/upload" className="btn-secondary px-5 py-2.5 text-xs flex items-center gap-2">
-                          <span className="material-symbols-outlined text-sm">add</span> New Signal
+                          <Plus className="w-4 h-4" /> New Signal
                       </Link>
                   </div>
           </div>
       </header>
+
+      {/* Primary Metrics Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatCard icon={Clock} label="Tempo" value={`${Math.round(result.bpm || 0)}`} sub="BPM" color="text-primary" />
+          <StatCard icon={Layers} label="Key" value={result.key_signature || result.scale || 'N/A'} sub="Signature" color="text-secondary" />
+          <StatCard icon={Activity} label="Energy" value={`${Math.round(result.energy_level * 100)}%`} color="text-tertiary" />
+          <StatCard icon={Music} label="Mood" value={result.mood?.toUpperCase() || 'NEUTRAL'} color="text-quaternary" />
+      </div>
 
       <div className="grid grid-cols-12 gap-8">
           {/* Left Column: Player & Lyrics */}
@@ -295,7 +326,7 @@ export default function Results() {
                         onClick={() => wavesurfer.current?.playPause()}
                         className="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-surface hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]"
                       >
-                          <span className="material-symbols-outlined text-3xl">{isPlaying ? 'pause' : 'play_arrow'}</span>
+                          {isPlaying ? <Pause className="w-6 h-6 fill-surface" /> : <Play className="w-6 h-6 fill-surface ml-1" />}
                       </button>
                       <div className="flex-1">
                           <div ref={waveformRef} />
@@ -363,7 +394,7 @@ export default function Results() {
                         </pre>
                       ) : (
                         <div className="h-full flex items-center justify-center text-white/20 font-mono text-sm uppercase tracking-widest italic">
-                          Lyrics not found for this track
+                          <CloudRain className="w-5 h-5 mr-3 opacity-40" /> Lyrics not found for this track
                         </div>
                       )}
                   </div>
@@ -377,7 +408,7 @@ export default function Results() {
                   <div className="flex items-center justify-between">
                       <div className="text-4xl font-headline font-extrabold text-white">{currentChord}</div>
                       <div className="w-12 h-12 rounded-full border-2 border-primary/30 flex items-center justify-center">
-                          <div className="w-2 h-2 bg-primary rounded-full animate-ping" />
+                          <Radio className="w-5 h-5 text-primary animate-pulse" />
                       </div>
                   </div>
                   <p className="mt-4 text-[10px] text-white/40 uppercase font-mono tracking-widest">Real-time chord tracking active</p>
@@ -385,9 +416,25 @@ export default function Results() {
 
               <InstrumentChordPanel chords={chordSegments} />
 
-              <div className="grid grid-cols-2 gap-4">
-                  <StatCard icon="bolt" label="Energy" value={`${Math.round(result.energy_level * 100)}%`} color="text-secondary" />
-                  <StatCard icon="mood" label="Mood" value={result.mood?.toUpperCase()} color="text-primary" />
+              <div className="glass-panel p-6 border border-glass-border">
+                  <div className="flex items-center gap-3 mb-4">
+                      <FileText className="w-4 h-4 text-secondary" />
+                      <h4 className="font-headline font-bold text-sm text-white uppercase tracking-widest">Spectral Metadata</h4>
+                  </div>
+                  <div className="space-y-4">
+                      <div className="flex justify-between items-end border-b border-white/5 pb-2">
+                          <span className="font-mono text-[9px] text-white/30 uppercase">Sample Rate</span>
+                          <span className="font-mono text-xs text-white">44.1kHz</span>
+                      </div>
+                      <div className="flex justify-between items-end border-b border-white/5 pb-2">
+                          <span className="font-mono text-[9px] text-white/30 uppercase">Bit Depth</span>
+                          <span className="font-mono text-xs text-white">24-bit PCM</span>
+                      </div>
+                      <div className="flex justify-between items-end border-b border-white/5 pb-2">
+                          <span className="font-mono text-[9px] text-white/30 uppercase">Loudness</span>
+                          <span className="font-mono text-xs text-white">-14.2 LUFS</span>
+                      </div>
+                  </div>
               </div>
           </div>
       </div>
