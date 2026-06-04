@@ -27,7 +27,7 @@ export default function WaveformVisualizer({ barCount = 52 }) {
         bar.style.opacity = dynamicOpacity;
 
         const intensity = (finalHeight / 420) * 0.8;
-        const glowColor = ratio < 0.7 ? '255,46,151' : '201,167,255';
+        const glowColor = ratio < 0.7 ? '255,255,255' : '156,163,175';
         bar.style.boxShadow = `0 0 ${12 + intensity * 24}px rgba(${glowColor}, ${0.1 + intensity})`;
       });
       rafRef.current = requestAnimationFrame(start);
@@ -41,7 +41,7 @@ export default function WaveformVisualizer({ barCount = 52 }) {
     <div className="w-full h-full flex items-end justify-center gap-1 pb-12 px-6" ref={containerRef}>
       {Array.from({ length: barCount }).map((_, i) => {
         const ratio = i / barCount;
-        const bg = ratio < 0.7 ? '#ff2e97' : '#c9a7ff';
+        const bg = ratio < 0.7 ? '#ffffff' : '#9ca3af';
         return (
           <div
             key={i}

@@ -29,7 +29,7 @@ export default function AudioDropzone({ onFile, disabled }) {
         // Glassmorphism effects
         'backdrop-blur-xl bg-white/[0.02]', 
         isDragActive && !isDragReject 
-          ? 'scale-[1.02] border-[#ff2e97]/50 bg-[#ff2e97]/10 shadow-[0_0_50px_rgba(255,46,151,0.15)]' 
+          ? 'scale-[1.02] border-white/40 bg-white/[0.06] shadow-[0_0_50px_rgba(255,255,255,0.08)]' 
           : 'border-white/10 hover:bg-white/[0.04] hover:border-white/25 hover:scale-[1.01]',
         isDragReject && 'border-red-500/50 bg-red-500/10',
         disabled && 'opacity-50 pointer-events-none'
@@ -41,13 +41,13 @@ export default function AudioDropzone({ onFile, disabled }) {
         {/* Large Animated Icon */}
         <div className={clsx(
           'w-24 h-24 rounded-full border flex items-center justify-center transition-all duration-500',
-          isDragActive && !isDragReject ? 'bg-[#ff2e97]/20 border-[#ff2e97] scale-110 shadow-[0_0_30px_rgba(255,46,151,0.4)]' : 'bg-white/5 border-white/10 group-hover:scale-110 group-hover:bg-white/10',
+          isDragActive && !isDragReject ? 'bg-white/10 border-white scale-110 shadow-[0_0_30px_rgba(255,255,255,0.15)]' : 'bg-white/5 border-white/10 group-hover:scale-110 group-hover:bg-white/10',
           isDragReject && 'bg-red-500/20 border-red-500/50'
         )}>
           {isDragReject ? (
             <AlertCircle size={40} className="text-red-400" />
           ) : isDragActive ? (
-            <Music size={40} className="text-[#ff2e97] animate-pulse" />
+            <Music size={40} className="text-white animate-pulse" />
           ) : (
             <Upload size={40} className="text-gray-400 group-hover:text-white transition-colors" />
           )}

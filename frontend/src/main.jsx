@@ -7,7 +7,7 @@ import './index.css';
 
 const toastConfig = {
   style: {
-    background: 'rgba(11, 11, 18, 0.9)',
+    background: 'rgba(20, 20, 20, 0.92)',
     color: '#e5e2e1',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     backdropFilter: 'blur(10px)',
@@ -16,8 +16,8 @@ const toastConfig = {
   },
   success: {
     iconTheme: {
-      primary: '#ff2e97',
-      secondary: '#0c0818'
+      primary: '#ffffff',
+      secondary: '#050505'
     }
   },
   error: {

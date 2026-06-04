@@ -6,7 +6,7 @@ const MOOD_COLORS = {
   happy: 'text-yellow-400 bg-yellow-400/10',
   sad: 'text-blue-400 bg-blue-400/10',
   calm: 'text-green-400 bg-green-400/10',
-  excited: 'text-pink-400 bg-pink-400/10',
+  excited: 'text-white bg-white/10',
   melancholic: 'text-prism-violet bg-prism-violet/10',
   neutral: 'text-on-surface-variant bg-surface-container',
 };
@@ -79,7 +79,7 @@ export function AudioMetricsGrid({ result }) {
       />
       <div className="glass-card hover:border-sonic-lime/30 transition-colors">
         <div className="w-10 h-10 bg-surface-container-low rounded-xl flex items-center justify-center mb-3 border border-glass-border">
-          <Heart size={20} className="text-pink-400" />
+          <Heart size={20} className="text-white" />
         </div>
         <p className="text-2xl font-bold mb-1 capitalize text-on-surface">{result.mood || '—'}</p>
         <p className="text-sm font-medium text-on-surface-variant">Mood</p>

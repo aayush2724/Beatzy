@@ -45,13 +45,13 @@ Set these in each host’s dashboard (never commit real keys). **Render and Hugg
 | **Render** (backend) | `ML_SERVICE_URL` | `https://aayush-27-beatzy-ml.hf.space` |
 | **Render + HF** (shared storage) | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | R2 or S3 access key pair |
 | **Render + HF** (shared storage) | `AWS_S3_BUCKET` | `beatzy-audio` |
-| **Render + HF** (shared storage) | `AWS_S3_ENDPOINT` | R2: `https://<account_id>.r2.cloudflarestorage.com` |
-| **Render + HF** (shared storage) | `AWS_REGION` | `auto` for R2; `us-east-1` for AWS S3 |
+| **Render + HF** (shared storage) | `AWS_S3_ENDPOINT` | Supabase: `https://<project>.supabase.co/storage/v1/s3` — or R2: `https://<account_id>.r2.cloudflarestorage.com` |
+| **Render + HF** (shared storage) | `AWS_REGION` | Match provider (e.g. `ap-southeast-2` for Supabase; `auto` for R2) |
 | **Hugging Face** (ML) | `ACOUSTID_API_KEY` | Your [AcoustID](https://acoustid.org/new-application) API key |
 | **Hugging Face** (ML) | `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` | Spotify app credentials |
 | **Hugging Face** (ML, optional) | `ALLOWED_ORIGINS` | `https://beatzy-zeta.vercel.app` |
 
-**Cloudflare R2 setup (recommended):** create bucket `beatzy-audio` → API token with Object Read & Write → use the R2 endpoint URL as `AWS_S3_ENDPOINT`. Local dev can keep MinIO via `docker-compose` (`AWS_S3_ENDPOINT=http://localhost:9000`, `minioadmin`/`minioadmin`); see `backend/.env.example` and `ml-service/.env.example`.
+**Production storage:** use the same S3-compatible bucket on **Render and Hugging Face** (Supabase Storage, Cloudflare R2, or AWS S3). Path-style addressing is configured in code. Source audio is deleted after analysis. Local dev can use MinIO via `docker-compose` (`AWS_S3_ENDPOINT=http://localhost:9000`); see `backend/.env.example` and `ml-service/.env.example`.
 
 ---
 
