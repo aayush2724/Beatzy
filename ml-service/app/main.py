@@ -8,7 +8,7 @@ import scipy.signal.windows
 if not hasattr(scipy.signal, 'hann'):
     scipy.signal.hann = scipy.signal.windows.hann
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import structlog
@@ -16,12 +16,20 @@ import structlog
 from app.routes import analyze
 from app.routes.waveform import router as waveform_router
 from app.services.yamnet_service import YAMNetService
+from app.services.storage_service import check_storage_connectivity
 
 logger = structlog.get_logger()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    storage_status = check_storage_connectivity()
+    app.state.storage_status = storage_status
+    if storage_status.get("reachable"):
+        logger.info("Storage connectivity OK", **storage_status)
+    else:
+        logger.warning("Storage connectivity check failed — uploads may fail", **storage_status)
+
     logger.info("Loading YAMNet model...")
     app.state.yamnet = YAMNetService()
     await app.state.yamnet.load()
@@ -64,5 +72,11 @@ app.include_router(waveform_router, prefix="", tags=["Waveform"])
 
 
 @app.get("/health")
-async def health():
-    return {"status": "ok", "service": "beatzy-ml", "version": "2.0.0"}
+async def health(request: Request):
+    storage = getattr(request.app.state, "storage_status", None) or check_storage_connectivity()
+    return {
+        "status": "ok",
+        "service": "beatzy-ml",
+        "version": "2.0.0",
+        "storage": storage,
+    }

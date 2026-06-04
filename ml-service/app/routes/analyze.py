@@ -56,7 +56,11 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
     log.info("Starting audio analysis")
 
     storage = StorageService()
-    audio_path = await storage.download_from_s3(req.s3_key, req.job_id)
+    try:
+        audio_path = await storage.download_from_s3(req.s3_key, req.job_id)
+    except FileNotFoundError as e:
+        log.error("Storage download failed", s3_key=req.s3_key, error=str(e))
+        raise HTTPException(status_code=404, detail=str(e)) from e
 
     try:
         # Core audio features (BPM, mood via ML model, energy, MFCCs, key …)
@@ -70,33 +74,44 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
 
         acoustid_service = AcoustIDService()
         loop = asyncio.get_event_loop()
-        song_info = await loop.run_in_executor(
-            None,
-            acoustid_service.identify_from_bytes,
-            sample_bytes,
-            ext,
-        )
+        try:
+            song_info = await loop.run_in_executor(
+                None,
+                acoustid_service.identify_from_bytes,
+                sample_bytes,
+                ext,
+            )
+        except Exception as e:
+            log.warning("AcoustID step failed, using fallbacks", error=str(e))
+            song_info = None
 
         if not song_info and req.original_filename:
-            song_info = parse_filename(req.original_filename)
-            if song_info.get("title"):
-                song_info["title"] = clean_title(song_info["title"])
-            if song_info:
-                log.info("Used local filename fallback", extracted=song_info)
+            try:
+                song_info = parse_filename(req.original_filename)
+                if song_info and song_info.get("title"):
+                    song_info["title"] = clean_title(song_info["title"])
+                if song_info:
+                    log.info("Used local filename fallback", extracted=song_info)
+            except Exception as e:
+                log.warning("Filename parse fallback failed", error=str(e))
+                song_info = None
 
         if not song_info and req.original_filename:
             basename = os.path.splitext(req.original_filename)[0].replace("_", " ").strip()
             if basename:
-                itunes = iTunesService()
-                hit = await itunes.enrich(title=clean_title(basename))
-                if hit:
-                    song_info = {
-                        "title": hit.get("title"),
-                        "artist": hit.get("artist"),
-                        "source": "itunes",
-                        "isrc": None,
-                    }
-                    log.info("Used iTunes filename search fallback", extracted=song_info)
+                try:
+                    itunes = iTunesService()
+                    hit = await itunes.enrich(title=clean_title(basename))
+                    if hit:
+                        song_info = {
+                            "title": hit.get("title"),
+                            "artist": hit.get("artist"),
+                            "source": "itunes",
+                            "isrc": None,
+                        }
+                        log.info("Used iTunes filename search fallback", extracted=song_info)
+                except Exception as e:
+                    log.warning("iTunes filename fallback failed", error=str(e))
 
         song_info = song_info or {}
         # ---------------------------------------------------------
@@ -132,12 +147,17 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
                     "source": "itunes",
                 }
 
-        # FETCH LYRICS
-        lyrics_service = LyricsService()
-        lyrics = await lyrics_service.fetch_lyrics(
-            artist=song_info.get("artist"),
-            title=clean_title(song_info.get("title") or ""),
-        )
+        # Lyrics (after title/artist resolved)
+        lyrics = None
+        if song_info.get("title"):
+            try:
+                lyrics_service = LyricsService()
+                lyrics = await lyrics_service.fetch_lyrics(
+                    artist=song_info.get("artist"),
+                    title=clean_title(song_info.get("title") or ""),
+                )
+            except Exception as e:
+                log.warning("Lyrics fetch failed", error=str(e))
 
         result = {
             "job_id": req.job_id,

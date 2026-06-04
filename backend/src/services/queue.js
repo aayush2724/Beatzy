@@ -93,6 +93,14 @@ async function processJobDirectly(data) {
 
     await persistAnalysisResult({ jobId, mlResult });
 
+    try {
+      const { deleteFromS3 } = require('./storage');
+      await deleteFromS3(s3Key);
+      logger.info('Deleted source audio from storage after analysis', { jobId, s3Key });
+    } catch (delErr) {
+      logger.warn('Failed to delete source audio from storage', { jobId, s3Key, error: delErr.message });
+    }
+
     await pool.query("UPDATE audio_jobs SET status = 'completed', completed_at = NOW() WHERE id = $1", [jobId]);
 
     try {

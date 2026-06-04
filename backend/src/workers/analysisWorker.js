@@ -4,7 +4,18 @@ const { Worker } = require('bullmq');
 const axios = require('axios');
 const { pool } = require('../db/client');
 const { persistAnalysisResult } = require('../services/analysisResults');
+const { deleteFromS3 } = require('../services/storage');
 const logger = require('../utils/logger');
+
+async function deleteSourceAudio(s3Key, jobId) {
+  if (!s3Key) return;
+  try {
+    await deleteFromS3(s3Key);
+    logger.info('Deleted source audio from storage after analysis', { jobId, s3Key });
+  } catch (err) {
+    logger.warn('Failed to delete source audio from storage', { jobId, s3Key, error: err.message });
+  }
+}
 
 function parseRedisUrl(url) {
   try {
@@ -75,6 +86,8 @@ try {
     }
 
     await persistAnalysisResult({ jobId, mlResult });
+
+    await deleteSourceAudio(s3Key, jobId);
 
     await pool.query("UPDATE audio_jobs SET status = 'completed', completed_at = NOW() WHERE id = $1", [jobId]);
 
