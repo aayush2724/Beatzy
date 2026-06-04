@@ -3,6 +3,7 @@ import { useAuthStore } from '../store/authStore';
 import { useState } from 'react';
 import clsx from 'clsx';
 import InteriorBackground from './InteriorBackground';
+import AppBackground from './AppBackground';
 
 export default function Layout() {
   const { user, logout } = useAuthStore();
@@ -28,9 +29,11 @@ export default function Layout() {
 
   return (
     <div className="flex h-screen overflow-hidden text-on-surface font-body selection:bg-vibe-magenta/30 relative">
-      <InteriorBackground />
+      {/* 3D Background Layer */}
+      <AppBackground />
+      
       {/* Decorative Grid Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,46,151,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,46,151,0.01)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,46,151,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,46,151,0.015)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" style={{ zIndex: 0 }}></div>
 
       {/* SideNavBar - Premium Obsidian OS design */}
       <aside 

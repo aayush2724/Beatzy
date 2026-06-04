@@ -332,40 +332,52 @@ export default function Upload() {
                   <div
                     {...getRootProps()}
                     className={clsx(
-                      'relative border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all duration-300 w-full backdrop-blur-sm select-none',
-                      isDragActive && !isDragReject && 'border-sonic-lime bg-sonic-lime/5 shadow-[0_0_40px_rgba(255,46,151,0.12)]',
-                      isDragReject && 'border-red-500 bg-red-500/5',
-                      !isDragActive && 'border-white/10 bg-black/20 hover:border-sonic-lime/50 hover:bg-sonic-lime/[0.02] hover:shadow-[0_0_30px_rgba(255,46,151,0.06)]'
+                      'relative overflow-hidden group cursor-pointer rounded-[2rem] border p-16 md:p-24 transition-all duration-500 ease-out shadow-2xl text-center w-full backdrop-blur-xl',
+                      // Glassmorphism effects
+                      'bg-white/[0.02]',
+                      isDragActive && !isDragReject
+                        ? 'scale-[1.02] border-[#ff2e97]/50 bg-[#ff2e97]/10 shadow-[0_0_50px_rgba(255,46,151,0.15)]'
+                        : 'border-white/10 hover:bg-white/[0.04] hover:border-white/25 hover:scale-[1.01]',
+                      isDragReject && 'border-red-500/50 bg-red-500/10',
+                      disabled && 'opacity-50 pointer-events-none'
                     )}
                   >
                     <input {...getInputProps()} />
-                    <div className="flex flex-col items-center gap-6">
+
+                    <div className="relative z-10 flex flex-col items-center gap-6">
+                      {/* Large Animated Icon */}
                       <div className={clsx(
-                        'w-20 h-20 rounded-2xl flex items-center justify-center border transition-all duration-300',
-                        isDragActive ? 'bg-sonic-lime/20 border-sonic-lime/50 shadow-[0_0_30px_rgba(255,46,151,0.3)]' : 'bg-sonic-lime/10 border-sonic-lime/20 shadow-[0_0_15px_rgba(255,46,151,0.1)]'
+                        'w-24 h-24 rounded-full border flex items-center justify-center transition-all duration-500',
+                        isDragActive && !isDragReject ? 'bg-[#ff2e97]/20 border-[#ff2e97] scale-110 shadow-[0_0_30px_rgba(255,46,151,0.4)]' : 'bg-white/5 border-white/10 group-hover:scale-110 group-hover:bg-white/10',
+                        isDragReject && 'bg-red-500/20 border-red-500/50'
                       )}>
-                        <span className="material-symbols-outlined text-sonic-lime text-4xl">
-                          {isDragActive ? 'download' : 'upload_file'}
-                        </span>
+                        {isDragReject ? (
+                          <span className="material-symbols-outlined text-red-400 text-4xl">error</span>
+                        ) : isDragActive ? (
+                          <span className="material-symbols-outlined text-[#ff2e97] text-4xl animate-pulse">download</span>
+                        ) : (
+                          <span className="material-symbols-outlined text-gray-400 text-4xl group-hover:text-white transition-colors">upload_file</span>
+                        )}
                       </div>
 
                       <div>
-                        <h2 className="text-xl font-bold text-white mb-2 tracking-tight">
-                          {isDragActive ? 'Release to Analyze' : 'Load Audio Signature'}
-                        </h2>
-                        <p className="text-sm text-on-surface-variant font-medium">
-                          Drag & drop your audio file, or <span className="text-sonic-lime underline">browse files</span>
+                        <h3 className="font-headline text-3xl md:text-4xl font-semibold text-white mb-4 tracking-tight">
+                          {isDragReject ? 'Unsupported Format' : isDragActive ? 'Drop audio to extract' : 'Load Audio Signature'}
+                        </h3>
+                        <p className="text-gray-400 text-lg font-light">
+                          Drag & drop your file, or <span className="text-white underline decoration-white/30 underline-offset-4 hover:decoration-white transition-all">browse files</span>
                         </p>
-                        <p className="text-[10px] font-mono text-on-surface-variant/50 tracking-wider uppercase mt-3">
-                          MP3 · WAV · FLAC · OGG · M4A &nbsp;·&nbsp; Max 50 MB
-                        </p>
+                        {rejected && <p className="text-red-400 text-sm mt-4 font-mono">{rejected}</p>}
                       </div>
 
-                      {rejected && (
-                        <p className="text-red-400 font-mono text-xs uppercase tracking-wider bg-red-500/10 border border-red-500/20 rounded px-3 py-1.5">
-                          {rejected}
-                        </p>
-                      )}
+                      {/* Format Pills */}
+                      <div className="flex justify-center gap-3 mt-4">
+                        {['MP3', 'WAV', 'FLAC', 'OGG', 'M4A'].map(ext => (
+                          <span key={ext} className="text-[11px] font-mono text-gray-500 border border-white/10 rounded-md px-3 py-1 bg-black/40">
+                            {ext}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
