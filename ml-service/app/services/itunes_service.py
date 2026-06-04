@@ -1,7 +1,6 @@
 """Free iTunes Search API fallback when Spotify is unavailable."""
 
 import asyncio
-import aiohttp
 import structlog
 
 logger = structlog.get_logger()

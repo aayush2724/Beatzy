@@ -23,6 +23,7 @@
     "react/prop-types": "off",
     "react/react-in-jsx-scope": "off",
     "react/no-unescaped-entities": "off",
+    "react/no-unknown-property": ["error", { "ignore": ["args", "attach", "castShadow", "dispose", "emissive", "emissiveIntensity", "intensity", "metalness", "position", "receiveShadow", "rotation", "roughness", "transparent"] }],
     "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
     "no-console": "off"
   }
