@@ -1,46 +1,78 @@
-/*
- * Ambient3D — lightweight, pure-CSS 3D ambiance rendered once, app-wide.
- * Fixed behind all content (z-index: -1), pointer-events: none, so it never
- * interferes with navigation. Respects prefers-reduced-motion (handled in CSS).
- */
+import { useRef, useMemo, useState } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Float, MeshDistortMaterial, Sphere, Stars, useScroll } from '@react-three/drei';
+import * as THREE from 'three';
+
+function FloatingObject({ position, color, speed = 1, size = 1, distort = 0.4 }) {
+  const mesh = useRef();
+  
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime() * speed;
+    mesh.current.position.y += Math.sin(t) * 0.002;
+    mesh.current.rotation.x = Math.cos(t / 2) / 4;
+    mesh.current.rotation.y = Math.sin(t / 2) / 4;
+  });
+
+  return (
+    <Float speed={2 * speed} rotationIntensity={1} floatIntensity={2}>
+      <Sphere ref={mesh} position={position} args={[size, 32, 32]}>
+        <MeshDistortMaterial
+          color={color}
+          speed={speed}
+          distort={distort}
+          radius={size}
+          emissive={color}
+          emissiveIntensity={0.2}
+          roughness={0.2}
+          metalness={0.8}
+        />
+      </Sphere>
+    </Float>
+  );
+}
+
+function Scene() {
+  const { viewport } = useThree();
+  
+  return (
+    <>
+      <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+      
+      {/* Cinematic Ambient Lights */}
+      <ambientLight intensity={0.2} />
+      <pointLight position={[10, 10, 10]} intensity={1} color="#ffffff" />
+      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#4361ee" />
+      
+      {/* Floating Abstract "Instruments" / Orbs */}
+      <FloatingObject position={[-viewport.width / 3, viewport.height / 4, -2]} color="#ffffff" size={1.2} speed={0.5} distort={0.3} />
+      <FloatingObject position={[viewport.width / 4, -viewport.height / 3, -3]} color="#d1d5db" size={2} speed={0.3} distort={0.5} />
+      <FloatingObject position={[viewport.width / 2.5, viewport.height / 3, -5]} color="#9ca3af" size={1.5} speed={0.7} distort={0.2} />
+      
+      {/* Add interactive Parallax linked to mouse */}
+      <ParallaxLayer />
+    </>
+  );
+}
+
+function ParallaxLayer() {
+    const { camera, mouse } = useThree();
+    useFrame(() => {
+        camera.position.x += (mouse.x * 2 - camera.position.x) * 0.05;
+        camera.position.y += (mouse.y * 2 - camera.position.y) * 0.05;
+        camera.lookAt(0, 0, 0);
+    });
+    return null;
+}
+
 export default function Ambient3D() {
   return (
-    <div className="ambient-layer scene-3d" aria-hidden="true">
-      {/* Glowing orbs (read as 3D spheres) */}
-      <div className="ambient-obj orb orb-magenta float-a w-72 h-72 top-[-4%] left-[-3%] opacity-20" />
-      <div className="ambient-obj orb orb-violet float-b w-96 h-96 top-[35%] right-[-6%] opacity-20" />
-      <div className="ambient-obj orb orb-cyan float-c w-60 h-60 bottom-[-5%] left-[18%] opacity-15" />
-      <div className="ambient-obj orb orb-amber drift-a w-40 h-40 top-[12%] left-[42%] opacity-10" />
-
-      {/* Spinning vinyl record */}
-      <div className="ambient-obj float-d w-40 h-40 top-[18%] right-[14%] opacity-30">
-        <div className="vinyl3d w-full h-full" />
-      </div>
-
-      {/* Rotating 3D cube */}
-      <div className="ambient-obj drift-b w-20 h-20 bottom-[16%] right-[22%] opacity-30">
-        <div className="cube3d w-20 h-20">
-          <span className="face [transform:rotateY(0deg)_translateZ(40px)]" />
-          <span className="face [transform:rotateY(90deg)_translateZ(40px)]" />
-          <span className="face [transform:rotateY(180deg)_translateZ(40px)]" />
-          <span className="face [transform:rotateY(-90deg)_translateZ(40px)]" />
-          <span className="face [transform:rotateX(90deg)_translateZ(40px)]" />
-          <span className="face [transform:rotateX(-90deg)_translateZ(40px)]" />
-        </div>
-      </div>
-
-      {/* Equalizer bars */}
-      <div className="ambient-obj float-b bottom-[10%] left-[8%] opacity-50">
-        <div className="eq3d">
-          <span /><span /><span /><span /><span /><span />
-        </div>
-      </div>
-
-      {/* Floating music-note glyphs */}
-      <span className="ambient-obj material-symbols-outlined text-vibe-magenta float-c text-5xl top-[28%] left-[12%] opacity-25">music_note</span>
-      <span className="ambient-obj material-symbols-outlined text-vibe-cyan float-a text-4xl top-[62%] right-[30%] opacity-20">graphic_eq</span>
-      <span className="ambient-obj material-symbols-outlined text-vibe-violet float-d text-6xl bottom-[28%] left-[34%] opacity-20">album</span>
-      <span className="ambient-obj material-symbols-outlined text-vibe-amber drift-a text-4xl top-[8%] right-[40%] opacity-20">queue_music</span>
+    <div className="fixed inset-0 z-[-1] pointer-events-none bg-[#050505]" aria-hidden="true">
+      <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
+        <Scene />
+      </Canvas>
+      
+      {/* Overlay Scanline from Phase 1 for extra texture */}
+      <div className="absolute inset-0 scanline opacity-5" />
     </div>
   );
 }

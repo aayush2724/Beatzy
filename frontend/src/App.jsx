@@ -1,6 +1,7 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { useEffect, useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import Layout from './components/Layout';
 import Ambient3D from './components/Ambient3D';
 import FloatingArtists from './components/FloatingArtists';
@@ -37,6 +38,7 @@ function AdminRoute({ children }) {
 
 export default function App() {
   const [hydrated, setHydrated] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     // Check if already hydrated synchronously, otherwise wait for event
@@ -54,26 +56,28 @@ export default function App() {
     <>
       <FloatingArtists />
       <Ambient3D />
-      <Routes>
-      <Route path="/" element={<Landing />} />
-      <Route path="/pricing" element={<Pricing />} />
-      <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-      <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-      <Route path="/auth/callback" element={<AuthCallback />} />
-      <Route path="/billing/success" element={<BillingSuccess />} />
-      <Route path="/artist-echoes" element={<ArtistEchoes />} />
-      <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-        <Route index element={<Navigate to="/upload" replace />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/upload" element={<Upload />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/results/:jobId" element={<Results />} />
-        <Route path="/api-keys" element={<ApiKeys />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<Landing />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/billing/success" element={<BillingSuccess />} />
+          <Route path="/artist-echoes" element={<ArtistEchoes />} />
+          <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+            <Route index element={<Navigate to="/upload" replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/upload" element={<Upload />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/results/:jobId" element={<Results />} />
+            <Route path="/api-keys" element={<ApiKeys />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AnimatePresence>
     </>
   );
 }

@@ -6,6 +6,10 @@ import structlog
 
 logger = structlog.get_logger()
 
+KEY_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+MAJOR_PROFILE = np.array([6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88])
+MINOR_PROFILE = np.array([6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17])
+
 # ── Model loading (singleton) ────────────────────────────────────────────────
 
 _MODEL_PATH = pathlib.Path(__file__).resolve().parent.parent.parent / "models" / "mood_classifier.joblib"
@@ -58,11 +62,12 @@ class AudioAnalysisService:
         mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
         mfcc_means = [float(round(m, 4)) for m in np.mean(mfccs, axis=1)]
 
-        # Key and scale
+        # Key, scale, and chord extraction
         chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
         key_idx = int(np.argmax(np.mean(chroma, axis=1)))
-        key_names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-        key_signature = key_names[key_idx]
+        key_signature = KEY_NAMES[key_idx]
+        scale = self._estimate_scale(chroma)
+        chord_timeline = self._extract_chords(y, sr)
 
         # Time signature (simplified)
         time_signature = "4/4"
@@ -78,12 +83,67 @@ class AudioAnalysisService:
             "mood": mood,
             "mood_confidence": mood_confidence,
             "key_signature": key_signature,
+            "scale": scale,
+            "chord_timeline": chord_timeline,
             "time_signature": time_signature,
             "spectral_centroid": round(spectral_centroid, 4),
             "spectral_rolloff": round(spectral_rolloff, 4),
             "zero_crossing_rate": round(zero_crossing_rate, 6),
             "mfcc_means": mfcc_means,
         }
+
+    def _extract_chords(self, y, sr) -> list[dict]:
+        """Extract a timeline of chords using a chromagram."""
+        try:
+            # Generate Chromagram
+            chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
+            
+            # Simple chord dictionary mapping (Major and Minor triads)
+            chord_templates = {
+                'C': [1,0,0,0,1,0,0,1,0,0,0,0], 'Cmin': [1,0,0,1,0,0,0,1,0,0,0,0],
+                'C#': [0,1,0,0,0,1,0,0,1,0,0,0], 'C#min': [0,1,0,0,1,0,0,0,1,0,0,0],
+                'D': [0,0,1,0,0,0,1,0,0,1,0,0], 'Dmin': [0,0,1,0,0,1,0,0,0,1,0,0],
+                'D#': [0,0,0,1,0,0,0,1,0,0,1,0], 'D#min': [0,0,0,1,0,0,1,0,0,0,1,0],
+                'E': [0,0,0,0,1,0,0,0,1,0,0,1], 'Emin': [0,0,0,0,1,0,0,1,0,0,0,1],
+                'F': [1,0,0,0,0,1,0,0,0,1,0,0], 'Fmin': [1,0,0,0,0,1,0,0,1,0,0,0],
+                'F#': [0,1,0,0,0,0,1,0,0,0,1,0], 'F#min': [0,1,0,0,0,0,1,0,0,1,0,0],
+                'G': [0,0,1,0,0,0,0,1,0,0,0,1], 'Gmin': [0,0,1,0,0,0,0,1,0,0,1,0],
+                'G#': [1,0,0,1,0,0,0,0,1,0,0,0], 'G#min': [0,0,0,1,0,0,0,0,1,0,0,1],
+                'A': [0,1,0,0,1,0,0,0,0,1,0,0], 'Amin': [1,0,0,0,1,0,0,0,0,1,0,0],
+                'A#': [0,0,1,0,0,1,0,0,0,0,1,0], 'A#min': [0,1,0,0,0,1,0,0,0,0,1,0],
+                'B': [0,0,0,1,0,0,1,0,0,0,0,1], 'Bmin': [0,0,1,0,0,0,1,0,0,0,0,1]
+            }
+            
+            chord_names = list(chord_templates.keys())
+            templates = np.array(list(chord_templates.values())).T
+            
+            # Correlate chromagram with chord templates
+            chord_scores = np.dot(templates.T, chroma)
+            best_chords_idx = np.argmax(chord_scores, axis=0)
+            
+            # Group into segments
+            frames_per_sec = sr / 512 # librosa default hop length
+            segments = []
+            current_chord = chord_names[best_chords_idx[0]]
+            start_time = 0.0
+            
+            for i, idx in enumerate(best_chords_idx):
+                chord = chord_names[idx]
+                if chord != current_chord:
+                    end_time = i / frames_per_sec
+                    if end_time - start_time > 1.5: # only keep stable chords > 1.5s
+                        segments.append({
+                            "chord": current_chord,
+                            "start": round(start_time, 1),
+                            "end": round(end_time, 1)
+                        })
+                    current_chord = chord
+                    start_time = end_time
+            
+            return segments
+        except Exception as e:
+            logger.error("Chord extraction failed", error=str(e))
+            return []
 
     # ── ML‑based mood prediction ─────────────────────────────────────────────
 
@@ -125,3 +185,30 @@ class AudioAnalysisService:
             return "melancholic"
         else:
             return "neutral"
+
+    def _estimate_scale(self, chroma: np.ndarray) -> str:
+        """Estimate major/minor scale from average chroma using Krumhansl profiles."""
+        # Use CENS for more robust scale estimation
+        cens = librosa.feature.chroma_cens(C=chroma)
+        profile = np.mean(cens, axis=1)
+        
+        if np.max(profile) > 0:
+            profile = profile / np.max(profile)
+
+        best_score = float("-inf")
+        best_key = 0
+        best_mode = "Major"
+
+        for key_idx in range(12):
+            major_score = float(np.corrcoef(profile, np.roll(MAJOR_PROFILE, key_idx))[0, 1])
+            minor_score = float(np.corrcoef(profile, np.roll(MINOR_PROFILE, key_idx))[0, 1])
+            if major_score > best_score:
+                best_score = major_score
+                best_key = key_idx
+                best_mode = "Major"
+            if minor_score > best_score:
+                best_score = minor_score
+                best_key = key_idx
+                best_mode = "Minor"
+
+        return f"{KEY_NAMES[best_key]} {best_mode}"

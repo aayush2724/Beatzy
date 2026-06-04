@@ -2,8 +2,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useState } from 'react';
 import clsx from 'clsx';
-import InteriorBackground from './InteriorBackground';
-import AppBackground from './AppBackground';
+import ThreeDStudio from './ThreeDStudio';
 
 export default function Layout() {
   const { user, logout } = useAuthStore();
@@ -30,7 +29,7 @@ export default function Layout() {
   return (
     <div className="flex h-screen overflow-hidden text-on-surface font-body selection:bg-vibe-magenta/30 relative">
       {/* 3D Background Layer */}
-      <AppBackground />
+      <ThreeDStudio />
       
       {/* Decorative Grid Overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,46,151,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,46,151,0.015)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" style={{ zIndex: 0 }}></div>

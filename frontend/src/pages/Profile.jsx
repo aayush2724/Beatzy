@@ -1,40 +1,33 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import api from '../api/client';
+import PageWrapper from '../components/PageWrapper';
 import { useAuthStore } from '../store/authStore';
+import clsx from 'clsx';
 
 const SG = { fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" };
+const PLAN_PRICES = { pro: '$19.99 / cycle', enterprise: '$99.99 / cycle', free: '$0 / cycle' };
 
 function Section({ icon, title, children }) {
   return (
-    <section className="rounded-2xl p-7 border transition-all hover:border-white/10" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,46,151,0.08)', border: '1px solid rgba(255,46,151,0.2)' }}>
-          <span className="material-symbols-outlined text-sonic-lime text-base" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
-        </div>
-        <h2 className="font-bold text-base text-white" style={SG}>{title}</h2>
+    <section className="glass-panel p-8 rounded-2xl border border-glass-border transition-all hover:border-white/10 shadow-2xl relative overflow-hidden">
+      <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none">
+          <span className="material-symbols-outlined text-9xl">{icon}</span>
       </div>
-      {children}
+      <div className="flex items-center gap-4 mb-8 relative z-10">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary/10 border border-primary/20">
+          <span className="material-symbols-outlined text-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+        </div>
+        <h2 className="font-headline font-bold text-lg text-white uppercase tracking-widest" style={SG}>{title}</h2>
+      </div>
+      <div className="relative z-10">
+        {children}
+      </div>
     </section>
   );
 }
-
-function Field({ label, children }) {
-  return (
-    <div className="space-y-2">
-      <label className="font-mono text-[9px] text-white/35 uppercase tracking-[0.2em] block">{label}</label>
-      {children}
-    </div>
-  );
-}
-
-const inputCls = "w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/20 outline-none transition-all";
-const inputStyle = { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' };
-const inputFocus = e => e.target.style.borderColor = 'rgba(255,46,151,0.4)';
-const inputBlur = e => e.target.style.borderColor = 'rgba(255,255,255,0.08)';
-
-const PLAN_PRICES = { pro: '$19.99 / cycle', enterprise: '$99.99 / cycle', free: '$0 / cycle' };
 
 export default function Profile() {
   const { user, setUser } = useAuthStore();
@@ -49,7 +42,7 @@ export default function Profile() {
     try {
       const { data } = await api.patch('/api/users/me', { name });
       setUser(data.data);
-      toast.success('Name updated', { style: { background: '#0f0a20', color: '#ff2e97', border: '1px solid rgba(255,46,151,0.3)' } });
+      toast.success('Identity updated', { style: { background: 'var(--color-surface-container)', color: 'var(--color-primary)', border: '1px solid var(--color-glass-border)' } });
     } finally { setSavingName(false); }
   }
 
@@ -59,7 +52,7 @@ export default function Profile() {
     setSavingPw(true);
     try {
       await api.patch('/api/users/me/password', { currentPassword: passwords.current, newPassword: passwords.new });
-      toast.success('Password updated', { style: { background: '#0f0a20', color: '#ff2e97', border: '1px solid rgba(255,46,151,0.3)' } });
+      toast.success('Protocol re-encrypted', { style: { background: 'var(--color-surface-container)', color: 'var(--color-primary)', border: '1px solid var(--color-glass-border)' } });
       setPasswords({ current: '', new: '', confirm: '' });
     } finally { setSavingPw(false); }
   }
@@ -67,89 +60,99 @@ export default function Profile() {
   async function openBillingPortal() {
     try {
       const { data } = await api.post('/api/billing/portal');
-      window.location.href = data.data.url;
-    } catch { toast.error('No active subscription'); }
+      window.location.href = data.url;
+    } catch (err) {
+      toast.error('Billing sync failed');
+    }
   }
 
   return (
-    <div className="space-y-6 pb-16">
+    <PageWrapper className="max-w-4xl mx-auto space-y-12 pb-20">
       {/* Header */}
-      <header className="flex items-center gap-4 mb-2">
-        <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-bold text-black flex-shrink-0" style={{ background: '#ff2e97', boxShadow: '0 0 24px rgba(255,46,151,0.25)', ...SG }}>
+      <header className="flex items-center gap-8 mb-4 p-4 border-b border-white/5 pb-12">
+        <div className="w-24 h-24 rounded-[2.5rem] flex items-center justify-center text-4xl font-extrabold text-surface flex-shrink-0 bg-primary shadow-[0_0_50px_rgba(255,255,255,0.2)]" style={SG}>
           {user?.name?.[0]?.toUpperCase() || 'U'}
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-white" style={SG}>{user?.name}</h1>
-          <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest">{user?.email}</p>
-        </div>
-        <div className="ml-auto px-3 py-1 rounded-full font-mono text-[9px] uppercase tracking-wider font-bold" style={{ background: 'rgba(255,46,151,0.1)', border: '1px solid rgba(255,46,151,0.25)', color: '#ff2e97' }}>
-          {user?.plan || 'free'} plan
+          <h1 className="text-5xl font-headline font-extrabold text-white tracking-tighter" style={SG}>{user?.name}</h1>
+          <div className="flex items-center gap-4 mt-2">
+              <span className="font-mono text-[10px] text-white/40 uppercase tracking-[0.2em]">{user?.email}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              <span className="px-3 py-1 rounded-full font-mono text-[9px] uppercase tracking-widest font-extrabold bg-primary/10 border border-primary/30 text-primary">
+                {user?.plan || 'FREE'} SECTOR
+              </span>
+          </div>
         </div>
       </header>
 
-      {/* Personal Info */}
-      <Section icon="person" title="Personal Information">
-        <div className="space-y-5">
-          <Field label="Master Identity (Email)">
-            <input disabled value={user?.email || ''} className={`${inputCls} opacity-40 cursor-not-allowed`} style={inputStyle} />
-            <p className="font-mono text-[8px] text-white/20 mt-1">Master identity cannot be altered within this node.</p>
-          </Field>
-          <form onSubmit={saveName}>
-            <Field label="Resonance Label (Display Name)">
-              <div className="flex flex-col md:flex-row gap-3 mt-2">
-                <input value={name} onChange={e => setName(e.target.value)} placeholder="Pulse Operator" required minLength={2} className={inputCls} style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
-                <button type="submit" disabled={savingName} className="px-6 py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.98] disabled:opacity-50 shrink-0" style={{ background: '#ff2e97', color: '#0a0613', ...SG }}>
-                  {savingName ? 'Saving...' : 'Update'}
-                </button>
+      <div className="grid gap-12">
+          {/* Personal Info */}
+          <Section icon="fingerprint" title="Master Identity">
+            <div className="space-y-8">
+              <div className="max-w-md">
+                <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block mb-3">Permanent Identifier</label>
+                <input disabled value={user?.email || ''} className="input opacity-50 cursor-not-allowed bg-white/[0.02] border-dashed" />
+                <p className="font-mono text-[9px] text-white/20 mt-3 italic">Identity linked to neural core. Cannot be altered.</p>
               </div>
-            </Field>
-          </form>
-        </div>
-      </Section>
-
-      {/* Change Password */}
-      <Section icon="key" title="Change Password">
-        <form onSubmit={savePassword} className="space-y-5">
-          <Field label="Current Access Key">
-            <input type="password" value={passwords.current} onChange={e => setPasswords(p => ({ ...p, current: e.target.value }))} required className={`${inputCls} mt-2`} style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
-          </Field>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Field label="New Access Key">
-              <input type="password" value={passwords.new} onChange={e => setPasswords(p => ({ ...p, new: e.target.value }))} required minLength={8} className={`${inputCls} mt-2`} style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
-            </Field>
-            <Field label="Confirm Access Key">
-              <input type="password" value={passwords.confirm} onChange={e => setPasswords(p => ({ ...p, confirm: e.target.value }))} required minLength={8} className={`${inputCls} mt-2`} style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
-            </Field>
-          </div>
-          <button type="submit" disabled={savingPw} className="px-7 py-3 rounded-xl font-mono text-xs uppercase tracking-wider transition-all active:scale-[0.98] disabled:opacity-50" style={{ border: '1px solid rgba(255,46,151,0.3)', color: '#ff2e97' }}>
-            {savingPw ? 'Updating...' : 'Re-encrypt Account'}
-          </button>
-        </form>
-      </Section>
-
-      {/* Subscription */}
-      <Section icon="verified" title="Subscription Protocol">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-5 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-[9px] text-white/35 uppercase tracking-wider">Active Plan:</span>
-              <span className="px-2.5 py-0.5 rounded font-mono text-[9px] font-bold uppercase tracking-wider" style={{ background: '#ff2e97', color: '#0a0613' }}>
-                {user?.plan ? `${user.plan} Resonance` : 'Free Resonance'}
-              </span>
+              <form onSubmit={saveName} className="max-w-2xl">
+                <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block mb-3">Interface Label</label>
+                <div className="flex flex-col md:flex-row gap-4">
+                    <input value={name} onChange={e => setName(e.target.value)} placeholder="Operator Alias" required minLength={2} className="input" />
+                    <button type="submit" disabled={savingName} className="btn-primary shrink-0 px-10 uppercase tracking-widest font-bold text-xs">
+                    {savingName ? 'SAVING...' : 'UPDATE'}
+                    </button>
+                </div>
+              </form>
             </div>
-            <p className="text-lg font-bold text-white" style={SG}>{PLAN_PRICES[user?.plan] || PLAN_PRICES.free}</p>
-            <p className="font-mono text-[9px] text-white/30">Manage billing, invoices, and plan changes</p>
-          </div>
-          <div className="flex flex-col gap-2.5">
-            <button onClick={openBillingPortal} className="px-6 py-2.5 rounded-xl font-mono text-xs uppercase tracking-wider font-bold transition-all active:scale-[0.98]" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.8)' }}>
-              Billing Portal
-            </button>
-            <Link to="/pricing" className="text-center font-mono text-[9px] uppercase tracking-wider text-sonic-lime/60 hover:text-sonic-lime transition-colors">
-              View Plans
-            </Link>
-          </div>
-        </div>
-      </Section>
-    </div>
+          </Section>
+
+          {/* Change Password */}
+          <Section icon="security" title="Security Protocol">
+            <form onSubmit={savePassword} className="space-y-8 max-w-2xl">
+              <div>
+                <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block mb-3">Current Access Key</label>
+                <input type="password" value={passwords.current} onChange={e => setPasswords(p => ({ ...p, current: e.target.value }))} required className="input" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block mb-3">New Access Key</label>
+                  <input type="password" value={passwords.new} onChange={e => setPasswords(p => ({ ...p, new: e.target.value }))} required minLength={8} className="input" />
+                </div>
+                <div>
+                  <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block mb-3">Confirm Key</label>
+                  <input type="password" value={passwords.confirm} onChange={e => setPasswords(p => ({ ...p, confirm: e.target.value }))} required minLength={8} className="input" />
+                </div>
+              </div>
+              <button type="submit" disabled={savingPw} className="btn-secondary border-primary/20 text-primary hover:bg-primary/5 px-12 py-4 text-[10px] uppercase tracking-[0.2em] font-extrabold">
+                {savingPw ? 'RE-ENCRYPTING...' : 'INITIALIZE RE-ENCRYPTION'}
+              </button>
+            </form>
+          </Section>
+
+          {/* Subscription */}
+          <Section icon="verified" title="Resource Matrix">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-12 p-8 rounded-2xl bg-white/[0.01] border border-white/5 shadow-inner">
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <span className="font-mono text-[10px] text-white/30 uppercase tracking-[0.2em]">Active Tier</span>
+                  <span className="px-4 py-1.5 rounded-lg font-mono text-[10px] font-extrabold uppercase tracking-[0.2em] bg-primary text-surface shadow-[0_0_30px_rgba(255,255,255,0.25)]">
+                    {user?.plan ? `${user.plan} resonance` : 'FREE RESONANCE'}
+                  </span>
+                </div>
+                <p className="text-4xl font-headline font-extrabold text-white mt-2" style={SG}>{PLAN_PRICES[user?.plan] || PLAN_PRICES.free}</p>
+                <p className="font-mono text-[10px] text-white/20 uppercase tracking-widest leading-relaxed">Continuous analysis capability active. Billing cycle automated via Stripe Protocol.</p>
+              </div>
+              <div className="flex flex-col gap-4 min-w-[240px]">
+                <button onClick={openBillingPortal} className="btn-secondary py-4 text-[10px] uppercase tracking-[0.2em] font-extrabold bg-white/5 hover:bg-white/10 border-white/20">
+                  BILLING CONSOLE
+                </button>
+                <Link to="/pricing" className="text-center font-mono text-[10px] uppercase tracking-widest text-primary/40 hover:text-primary transition-all font-bold">
+                  UPGRADE ACCESS TIER
+                </Link>
+              </div>
+            </div>
+          </Section>
+      </div>
+    </PageWrapper>
   );
 }

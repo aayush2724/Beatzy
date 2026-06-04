@@ -1,57 +1,119 @@
-import React from 'react';
+import { useRef, useMemo } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Float, Line, Sphere, Text } from '@react-three/drei';
+import * as THREE from 'three';
+
+const DATA = [
+  { artist: 'The Weeknd', value: 0.8 },
+  { artist: 'Daft Punk', value: 0.6 },
+  { artist: 'Travis Scott', value: 0.7 },
+  { artist: 'Kanye West', value: 0.5 },
+  { artist: 'Drake', value: 0.4 },
+];
+
+function Radar3D({ data }) {
+    const group = useRef();
+    const count = data.length;
+    const radius = 4;
+
+    const points = useMemo(() => {
+        return data.map((d, i) => {
+            const angle = (i / count) * Math.PI * 2;
+            const r = d.value * radius;
+            return new THREE.Vector3(Math.cos(angle) * r, Math.sin(angle) * r, 0);
+        });
+    }, [data, count, radius]);
+
+    // Close the loop
+    const closedPoints = [...points, points[0]];
+
+    return (
+        <group ref={group}>
+            {/* Background Grid */}
+            {[0.25, 0.5, 0.75, 1].map((r, i) => (
+                <Line
+                    key={i}
+                    points={Array.from({ length: 33 }).map((_, j) => {
+                        const angle = (j / 32) * Math.PI * 2;
+                        return [Math.cos(angle) * r * radius, Math.sin(angle) * r * radius, 0];
+                    })}
+                    color="rgba(255,255,255,0.05)"
+                    lineWidth={0.5}
+                />
+            ))}
+
+            {/* Axis Lines */}
+            {data.map((_, i) => {
+                const angle = (i / count) * Math.PI * 2;
+                return (
+                    <Line
+                        key={i}
+                        points={[[0, 0, 0], [Math.cos(angle) * radius, Math.sin(angle) * radius, 0]]}
+                        color="rgba(255,255,255,0.1)"
+                        lineWidth={0.5}
+                    />
+                );
+            })}
+
+            {/* Radar Shape */}
+            <Line
+                points={closedPoints}
+                color="var(--color-primary)"
+                lineWidth={2}
+            />
+            
+            {/* Glowing Nodes */}
+            {points.map((p, i) => (
+                <Float key={i} speed={2} rotationIntensity={0} floatIntensity={0.5}>
+                    <Sphere position={p} args={[0.15, 16, 16]}>
+                        <meshStandardMaterial color="var(--color-primary)" emissive="var(--color-primary)" emissiveIntensity={0.5} />
+                    </Sphere>
+                    <Text
+                        position={[p.x * 1.3, p.y * 1.3, 0]}
+                        fontSize={0.25}
+                        color="white"
+                        font="/fonts/SpaceGrotesk-Bold.ttf"
+                    >
+                        {data[i].artist}
+                    </Text>
+                </Float>
+            ))}
+
+            {/* Connect nodes with glowing lines to center */}
+            {points.map((p, i) => (
+                <Line
+                    key={`l-${i}`}
+                    points={[[0, 0, 0], p]}
+                    color="var(--color-primary)"
+                    lineWidth={1}
+                    transparent
+                    opacity={0.2}
+                />
+            ))}
+        </group>
+    );
+}
 
 export default function StyleDNAChart() {
   return (
-    <section className="glass-panel rounded-xl p-8 flex flex-col">
-      <h3 className="font-label-md text-primary mb-8">Style DNA</h3>
-      <div className="flex-1 flex items-center justify-center relative py-4">
-        <svg className="w-full max-w-[240px]" viewBox="0 0 200 200">
-          {/* Grid circles */}
-          <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
-          <circle cx="100" cy="100" r="60" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
-          <circle cx="100" cy="100" r="40" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
-          {/* Axes */}
-          <line x1="100" y1="20" x2="100" y2="180" stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
-          <line x1="20" y1="100" x2="180" y2="100" stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
-          {/* Targeted DNA polygon */}
-          <polygon
-            points="100,30 160,80 140,150 60,150 40,80"
-            fill="rgba(255,255,255,0.08)"
-            stroke="#c9c6c5"
-            strokeWidth="1.2"
-            strokeLinejoin="round"
-          />
-          {/* Current Analysis polygon */}
-          <polygon
-            points="100,60 130,100 110,140 90,120 70,90"
-            fill="rgba(201,167,255,0.12)"
-            stroke="#c9a7ff"
-            strokeWidth="1.5"
-            strokeLinejoin="round"
-          />
-        </svg>
-        <div className="absolute top-0 text-center w-full">
-          <span className="font-label-sm text-outline tracking-widest opacity-40 uppercase">Harmonics</span>
-        </div>
-        <div className="absolute bottom-0 text-center w-full">
-          <span className="font-label-sm text-outline tracking-widest opacity-40 uppercase">Rhythm</span>
-        </div>
+    <section className="glass-panel rounded-xl border border-glass-border p-6 h-[400px] flex flex-col relative overflow-hidden">
+      <div className="flex justify-between items-center mb-6 relative z-10">
+        <h3 className="font-headline font-bold text-xs text-primary uppercase tracking-widest">Style DNA Matrix</h3>
+        <span className="font-mono text-[8px] text-white/30 uppercase tracking-[0.2em]">3D Projection</span>
       </div>
-      <div className="mt-8 space-y-4">
-        <div className="flex items-center justify-between font-label-sm">
-          <span className="flex items-center gap-3">
-            <div className="w-1.5 h-1.5 bg-primary rounded-full" />
-            Targeted DNA
-          </span>
-          <span className="text-primary">88% Match</span>
-        </div>
-        <div className="flex items-center justify-between font-label-sm">
-          <span className="flex items-center gap-3">
-            <div className="w-1.5 h-1.5 bg-tertiary rounded-full" />
-            Current Analysis
-          </span>
-          <span className="text-tertiary opacity-70 uppercase">Unprocessed</span>
-        </div>
+      
+      <div className="flex-1 w-full relative z-0">
+          <Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
+              <ambientLight intensity={0.5} />
+              <pointLight position={[10, 10, 10]} />
+              <Radar3D data={DATA} />
+          </Canvas>
+      </div>
+
+      <div className="pt-4 border-t border-white/5 relative z-10">
+          <p className="font-mono text-[9px] text-white/30 uppercase leading-relaxed">
+              Resonance overlap identified in 5 distinct stylistic vectors.
+          </p>
       </div>
     </section>
   );
