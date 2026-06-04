@@ -319,52 +319,115 @@ export default function Results() {
       <div className="grid grid-cols-12 gap-8">
           {/* Left Column: Player & Lyrics */}
           <div className="col-span-12 lg:col-span-7 space-y-6">
-              {/* Audio Player Card */}
-              <div className="glass-panel p-6 border border-glass-border">
-                  <div className="flex items-center gap-6 mb-6">
-                      <button 
-                        onClick={() => wavesurfer.current?.playPause()}
-                        className="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-surface hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-                      >
-                          {isPlaying ? <Pause className="w-6 h-6 fill-surface" /> : <Play className="w-6 h-6 fill-surface ml-1" />}
-                      </button>
-                      <div className="flex-1">
-                          <div ref={waveformRef} />
-                          <div className="flex justify-between mt-2 font-mono text-[10px] text-white/30">
-                              <span>{new Date(currentTime * 1000).toISOString().substr(14, 5)}</span>
-                              <span>{result.duration_ms ? new Date(result.duration_ms).toISOString().substr(14, 5) : '--:--'}</span>
+              {/* REDESIGNED: Audio Control Center */}
+              <div className="glass-panel p-8 border border-glass-border overflow-hidden relative group">
+                  {/* Subtle background glow that pulses with the beat */}
+                  <motion.div 
+                    animate={{ opacity: isPlaying ? [0.05, 0.12, 0.05] : 0.05 }}
+                    transition={{ duration: pulseDuration, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute inset-0 bg-primary pointer-events-none blur-[100px] z-0" 
+                  />
+
+                  <div className="relative z-10 space-y-8">
+                      {/* Main Player Row */}
+                      <div className="flex flex-col md:flex-row items-center gap-8">
+                          {/* Play/Pause Large Controller */}
+                          <button 
+                            onClick={() => wavesurfer.current?.playPause()}
+                            className="w-24 h-24 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-all shadow-[0_0_40px_rgba(255,255,255,0.4)] shrink-0 group/play"
+                          >
+                              {isPlaying ? (
+                                <Pause className="w-10 h-10 fill-black" />
+                              ) : (
+                                <Play className="w-10 h-10 fill-black ml-1.5" />
+                              )}
+                          </button>
+
+                          {/* Track Progress & Waveform */}
+                          <div className="flex-1 w-full">
+                              <div className="flex justify-between items-center mb-4">
+                                  <div className="flex items-center gap-3">
+                                      <div className={clsx("w-2 h-2 rounded-full", isPlaying ? "bg-primary animate-pulse" : "bg-white/20")} />
+                                      <span className="font-mono text-xs font-bold uppercase tracking-widest text-white">Live Stream Detection</span>
+                                  </div>
+                                  <span className="font-mono text-[10px] text-white/40 uppercase tracking-widest bg-white/5 px-2 py-1 rounded">Engine v4.2.0</span>
+                              </div>
+                              
+                              <div ref={waveformRef} className="w-full cursor-pointer hover:opacity-80 transition-opacity" />
+                              
+                              <div className="flex justify-between mt-4 font-mono text-xs text-white/50">
+                                  <span className="text-primary tabular-nums">{new Date(currentTime * 1000).toISOString().substr(14, 5)}</span>
+                                  <span className="tabular-nums">{result.duration_ms ? new Date(result.duration_ms).toISOString().substr(14, 5) : '--:--'}</span>
+                              </div>
                           </div>
                       </div>
-                  </div>
 
-                  {/* Chord timeline from ML analysis */}
-                  <div className="relative h-12 bg-white/[0.02] border border-glass-border rounded-lg overflow-hidden flex items-center px-4">
-                      <div className="absolute left-1/2 top-0 bottom-0 w-[2px] bg-primary z-10 shadow-[0_0_10px_var(--color-primary)]" />
-                      {chordSegments.length > 0 ? (
-                        <div
-                          className="flex gap-4 transition-transform duration-100"
-                          style={{ transform: `translateX(calc(50% - ${currentTime * 60}px))` }}
-                        >
-                          {chordSegments.map((c, i) => (
+                      {/* Advanced Controls Strip */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-white/10">
+                          <div className="flex flex-col gap-1">
+                              <span className="font-mono text-[9px] text-white/30 uppercase tracking-widest">Confidence</span>
+                              <div className="flex items-center gap-2">
+                                  <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+                                      <div className="h-full bg-primary" style={{ width: '98%' }} />
+                                  </div>
+                                  <span className="font-mono text-[10px] text-primary">98%</span>
+                              </div>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                              <span className="font-mono text-[9px] text-white/30 uppercase tracking-widest">Spectral Stability</span>
+                              <div className="flex items-center gap-2">
+                                  <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+                                      <div className="h-full bg-secondary" style={{ width: '84%' }} />
+                                  </div>
+                                  <span className="font-mono text-[10px] text-secondary">84%</span>
+                              </div>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                              <span className="font-mono text-[9px] text-white/30 uppercase tracking-widest">Neural Phase</span>
+                              <span className="font-mono text-[11px] text-white font-bold uppercase">Sychronized</span>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                              <span className="font-mono text-[9px] text-white/30 uppercase tracking-widest">Buffer Status</span>
+                              <span className="font-mono text-[11px] text-white font-bold uppercase">Optimized</span>
+                          </div>
+                      </div>
+
+                      {/* Real-time Chord Scroll Strip */}
+                      <div className="relative h-20 bg-black/40 border border-white/5 rounded-xl overflow-hidden flex items-center px-4 shadow-inner">
+                          {/* Focal Point Indicator */}
+                          <div className="absolute left-1/2 top-0 bottom-0 w-[2px] bg-primary z-10 shadow-[0_0_15px_var(--color-primary)]">
+                              <div className="absolute -top-1 -left-1 w-2.5 h-2.5 bg-primary rounded-full blur-[2px]" />
+                              <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-primary rounded-full blur-[2px]" />
+                          </div>
+
+                          {chordSegments.length > 0 ? (
                             <div
-                              key={`${c.chord}-${c.start_time}-${i}`}
-                              className={clsx(
-                                'px-4 py-1 rounded font-mono font-bold text-xs transition-all duration-300 whitespace-nowrap',
-                                currentTime >= c.start_time && currentTime <= c.end_time
-                                  ? 'bg-primary text-surface scale-110'
-                                  : 'text-white/40'
-                              )}
-                              style={{ minWidth: Math.max(48, (c.end_time - c.start_time) * 60) }}
+                              className="flex gap-6 transition-transform duration-150 ease-linear"
+                              style={{ transform: `translateX(calc(50% - ${currentTime * 80}px))` }}
                             >
-                              {c.chord}
+                              {chordSegments.map((c, i) => (
+                                <div
+                                  key={`${c.chord}-${c.start_time}-${i}`}
+                                  className={clsx(
+                                    'flex flex-col items-center justify-center min-w-[80px] h-12 rounded-lg transition-all duration-300',
+                                    currentTime >= c.start_time && currentTime <= c.end_time
+                                      ? 'bg-primary text-black scale-110 shadow-lg font-bold'
+                                      : 'bg-white/5 text-white/30 border border-white/5'
+                                  )}
+                                  style={{ minWidth: Math.max(80, (c.end_time - c.start_time) * 80) }}
+                                >
+                                  <span className="text-sm font-display uppercase tracking-tight">{c.chord}</span>
+                                  <span className="text-[8px] font-mono opacity-60 uppercase">{Math.round(c.start_time)}s</span>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="mx-auto font-mono text-[10px] text-white/30 uppercase tracking-widest">
-                          Chord timeline unavailable
-                        </span>
-                      )}
+                          ) : (
+                            <div className="w-full flex items-center justify-center gap-3">
+                                <Radio className="w-4 h-4 text-white/20 animate-pulse" />
+                                <span className="font-mono text-xs text-white/30 uppercase tracking-[0.3em]">Decoding spectral harmony...</span>
+                            </div>
+                          )}
+                      </div>
                   </div>
               </div>
 

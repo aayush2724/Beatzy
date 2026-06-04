@@ -58,12 +58,18 @@ htmlcov/
 tmp/
 temp/
 
-# Accidental / local tooling (not part of Beatzy)
+# Project Specific / Local Tools
 cursor.AppImage
 *.AppImage
 kirocli/
 kirocli.zip
 .kilo/
+.agents/
+.replit
+*.db
+*.sqlite
+backend/storage/
+ml-service/storage/
 
-# Nested git repositories (should not exist in submodules)
+# Nested git repositories
 **/.git

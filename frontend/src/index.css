@@ -37,11 +37,13 @@
   --font-body: 'Hanken Grotesk', 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
-  --text-display: clamp(2.5rem, 5vw + 1rem, 5rem);
-  --text-h1: clamp(2rem, 3vw + 1rem, 3.5rem);
-  --text-h2: clamp(1.5rem, 2vw + 0.5rem, 2.25rem);
-  --text-body: clamp(0.9375rem, 0.5vw + 0.85rem, 1.0625rem);
-  --text-small: clamp(0.75rem, 0.25vw + 0.7rem, 0.8125rem);
+  --text-display: clamp(3rem, 7vw + 1rem, 6rem);
+  --text-h1: clamp(2.25rem, 4vw + 1rem, 4rem);
+  --text-h2: clamp(1.75rem, 2.5vw + 0.5rem, 2.75rem);
+  --text-h3: clamp(1.25rem, 1.5vw + 0.5rem, 1.75rem);
+  --text-body: clamp(1rem, 0.6vw + 0.9rem, 1.125rem);
+  --text-small: clamp(0.875rem, 0.3vw + 0.75rem, 0.9375rem);
+  --text-tiny: clamp(0.75rem, 0.2vw + 0.65rem, 0.8125rem);
 
   --z-base: 0;
   --z-dropdown: 50;
@@ -206,18 +208,23 @@
 @utility font-display { font-family: var(--font-display); }
 @utility font-headline { font-family: var(--font-display); font-weight: 600; }
 @utility text-display { font-size: var(--text-display); line-height: 1.05; letter-spacing: -0.02em; }
-@utility text-fluid-h1 { font-size: var(--text-h1); line-height: 1.1; }
-@utility text-fluid-h2 { font-size: var(--text-h2); line-height: 1.2; }
-@utility text-fluid-body { font-size: var(--text-body); line-height: 1.5; }
-@utility font-headline-lg { font-family: var(--font-headline); font-weight: 700; font-size: 1.5rem; line-height: 1.2; }
-@utility font-headline-xl { font-family: var(--font-headline); font-weight: 800; font-size: 2rem; line-height: 1.1; letter-spacing: -0.02em; }
+@utility text-fluid-h1 { font-size: var(--text-h1); line-height: 1.1; font-weight: 700; letter-spacing: -0.02em; }
+@utility text-fluid-h2 { font-size: var(--text-h2); line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; }
+@utility text-fluid-h3 { font-size: var(--text-h3); line-height: 1.3; font-weight: 600; }
+@utility text-fluid-body { font-size: var(--text-body); line-height: 1.6; }
+@utility text-fluid-small { font-size: var(--text-small); line-height: 1.5; }
+@utility text-fluid-tiny { font-size: var(--text-tiny); line-height: 1.4; }
+
+@utility font-headline-lg { font-family: var(--font-headline); font-weight: 700; font-size: 1.75rem; line-height: 1.2; }
+@utility font-headline-xl { font-family: var(--font-headline); font-weight: 800; font-size: 2.25rem; line-height: 1.1; letter-spacing: -0.03em; }
 @utility font-body { font-family: var(--font-body); font-weight: 400; }
 @utility font-body-md { font-family: var(--font-body); font-weight: 500; }
-@utility font-label-md { font-family: var(--font-sans); font-weight: 500; font-size: 0.875rem; }
-@utility font-label-sm { font-family: var(--font-sans); font-weight: 500; font-size: 0.75rem; }
-@utility text-headline-lg { font-size: 1.875rem; line-height: 1.2; font-weight: 700; }
-@utility text-body-md { font-size: 0.9375rem; line-height: 1.5; }
-@utility text-label-sm { font-size: 0.75rem; line-height: 1.4; letter-spacing: 0.01em; }
+@utility font-label-md { font-family: var(--font-sans); font-weight: 500; font-size: 1rem; }
+@utility font-label-sm { font-family: var(--font-sans); font-weight: 500; font-size: 0.875rem; }
+@utility text-headline-lg { font-size: 2.25rem; line-height: 1.2; font-weight: 700; }
+@utility text-body-md { font-size: 1.0625rem; line-height: 1.5; }
+@utility text-label-sm { font-size: 0.875rem; line-height: 1.4; letter-spacing: 0.01em; }
+
 
 /* =====================================================================
    COMPONENT CLASSES
@@ -256,11 +263,11 @@
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--color-glass-border);
     border-radius: 0.75rem;
-    padding: 0.875rem 1rem;
+    padding: 1rem 1.25rem;
     color: var(--color-on-surface);
     width: 100%;
     font-family: var(--font-sans);
-    font-size: 0.9375rem;
+    font-size: 1rem;
     transition: all 200ms ease;
   }
   .input::placeholder { color: var(--color-on-surface-variant); opacity: 0.6; }
