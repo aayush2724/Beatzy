@@ -215,11 +215,11 @@ To see the **premium glassmorphism redesign** that was just completed:
    - **Artist Echoes**: http://localhost:5173/artist-echoes
 
 All pages now feature:
-- ✨ Premium glassmorphism panels
-- 🎨 Sonic-lime (#D7FF5A), prism-violet (#8B5CF6), neon-cyan (#00F5FF) accents
-- 🌌 Fixed gradient-mesh backgrounds
-- 🎭 Pure CSS visuals (no external image dependencies)
-- 🎯 Tailwind 4 CSS-first design system
+- Premium glassmorphism panels on `#050505`
+- Monochrome accents (white / silver / gray)
+- Subtle radial backgrounds (no neon pink/purple/cyan)
+- Pure CSS visuals (no external image dependencies)
+- Tailwind 4 CSS-first design system
 
 ---
 
@@ -269,10 +269,14 @@ The UI makeover included:
 - ✅ Premium glassmorphism theme
 - ✅ All external image hotlinks removed
 - ✅ Fixed navbar duplicate link bug
-- ✅ Glass-styled components throughout
+- ✅ Glass-styled components throughout (all app pages + auth + pricing + billing)
+- ✅ Monochrome theme (neon palette removed)
 - ✅ No double-brace JSX leaks
 
-**Remaining work**: 7 app pages (Dashboard, Admin, Upload, Results, History, ApiKeys, Profile) still need glass theme updates.
+**Post-deploy checklist** (manual, not code):
+1. Hugging Face Space → **Factory rebuild** so `/health` includes `storage` and fpcalc is present
+2. Render → redeploy latest `main` after push
+3. Live test on https://beatzy-zeta.vercel.app — upload a known track and confirm full Results
 
 ---
 

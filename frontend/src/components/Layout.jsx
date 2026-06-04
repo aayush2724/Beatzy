@@ -27,29 +27,29 @@ export default function Layout() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden text-on-surface font-body selection:bg-vibe-magenta/30 relative">
+    <div className="flex h-screen overflow-hidden text-on-surface font-body selection:bg-white/20 relative">
       {/* 3D Background Layer */}
       <ThreeDStudio />
       
       {/* Decorative Grid Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,46,151,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,46,151,0.015)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" style={{ zIndex: 0 }}></div>
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" style={{ zIndex: 0 }}></div>
 
       {/* SideNavBar - Premium Obsidian OS design */}
       <aside 
         onMouseEnter={() => setIsSidebarHovered(true)}
         onMouseLeave={() => setIsSidebarHovered(false)}
         className={clsx(
-          "h-full z-40 bg-[#0c0818]/85 backdrop-blur-3xl border-r border-glass-border flex flex-col pt-8 pb-6 transition-all duration-300 select-none shadow-[5px_0_30px_rgba(0,0,0,0.5)] relative shrink-0",
+          "h-full z-40 bg-[#0a0a0a]/90 backdrop-blur-3xl border-r border-glass-border flex flex-col pt-8 pb-6 transition-all duration-300 select-none shadow-[5px_0_30px_rgba(0,0,0,0.5)] relative shrink-0",
           isSidebarHovered ? "w-64" : "w-20"
         )}
       >
         {/* Core Header */}
         <div className="px-6 mb-10 flex items-center space-x-4 overflow-hidden shrink-0">
-          <div className="w-8 h-8 rounded bg-vibe-magenta/10 flex items-center justify-center border border-vibe-magenta/30 shrink-0 shadow-[0_0_12px_rgba(255,46,151,0.2)] animate-pulse">
-            <span className="material-symbols-outlined text-vibe-magenta text-base" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+          <div className="w-8 h-8 rounded bg-white/5 flex items-center justify-center border border-white/15 shrink-0">
+            <span className="material-symbols-outlined text-white text-base" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
           </div>
           <div className={clsx("transition-opacity duration-300 whitespace-nowrap", isSidebarHovered ? "opacity-100" : "opacity-0")}>
-            <p className="text-vibe-magenta font-bold text-lg leading-none tracking-tight" style={{ fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" }}>BEATZY</p>
+            <p className="text-white font-bold text-lg leading-none tracking-tight font-headline">BEATZY</p>
             <p className="font-mono text-[9px] text-on-surface-variant tracking-[0.15em] uppercase">AI Core v4.2</p>
           </div>
         </div>
@@ -63,7 +63,7 @@ export default function Layout() {
               className={({ isActive }) => clsx(
                 'flex items-center px-6 py-3.5 transition-all relative overflow-hidden group',
                 isActive
-                  ? 'bg-vibe-magenta/10 text-vibe-magenta border-r-4 border-vibe-magenta'
+                  ? 'bg-white/[0.06] text-white border-r-4 border-white'
                   : 'text-on-surface-variant hover:text-on-surface hover:bg-white/[0.03]'
               )}
             >
@@ -81,7 +81,7 @@ export default function Layout() {
         {/* User Card & Logout */}
         <div className="px-4 mt-auto border-t border-glass-border pt-4">
           <div className="flex items-center gap-3 px-3 py-3.5 mb-2 rounded-lg bg-white/[0.02] border border-glass-border overflow-hidden max-w-full">
-            <div className="w-8 h-8 bg-vibe-magenta/20 border border-vibe-magenta/30 text-vibe-magenta rounded-full flex items-center justify-center text-sm font-bold shrink-0">
+            <div className="w-8 h-8 bg-white/10 border border-white/20 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0">
               {user?.name?.[0]?.toUpperCase() || 'U'}
             </div>
             <div className={clsx("flex-1 min-w-0 transition-opacity duration-300", isSidebarHovered ? "opacity-100" : "opacity-0")}>
@@ -105,8 +105,8 @@ export default function Layout() {
       {/* Main Content Layout */}
       <main className="flex-1 overflow-y-auto z-10 relative">
         {/* Dynamic Glowing background nodes */}
-        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-vibe-magenta/3 blur-[150px] rounded-full pointer-events-none z-0"></div>
-        <div className="absolute bottom-0 left-1/3 w-[500px] h-[500px] bg-vibe-violet/3 blur-[150px] rounded-full pointer-events-none z-0"></div>
+        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-white/[0.02] blur-[150px] rounded-full pointer-events-none z-0"></div>
+        <div className="absolute bottom-0 left-1/3 w-[500px] h-[500px] bg-white/[0.015] blur-[150px] rounded-full pointer-events-none z-0"></div>
 
         <div className="max-w-6xl mx-auto p-8 relative z-10">
           <Outlet />

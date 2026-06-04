@@ -15,12 +15,12 @@ export default function ProgressBar({ progress, label, className }) {
       {label && (
         <div className="flex justify-between text-xs mb-1 font-mono text-on-surface-variant uppercase tracking-wider">
           <span>{label}</span>
-          <span className="text-sonic-lime font-bold">{pct}%</span>
+          <span className="text-white font-bold">{pct}%</span>
         </div>
       )}
       <div className="h-1 bg-white/5 rounded-full overflow-hidden">
         <div
-          className="h-full bg-sonic-lime shadow-[0_0_10px_rgba(255,46,151,0.5)] rounded-full transition-all duration-100"
+          className="h-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.2)] rounded-full transition-all duration-100"
           style={{ width: `${pct}%` }}
         />
       </div>

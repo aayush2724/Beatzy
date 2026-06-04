@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
  *  - fileName?: string – optional name of the file being uploaded.
  *
  * This component renders a glass‑panel styled bar that mirrors the visual language of the
- * existing Beatzy UI (glass panels, subtle gradients, and a soft neon accent). It also shows
+ * existing Beatzy UI (glass panels and monochrome accents). It also shows
  * the file name and a textual percentage when a file is provided.
  */
 export default function UploadProgressBar({ progress, status, fileName }) {
@@ -25,20 +25,20 @@ export default function UploadProgressBar({ progress, status, fileName }) {
       : '';
 
   return (
-    <div className="mt-8 glass-panel rounded-lg p-5 border border-glass-border w-full bg-[#160f2b]/30">
+    <div className="mt-8 glass-panel rounded-lg p-5 border border-glass-border w-full">
       {/* Optional filename display */}
       {fileName && (
         <div className="flex justify-between text-xs mb-1.5 font-mono">
           <span className="text-on-surface-variant truncate max-w-sm uppercase tracking-wider">
             Sending: {fileName}
           </span>
-          <span className="text-sonic-lime font-bold">{Math.floor(progress)}%</span>
+          <span className="text-white font-bold">{Math.floor(progress)}%</span>
         </div>
       )}
       {/* Bar background */}
       <div className="h-1 bg-white/5 rounded-full overflow-hidden">
         <motion.div
-          className="h-full bg-sonic-lime shadow-[0_0_10px_rgba(255,46,151,0.5)] rounded-full"
+          className="h-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.2)] rounded-full"
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.1 }}
         />

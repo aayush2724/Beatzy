@@ -14,7 +14,7 @@ const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
       <div className="glass-card p-3 border border-glass-border rounded-lg text-xs font-mono backdrop-blur-xl" style={{ 
-        background: 'rgba(11, 11, 18, 0.9)', 
+        background: 'rgba(20, 20, 20, 0.92)', 
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)' 
       }}>
         <p className="text-white font-bold">{payload[0].payload.name}</p>

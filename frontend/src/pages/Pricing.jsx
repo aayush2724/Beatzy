@@ -4,8 +4,6 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
 import api from '../api/client';
 
-const SG = { fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" };
-
 const plans = [
   {
     id: 'free', tier: 'Free Tier', name: 'Free', price: 0, period: '/mo',
@@ -43,91 +41,92 @@ export default function Pricing() {
   }
 
   return (
-    <div className="min-h-screen text-white selection:bg-vibe-magenta/20" style={{ background: 'rgba(10,6,19,0.6)' }}>
-      {/* Scanline */}
-      <div className="fixed inset-0 pointer-events-none z-50" style={{ background: 'linear-gradient(to bottom, transparent 50%, rgba(212,255,63,0.018) 50%)', backgroundSize: '100% 4px' }} />
+    <div className="relative min-h-screen overflow-hidden bg-[#050505] text-white font-body selection:bg-white/20">
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#050505_72%)] pointer-events-none" />
+      <div
+        className="absolute inset-0 z-0 opacity-40 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse at 20% 20%, rgba(255,255,255,0.04) 0%, transparent 45%), radial-gradient(ellipse at 80% 80%, rgba(255,255,255,0.03) 0%, transparent 50%)',
+        }}
+      />
 
-      {/* Pure CSS gradient orb background - no external images */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 30%, rgba(157,78,221,0.12) 0%, transparent 60%), radial-gradient(ellipse at 20% 80%, rgba(255,46,151,0.08) 0%, transparent 50%)' }} />
-        <div className="absolute rounded-full" style={{ width: 700, height: 700, top: '20%', left: '50%', transform: 'translateX(-50%)', background: 'radial-gradient(circle, rgba(157,78,221,0.08) 0%, transparent 70%)', filter: 'blur(80px)' }} />
-        <div className="absolute rounded-full" style={{ width: 400, height: 400, bottom: '10%', left: '10%', background: 'radial-gradient(circle, rgba(255,46,151,0.06) 0%, transparent 70%)', filter: 'blur(60px)' }} />
-      </div>
-
-      {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-8 py-5" style={{ background: 'linear-gradient(to bottom, rgba(5,5,5,0.95), transparent)', backdropFilter: 'blur(8px)' }}>
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-sonic-lime/10 border border-sonic-lime/40 rounded flex items-center justify-center" style={{ boxShadow: '0 0 14px rgba(255,46,151,0.2)' }}>
-            <span className="material-symbols-outlined text-sonic-lime text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
-          </div>
-          <span className="font-bold text-lg text-sonic-lime" style={SG}>BEATZY</span>
+      <nav className="relative z-20 flex items-center justify-between px-6 md:px-12 py-8">
+        <Link to="/" className="font-headline text-lg tracking-[0.25em] text-white hover:text-gray-200 transition">
+          BEATZY
         </Link>
-        <div className="flex items-center gap-4">
-          <Link to="/" className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/35 hover:text-white/70 transition-colors">Home</Link>
+        <div className="flex items-center gap-6 md:gap-10 text-xs tracking-[0.1em] uppercase text-gray-400">
+          <Link to="/" className="hover:text-white transition">Home</Link>
           {token ? (
-            <Link to="/dashboard" className="px-4 py-2 rounded-xl font-mono text-[10px] uppercase tracking-[0.15em] transition-all" style={{ border: '1px solid rgba(255,46,151,0.3)', color: '#ff2e97' }}>Dashboard</Link>
+            <Link to="/dashboard" className="btn-primary py-2 px-4 text-[10px] tracking-[0.15em]">Dashboard</Link>
           ) : (
-            <Link to="/login" className="px-4 py-2 rounded-xl font-mono text-[10px] uppercase tracking-[0.15em] transition-all" style={{ border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)' }}>Sign In</Link>
+            <Link to="/login" className="hover:text-white transition">Sign In</Link>
           )}
         </div>
       </nav>
 
-      <main className="relative z-10 pt-36 pb-24 px-6 max-w-5xl mx-auto">
-        {/* Header */}
+      <main className="relative z-10 pt-8 pb-24 px-6 max-w-5xl mx-auto">
         <header className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 mb-5 px-3 py-1.5 rounded-full" style={{ border: '1px solid rgba(255,46,151,0.2)', background: 'rgba(255,46,151,0.05)' }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-sonic-lime animate-pulse" />
-            <span className="font-mono text-[9px] text-sonic-lime/80 uppercase tracking-[0.25em]">Protocol Active</span>
+          <div className="inline-flex items-center gap-2 mb-5 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03]">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+            <span className="font-mono text-[9px] text-gray-400 uppercase tracking-[0.25em]">Plans</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4" style={{ ...SG, letterSpacing: '-0.02em' }}>
+          <h1 className="font-headline text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
             Simple, transparent pricing
           </h1>
-          <p className="font-mono text-sm text-white/30">Start free. Upgrade when you need more power.</p>
+          <p className="text-sm text-gray-400">Start free. Upgrade when you need more power.</p>
         </header>
 
-        {/* Plans */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-24">
           {plans.map(plan => (
-            <div key={plan.id} className={`relative rounded-2xl p-7 flex flex-col transition-all duration-300 hover:-translate-y-1 ${plan.highlight ? '' : ''}`}
-              style={{
-                background: plan.highlight ? 'rgba(255,46,151,0.04)' : 'rgba(255,255,255,0.025)',
-                border: plan.highlight ? '1px solid rgba(255,46,151,0.25)' : '1px solid rgba(255,255,255,0.07)',
-                boxShadow: plan.highlight ? '0 0 60px rgba(255,46,151,0.06)' : 'none',
-              }}
+            <div
+              key={plan.id}
+              className={`relative rounded-2xl p-7 flex flex-col transition-all duration-300 hover:-translate-y-1 glass-panel ${
+                plan.highlight ? 'border-white/20 shadow-[0_24px_80px_rgba(0,0,0,0.5)]' : ''
+              }`}
             >
               {plan.highlight && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider" style={{ background: '#ff2e97', color: '#0a0613' }}>
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider bg-white text-black">
                   Most Popular
                 </div>
               )}
 
               <div className="mb-6">
-                <span className={`font-mono text-[9px] uppercase tracking-[0.2em] block mb-2 ${plan.highlight ? 'text-sonic-lime' : 'text-white/25'}`}>{plan.tier}</span>
-                <h3 className="text-2xl font-bold text-white mb-1" style={SG}>{plan.name}</h3>
+                <span className={`font-mono text-[9px] uppercase tracking-[0.2em] block mb-2 ${plan.highlight ? 'text-white' : 'text-gray-500'}`}>{plan.tier}</span>
+                <h3 className="font-headline text-2xl font-bold text-white mb-1">{plan.name}</h3>
                 <div className="flex items-baseline gap-1 mb-3">
-                  <span className="text-4xl font-bold text-white" style={SG}>${plan.price}</span>
-                  <span className="font-mono text-sm text-white/30">{plan.period}</span>
+                  <span className="font-headline text-4xl font-bold text-white">${plan.price}</span>
+                  <span className="font-mono text-sm text-gray-500">{plan.period}</span>
                 </div>
-                <p className="font-mono text-xs text-white/30">{plan.description}</p>
+                <p className="text-xs text-gray-500">{plan.description}</p>
               </div>
 
               <ul className="space-y-3 mb-8 flex-grow">
                 {plan.features.map(f => (
                   <li key={f} className="flex items-center gap-3">
-                    <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,46,151,0.1)', border: '1px solid rgba(255,46,151,0.25)' }}>
-                      <span className="material-symbols-outlined text-sonic-lime" style={{ fontSize: 10, fontVariationSettings: "'FILL' 1" }}>check</span>
+                    <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 bg-white/5 border border-white/15">
+                      <span className="material-symbols-outlined text-white" style={{ fontSize: 10, fontVariationSettings: "'FILL' 1" }}>check</span>
                     </div>
-                    <span className={`font-mono text-xs ${plan.highlight ? 'text-white/70' : 'text-white/40'}`}>{f}</span>
+                    <span className={`text-xs ${plan.highlight ? 'text-gray-300' : 'text-gray-500'}`}>{f}</span>
                   </li>
                 ))}
               </ul>
 
               {plan.id === 'free' ? (
-                <Link to={token ? '/dashboard' : '/register'} className="w-full py-3.5 text-center rounded-xl font-mono text-xs uppercase tracking-[0.15em] transition-all hover:border-white/20" style={{ border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>
+                <Link
+                  to={token ? '/dashboard' : '/register'}
+                  className="btn-secondary w-full py-3.5 text-center text-xs uppercase tracking-[0.15em]"
+                >
                   {user?.plan === 'free' ? 'Current plan' : 'Get started free'}
                 </Link>
               ) : (
-                <button onClick={() => handleUpgrade(plan.id)} disabled={loading === plan.id || user?.plan === plan.id} className="w-full py-3.5 rounded-xl font-mono text-xs uppercase tracking-[0.15em] font-bold transition-all active:scale-[0.98] disabled:opacity-50" style={plan.highlight ? { background: '#ff2e97', color: '#0a0613', boxShadow: '0 0 30px rgba(255,46,151,0.2)', ...SG } : { border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>
+                <button
+                  onClick={() => handleUpgrade(plan.id)}
+                  disabled={loading === plan.id || user?.plan === plan.id}
+                  className={`w-full py-3.5 rounded-xl text-xs uppercase tracking-[0.15em] font-bold transition-all active:scale-[0.98] disabled:opacity-50 ${
+                    plan.highlight ? 'btn-primary' : 'btn-secondary'
+                  }`}
+                >
                   {loading === plan.id ? 'Redirecting...' : user?.plan === plan.id ? 'Current plan' : plan.id === 'pro' ? 'Upgrade to Pro' : 'Upgrade to Enterprise'}
                 </button>
               )}
@@ -135,45 +134,42 @@ export default function Pricing() {
           ))}
         </div>
 
-        {/* Bottom section */}
-        <section className="pt-16 border-t grid grid-cols-1 md:grid-cols-2 gap-12 items-center" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+        <section className="pt-16 border-t border-white/10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
-            <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-sonic-lime/50 mb-4">Built for scale</p>
-            <h2 className="text-2xl font-bold text-white mb-4" style={{ ...SG, letterSpacing: '-0.01em' }}>Engineered for Technical Mastery</h2>
-            <p className="font-mono text-xs text-white/30 leading-relaxed mb-6">Built on the Obsidian Spectral engine, delivering sub-millisecond classification latency for real-time production environments. Join thousands of engineers who trust our protocols.</p>
+            <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-gray-500 mb-4">Built for scale</p>
+            <h2 className="font-headline text-2xl font-bold text-white mb-4 tracking-tight">Engineered for technical mastery</h2>
+            <p className="text-xs text-gray-500 leading-relaxed mb-6">
+              Sub-millisecond classification latency for real-time production environments. Join thousands of engineers who trust Beatzy.
+            </p>
             <div className="flex gap-6">
               {['AudioLabs', 'Waveform Co.', 'Spectral Inc.'].map(b => (
-                <span key={b} className="font-mono text-[9px] uppercase tracking-widest text-white/15">{b}</span>
+                <span key={b} className="font-mono text-[9px] uppercase tracking-widest text-gray-600">{b}</span>
               ))}
             </div>
           </div>
-          <div className="relative">
-            <div className="absolute -inset-2 rounded-2xl" style={{ background: 'radial-gradient(ellipse, rgba(255,46,151,0.06) 0%, transparent 70%)', filter: 'blur(20px)' }} />
-            <div className="relative rounded-2xl overflow-hidden h-48 flex items-center justify-center" style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'radial-gradient(ellipse at 50% 50%, rgba(157,78,221,0.15) 0%, rgba(255,46,151,0.05) 100%)' }}>
-              <div className="flex items-center gap-8 opacity-30">
-                {['AudioLabs', 'Waveform Co', 'Spectral Inc'].map((brand, i) => (
-                  <div key={brand} className="flex flex-col items-center gap-2">
-                    <div className="w-12 h-12 rounded-xl bg-sonic-lime/10 border border-sonic-lime/20 flex items-center justify-center">
-                      <span className="material-symbols-outlined text-sonic-lime">graphic_eq</span>
-                    </div>
-                    <span className="font-mono text-[8px] text-white/50 uppercase tracking-widest">{brand}</span>
+          <div className="glass-panel h-48 flex items-center justify-center">
+            <div className="flex items-center gap-8 opacity-40">
+              {['AudioLabs', 'Waveform Co', 'Spectral Inc'].map(brand => (
+                <div key={brand} className="flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                    <span className="material-symbols-outlined text-white">graphic_eq</span>
                   </div>
-                ))}
-              </div>
+                  <span className="font-mono text-[8px] text-gray-500 uppercase tracking-widest">{brand}</span>
+                </div>
+              ))}
             </div>
           </div>
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="relative z-10 border-t py-10 px-8 flex flex-col md:flex-row justify-between items-center gap-5" style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.01)' }}>
-        <span className="font-bold text-sonic-lime" style={SG}>BEATZY</span>
+      <footer className="relative z-10 border-t border-white/10 py-10 px-8 flex flex-col md:flex-row justify-between items-center gap-5">
+        <span className="font-headline text-lg tracking-[0.25em] text-white">BEATZY</span>
         <div className="flex gap-8">
           {['Architecture', 'Privacy', 'API Docs', 'Terms'].map(l => (
-            <Link key={l} to="/" className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/20 hover:text-sonic-lime transition-colors">{l}</Link>
+            <Link key={l} to="/" className="font-mono text-[9px] uppercase tracking-[0.2em] text-gray-600 hover:text-white transition-colors">{l}</Link>
           ))}
         </div>
-        <span className="font-mono text-[9px] text-white/15 uppercase tracking-widest">© 2026 Beatzy AI</span>
+        <span className="font-mono text-[9px] text-gray-600 uppercase tracking-widest">© 2026 Beatzy AI</span>
       </footer>
     </div>
   );
