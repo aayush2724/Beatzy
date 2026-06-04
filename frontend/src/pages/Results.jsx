@@ -1,32 +1,18 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, Sphere, MeshDistortMaterial } from '@react-three/drei';
 import WaveSurfer from 'wavesurfer.js';
+import toast from 'react-hot-toast';
 import { getResults } from '../api/audio';
+import { enableShare, exportReport, addFavorite } from '../api/library';
 import InstrumentChordPanel from '../components/InstrumentChordPanel';
 import PageWrapper from '../components/PageWrapper';
+
+const ResultsAtmosphere = lazy(() => import('../components/ResultsAtmosphere'));
+
 import clsx from 'clsx';
 
 const SG = { fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" };
-
-function PulsingOrb({ bpm = 120, position, color }) {
-    const mesh = useRef();
-    const speed = (bpm / 60) * 0.5;
-    useFrame((state) => {
-        const t = state.clock.getElapsedTime();
-        const scale = 1 + Math.sin(t * speed * Math.PI * 2) * 0.1;
-        mesh.current.scale.set(scale, scale, scale);
-    });
-    return (
-        <Float speed={2} rotationIntensity={1} floatIntensity={1}>
-            <Sphere ref={mesh} position={position} args={[1, 32, 32]}>
-                <MeshDistortMaterial color={color} speed={2} distort={0.3} emissive={color} emissiveIntensity={0.2} />
-            </Sphere>
-        </Float>
-    );
-}
 
 function StatCard({ icon, label, value, sub, color = 'text-primary' }) {
   return (
@@ -57,12 +43,37 @@ export default function Results() {
   const waveformRef = useRef(null);
   const wavesurfer = useRef(null);
 
-  useEffect(() => {
-    getResults(jobId)
-      .then(({ data }) => setResult(data.data))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+  const fetchResults = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      for (let attempt = 0; attempt < 40; attempt++) {
+        const { data } = await getResults(jobId);
+        const payload = data.data;
+        if (payload?.status === 'processing' || payload?.status === 'queued') {
+          await new Promise((r) => setTimeout(r, 3000));
+          continue;
+        }
+        if (payload?.song_title != null || payload?.bpm != null || payload?.raw_ml_response) {
+          setResult(payload);
+          return;
+        }
+        if (payload?.status === 'failed') {
+          throw new Error(payload.error_message || 'Analysis failed');
+        }
+        await new Promise((r) => setTimeout(r, 3000));
+      }
+      throw new Error('Analysis is still in progress. Try again shortly.');
+    } catch (err) {
+      setError(err.response?.data?.error?.message || err.message || 'Failed to load results');
+    } finally {
+      setLoading(false);
+    }
   }, [jobId]);
+
+  useEffect(() => {
+    fetchResults();
+  }, [fetchResults]);
 
   useEffect(() => {
     if (!result || !waveformRef.current) return;
@@ -155,9 +166,67 @@ export default function Results() {
     return idx;
   }, [lyricLines, currentTime, result]);
 
-  if (loading) return <div className="py-24 text-center font-mono text-primary animate-pulse">Syncing neural matrix...</div>;
-  if (error) return <div className="py-24 text-center text-red-400 font-mono">{error}</div>;
+  if (loading) {
+    return (
+      <PageWrapper className="py-24">
+        <div className="max-w-md mx-auto text-center space-y-6">
+          <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+            <div className="h-full bg-primary w-1/3 animate-pulse rounded-full" />
+          </div>
+          <p className="font-mono text-primary text-xs uppercase tracking-widest animate-pulse">Loading analysis…</p>
+        </div>
+      </PageWrapper>
+    );
+  }
+  if (error) {
+    return (
+      <PageWrapper className="py-24">
+        <div className="max-w-md mx-auto text-center glass-panel p-10 border border-red-500/20 space-y-6">
+          <span className="material-symbols-outlined text-4xl text-red-400/70">error</span>
+          <p className="text-red-300 font-mono text-sm">{error}</p>
+          <div className="flex justify-center gap-4">
+            <button onClick={fetchResults} className="btn-primary px-6 py-2 text-xs">Retry</button>
+            <Link to="/upload" className="btn-secondary px-6 py-2 text-xs">Upload again</Link>
+          </div>
+        </div>
+      </PageWrapper>
+    );
+  }
   if (!result) return null;
+
+  async function handleShare() {
+    try {
+      const { data } = await enableShare(jobId);
+      await navigator.clipboard.writeText(data.data.shareUrl);
+      toast.success('Share link copied');
+    } catch {
+      toast.error('Could not create share link');
+    }
+  }
+
+  async function handleExport() {
+    try {
+      const { data } = await exportReport(jobId);
+      const url = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `beatzy-${jobId.slice(0, 8)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success('Report downloaded');
+    } catch {
+      toast.error('Export failed');
+    }
+  }
+
+  async function handleFavorite() {
+    try {
+      await addFavorite(jobId);
+      toast.success('Added to library');
+    } catch {
+      toast.error('Could not save favorite');
+    }
+  }
 
   const spotifyMeta = result?.spotify_features
     ? (typeof result.spotify_features === 'string' ? JSON.parse(result.spotify_features) : result.spotify_features)
@@ -166,14 +235,9 @@ export default function Results() {
   return (
     <PageWrapper className="space-y-8 pb-20 relative">
         {/* Background 3D Atmosphere */}
-        <div className="fixed inset-0 z-[-1] pointer-events-none opacity-20">
-            <Canvas>
-                <ambientLight intensity={0.5} />
-                <pointLight position={[10, 10, 10]} />
-                <PulsingOrb bpm={result.bpm} position={[-5, 2, -5]} color="var(--color-primary)" />
-                <PulsingOrb bpm={result.bpm} position={[5, -2, -8]} color="var(--color-secondary)" />
-            </Canvas>
-        </div>
+        <Suspense fallback={null}>
+            <ResultsAtmosphere bpm={result.bpm} />
+        </Suspense>
 
       {/* Dynamic Header */}
       <header className="relative rounded-2xl overflow-hidden border border-glass-border h-64 flex items-end p-8 group">
@@ -204,9 +268,20 @@ export default function Results() {
                       </div>
                   </div>
               </div>
-              <Link to="/upload" className="btn-secondary px-5 py-2.5 text-xs flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm">add</span> New Signal
-              </Link>
+                  <div className="flex items-center gap-3">
+                      <button onClick={handleFavorite} className="p-2 rounded-full border border-white/10 hover:bg-white/5 text-white/60 hover:text-white transition-all">
+                          <span className="material-symbols-outlined text-sm">favorite</span>
+                      </button>
+                      <button onClick={handleShare} className="p-2 rounded-full border border-white/10 hover:bg-white/5 text-white/60 hover:text-white transition-all">
+                          <span className="material-symbols-outlined text-sm">share</span>
+                      </button>
+                      <button onClick={handleExport} className="p-2 rounded-full border border-white/10 hover:bg-white/5 text-white/60 hover:text-white transition-all">
+                          <span className="material-symbols-outlined text-sm">download</span>
+                      </button>
+                      <Link to="/upload" className="btn-secondary px-5 py-2.5 text-xs flex items-center gap-2">
+                          <span className="material-symbols-outlined text-sm">add</span> New Signal
+                      </Link>
+                  </div>
           </div>
       </header>
 

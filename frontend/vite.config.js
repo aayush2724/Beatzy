@@ -8,19 +8,23 @@ export default defineConfig({
     port: 5173,
     allowedHosts: 'all',
     proxy: {
-      '/api': {
-        target: 'http://localhost:3001',
-        changeOrigin: true,
-      },
-      '/socket.io': {
-        target: 'http://localhost:3001',
-        changeOrigin: true,
-        ws: true,
-      },
+      '/api': { target: 'http://localhost:3001', changeOrigin: true },
+      '/socket.io': { target: 'http://localhost:3001', changeOrigin: true, ws: true },
     },
   },
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-motion': ['framer-motion'],
+          'vendor-three': ['three', '@react-three/fiber', '@react-three/drei'],
+          'vendor-scroll': ['gsap', 'lenis'],
+          'vendor-charts': ['recharts'],
+        },
+      },
+    },
   },
 });

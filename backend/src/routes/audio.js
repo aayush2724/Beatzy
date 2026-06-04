@@ -3,7 +3,7 @@ const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const axios = require('axios');
 const { authenticate, authenticateApiKey } = require('../middleware/auth');
-const { planRateLimit, PLAN_LIMITS } = require('../middleware/rateLimit');
+const { planRateLimit, monthlyAnalysisLimit, PLAN_LIMITS } = require('../middleware/rateLimit');
 const { pool } = require('../db/client');
 const { createError } = require('../middleware/errorHandler');
 const { uploadToS3 } = require('../services/storage');
@@ -25,7 +25,7 @@ const upload = multer({
   },
 });
 
-router.post('/upload', authenticateApiKey, planRateLimit, upload.single('audio'), async (req, res) => {
+router.post('/upload', authenticateApiKey, planRateLimit, monthlyAnalysisLimit, upload.single('audio'), async (req, res) => {
   if (!req.file) throw createError(400, 'No audio file provided');
 
   const plan = req.user.plan || 'free';
@@ -64,6 +64,45 @@ router.post('/upload', authenticateApiKey, planRateLimit, upload.single('audio')
       message: 'Audio uploaded and queued for analysis',
     },
   });
+});
+
+router.post('/upload-batch', authenticateApiKey, planRateLimit, monthlyAnalysisLimit, upload.array('audio', 20), async (req, res) => {
+  const files = req.files || [];
+  if (!files.length) throw createError(400, 'No audio files provided');
+
+  const plan = req.user.plan || 'free';
+  const batchLimit = PLAN_LIMITS[plan].batchSize || 1;
+  if (files.length > batchLimit) {
+    throw createError(413, `Batch limit is ${batchLimit} files for your plan`);
+  }
+
+  const jobs = [];
+  for (const file of files) {
+    const maxSize = PLAN_LIMITS[plan].uploadSizeMB * 1024 * 1024;
+    if (file.size > maxSize) continue;
+
+    const jobId = uuidv4();
+    const s3Key = `audio/${req.user.id}/${jobId}/${file.originalname}`;
+    const s3Url = await uploadToS3(file.buffer, s3Key, file.mimetype);
+
+    const { rows } = await pool.query(
+      `INSERT INTO audio_jobs (id, user_id, original_filename, s3_key, s3_url, file_size, mime_type, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'queued') RETURNING id, status, created_at`,
+      [jobId, req.user.id, file.originalname, s3Key, s3Url, file.size, file.mimetype],
+    );
+
+    await enqueueAnalysisJob({
+      jobId,
+      userId: req.user.id,
+      s3Key,
+      s3Url,
+      originalFilename: file.originalname,
+    });
+
+    jobs.push({ jobId: rows[0].id, status: rows[0].status, filename: file.originalname });
+  }
+
+  res.status(202).json({ success: true, data: { jobs, count: jobs.length } });
 });
 
 // ── Search songs via Spotify ────────────────────────────────────────────────

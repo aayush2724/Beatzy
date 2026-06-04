@@ -126,8 +126,8 @@ export default function BillingSuccess() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <span className="font-mono text-[8px] text-gray-600 uppercase tracking-widest">© 2026 Beatzy AI</span>
           <div className="flex gap-6 font-mono text-[8px] uppercase tracking-widest text-gray-500">
-            <a className="hover:text-white transition-colors" href="#">Privacy</a>
-            <a className="hover:text-white transition-colors" href="#">Terms</a>
+            <Link className="hover:text-white transition-colors" to="/privacy">Privacy</Link>
+            <Link className="hover:text-white transition-colors" to="/terms">Terms</Link>
           </div>
         </div>
       </footer>

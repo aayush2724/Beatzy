@@ -3,6 +3,8 @@ import { useAuthStore } from '../store/authStore';
 import { useState } from 'react';
 import clsx from 'clsx';
 import ThreeDStudio from './ThreeDStudio';
+import OnboardingTour from './OnboardingTour';
+import ThemeToggle from './ThemeToggle';
 
 export default function Layout() {
   const { user, logout } = useAuthStore();
@@ -88,6 +90,7 @@ export default function Layout() {
               <p className="text-xs font-semibold truncate text-on-surface leading-none mb-1">{user?.name}</p>
               <p className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest leading-none capitalize">{user?.plan} plan</p>
             </div>
+            {isSidebarHovered && <ThemeToggle className="ml-auto" />}
           </div>
           
           <button
@@ -112,6 +115,7 @@ export default function Layout() {
           <Outlet />
         </div>
       </main>
+      <OnboardingTour />
     </div>
   );
 }

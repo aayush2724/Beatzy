@@ -40,7 +40,8 @@ export default function GlassRecordSleeve({ job }) {
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
       className="relative group h-64 w-full"
     >
-      <Link to={job.status === 'completed' ? `/results/${job.id}` : '#'} className="block h-full">
+      {job.status === 'completed' ? (
+      <Link to={`/results/${job.id}`} className="block h-full">
         {/* Sleeve Background */}
         <div className="absolute inset-0 glass-panel border border-white/10 rounded-xl bg-white/[0.02] group-hover:bg-white/[0.05] transition-colors shadow-2xl" />
         
@@ -80,6 +81,24 @@ export default function GlassRecordSleeve({ job }) {
             <div className="absolute inset-[-100%] group-hover:inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent transition-all duration-1000" />
         </div>
       </Link>
+      ) : (
+      <div className="block h-full cursor-default opacity-70" title="Analysis in progress">
+        {/* Sleeve Background */}
+        <div className="absolute inset-0 glass-panel border border-white/10 rounded-xl bg-white/[0.02] transition-colors shadow-2xl" />
+        <motion.div style={{ translateZ: 20 }} className="absolute -right-4 top-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-[#111] border-4 border-white/5 shadow-2xl flex items-center justify-center overflow-hidden">
+            <div className="w-full h-full opacity-40 mix-blend-overlay bg-[repeating-radial-gradient(circle_at_center,#222_0,#222_2px,transparent_2px,transparent_4px)]" />
+        </motion.div>
+        <motion.div style={{ translateZ: 40 }} className="relative z-10 p-6 h-full flex flex-col justify-between">
+            <div className="w-24 h-24 rounded-lg overflow-hidden border border-white/10 shadow-lg">
+                <img src={coverUrl} alt={title} className="w-full h-full object-cover grayscale" />
+            </div>
+            <div>
+                <h3 className="font-headline font-bold text-white text-lg truncate">{title}</h3>
+                <p className="font-mono text-[9px] text-white/40 uppercase tracking-widest mt-1">{job.status}</p>
+            </div>
+        </motion.div>
+      </div>
+      )}
     </motion.div>
   );
 }

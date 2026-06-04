@@ -1,9 +1,6 @@
 import WaveformVisualizer from '../components/WaveformVisualizer';
 import StyleDNAChart from '../components/StyleDNAChart';
-import MetricCards from '../components/MetricCards';
 import PageWrapper from '../components/PageWrapper';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 
 const SG = { fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" };
