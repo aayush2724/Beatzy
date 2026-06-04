@@ -48,16 +48,22 @@ export default function History() {
   const [jobs, setJobs] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
 
   const fetchHistory = useCallback(() => {
     setLoading(true);
+    setError(null);
     getHistory(page, 12)
       .then(({ data }) => {
         setJobs(data.data.jobs);
         setPagination(data.data.pagination);
       })
-      .catch(() => toast.error('Failed to load telemetry archives'))
+      .catch((err) => {
+        const msg = err.response?.data?.error?.message || 'Failed to load analysis history';
+        setError(msg);
+        toast.error(msg);
+      })
       .finally(() => setLoading(false));
   }, [page]);
 
@@ -93,6 +99,18 @@ export default function History() {
                 {Array.from({ length: 8 }).map((_, i) => (
                     <div key={i} className="h-64 rounded-xl bg-white/[0.02] border border-white/5 animate-pulse" />
                 ))}
+            </div>
+        ) : error ? (
+            <div className="h-64 glass-panel border border-dashed border-red-500/20 flex flex-col items-center justify-center text-center p-12 gap-4">
+                <span className="material-symbols-outlined text-4xl text-red-400/60">cloud_off</span>
+                <p className="text-white/50 font-mono text-xs uppercase tracking-widest">{error}</p>
+                <button onClick={fetchHistory} className="btn-secondary px-6 py-2 text-xs">Retry</button>
+            </div>
+        ) : jobs.length === 0 ? (
+            <div className="h-64 glass-panel border border-dashed border-white/10 flex flex-col items-center justify-center text-center p-12">
+                <span className="material-symbols-outlined text-4xl text-white/10 mb-4">album</span>
+                <p className="text-white/40 font-mono text-xs uppercase tracking-widest mb-6">No analyses yet</p>
+                <Link to="/upload" className="btn-primary px-6 py-2 text-xs">Upload your first track</Link>
             </div>
         ) : (
             <>

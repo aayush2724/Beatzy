@@ -178,7 +178,7 @@ export default function ApiKeys() {
                 <ul className="space-y-3">
                     {['Pipeline Authentication', 'Bandwidth Quotas', 'Neural SDK v4'].map(doc => (
                         <li key={doc}>
-                            <a href="#" className="flex items-center justify-between p-4 rounded-xl transition-all group border border-white/5 hover:border-white/10 hover:bg-white/[0.02]">
+                            <a href={`${import.meta.env.VITE_API_URL || ''}/api/docs`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-4 rounded-xl transition-all group border border-white/5 hover:border-white/10 hover:bg-white/[0.02]">
                                 <span className="font-mono text-[10px] uppercase tracking-widest text-white/40 group-hover:text-primary transition-colors font-bold">{doc}</span>
                                 <span className="material-symbols-outlined text-base text-white/10 group-hover:translate-x-1 group-hover:text-primary transition-all">arrow_forward</span>
                             </a>

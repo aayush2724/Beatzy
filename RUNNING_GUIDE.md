@@ -280,6 +280,39 @@ The UI makeover included:
 
 ---
 
+## Phase A — Production fixes
+
+### Google OAuth
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials → OAuth 2.0 Client
+2. **Authorized redirect URI:** `https://<your-backend>/api/auth/google/callback` (local: `http://localhost:3000/api/auth/google/callback`)
+3. Set on Render (backend):
+   - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+   - `BACKEND_URL=https://<your-backend-host>`
+   - `FRONTEND_URL=https://<your-frontend-host>`
+4. Backend now calls `passport.initialize()` — required for Google sign-in to work.
+
+### Sync ML service to Hugging Face
+
+```bash
+export HF_SPACE_REPO=your-username/beatzy-ml
+pip install huggingface_hub
+cd ml-service && huggingface-cli upload "$HF_SPACE_REPO" . . --repo-type space
+```
+
+Or use `scripts/sync-ml-to-hf.sh` after setting `HF_SPACE_REPO`.
+
+Verify storage after rebuild:
+
+```bash
+curl -s https://<space>.hf.space/health | jq '.storage'
+# Expect: "reachable": true
+```
+
+Set `ML_SERVICE_URL` on the backend to your Space URL. Use path-style S3 / R2 env vars documented in `ml-service/.env.example`.
+
+---
+
 ## 🎯 Recommended: Start with Frontend Only
 
 For the quickest way to see the new UI:

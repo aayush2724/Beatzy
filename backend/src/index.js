@@ -39,6 +39,7 @@ const { idempotency } = require('./middleware/idempotency');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
 
+const passport = require('passport');
 const authRoutes = require('./routes/auth');
 const audioRoutes = require('./routes/audio');
 const resultRoutes = require('./routes/results');
@@ -46,6 +47,8 @@ const keyRoutes = require('./routes/apiKeys');
 const billingRoutes = require('./routes/billing');
 const userRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin');
+const publicRoutes = require('./routes/public');
+const libraryRoutes = require('./routes/library');
 
 const app = express();
 const server = http.createServer(app);
@@ -80,6 +83,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('combined', { stream: { write: msg => logger.info(msg.trim()) } }));
 app.use(idempotency);
+app.use(passport.initialize());
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'beatzy-backend', timestamp: new Date().toISOString() });
@@ -97,6 +101,8 @@ app.use('/api/keys', keyRoutes);
 app.use('/api/billing', billingRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/public', publicRoutes);
+app.use('/api/library', libraryRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

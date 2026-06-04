@@ -29,12 +29,19 @@ export default function Dashboard() {
   const { user } = useAuthStore();
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
+  const fetchDashboard = () => {
+    setLoading(true);
+    setError(null);
     getHistory(1, 6)
       .then(({ data }) => setHistory(data.data.jobs))
-      .catch(() => {})
+      .catch((err) => setError(err.response?.data?.error?.message || 'Failed to load dashboard'))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchDashboard();
   }, []);
 
   const chartData = history.filter(j => j.bpm).map((j, i) => ({
@@ -75,6 +82,11 @@ export default function Dashboard() {
                       {Array.from({ length: 4 }).map((_, i) => (
                           <div key={i} className="h-64 rounded-xl bg-white/[0.02] border border-white/5 animate-pulse" />
                       ))}
+                  </div>
+              ) : error ? (
+                  <div className="h-64 glass-panel border border-dashed border-red-500/20 flex flex-col items-center justify-center text-center p-12 gap-4">
+                      <p className="text-white/50 font-mono text-xs uppercase tracking-widest">{error}</p>
+                      <button onClick={fetchDashboard} className="btn-secondary px-6 py-2 text-xs">Retry</button>
                   </div>
               ) : history.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

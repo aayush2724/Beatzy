@@ -22,7 +22,7 @@ const ACCEPTED = {
 
 function VinylRecord({ spinning, drop }) {
   const mesh = useRef();
-  useFrame((state) => {
+  useFrame(() => {
     if (!mesh.current) return;
     if (spinning) {
       mesh.current.rotation.y += 0.15;
@@ -86,12 +86,6 @@ function AudioWave({ active, bars = 12 }) {
     </div>
   );
 }
-
-const pageVariants = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 }
-};
 
 export default function Upload() {
   const [tab, setTab] = useState('file'); // 'file' | 'mic' | 'search'
@@ -306,7 +300,7 @@ export default function Upload() {
     {
       icon: 'search',
       title: 'Song ID',
-      engine: 'ACRCloud Core',
+      engine: 'AcoustID',
       status: step === 'uploading' ? 'Buffered' : socketStatus === 'processing' ? 'Matching...' : 'Scanning...',
       active: step === 'analyzing' && ['processing', 'analyzing'].includes(socketStatus),
     },
