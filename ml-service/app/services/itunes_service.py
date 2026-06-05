@@ -52,4 +52,4 @@ class iTunesService:
             return tracks
         except Exception as e:
             logger.error("iTunes search failed", error=str(e))
-            return {}
+            return []

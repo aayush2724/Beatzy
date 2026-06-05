@@ -125,7 +125,7 @@ export default function InstrumentChordPanel({ chords = [] }) {
               onClick={() => setInstrument(ins)}
               className={clsx(
                 "px-4 py-2 rounded-lg font-mono text-[10px] uppercase tracking-wider transition-all",
-                instrument === ins ? "bg-primary text-surface font-bold" : "text-on-surface-variant hover:text-[#1A1410]"
+                instrument === ins ? "bg-primary text-surface font-bold" : "text-on-surface-variant hover:text-[#F5EFE7]"
               )}
             >
               {ins}
@@ -153,7 +153,7 @@ export default function InstrumentChordPanel({ chords = [] }) {
                     ))}
                 </div>
                 <div className="pt-4 border-t border-glass-border">
-                    <div className="text-4xl font-headline font-extrabold text-[#1A1410] mb-2">{selectedChord}</div>
+                    <div className="text-4xl font-headline font-extrabold text-[#F5EFE7] mb-2">{selectedChord}</div>
                     <p className="text-[10px] text-on-surface-variant leading-relaxed font-mono uppercase opacity-60">
                         {instrument} Tablature Mode
                     </p>

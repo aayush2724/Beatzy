@@ -71,7 +71,7 @@ function VinylRecord({ spinning, drop }) {
         {/* Center Label */}
         <mesh position={[0, 0.04, 0]}>
             <cylinderGeometry args={[0.7, 0.7, 0.02, 32]} />
-            <meshStandardMaterial color="#D4860A" emissive="#D4860A" emissiveIntensity={0.2} />
+            <meshStandardMaterial color="#C41E3A" emissive="#C41E3A" emissiveIntensity={0.2} />
         </mesh>
         {/* Center Hole */}
         <mesh position={[0, 0.05, 0]}>
@@ -98,7 +98,7 @@ function AudioWave({ active, bars = 12 }) {
             ease: "easeInOut",
             delay: i * 0.05
           } : {}}
-          className="w-1 rounded-full bg-gradient-to-t from-[#D4860A] to-[#D4860A]"
+          className="w-1 rounded-full bg-gradient-to-t from-[#C41E3A] to-[#C41E3A]"
           style={{
             opacity: active ? 1 : 0.2
           }}
@@ -203,7 +203,7 @@ export default function Upload() {
       setStep('analyzing');
 
       toast.success('Signal captured! Neural core syncing...', {
-        style: { background: '#2D1F18', color: '#D4860A', border: '1px solid rgba(255,255,255,0.1)' },
+        style: { background: '#2A1A15', color: '#C41E3A', border: '1px solid rgba(255,255,255,0.1)' },
       });
 
       for (let i = 0; i < 60; i++) {
@@ -377,11 +377,11 @@ export default function Upload() {
   return (
     <PageWrapper className="space-y-10 pb-16 animate-page-entrance">
       <header className="space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#D4860A]/20 bg-[#D4860A]/5 text-[#D4860A] font-mono text-[9px] uppercase tracking-[0.2em]">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#C41E3A]/20 bg-[#C41E3A]/5 text-[#C41E3A] font-mono text-[9px] uppercase tracking-[0.2em]">
             <Database className="w-3 h-3" /> Neural Core V4.2
         </div>
-        <h1 className="text-5xl font-display font-black text-[#1A1410] tracking-tight uppercase">
-          Spectral <span className="text-[#D4860A] text-glow-orange">Engine</span>
+        <h1 className="text-5xl font-display font-black text-[#F5EFE7] tracking-tight uppercase">
+          Spectral <span className="text-[#C41E3A] text-glow-red">Engine</span>
         </h1>
         <p className="text-on-surface-variant max-w-xl text-sm leading-relaxed">
           Initialize track analysis. Upload raw audio, capture live signals, or search the global database to extract musical intelligence.
@@ -402,8 +402,8 @@ export default function Upload() {
               className={clsx(
                 'flex items-center gap-2 px-6 py-2.5 rounded-xl font-mono text-[10px] uppercase tracking-widest transition-all duration-300',
                 tab === t.id
-                  ? 'bg-[#D4860A] text-black font-black shadow-[0_0_20px_rgba(163,81,57,0.15)]'
-                  : 'text-on-surface-variant hover:text-[#1A1410] hover:bg-white/5'
+                  ? 'bg-[#C41E3A] text-black font-black shadow-[0_0_20px_rgba(196,30,58,0.15)]'
+                  : 'text-on-surface-variant hover:text-[#F5EFE7] hover:bg-white/5'
               )}
             >
               <t.icon className="w-3.5 h-3.5" />
@@ -426,7 +426,7 @@ export default function Upload() {
         </div>
 
         {/* Background glow effects */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#D4860A]/5 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#C41E3A]/5 blur-[120px] rounded-full pointer-events-none" />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
 
         <div className="relative z-10 w-full max-w-2xl flex flex-col items-center">
@@ -448,7 +448,7 @@ export default function Upload() {
                     className={clsx(
                       'relative group cursor-pointer rounded-[3rem] border p-12 md:p-16 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] text-center w-full',
                       isDragActive && !isDragReject
-                        ? 'border-[#D4860A]/50 bg-[#D4860A]/5 shadow-[0_0_80px_rgba(163,81,57,0.1)] scale-[1.02]'
+                        ? 'border-[#C41E3A]/50 bg-[#C41E3A]/5 shadow-[0_0_80px_rgba(196,30,58,0.1)] scale-[1.02]'
                         : 'border-[#1A1410]/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-[#1A1410]/20',
                       isDragReject && 'border-red-500/50 bg-red-500/5',
                       disabled && 'opacity-50 pointer-events-none'
@@ -460,24 +460,24 @@ export default function Upload() {
                       {/* Large Animated Icon */}
                       <div className={clsx(
                         'w-24 h-24 rounded-[2.5rem] border flex items-center justify-center transition-all duration-500',
-                        isDragActive && !isDragReject ? 'bg-[#D4860A]/20 border-[#D4860A] rotate-180' : 'bg-white/5 border-[#1A1410]/10 group-hover:scale-110 group-hover:bg-white/10',
+                        isDragActive && !isDragReject ? 'bg-[#C41E3A]/20 border-[#C41E3A] rotate-180' : 'bg-white/5 border-[#1A1410]/10 group-hover:scale-110 group-hover:bg-white/10',
                         isDragReject && 'bg-red-500/20 border-red-500/50'
                       )}>
                         {isDragReject ? (
                           <X className="w-8 h-8 text-red-400" />
                         ) : isDragActive ? (
-                          <ArrowUpRight className="w-8 h-8 text-[#D4860A] animate-bounce" />
+                          <ArrowUpRight className="w-8 h-8 text-[#C41E3A] animate-bounce" />
                         ) : (
-                          <UploadIcon className="w-8 h-8 text-[#1A1410]/40 group-hover:text-[#1A1410] transition-colors" />
+                          <UploadIcon className="w-8 h-8 text-[#F5EFE7]/40 group-hover:text-[#F5EFE7] transition-colors" />
                         )}
                       </div>
 
                       <div className="space-y-4">
-                        <h3 className="text-4xl font-display font-black text-[#1A1410] tracking-tight uppercase">
+                        <h3 className="text-4xl font-display font-black text-[#F5EFE7] tracking-tight uppercase">
                           {isDragReject ? 'Invalid Format' : isDragActive ? 'Drop to Extract' : 'Load Signal'}
                         </h3>
                         <p className="text-on-surface-variant text-base font-medium">
-                          Drag audio signature here, or <span className="text-[#1A1410] underline decoration-[#D4860A]/30 underline-offset-4 hover:decoration-[#D4860A] transition-all cursor-pointer">browse workspace</span>
+                          Drag audio signature here, or <span className="text-[#F5EFE7] underline decoration-[#C41E3A]/30 underline-offset-4 hover:decoration-[#C41E3A] transition-all cursor-pointer">browse workspace</span>
                         </p>
                         {rejected && <p className="text-red-400 text-xs mt-4 font-mono uppercase tracking-widest">{rejected}</p>}
                       </div>
@@ -485,7 +485,7 @@ export default function Upload() {
                       {/* Format Pills */}
                       <div className="flex justify-center gap-2 mt-2">
                         {['MP3', 'WAV', 'FLAC', 'OGG'].map(ext => (
-                          <span key={ext} className="text-[8px] font-mono text-[#1A1410]/30 border border-[#1A1410]/5 rounded-lg px-4 py-2 bg-white/5 tracking-[0.2em]">
+                          <span key={ext} className="text-[8px] font-mono text-[#F5EFE7]/30 border border-[#1A1410]/5 rounded-lg px-4 py-2 bg-white/5 tracking-[0.2em]">
                             {ext}
                           </span>
                         ))}
@@ -505,19 +505,19 @@ export default function Upload() {
                 {tab === 'search' && (
                   <div className="w-full flex flex-col gap-8">
                     <form onSubmit={handleSearch} className="relative group">
-                      <div className="absolute inset-0 bg-[#D4860A]/10 blur-[20px] opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                      <div className="absolute inset-0 bg-[#C41E3A]/10 blur-[20px] opacity-0 group-focus-within:opacity-100 transition-opacity" />
                       <div className="relative flex items-center">
-                        <Search className="absolute left-6 text-[#1A1410]/20 w-5 h-5" />
+                        <Search className="absolute left-6 text-[#F5EFE7]/20 w-5 h-5" />
                         <input
                           type="text"
                           value={query}
                           onChange={(e) => setQuery(e.target.value)}
                           placeholder="Search database for a song, artist, or album..."
-                          className="w-full h-16 bg-white/[0.03] border border-[#1A1410]/10 rounded-2xl pl-16 pr-6 text-[#1A1410] placeholder:text-[#1A1410]/20 focus:outline-none focus:border-[#D4860A]/50 transition-all font-medium"
+                          className="w-full h-16 bg-white/[0.03] border border-[#1A1410]/10 rounded-2xl pl-16 pr-6 text-[#F5EFE7] placeholder:text-[#F5EFE7]/20 focus:outline-none focus:border-[#C41E3A]/50 transition-all font-medium"
                         />
                         {searching && (
                           <div className="absolute right-6">
-                            <div className="w-5 h-5 border-2 border-[#D4860A]/20 border-t-[#D4860A] rounded-full animate-spin" />
+                            <div className="w-5 h-5 border-2 border-[#C41E3A]/20 border-t-[#C41E3A] rounded-full animate-spin" />
                           </div>
                         )}
                       </div>
@@ -542,7 +542,7 @@ export default function Upload() {
                               </div>
                             )}
                             <div className="min-w-0">
-                              <h4 className="text-sm font-bold text-[#1A1410] truncate group-hover/item:text-[#D4860A] transition-colors">{track.title}</h4>
+                              <h4 className="text-sm font-bold text-[#F5EFE7] truncate group-hover/item:text-[#C41E3A] transition-colors">{track.title}</h4>
                               <p className="text-[10px] font-mono text-on-surface-variant uppercase tracking-wider truncate">{track.artist} • {track.album}</p>
                             </div>
                           </div>
@@ -555,8 +555,8 @@ export default function Upload() {
                                   className={clsx(
                                     'w-10 h-10 rounded-full flex items-center justify-center border transition-all',
                                     playingUrl === track.preview_url
-                                      ? 'bg-[#D4860A] border-[#D4860A] text-black'
-                                      : 'bg-white/5 border-[#1A1410]/10 text-on-surface-variant hover:text-[#1A1410] hover:bg-white/10'
+                                      ? 'bg-[#C41E3A] border-[#C41E3A] text-black'
+                                      : 'bg-white/5 border-[#1A1410]/10 text-on-surface-variant hover:text-[#F5EFE7] hover:bg-white/10'
                                   )}
                                 >
                                   {playingUrl === track.preview_url ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
@@ -564,14 +564,14 @@ export default function Upload() {
 
                                 <button
                                   onClick={() => handleAnalyzeUrl(track)}
-                                  className="px-5 py-2.5 bg-[#D4860A]/10 border border-[#D4860A]/30 text-[#D4860A] hover:bg-[#D4860A] hover:text-black font-mono text-[9px] uppercase tracking-[0.15em] font-black rounded-xl transition-all"
+                                  className="px-5 py-2.5 bg-[#C41E3A]/10 border border-[#C41E3A]/30 text-[#C41E3A] hover:bg-[#C41E3A] hover:text-black font-mono text-[9px] uppercase tracking-[0.15em] font-black rounded-xl transition-all"
                                 >
                                   Analyze
                                 </button>
                               </>
                             ) : (
                               <div className="px-4 py-2 rounded-xl bg-white/5 border border-[#1A1410]/5">
-                                <span className="text-[8px] font-mono text-[#1A1410]/20 uppercase tracking-widest select-none">No Preview</span>
+                                <span className="text-[8px] font-mono text-[#F5EFE7]/20 uppercase tracking-widest select-none">No Preview</span>
                               </div>
                             )}
                           </div>
@@ -580,8 +580,8 @@ export default function Upload() {
 
                       {tracks.length === 0 && !searching && (
                         <div className="text-center py-12 obsidian-panel rounded-[2rem] border border-dashed border-[#1A1410]/5">
-                          <Waves className="mx-auto w-8 h-8 text-[#1A1410]/10 mb-4" />
-                          <p className="text-[10px] font-mono text-[#1A1410]/30 uppercase tracking-[0.2em]">Enter query to scan global archives</p>
+                          <Waves className="mx-auto w-8 h-8 text-[#F5EFE7]/10 mb-4" />
+                          <p className="text-[10px] font-mono text-[#F5EFE7]/30 uppercase tracking-[0.2em]">Enter query to scan global archives</p>
                         </div>
                       )}
                     </div>
@@ -600,20 +600,20 @@ export default function Upload() {
                 className="w-full flex flex-col items-center"
               >
                 <div className="relative mb-20">
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-[#D4860A]/10 animate-pulse" />
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full border border-[#D4860A]/20 animate-ping" style={{ animationDuration: '3s' }} />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-[#C41E3A]/10 animate-pulse" />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full border border-[#C41E3A]/20 animate-ping" style={{ animationDuration: '3s' }} />
 
-                  <div className="relative w-36 h-36 flex items-center justify-center bg-[#2D1F18]/60 backdrop-blur-3xl rounded-[2.5rem] border border-[#D4860A]/30 shadow-[0_0_50px_rgba(163,81,57,0.1)] overflow-hidden">
+                  <div className="relative w-36 h-36 flex items-center justify-center bg-[#2A1A15]/60 backdrop-blur-3xl rounded-[2.5rem] border border-[#C41E3A]/30 shadow-[0_0_50px_rgba(196,30,58,0.1)] overflow-hidden">
                     <div
-                      className="absolute w-full h-[2px] bg-[#D4860A] shadow-[0_0_15px_#D4860A] scan-line-anim"
+                      className="absolute w-full h-[2px] bg-[#C41E3A] shadow-[0_0_15px_#C41E3A] scan-line-anim"
                       style={{ top: 0, opacity: 0.5 }}
                     />
                     <AudioWave active bars={12} />
                   </div>
 
                   <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 text-center whitespace-nowrap space-y-2">
-                    <span className="font-display text-5xl font-black text-[#1A1410] tracking-tighter">{Math.floor(visibleProgress)}%</span>
-                    <div className="font-mono text-[10px] text-[#D4860A] font-black uppercase tracking-[0.3em]">
+                    <span className="font-display text-5xl font-black text-[#F5EFE7] tracking-tighter">{Math.floor(visibleProgress)}%</span>
+                    <div className="font-mono text-[10px] text-[#C41E3A] font-black uppercase tracking-[0.3em]">
                       {step === 'uploading' ? 'Transmitting Core' : 'Neural Core Active'}
                     </div>
                   </div>
@@ -623,7 +623,7 @@ export default function Upload() {
                 <div className="w-full max-w-md mb-12">
                   <div className="h-1.5 bg-white/5 rounded-full overflow-hidden border border-[#1A1410]/5">
                     <motion.div
-                      className="h-full bg-gradient-to-r from-[#D4860A] via-[#D4860A] to-[#FFDAB9]"
+                      className="h-full bg-gradient-to-r from-[#C41E3A] via-[#C41E3A] to-[#FFDAB9]"
                       initial={{ width: 0 }}
                       animate={{ width: `${visibleProgress}%` }}
                       transition={{ duration: 0.5 }}
@@ -643,30 +643,30 @@ export default function Upload() {
                       className={clsx(
                         'p-5 rounded-2xl flex flex-col gap-3 border transition-all duration-700',
                         card.active
-                          ? 'border-[#D4860A]/40 bg-[#D4860A]/5'
+                          ? 'border-[#C41E3A]/40 bg-[#C41E3A]/5'
                           : 'border-[#1A1410]/5 obsidian-panel opacity-40'
                       )}
                     >
                       <div className="flex justify-between items-start">
                         <div className={clsx(
                           'p-2 rounded-xl border transition-colors',
-                          card.active ? 'bg-[#D4860A]/10 border-[#D4860A]/20' : 'bg-white/[0.02] border-[#1A1410]/5'
+                          card.active ? 'bg-[#C41E3A]/10 border-[#C41E3A]/20' : 'bg-white/[0.02] border-[#1A1410]/5'
                         )}>
-                          <card.icon className={clsx('w-4 h-4', card.active ? 'text-[#D4860A]' : 'text-on-surface-variant')} />
+                          <card.icon className={clsx('w-4 h-4', card.active ? 'text-[#C41E3A]' : 'text-on-surface-variant')} />
                         </div>
                         {card.active ? (
-                          <div className="w-4 h-4 border-2 border-t-transparent border-[#D4860A] rounded-full animate-spin" />
+                          <div className="w-4 h-4 border-2 border-t-transparent border-[#C41E3A] rounded-full animate-spin" />
                         ) : (
                           <div className="w-4 h-4 border border-[#1A1410]/10 rounded-full" />
                         )}
                       </div>
                       <div>
-                        <h4 className="text-[11px] font-black text-[#1A1410] uppercase tracking-wider">{card.title}</h4>
+                        <h4 className="text-[11px] font-black text-[#F5EFE7] uppercase tracking-wider">{card.title}</h4>
                         <p className="font-mono text-[8px] text-on-surface-variant uppercase tracking-widest mt-0.5">{card.engine}</p>
                       </div>
                       <div className="pt-3 border-t border-[#1A1410]/5 flex items-center gap-2">
-                        <div className={clsx('w-1.5 h-1.5 rounded-full', card.active ? 'bg-[#D4860A] animate-pulse shadow-[0_0_10px_#D4860A]' : 'bg-white/10')} />
-                        <span className={clsx('font-mono text-[8px] font-black uppercase tracking-widest', card.active ? 'text-[#D4860A]' : 'text-on-surface-variant')}>
+                        <div className={clsx('w-1.5 h-1.5 rounded-full', card.active ? 'bg-[#C41E3A] animate-pulse shadow-[0_0_10px_#C41E3A]' : 'bg-white/10')} />
+                        <span className={clsx('font-mono text-[8px] font-black uppercase tracking-widest', card.active ? 'text-[#C41E3A]' : 'text-on-surface-variant')}>
                           {card.status}
                         </span>
                       </div>
@@ -676,7 +676,7 @@ export default function Upload() {
 
                 <div className="mt-8 w-full flex justify-between font-mono text-[9px] text-on-surface-variant uppercase tracking-[0.2em] px-2 opacity-60">
                   <div className="flex items-center gap-2">
-                    <div className="w-1 h-1 rounded-full bg-[#D4860A] animate-ping" />
+                    <div className="w-1 h-1 rounded-full bg-[#C41E3A] animate-ping" />
                     Neural Core Online
                   </div>
                   <span>Uptime: {elapsed.toFixed(1)}s</span>
@@ -684,7 +684,7 @@ export default function Upload() {
 
                 <button
                   onClick={() => { abortRef.current = true; resetState(); }}
-                  className="mt-6 px-6 py-2 rounded-lg border border-[#1A1410]/5 text-[10px] font-mono text-on-surface-variant hover:text-[#1A1410] hover:border-[#1A1410]/20 transition-all uppercase tracking-widest"
+                  className="mt-6 px-6 py-2 rounded-lg border border-[#1A1410]/5 text-[10px] font-mono text-on-surface-variant hover:text-[#F5EFE7] hover:border-[#1A1410]/20 transition-all uppercase tracking-widest"
                 >
                   Terminate Process
                 </button>
@@ -703,11 +703,11 @@ export default function Upload() {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                  className="w-20 h-20 bg-[#D4860A]/10 border border-[#D4860A]/30 rounded-[2rem] flex items-center justify-center text-[#D4860A] mb-8 shadow-[0_0_50px_rgba(163,81,57,0.1)]"
+                  className="w-20 h-20 bg-[#C41E3A]/10 border border-[#C41E3A]/30 rounded-[2rem] flex items-center justify-center text-[#C41E3A] mb-8 shadow-[0_0_50px_rgba(196,30,58,0.1)]"
                 >
                   <CheckCircle2 className="w-10 h-10" />
                 </motion.div>
-                <h3 className="text-4xl font-display font-black text-[#1A1410] tracking-tight uppercase mb-3">Analysis Secured</h3>
+                <h3 className="text-4xl font-display font-black text-[#F5EFE7] tracking-tight uppercase mb-3">Analysis Secured</h3>
                 <p className="text-on-surface-variant font-medium">Decoding spectral report... Prepare for initialization.</p>
                 <div className="mt-8 flex gap-2">
                   {[0, 1, 2].map(i => (
@@ -715,7 +715,7 @@ export default function Upload() {
                       key={i} 
                       animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
                       transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-                      className="w-1.5 h-1.5 bg-[#D4860A] rounded-full" 
+                      className="w-1.5 h-1.5 bg-[#C41E3A] rounded-full" 
                     />
                   ))}
                 </div>
@@ -735,9 +735,9 @@ export default function Upload() {
         ].map((item, i) => (
           <div key={i} className="p-6 rounded-[2rem] border border-[#1A1410]/5 bg-white/[0.02] space-y-4 hover:border-[#1A1410]/10 transition-colors">
             <div className="w-10 h-10 rounded-xl bg-white/5 border border-[#1A1410]/10 flex items-center justify-center">
-               {i === 0 ? <ShieldCheck className="w-5 h-5 text-[#1A1410]/40" /> : i === 1 ? <Cpu className="w-5 h-5 text-[#1A1410]/40" /> : <Database className="w-5 h-5 text-[#1A1410]/40" />}
+               {i === 0 ? <ShieldCheck className="w-5 h-5 text-[#F5EFE7]/40" /> : i === 1 ? <Cpu className="w-5 h-5 text-[#F5EFE7]/40" /> : <Database className="w-5 h-5 text-[#F5EFE7]/40" />}
             </div>
-            <h4 className="font-display font-bold text-sm text-[#1A1410] uppercase tracking-widest">{item.title}</h4>
+            <h4 className="font-display font-bold text-sm text-[#F5EFE7] uppercase tracking-widest">{item.title}</h4>
             <p className="text-xs text-on-surface-variant leading-relaxed opacity-70">{item.text}</p>
           </div>
         ))}

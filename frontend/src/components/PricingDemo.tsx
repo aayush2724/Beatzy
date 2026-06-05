@@ -32,7 +32,7 @@ const PricingDemo = () => {
   return <ModernPricingPage
         title={
           <>
-            Find the <span className="text-indigo-depth">Perfect Plan</span> for Your Business
+            Find the <span className="text-secondary">Perfect Plan</span> for Your Business
           </>
         }
         subtitle="Start for free, then grow with us. Flexible plans for projects of all sizes."

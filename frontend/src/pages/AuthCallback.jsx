@@ -132,7 +132,7 @@ export default function AuthCallback() {
   }, [navigate, params, setAuth, setTokens]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#1A1410] text-[#1A1410] font-body">
+    <div className="relative min-h-screen overflow-hidden bg-[#1A1410] text-[#F5EFE7] font-body">
       <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#1A1410_72%)] pointer-events-none" />
       <div
         className="absolute inset-0 z-0 opacity-30 pointer-events-none"
@@ -151,7 +151,7 @@ export default function AuthCallback() {
         </div>
 
         <div className="text-center space-y-3 max-w-md">
-          <h1 className="font-headline text-2xl font-bold tracking-tight text-[#1A1410]">{mainStatus}</h1>
+          <h1 className="font-headline text-2xl font-bold tracking-tight text-[#F5EFE7]">{mainStatus}</h1>
           <p className="text-sm text-gray-400">{subStatus}</p>
         </div>
 

@@ -63,8 +63,8 @@ export default function GlassRecordSleeve({ job }) {
             
             {/* Overlay Info */}
             <div className="absolute bottom-3 left-3 right-3">
-                <p className="text-[#1A1410] font-bold text-sm truncate">{title}</p>
-                <p className="text-[#1A1410]/60 text-[10px] truncate uppercase tracking-widest">{job.song_artist || 'Neural Source'}</p>
+                <p className="text-[#F5EFE7] font-bold text-sm truncate">{title}</p>
+                <p className="text-[#F5EFE7]/60 text-[10px] truncate uppercase tracking-widest">{job.song_artist || 'Neural Source'}</p>
             </div>
             
             {/* BPM Badge */}
@@ -92,8 +92,8 @@ export default function GlassRecordSleeve({ job }) {
                 <img src={coverUrl} alt={title} className="w-full h-full object-cover grayscale" />
             </div>
             <div>
-                <h3 className="font-headline font-bold text-[#1A1410] text-lg truncate">{title}</h3>
-                <p className="font-mono text-[9px] text-[#1A1410]/40 uppercase tracking-widest mt-1">{job.status}</p>
+                <h3 className="font-headline font-bold text-[#F5EFE7] text-lg truncate">{title}</h3>
+                <p className="font-mono text-[9px] text-[#F5EFE7]/40 uppercase tracking-widest mt-1">{job.status}</p>
             </div>
         </motion.div>
       </div>

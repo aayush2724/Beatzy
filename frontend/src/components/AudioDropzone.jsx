@@ -47,18 +47,18 @@ export default function AudioDropzone({ onFile, disabled }) {
           {isDragReject ? (
             <AlertCircle size={40} className="text-red-400" />
           ) : isDragActive ? (
-            <Music size={40} className="text-[#1A1410] animate-pulse" />
+            <Music size={40} className="text-[#F5EFE7] animate-pulse" />
           ) : (
-            <Upload size={40} className="text-gray-400 group-hover:text-[#1A1410] transition-colors" />
+            <Upload size={40} className="text-gray-400 group-hover:text-[#F5EFE7] transition-colors" />
           )}
         </div>
 
         <div>
-          <h3 className="font-headline text-3xl md:text-4xl font-semibold text-[#1A1410] mb-4 tracking-tight">
+          <h3 className="font-headline text-3xl md:text-4xl font-semibold text-[#F5EFE7] mb-4 tracking-tight">
             {isDragReject ? 'Unsupported Format' : isDragActive ? 'Drop audio to extract' : 'Load Audio Signature'}
           </h3>
           <p className="text-gray-400 text-lg font-light">
-            Drag & drop your file, or <span className="text-[#1A1410] underline decoration-white/30 underline-offset-4 hover:decoration-white transition-all">browse files</span>
+            Drag & drop your file, or <span className="text-[#F5EFE7] underline decoration-white/30 underline-offset-4 hover:decoration-white transition-all">browse files</span>
           </p>
           {rejected && <p className="text-red-400 text-sm mt-4 font-mono">{rejected}</p>}
         </div>
@@ -66,7 +66,7 @@ export default function AudioDropzone({ onFile, disabled }) {
         {/* Format Pills */}
         <div className="flex justify-center gap-3 mt-4">
           {['MP3', 'WAV', 'FLAC', 'OGG', 'M4A'].map(ext => (
-            <span key={ext} className="text-[11px] font-mono text-gray-500 border border-[#1A1410]/10 rounded-md px-3 py-1 bg-[#2D1F18]/40">
+            <span key={ext} className="text-[11px] font-mono text-gray-500 border border-[#1A1410]/10 rounded-md px-3 py-1 bg-[#2A1A15]/40">
               {ext}
             </span>
           ))}
