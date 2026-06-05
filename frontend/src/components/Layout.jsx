@@ -41,7 +41,7 @@ export default function Layout() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden text-on-surface font-body selection:bg-[#CCFF00]/30 relative bg-[#050505]">
+    <div className="flex h-screen overflow-hidden text-on-surface font-body selection:bg-[#c41e3a]/30 relative bg-[#120509]">
       {/* Dynamic Background Layer */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
         <EtherealShadow
@@ -58,21 +58,21 @@ export default function Layout() {
         onMouseEnter={() => setIsSidebarHovered(true)}
         onMouseLeave={() => setIsSidebarHovered(false)}
         className={clsx(
-          "h-full z-40 bg-[#0a0a0a]/80 backdrop-blur-2xl border-r border-white/5 flex flex-col pt-8 pb-6 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] select-none relative shrink-0",
+          "h-full z-40 bg-[#1a0a12]/80 backdrop-blur-2xl border-r border-white/5 flex flex-col pt-8 pb-6 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] select-none relative shrink-0",
           isSidebarHovered ? "w-64" : "w-20"
         )}
       >
         {/* Core Header */}
         <div className="px-6 mb-12 flex items-center space-x-4 overflow-hidden shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-[#CCFF00]/10 flex items-center justify-center border border-[#CCFF00]/20 shrink-0 shadow-[0_0_20px_rgba(204,255,0,0.1)]">
-            <Zap className="w-4 h-4 text-[#CCFF00] fill-[#CCFF00]" />
+          <div className="w-8 h-8 rounded-lg bg-[#c41e3a]/10 flex items-center justify-center border border-[#c41e3a]/20 shrink-0 shadow-[0_0_20px_rgba(196,30,58,0.1)]">
+            <Zap className="w-4 h-4 text-[#c41e3a] fill-[#c41e3a]" />
           </div>
           <motion.div 
             animate={{ opacity: isSidebarHovered ? 1 : 0, x: isSidebarHovered ? 0 : -10 }}
             className="whitespace-nowrap"
           >
             <p className="text-white font-bold text-lg leading-none tracking-[0.2em] font-display">BEATZY</p>
-            <p className="font-mono text-[8px] text-[#CCFF00]/60 tracking-[0.3em] uppercase mt-1">OS V4.2</p>
+            <p className="font-mono text-[8px] text-[#c41e3a]/60 tracking-[0.3em] uppercase mt-1">OS V4.2</p>
           </motion.div>
         </div>
 
@@ -111,7 +111,7 @@ export default function Layout() {
             "flex items-center gap-3 px-2 py-3 rounded-xl bg-white/[0.03] border border-white/5 transition-all",
             isSidebarHovered ? "w-full" : "w-12 mx-auto"
           )}>
-            <div className="w-8 h-8 bg-[#CCFF00]/10 border border-[#CCFF00]/20 text-[#CCFF00] rounded-lg flex items-center justify-center text-xs font-bold shrink-0">
+            <div className="w-8 h-8 bg-[#c41e3a]/10 border border-[#c41e3a]/20 text-[#c41e3a] rounded-lg flex items-center justify-center text-xs font-bold shrink-0">
               {user?.name?.[0]?.toUpperCase() || 'U'}
             </div>
             {isSidebarHovered && (
@@ -121,7 +121,7 @@ export default function Layout() {
                 className="flex-1 min-w-0"
               >
                 <p className="text-[11px] font-semibold truncate text-white leading-none mb-1">{user?.name}</p>
-                <p className="font-mono text-[8px] text-[#CCFF00] uppercase tracking-widest leading-none opacity-70">{user?.plan}</p>
+                <p className="font-mono text-[8px] text-[#c41e3a] uppercase tracking-widest leading-none opacity-70">{user?.plan}</p>
               </motion.div>
             )}
           </div>

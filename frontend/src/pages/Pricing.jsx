@@ -71,23 +71,23 @@ export default function Pricing() {
   }));
 
   return (
-    <div className="bg-[#050505] min-h-screen selection:bg-[#CCFF00]/30">
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#050505]/50 backdrop-blur-xl">
+    <div className="bg-[#120509] min-h-screen selection:bg-[#c41e3a]/30">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#120509]/50 backdrop-blur-xl">
         <div className="max-w-[1720px] mx-auto flex h-20 items-center justify-between px-8 md:px-12">
             <Link to="/" className="group inline-flex items-center gap-3">
-                <span className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-[#CCFF00]/30 bg-[#CCFF00]/10 shadow-[0_0_35px_rgba(204,255,0,0.16)]">
-                    <span className="absolute h-3 w-3 rounded-full bg-[#CCFF00] shadow-[0_0_22px_rgba(204,255,0,0.8)]"></span>
-                    <span className="h-7 w-7 rounded-full border border-[#CCFF00]/50"></span>
+                <span className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-[#c41e3a]/30 bg-[#c41e3a]/10 shadow-[0_0_35px_rgba(196,30,58,0.16)]">
+                    <span className="absolute h-3 w-3 rounded-full bg-[#c41e3a] shadow-[0_0_22px_rgba(196,30,58,0.8)]"></span>
+                    <span className="h-7 w-7 rounded-full border border-[#c41e3a]/50"></span>
                 </span>
-                <span className="text-sm font-semibold tracking-[0.38em] text-[#CCFF00]">BEATZY</span>
+                <span className="text-sm font-semibold tracking-[0.38em] text-[#c41e3a]">BEATZY</span>
             </Link>
             
             <div className="flex items-center gap-8">
-                <Link to="/" className="text-[11px] font-medium tracking-[0.24em] text-zinc-500 transition hover:text-[#CCFF00]">NETWORK</Link>
+                <Link to="/" className="text-[11px] font-medium tracking-[0.24em] text-zinc-500 transition hover:text-[#c41e3a]">NETWORK</Link>
                 {token ? (
                     <Link 
                         to="/dashboard" 
-                        className="inline-flex h-11 items-center justify-center rounded-2xl bg-[#CCFF00] px-6 text-xs font-black text-black shadow-[0_0_40px_rgba(204,255,0,0.2)] transition hover:-translate-y-0.5"
+                        className="inline-flex h-11 items-center justify-center rounded-2xl bg-[#c41e3a] px-6 text-xs font-black text-black shadow-[0_0_40px_rgba(196,30,58,0.2)] transition hover:-translate-y-0.5"
                     >
                         DASHBOARD
                     </Link>
@@ -102,7 +102,7 @@ export default function Pricing() {
         <ModernPricingPage
             title={
                 <>
-                    Resource <span className="text-[#CCFF00] text-glow-lime">Allocation</span>
+                    Resource <span className="text-[#c41e3a] text-glow-crimson">Allocation</span>
                 </>
             }
             subtitle="Provision neural bandwidth for your production environment. Scale effortlessly from personal projects to enterprise clusters."
@@ -115,7 +115,7 @@ export default function Pricing() {
         <section className="pt-24 border-t border-white/5 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
             <div className="space-y-10">
                 <div className="space-y-4">
-                    <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-[#CCFF00] font-black">Architected for Scale</p>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-[#c41e3a] font-black">Architected for Scale</p>
                     <h2 className="text-5xl font-display font-black text-white uppercase tracking-tight leading-none">Engineered for Technical Mastery</h2>
                     <p className="text-lg text-on-surface-variant leading-relaxed max-w-xl">
                         Sub-millisecond classification latency for real-time production environments. Built on a distributed neural cluster designed to handle 100M+ signal extractions.
@@ -124,8 +124,8 @@ export default function Pricing() {
                 
                 <div className="grid grid-cols-2 gap-8 pt-8">
                     {[
-                        { label: 'Uptime SLA', value: '99.99%', icon: Activity, color: 'text-[#28E0D4]' },
-                        { label: 'Avg Latency', value: '184ms', icon: Cpu, color: 'text-[#8B5CFF]' },
+                        { label: 'Uptime SLA', value: '99.99%', icon: Activity, color: 'text-[#f4a460]' },
+                        { label: 'Avg Latency', value: '184ms', icon: Cpu, color: 'text-[#e8a084]' },
                     ].map((stat, i) => (
                         <div key={i} className="space-y-3 p-6 rounded-2xl bg-white/[0.02] border border-white/5 group hover:border-white/10 transition-colors">
                             <stat.icon className={`w-5 h-5 ${stat.color}`} />
@@ -137,23 +137,23 @@ export default function Pricing() {
             </div>
 
             <div className="glass-card p-12 border border-white/5 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#CCFF00]/5 via-transparent to-[#28E0D4]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#c41e3a]/5 via-transparent to-[#f4a460]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                 <div className="relative z-10 space-y-10">
                     <div className="flex items-center justify-between">
                         <span className="font-mono text-[10px] text-white/40 uppercase tracking-[0.3em] font-black flex items-center gap-3">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#CCFF00] animate-pulse" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#c41e3a] animate-pulse" />
                             Neural SDK V4.2
                         </span>
-                        <ChevronRight className="w-4 h-4 text-white/10 group-hover:text-[#CCFF00] transition-colors" />
+                        <ChevronRight className="w-4 h-4 text-white/10 group-hover:text-[#c41e3a] transition-colors" />
                     </div>
                     
                     <div className="space-y-6">
                         <div className="p-6 rounded-2xl bg-black/60 border border-white/10 shadow-inner">
                             <code className="font-mono text-xs text-white/60 leading-relaxed block overflow-x-auto whitespace-pre">
-                                <span className="text-[#CCFF00]">import</span> Beatzy <span className="text-[#CCFF00]">from</span> <span className="text-[#28E0D4]">'@beatzy/neural-sdk'</span>;{'\n'}
+                                <span className="text-[#c41e3a]">import</span> Beatzy <span className="text-[#c41e3a]">from</span> <span className="text-[#f4a460]">'@beatzy/neural-sdk'</span>;{'\n'}
                                 <span className="text-white/30">{"//"} Initialize cluster node</span>{'\n'}
-                                <span className="text-[#CCFF00]">const</span> node = <span className="text-[#8B5CFF]">new</span> Beatzy({'{'}{'\n'}
-                                {'  '}apiKey: <span className="text-[#28E0D4]">'BZ_9081X_...'</span>{'\n'}
+                                <span className="text-[#c41e3a]">const</span> node = <span className="text-[#e8a084]">new</span> Beatzy({'{'}{'\n'}
+                                {'  '}apiKey: <span className="text-[#f4a460]">'BZ_9081X_...'</span>{'\n'}
                                 {'}'});
                             </code>
                         </div>
@@ -170,23 +170,23 @@ export default function Pricing() {
         </section>
       </main>
 
-      <footer className="relative z-10 border-t border-white/5 bg-[#050505] px-8 py-20">
+      <footer className="relative z-10 border-t border-white/5 bg-[#120509] px-8 py-20">
         <div className="max-w-[1720px] mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="space-y-4 text-center md:text-left">
-              <p className="text-sm font-semibold tracking-[0.32em] text-[#CCFF00]">BEATZY</p>
+              <p className="text-sm font-semibold tracking-[0.32em] text-[#c41e3a]">BEATZY</p>
               <p className="text-[10px] text-zinc-500 uppercase tracking-widest max-w-xs leading-relaxed">Music intelligence engine for identification, spectral analysis, and neural API access.</p>
           </div>
           
           <div className="flex flex-wrap justify-center gap-12">
             {['Architecture', 'Privacy Protocol', 'Technical Docs', 'Service Terms'].map(l => (
-              <Link key={l} to="/" className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-600 hover:text-[#CCFF00] transition-colors">{l}</Link>
+              <Link key={l} to="/" className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-600 hover:text-[#c41e3a] transition-colors">{l}</Link>
             ))}
           </div>
           
           <div className="flex flex-col items-center md:items-end gap-2">
             <span className="font-mono text-[9px] text-zinc-700 uppercase tracking-[0.3em]">© 2026 BEATZY AI MAINFRMAE</span>
             <div className="flex items-center gap-2">
-                <div className="w-1 h-1 rounded-full bg-[#CCFF00] opacity-20" />
+                <div className="w-1 h-1 rounded-full bg-[#c41e3a] opacity-20" />
                 <span className="font-mono text-[8px] text-zinc-800 uppercase tracking-widest leading-none">Node: Region-EU-1</span>
             </div>
           </div>

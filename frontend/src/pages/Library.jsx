@@ -56,23 +56,23 @@ export default function Library() {
     <PageWrapper className="space-y-16 pb-20 animate-page-entrance">
       <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 border-b border-white/5 pb-12">
         <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#28E0D4]/20 bg-[#28E0D4]/5 text-[#28E0D4] font-mono text-[9px] uppercase tracking-[0.2em]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#f4a460]/20 bg-[#f4a460]/5 text-[#f4a460] font-mono text-[9px] uppercase tracking-[0.2em]">
               <Layers className="w-3 h-3" /> Central Registry
           </div>
-          <h1 className="text-6xl font-display font-black text-white tracking-tighter uppercase leading-none">Neural <span className="text-[#28E0D4] text-glow-cyan">Library</span></h1>
+          <h1 className="text-6xl font-display font-black text-white tracking-tighter uppercase leading-none">Neural <span className="text-[#f4a460] text-glow-sandy">Library</span></h1>
           <p className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em]">Curated spectral signatures and collections</p>
         </div>
         
         <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
             <div className="relative w-full sm:w-80 group">
-                <div className="absolute inset-0 bg-[#28E0D4]/5 blur-[15px] opacity-0 group-focus-within:opacity-100 transition-opacity" />
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4 group-focus-within:text-[#28E0D4] transition-colors" />
+                <div className="absolute inset-0 bg-[#f4a460]/5 blur-[15px] opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4 group-focus-within:text-[#f4a460] transition-colors" />
                 <input 
                     type="text" 
                     value={searchQuery}
                     onChange={(e) => setSearchSearchQuery(e.target.value)}
                     placeholder="Filter registry..."
-                    className="w-full h-12 bg-white/[0.03] border border-white/10 rounded-xl pl-12 pr-4 text-white text-xs placeholder:text-white/20 focus:outline-none focus:border-[#28E0D4]/30 transition-all font-mono uppercase tracking-widest"
+                    className="w-full h-12 bg-white/[0.03] border border-white/10 rounded-xl pl-12 pr-4 text-white text-xs placeholder:text-white/20 focus:outline-none focus:border-[#f4a460]/30 transition-all font-mono uppercase tracking-widest"
                 />
             </div>
             <Link to="/compare" className="w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-4 rounded-xl border border-white/10 bg-white/[0.03] text-white font-mono text-[10px] uppercase tracking-widest hover:bg-white/[0.06] transition-all">
@@ -90,15 +90,15 @@ export default function Library() {
       ) : error ? (
         <div className="glass-card p-12 text-center border border-red-500/20 max-w-xl mx-auto">
           <p className="text-red-300 font-mono text-xs uppercase tracking-widest mb-8">{error}</p>
-          <button onClick={load} className="px-8 py-3 rounded-xl bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-[#CCFF00] transition-all">Retry Link</button>
+          <button onClick={load} className="px-8 py-3 rounded-xl bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-[#c41e3a] transition-all">Retry Link</button>
         </div>
       ) : (
         <div className="space-y-24">
           <section className="space-y-10">
             <div className="flex justify-between items-center">
                 <h2 className="font-display font-black text-xl text-white uppercase tracking-[0.2em] flex items-center gap-4">
-                    <span className="w-8 h-px bg-[#FF3DAE]/30" /> 
-                    <Star className="w-5 h-5 text-[#FF3DAE] fill-[#FF3DAE]/20" />
+                    <span className="w-8 h-px bg-[#8b2e5f]/30" /> 
+                    <Star className="w-5 h-5 text-[#8b2e5f] fill-[#8b2e5f]/20" />
                     Starred Signatures
                 </h2>
                 <span className="font-mono text-[10px] text-white/20 uppercase tracking-widest">{favorites.length} entries</span>
@@ -115,7 +115,7 @@ export default function Library() {
                     <button
                       type="button"
                       onClick={() => removeFavorite(job.id).then(load)}
-                      className="absolute top-6 right-6 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-[#FF3DAE] opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
+                      className="absolute top-6 right-6 w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-[#8b2e5f] opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
                       aria-label="Remove favorite"
                     >
                       <X className="w-5 h-5" />
@@ -129,38 +129,38 @@ export default function Library() {
           <section className="space-y-10">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8">
                 <h2 className="font-display font-black text-xl text-white uppercase tracking-[0.2em] flex items-center gap-4">
-                    <span className="w-8 h-px bg-[#8B5CFF]/30" /> 
-                    <Layers className="w-5 h-5 text-[#8B5CFF]" />
+                    <span className="w-8 h-px bg-[#e8a084]/30" /> 
+                    <Layers className="w-5 h-5 text-[#e8a084]" />
                     Neural Collections
                 </h2>
                 <form onSubmit={handleCreateCollection} className="flex gap-3 w-full sm:w-auto group">
                   <div className="relative">
                     <FolderPlus className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4" />
                     <input 
-                        className="h-12 bg-white/[0.03] border border-white/10 rounded-xl pl-12 pr-4 text-white text-xs placeholder:text-white/20 focus:outline-none focus:border-[#8B5CFF]/30 transition-all font-mono uppercase tracking-widest"
+                        className="h-12 bg-white/[0.03] border border-white/10 rounded-xl pl-12 pr-4 text-white text-xs placeholder:text-white/20 focus:outline-none focus:border-[#e8a084]/30 transition-all font-mono uppercase tracking-widest"
                         value={newCollection} 
                         onChange={(e) => setNewCollection(e.target.value)} 
                         placeholder="Label Identifier" 
                     />
                   </div>
-                  <button type="submit" className="px-6 h-12 rounded-xl bg-[#8B5CFF] text-white font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_30px_rgba(139,92,255,0.2)]">
+                  <button type="submit" className="px-6 h-12 rounded-xl bg-[#e8a084] text-white font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_30px_rgba(232,160,132,0.2)]">
                     Initialize
                   </button>
                 </form>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {collections.map((c) => (
-                <div key={c.id} className="obsidian-panel p-6 rounded-[2rem] border border-white/5 hover:border-[#8B5CFF]/30 transition-all cursor-pointer group flex flex-col justify-between h-48 relative overflow-hidden">
+                <div key={c.id} className="obsidian-panel p-6 rounded-[2rem] border border-white/5 hover:border-[#e8a084]/30 transition-all cursor-pointer group flex flex-col justify-between h-48 relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <Layers className="w-24 h-24 text-[#8B5CFF]" />
+                    <Layers className="w-24 h-24 text-[#e8a084]" />
                   </div>
                   <div className="flex justify-between items-start relative z-10">
-                    <div className="w-10 h-10 rounded-xl bg-[#8B5CFF]/10 border border-[#8B5CFF]/20 flex items-center justify-center text-[#8B5CFF]">
+                    <div className="w-10 h-10 rounded-xl bg-[#e8a084]/10 border border-[#e8a084]/20 flex items-center justify-center text-[#e8a084]">
                         <Layers className="w-5 h-5" />
                     </div>
                   </div>
                   <div className="relative z-10">
-                      <p className="font-display font-black text-lg text-white uppercase tracking-tight group-hover:text-[#8B5CFF] transition-colors">{c.name}</p>
+                      <p className="font-display font-black text-lg text-white uppercase tracking-tight group-hover:text-[#e8a084] transition-colors">{c.name}</p>
                       <p className="font-mono text-[9px] text-white/30 mt-2 uppercase tracking-[0.2em]">{c.item_count} Signatures Indexed</p>
                   </div>
                 </div>
@@ -176,11 +176,11 @@ export default function Library() {
           <section className="space-y-10">
             <div className="flex justify-between items-center">
                 <h2 className="font-display font-black text-xl text-white uppercase tracking-[0.2em] flex items-center gap-4">
-                    <span className="w-8 h-px bg-[#CCFF00]/30" /> 
-                    <History className="w-5 h-5 text-[#CCFF00]" />
+                    <span className="w-8 h-px bg-[#c41e3a]/30" /> 
+                    <History className="w-5 h-5 text-[#c41e3a]" />
                     Recently Indexed
                 </h2>
-                <Link to="/history" className="group flex items-center gap-2 text-[10px] font-mono text-[#CCFF00] uppercase tracking-widest hover:text-white transition-colors">
+                <Link to="/history" className="group flex items-center gap-2 text-[10px] font-mono text-[#c41e3a] uppercase tracking-widest hover:text-white transition-colors">
                     Access full archives <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </Link>
             </div>

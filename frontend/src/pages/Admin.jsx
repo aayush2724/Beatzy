@@ -24,7 +24,7 @@ const CustomTooltip = ({ active, payload }) => {
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)' 
       }}>
         <p className="text-white font-bold">{payload[0].payload.name}</p>
-        <p className="text-[#CCFF00] mt-1">{payload[0].value} Operators</p>
+        <p className="text-[#c41e3a] mt-1">{payload[0].value} Operators</p>
       </div>
     );
   }
@@ -97,14 +97,14 @@ export default function Admin() {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-red-500/20 bg-red-500/5 text-red-400 font-mono text-[9px] uppercase tracking-[0.2em]">
             <Lock className="w-3 h-3" /> Admin Restricted Sector
           </div>
-          <h1 className="text-6xl font-display font-black text-white tracking-tighter uppercase leading-none">Control <span className="text-[#CCFF00] text-glow-lime">Terminal</span></h1>
+          <h1 className="text-6xl font-display font-black text-white tracking-tighter uppercase leading-none">Control <span className="text-[#c41e3a] text-glow-crimson">Terminal</span></h1>
           <p className="text-on-surface-variant max-w-xl text-sm leading-relaxed">
             Global system monitoring, operator database management, and high-level security protocol audit.
           </p>
         </div>
         <div className="flex gap-4">
             <div className="flex items-center gap-3 px-6 py-4 rounded-xl border border-white/5 bg-white/[0.02] text-white/40 font-mono text-[9px] uppercase tracking-widest">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#CCFF00] animate-pulse shadow-[0_0_10px_#CCFF00]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-[#c41e3a] animate-pulse shadow-[0_0_10px_#c41e3a]" />
                 Mainframe Link: Stabilized
             </div>
         </div>
@@ -123,7 +123,7 @@ export default function Admin() {
             className={clsx(
               'flex items-center gap-2 px-6 py-2.5 rounded-xl font-mono text-[10px] uppercase tracking-widest transition-all duration-300',
               tab === t.id
-                ? 'bg-[#CCFF00] text-black font-black shadow-[0_0_20px_rgba(204,255,0,0.15)]'
+                ? 'bg-[#c41e3a] text-black font-black shadow-[0_0_20px_rgba(196,30,58,0.15)]'
                 : 'text-on-surface-variant hover:text-white hover:bg-white/5'
             )}
           >
@@ -136,13 +136,13 @@ export default function Admin() {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-32 space-y-8">
           <div className="relative w-20 h-20">
-            <div className="absolute inset-0 rounded-full border border-[#CCFF00]/20 animate-ping" />
-            <div className="absolute inset-4 rounded-[2rem] border-2 border-t-[#CCFF00] border-transparent animate-spin" />
+            <div className="absolute inset-0 rounded-full border border-[#c41e3a]/20 animate-ping" />
+            <div className="absolute inset-4 rounded-[2rem] border-2 border-t-[#c41e3a] border-transparent animate-spin" />
             <div className="absolute inset-0 flex items-center justify-center">
-                <Terminal className="w-6 h-6 text-[#CCFF00] opacity-40" />
+                <Terminal className="w-6 h-6 text-[#c41e3a] opacity-40" />
             </div>
           </div>
-          <span className="font-mono text-[10px] text-[#CCFF00] uppercase tracking-[0.4em] animate-pulse">Querying Mainframe Database...</span>
+          <span className="font-mono text-[10px] text-[#c41e3a] uppercase tracking-[0.4em] animate-pulse">Querying Mainframe Database...</span>
         </div>
       ) : (
         <div className="space-y-12">
@@ -159,25 +159,25 @@ export default function Admin() {
                   </p>
                   <span className="text-5xl font-display font-black text-white tracking-tighter">{stats.totalUsers}</span>
                 </div>
-                <div className="glass-card p-8 border border-[#CCFF00]/20 bg-[#CCFF00]/5 relative overflow-hidden group">
+                <div className="glass-card p-8 border border-[#c41e3a]/20 bg-[#c41e3a]/5 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <Zap className="w-24 h-24 text-[#CCFF00]" />
+                    <Zap className="w-24 h-24 text-[#c41e3a]" />
                   </div>
-                  <p className="font-mono text-[9px] text-[#CCFF00] tracking-[0.2em] uppercase font-black mb-6 flex items-center gap-2">
-                    <div className="w-1 h-1 rounded-full bg-[#CCFF00]" /> Neural Extractions
+                  <p className="font-mono text-[9px] text-[#c41e3a] tracking-[0.2em] uppercase font-black mb-6 flex items-center gap-2">
+                    <div className="w-1 h-1 rounded-full bg-[#c41e3a]" /> Neural Extractions
                   </p>
-                  <span className="text-5xl font-display font-black text-white tracking-tighter text-glow-lime">
+                  <span className="text-5xl font-display font-black text-white tracking-tighter text-glow-crimson">
                     {Object.values(stats.jobsByStatus).reduce((a, b) => a + b, 0)}
                   </span>
                 </div>
-                <div className="glass-card p-8 border border-[#28E0D4]/20 bg-[#28E0D4]/5 relative overflow-hidden group">
+                <div className="glass-card p-8 border border-[#f4a460]/20 bg-[#f4a460]/5 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <ShieldCheck className="w-24 h-24 text-[#28E0D4]" />
+                    <ShieldCheck className="w-24 h-24 text-[#f4a460]" />
                   </div>
-                  <p className="font-mono text-[9px] text-[#28E0D4] tracking-[0.2em] uppercase font-black mb-6 flex items-center gap-2">
-                    <div className="w-1 h-1 rounded-full bg-[#28E0D4]" /> Pro Uplinks
+                  <p className="font-mono text-[9px] text-[#f4a460] tracking-[0.2em] uppercase font-black mb-6 flex items-center gap-2">
+                    <div className="w-1 h-1 rounded-full bg-[#f4a460]" /> Pro Uplinks
                   </p>
-                  <span className="text-5xl font-display font-black text-white tracking-tighter text-glow-cyan">
+                  <span className="text-5xl font-display font-black text-white tracking-tighter text-glow-sandy">
                     {(stats.usersByPlan.pro || 0) + (stats.usersByPlan.enterprise || 0)}
                   </span>
                 </div>
@@ -190,7 +190,7 @@ export default function Admin() {
                     <Database className="w-32 h-32 text-white" />
                   </div>
                   <h3 className="font-display font-black text-lg text-white uppercase tracking-widest mb-12 flex items-center gap-4 relative z-10">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#CCFF00]" /> Resource Tiers
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#c41e3a]" /> Resource Tiers
                   </h3>
                   <div className="w-full flex-1 font-mono text-[10px] relative z-10">
                     <ResponsiveContainer width="100%" height="100%">
@@ -200,7 +200,7 @@ export default function Admin() {
                         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
                         <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                           {planData.map((e, i) => (
-                            <Cell key={`cell-${i}`} fill={i % 3 === 0 ? '#CCFF00' : i % 3 === 1 ? '#28E0D4' : '#8B5CFF'} />
+                            <Cell key={`cell-${i}`} fill={i % 3 === 0 ? '#c41e3a' : i % 3 === 1 ? '#f4a460' : '#e8a084'} />
                           ))}
                         </Bar>
                       </BarChart>
@@ -214,7 +214,7 @@ export default function Admin() {
                     <Cpu className="w-32 h-32 text-white" />
                   </div>
                   <h3 className="font-display font-black text-lg text-white uppercase tracking-widest mb-12 flex items-center gap-4 relative z-10">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#CCFF00]" /> Extraction Pipeline
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#c41e3a]" /> Extraction Pipeline
                   </h3>
                   <div className="w-full flex-1 font-mono text-[10px] relative z-10">
                     <ResponsiveContainer width="100%" height="100%">
@@ -224,7 +224,7 @@ export default function Admin() {
                         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
                         <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                           {jobData.map((e, i) => (
-                            <Cell key={`cell-${i}`} fill={e.name === 'Completed' ? '#CCFF00' : e.name === 'Failed' ? '#FF3DAE' : '#28E0D4'} />
+                            <Cell key={`cell-${i}`} fill={e.name === 'Completed' ? '#c41e3a' : e.name === 'Failed' ? '#8b2e5f' : '#f4a460'} />
                           ))}
                         </Bar>
                       </BarChart>
@@ -247,7 +247,7 @@ export default function Admin() {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Search registry..."
-                        className="w-full h-11 bg-white/[0.03] border border-white/10 rounded-xl pl-12 pr-4 text-white text-xs focus:outline-none focus:border-[#CCFF00]/30 transition-all font-mono uppercase tracking-widest"
+                        className="w-full h-11 bg-white/[0.03] border border-white/10 rounded-xl pl-12 pr-4 text-white text-xs focus:outline-none focus:border-[#c41e3a]/30 transition-all font-mono uppercase tracking-widest"
                     />
                   </div>
               </div>
@@ -270,7 +270,7 @@ export default function Admin() {
                         <tr key={u.id} className="hover:bg-white/[0.01] transition-all group">
                           <td className="px-8 py-6">
                             <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 font-black font-display text-sm group-hover:bg-[#CCFF00] group-hover:text-black transition-all">
+                                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 font-black font-display text-sm group-hover:bg-[#c41e3a] group-hover:text-black transition-all">
                                     {u.name?.[0]?.toUpperCase()}
                                 </div>
                                 <div className="min-w-0">
@@ -283,7 +283,7 @@ export default function Admin() {
                             <select
                               value={u.plan}
                               onChange={(e) => handleChangePlan(u, e.target.value)}
-                              className="bg-black border border-white/10 text-[10px] font-mono font-black text-white rounded-lg px-4 py-2 focus:border-[#CCFF00]/50 focus:outline-none uppercase tracking-widest hover:border-white/20 transition-all appearance-none cursor-pointer text-center"
+                              className="bg-black border border-white/10 text-[10px] font-mono font-black text-white rounded-lg px-4 py-2 focus:border-[#c41e3a]/50 focus:outline-none uppercase tracking-widest hover:border-white/20 transition-all appearance-none cursor-pointer text-center"
                             >
                               <option value="free">Free</option>
                               <option value="pro">Pro</option>
@@ -298,7 +298,7 @@ export default function Admin() {
                                 onChange={() => handleToggleAdmin(u)}
                                 className="sr-only peer"
                               />
-                              <div className="w-10 h-5 bg-white/5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white/40 after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#CCFF00] peer-checked:after:bg-black"></div>
+                              <div className="w-10 h-5 bg-white/5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white/40 after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#c41e3a] peer-checked:after:bg-black"></div>
                             </label>
                           </td>
                           <td className="px-8 py-6 text-center">
@@ -310,7 +310,7 @@ export default function Admin() {
                               className={clsx(
                                 'px-3 py-1.5 rounded-lg font-mono text-[9px] font-black uppercase tracking-widest border transition-all',
                                 u.is_active
-                                  ? 'bg-[#CCFF00]/10 border-[#CCFF00]/20 text-[#CCFF00] hover:bg-[#CCFF00] hover:text-black'
+                                  ? 'bg-[#c41e3a]/10 border-[#c41e3a]/20 text-[#c41e3a] hover:bg-[#c41e3a] hover:text-black'
                                   : 'bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white'
                               )}
                             >
@@ -352,7 +352,7 @@ export default function Admin() {
                             {log.email || 'SYSTEM / DAEMON'}
                           </td>
                           <td className="px-8 py-6">
-                            <span className="px-3 py-1 rounded-lg bg-[#28E0D4]/10 border border-[#28E0D4]/20 text-[#28E0D4] font-black uppercase tracking-widest">
+                            <span className="px-3 py-1 rounded-lg bg-[#f4a460]/10 border border-[#f4a460]/20 text-[#f4a460] font-black uppercase tracking-widest">
                               {log.action}
                             </span>
                           </td>
@@ -360,7 +360,7 @@ export default function Admin() {
                             {log.ip_address || '0.0.0.0'}
                           </td>
                           <td className="px-8 py-6">
-                            <p className="text-[#8B5CFF] truncate max-w-xs opacity-60 group-hover:opacity-100 transition-opacity font-bold">{JSON.stringify(log.metadata)}</p>
+                            <p className="text-[#e8a084] truncate max-w-xs opacity-60 group-hover:opacity-100 transition-opacity font-bold">{JSON.stringify(log.metadata)}</p>
                           </td>
                           <td className="px-8 py-6 text-right text-white/20 uppercase tracking-widest">
                             {new Date(log.created_at).toLocaleString()}

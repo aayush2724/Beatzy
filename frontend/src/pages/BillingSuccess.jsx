@@ -42,8 +42,8 @@ export default function BillingSuccess() {
   }, [setUser, navigate]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#050505] text-white font-body selection:bg-white/20 flex flex-col justify-between">
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#050505_72%)] pointer-events-none" />
+    <div className="relative min-h-screen overflow-hidden bg-[#120509] text-white font-body selection:bg-white/20 flex flex-col justify-between">
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#120509_72%)] pointer-events-none" />
       <div
         className="absolute inset-0 z-0 opacity-40 pointer-events-none"
         style={{

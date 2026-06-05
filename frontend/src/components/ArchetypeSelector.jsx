@@ -27,10 +27,10 @@ export default function ArchetypeSelector({ onSelect }) {
           <div
             key={a.id}
             onClick={() => handleSelect(a.id)}
-            className={`archetype-card cursor-pointer group flex flex-col items-center p-6 glass-card rounded-lg w-[160px] transition-all ${selected === a.id ? 'active border-sonic-lime/40' : 'border-glass-border hover:border-sonic-lime/20'}`}
+            className={`archetype-card cursor-pointer group flex flex-col items-center p-6 glass-card rounded-lg w-[160px] transition-all ${selected === a.id ? 'active border-crimson-red/40' : 'border-glass-border hover:border-crimson-red/20'}`}
           >
-            <div className="w-20 h-20 mb-4 rounded-full overflow-hidden border-2 border-sonic-lime/20 flex items-center justify-center bg-surface-container-high">
-              {a.img ? <img src={a.img} alt={a.name} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-3xl text-sonic-lime">music_note</span>}
+            <div className="w-20 h-20 mb-4 rounded-full overflow-hidden border-2 border-crimson-red/20 flex items-center justify-center bg-surface-container-high">
+              {a.img ? <img src={a.img} alt={a.name} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-3xl text-crimson-red">music_note</span>}
             </div>
             <span className="font-label-md text-on-surface mb-1">{a.name}</span>
             <span className="font-label-sm text-outline text-[10px]">{a.desc}</span>

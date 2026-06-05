@@ -17,7 +17,7 @@ const toastConfig = {
     borderRadius: '0.75rem',
     padding: '1rem 1.25rem',
   },
-  success: { iconTheme: { primary: '#ffffff', secondary: '#050505' } },
+  success: { iconTheme: { primary: '#ffffff', secondary: '#120509' } },
   error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
 };
 

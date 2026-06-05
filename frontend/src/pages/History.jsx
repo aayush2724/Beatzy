@@ -55,29 +55,29 @@ export default function History() {
     <PageWrapper className="space-y-12 pb-20 animate-page-entrance">
         {/* Header */}
         <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10 border-b border-white/5 pb-12 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#CCFF00]/5 blur-[100px] rounded-full -mr-48 -mt-48 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#c41e3a]/5 blur-[100px] rounded-full -mr-48 -mt-48 pointer-events-none" />
             
             <div className="space-y-4 relative z-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#CCFF00]/20 bg-[#CCFF00]/5 text-[#CCFF00] font-mono text-[9px] uppercase tracking-[0.2em]">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#c41e3a]/20 bg-[#c41e3a]/5 text-[#c41e3a] font-mono text-[9px] uppercase tracking-[0.2em]">
                   <Database className="w-3 h-3" /> Historical Matrix
               </div>
-              <h1 className="text-6xl font-display font-black text-white tracking-tighter uppercase leading-none">Signal <span className="text-[#CCFF00] text-glow-lime">Archives</span></h1>
+              <h1 className="text-6xl font-display font-black text-white tracking-tighter uppercase leading-none">Signal <span className="text-[#c41e3a] text-glow-crimson">Archives</span></h1>
               <p className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em]">{pagination.total} Waveforms indexed in neural core</p>
             </div>
             
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto relative z-10">
                 <div className="relative w-full sm:w-80 group">
-                    <div className="absolute inset-0 bg-[#CCFF00]/5 blur-[15px] opacity-0 group-focus-within:opacity-100 transition-opacity" />
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4 group-focus-within:text-[#CCFF00] transition-colors" />
+                    <div className="absolute inset-0 bg-[#c41e3a]/5 blur-[15px] opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4 group-focus-within:text-[#c41e3a] transition-colors" />
                     <input 
                         type="text" 
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Search archived signals..."
-                        className="w-full h-12 bg-white/[0.03] border border-white/10 rounded-xl pl-12 pr-4 text-white text-xs placeholder:text-white/20 focus:outline-none focus:border-[#CCFF00]/30 transition-all font-mono uppercase tracking-widest"
+                        className="w-full h-12 bg-white/[0.03] border border-white/10 rounded-xl pl-12 pr-4 text-white text-xs placeholder:text-white/20 focus:outline-none focus:border-[#c41e3a]/30 transition-all font-mono uppercase tracking-widest"
                     />
                 </div>
-                <Link to="/upload" className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-[#CCFF00] text-black font-black text-[10px] uppercase tracking-[0.15em] shadow-[0_0_30px_rgba(204,255,0,0.15)] hover:scale-105 transition-all">
+                <Link to="/upload" className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-[#c41e3a] text-black font-black text-[10px] uppercase tracking-[0.15em] shadow-[0_0_30px_rgba(196,30,58,0.15)] hover:scale-105 transition-all">
                     <Plus className="w-4 h-4" /> New Extraction
                 </Link>
             </div>
@@ -98,7 +98,7 @@ export default function History() {
                     <p className="text-white text-lg font-display font-black uppercase tracking-tight">Archives Offline</p>
                     <p className="text-red-300/40 font-mono text-[10px] uppercase tracking-widest">{error}</p>
                 </div>
-                <button onClick={fetchHistory} className="px-8 py-3 rounded-xl bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-[#CCFF00] transition-all">Retry Link</button>
+                <button onClick={fetchHistory} className="px-8 py-3 rounded-xl bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-[#c41e3a] transition-all">Retry Link</button>
             </div>
         ) : jobs.length === 0 ? (
             <div className="h-80 obsidian-panel rounded-[3rem] border border-dashed border-white/5 flex flex-col items-center justify-center text-center p-12">
@@ -107,7 +107,7 @@ export default function History() {
                 </div>
                 <h3 className="text-2xl font-display font-black text-white uppercase tracking-tight mb-3">Archive Registry Empty</h3>
                 <p className="text-on-surface-variant font-mono text-[10px] uppercase tracking-[0.2em] mb-8 max-w-xs mx-auto">No spectral signatures detected in your account history.</p>
-                <Link to="/upload" className="flex items-center gap-3 px-8 py-4 rounded-xl bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-[#CCFF00] transition-all">
+                <Link to="/upload" className="flex items-center gap-3 px-8 py-4 rounded-xl bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-[#c41e3a] transition-all">
                     Initialize Extraction <ArrowUpRight className="w-4 h-4" />
                 </Link>
             </div>
@@ -135,7 +135,7 @@ export default function History() {
                             <ChevronLeft className="w-4 h-4" /> Previous Sector
                         </button>
                         <div className="px-6 py-2 rounded-lg bg-white/5 border border-white/5">
-                            <span className="font-mono text-[10px] text-white font-black uppercase tracking-[0.2em]"><span className="text-[#CCFF00]">{page}</span> <span className="opacity-20 mx-2">/</span> {pagination.pages}</span>
+                            <span className="font-mono text-[10px] text-white font-black uppercase tracking-[0.2em]"><span className="text-[#c41e3a]">{page}</span> <span className="opacity-20 mx-2">/</span> {pagination.pages}</span>
                         </div>
                         <button 
                             disabled={page === pagination.pages}
@@ -152,7 +152,7 @@ export default function History() {
         {/* Technical Footer Decoration */}
         <div className="flex justify-between items-center pt-20 font-mono text-[8px] text-white/10 uppercase tracking-[0.4em] select-none">
             <div className="flex items-center gap-4">
-                <div className="w-1 h-1 rounded-full bg-[#CCFF00] animate-pulse" />
+                <div className="w-1 h-1 rounded-full bg-[#c41e3a] animate-pulse" />
                 Neural Archive Link Active
             </div>
             <div>Database Status: Synchronized</div>
