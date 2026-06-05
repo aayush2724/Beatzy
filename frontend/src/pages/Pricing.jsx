@@ -37,7 +37,7 @@ const plans = [
     description: 'Unlimited scale with SLA guarantees.',
     features: ['Unlimited analyses', 'All Pro features', '20 API keys', 'Priority support', 'Custom neural nodes'],
     buttonText: 'Initialize Enterprise',
-    buttonVariant: 'primary',
+    buttonVariant: 'secondary',
     isPopular: false,
     id: 'enterprise'
   },
@@ -99,15 +99,10 @@ export default function Pricing() {
       </nav>
 
       <div className="pt-20">
-        <ModernPricingPage
-            title={
-                <>
-                    Resource <span className="text-[#FF6B35] text-glow-orange">Allocation</span>
-                </>
-            }
-            subtitle="Provision neural bandwidth for your production environment. Scale effortlessly from personal projects to enterprise clusters."
-            plans={formattedPlans}
-            showAnimatedBackground={true}
+<ModernPricingPage
+          title="Simple Pricing"
+          subtitle="Provision neural bandwidth for your production environment. Scale effortlessly from personal projects to enterprise clusters."
+          plans={formattedPlans}
         />
       </div>
 
