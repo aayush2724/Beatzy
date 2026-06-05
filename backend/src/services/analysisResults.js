@@ -11,8 +11,13 @@ async function persistAnalysisResult({ jobId, mlResult }) {
   if (lrclibResult && (lrclibResult.syncedLyrics || lrclibResult.lyrics)) {
     lyricsResult = lrclibResult;
   } else if (mlResult.lyrics) {
-    // Fallback to ML service lyrics (lyrics.ovh, plain only)
-    lyricsResult = { lyrics: mlResult.lyrics, syncedLyrics: null, source: 'lyrics.ovh' };
+    const mlLyrics = mlResult.lyrics;
+    const isDict = typeof mlLyrics === 'object' && mlLyrics !== null;
+    lyricsResult = {
+      lyrics: isDict ? (mlLyrics.plain || null) : mlLyrics,
+      syncedLyrics: isDict ? (mlLyrics.synced || null) : null,
+      source: 'ml-service'
+    };
   }
 
   if (lyricsResult) {

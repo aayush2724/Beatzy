@@ -47,7 +47,7 @@ class AnalyzeResponse(BaseModel):
     audio: dict
     yamnet: dict
     spotify: dict | None
-    lyrics: str | None
+    lyrics: dict | None
 
 
 @router.post("/analyze", response_model=AnalyzeResponse)
