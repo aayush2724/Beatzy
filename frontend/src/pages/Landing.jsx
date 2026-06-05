@@ -1,295 +1,404 @@
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { useLenis } from '../hooks/useLenis';
-import { useLandingScroll, DEMO_CARDS } from '../hooks/useLandingScroll';
 import ThemeToggle from '../components/ThemeToggle';
-import MagneticCta from '../components/landing/MagneticCta';
-import { Card } from '../components/ui';
-import 'lenis/dist/lenis.css';
-
-const HeroScene = lazy(() => import('../components/landing/HeroScene'));
-
-const ARTISTS = [
-  { src: '/artists/artist-1.jpg', name: 'DRAKE' },
-  { src: '/artists/artist-2.webp', name: 'THE WEEKND' },
-  { src: '/artists/artist-3.jpg', name: 'ED SHEERAN' },
-  { src: '/artists/artist-4.jpg', name: 'EMINEM' },
-  { src: '/artists/artist-5.avif', name: 'LINKIN PARK' },
-  { src: '/artists/artist-6.jpg', name: 'NF' },
-  { src: '/artists/artist-7.webp', name: 'GREEN DAY' },
-  { src: '/artists/artist-8.jpg', name: 'KARAN AUJLA' },
-  { src: '/artists/artist-9.webp', name: 'LOCAL TRAIN' },
-];
-
-const FEATURES = [
-  { icon: 'graphic_eq', title: 'Deep Audio Analysis', desc: 'BPM, key, mood, energy and spectral centroid — extracted in seconds.' },
-  { icon: 'fingerprint', title: 'Song Identification', desc: 'AcoustID fingerprinting matches your audio against millions of tracks.' },
-  { icon: 'album', title: 'Metadata Enrichment', desc: 'Cover art, album info and previews pulled in on every match.' },
-  { icon: 'bolt', title: 'Real-time Pipeline', desc: 'WebSocket job updates keep you in sync from upload to result.' },
-];
-
-const STATS = [
-  { value: '100M+', label: 'Tracks in database', animate: false },
-  { value: '3', label: 'Avg analysis (sec)', animate: true, suffix: 's', prefix: '<' },
-  { value: '99.8', label: 'ID accuracy', animate: true, suffix: '%' },
-  { value: '6', label: 'Audio dimensions', animate: true, suffix: '' },
-];
-
-const STEPS = [
-  { icon: 'upload_file', title: 'Upload', desc: 'Drop any track — MP3, WAV, FLAC up to 50MB.' },
-  { icon: 'analytics', title: 'Analyze', desc: 'Neural pipeline extracts tempo, key, mood, and chords.' },
-  { icon: 'insights', title: 'Decode', desc: 'Full spectral report with lyrics, chords, and artist echoes.' },
-];
+import { 
+  ArrowUpRight, 
+  Waves, 
+  BrainCircuit, 
+  Music2, 
+  Fingerprint, 
+  Radar, 
+  Code2, 
+  FileAudio, 
+  Sparkles 
+} from 'lucide-react';
 
 export default function Landing() {
   const { token } = useAuthStore();
-  const galleryRef = useRef(null);
-  const heroTitle = useRef(null);
-  const heroCta = useRef(null);
-  const statRef0 = useRef(null);
-  const statRef1 = useRef(null);
-  const statRef2 = useRef(null);
-  const statRef3 = useRef(null);
-  const stepsPin = useRef(null);
-  const stepPanel0 = useRef(null);
-  const stepPanel1 = useRef(null);
-  const stepPanel2 = useRef(null);
-  const galleryTrack = useRef(null);
-  const featureCards = useRef(null);
+  const orbsRef = useRef([]);
 
-  useLenis(true);
+  useEffect(() => {
+    // Intersection Observer for reveal animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.14 });
+
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+    // Parallax orbs
+    const onScroll = () => {
+      const y = window.scrollY;
+      orbsRef.current.forEach((orb, i) => {
+        if (orb) {
+          orb.style.transform = `translate3d(0, ${y * (i === 1 ? -0.045 : 0.06)}px, 0)`;
+        }
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Tilt card effect
+    const tiltCards = document.querySelectorAll('.tilt-card');
+    const onMouseMove = (e, card) => {
+      const r = card.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      const rx = ((y / r.height) - 0.5) * -10;
+      const ry = ((x / r.width) - 0.5) * 10;
+      card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-10px)`;
+    };
+    const onMouseLeave = (card) => {
+      card.style.transform = '';
+    };
+
+    tiltCards.forEach((card) => {
+      const moveHandler = (e) => onMouseMove(e, card);
+      const leaveHandler = () => onMouseLeave(card);
+      card.addEventListener('mousemove', moveHandler);
+      card.addEventListener('mouseleave', leaveHandler);
+      card._handlers = { moveHandler, leaveHandler };
+    });
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      observer.disconnect();
+      tiltCards.forEach((card) => {
+        if (card._handlers) {
+          card.removeEventListener('mousemove', card._handlers.moveHandler);
+          card.removeEventListener('mouseleave', card._handlers.leaveHandler);
+        }
+      });
+    };
+  }, []);
 
   const scrollTo = (id) => (e) => {
     e.preventDefault();
     const el = document.querySelector(id);
-    if (!el) return;
-    const offset = 100;
-    const bodyRect = document.body.getBoundingClientRect().top;
-    const elementRect = el.getBoundingClientRect().top;
-    const elementPosition = elementRect - bodyRect;
-    const offsetPosition = elementPosition - offset;
-    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-  };
-
-  const scrollRefs = useRef({
-    heroTitle,
-    heroCta,
-    statValues: [statRef0, statRef1, statRef2, statRef3],
-    stepsPin,
-    stepPanels: [stepPanel0, stepPanel1, stepPanel2],
-    galleryTrack,
-    featureCards,
-  });
-  scrollRefs.current = {
-    heroTitle,
-    heroCta,
-    statValues: [statRef0, statRef1, statRef2, statRef3],
-    stepsPin,
-    stepPanels: [stepPanel0, stepPanel1, stepPanel2],
-    galleryTrack,
-    featureCards,
-  };
-  useLandingScroll(scrollRefs.current);
-
-  useEffect(() => {
-    const el = galleryRef.current;
-    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    let frame = 0;
-    const onMove = (e) => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const x = (e.clientX / window.innerWidth - 0.5) * 2;
-        const y = (e.clientY / window.innerHeight - 0.5) * 2;
-        el.style.setProperty('--mx', `${(x * 14).toFixed(2)}px`);
-        el.style.setProperty('--my', `${(y * 14).toFixed(2)}px`);
-      });
-    };
-    window.addEventListener('mousemove', onMove);
-    return () => {
-      window.removeEventListener('mousemove', onMove);
-      cancelAnimationFrame(frame);
-    };
-  }, []);
-
-  const hideTile = (e) => {
-    const tile = e.currentTarget.closest('.hero-mosaic-tile');
-    if (tile) tile.style.visibility = 'hidden';
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <div className="relative min-h-screen bg-bg text-accent font-body">
-      <nav className="fixed top-0 left-0 right-0 z-[var(--z-sticky)] flex items-center justify-between px-6 md:px-12 py-8 bg-gradient-to-b from-bg to-transparent">
-        <span className="font-display text-xl tracking-[0.25em]">BEATZY</span>
-        <div className="hidden md:flex items-center gap-12 text-sm tracking-[0.1em] uppercase text-muted">
-          <a href="#features" onClick={scrollTo('#features')} className="link-sweep hover:text-accent transition">Features</a>
-          <a href="#how-it-works" onClick={scrollTo('#how-it-works')} className="link-sweep hover:text-accent transition">How it works</a>
-          <a href="#demo-gallery" onClick={scrollTo('#demo-gallery')} className="link-sweep hover:text-accent transition">Examples</a>
-          <Link to="/pricing" className="link-sweep hover:text-accent transition">Pricing</Link>
-        </div>
-        <div className="flex items-center gap-6">
-          <ThemeToggle />
-          <Link to="/login" className="text-sm tracking-[0.1em] uppercase text-muted hover:text-accent transition hidden sm:inline">
-            Login
-          </Link>
-          <Link to={token ? '/dashboard' : '/register'} className="btn-primary px-6 py-3 text-sm hidden sm:inline-block">
-            {token ? 'OPEN APP' : 'GET STARTED'}
-          </Link>
-        </div>
-      </nav>
+    <div className="min-h-screen overflow-hidden bg-[#0a0a0a] text-zinc-100 antialiased selection:bg-[#CCFF00] selection:text-black noise relative font-sans">
+      {/* Parallax Background */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute left-1/2 top-[-18rem] h-[42rem] w-[42rem] -translate-x-1/2 rounded-full bg-[#CCFF00]/10 blur-[140px]"></div>
+        <div 
+          ref={el => orbsRef.current[0] = el}
+          className="absolute right-[-12rem] top-[20rem] h-[34rem] w-[34rem] rounded-full bg-[#CCFF00]/[0.06] blur-[120px]"
+        ></div>
+        <div 
+          ref={el => orbsRef.current[1] = el}
+          className="absolute bottom-[20rem] left-[-14rem] h-[38rem] w-[38rem] rounded-full bg-white/[0.035] blur-[130px]"
+        ></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0,rgba(0,0,0,.45)_58%,#050505_100%)]"></div>
+      </div>
 
-      {/* HERO */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div ref={galleryRef} className="hero-mosaic" style={{ transform: 'translate3d(var(--mx, 0), var(--my, 0), 0)' }}>
-          {ARTISTS.map((a, i) => (
-            <Link to="/register" key={i} className="hero-mosaic-tile" aria-label={a.name}>
-              <img src={a.src} alt="" loading={i < 4 ? 'eager' : 'lazy'} draggable="false" onError={hideTile} />
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0a]">
+        <nav className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-10">
+          <Link to="/" className="group inline-flex items-center gap-3">
+            <span className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-[#CCFF00]/30 bg-[#CCFF00]/10 shadow-[0_0_35px_rgba(204,255,0,.16)]">
+              <span className="absolute h-3 w-3 rounded-full bg-[#CCFF00] shadow-[0_0_22px_rgba(204,255,0,.8)]"></span>
+              <span className="h-7 w-7 rounded-full border border-[#CCFF00]/50"></span>
+            </span>
+            <span className="text-sm font-semibold tracking-[0.38em] text-[#CCFF00]">BEATZY</span>
+          </Link>
+          <div className="hidden items-center gap-10 md:flex">
+            <a href="#features" onClick={scrollTo('#features')} className="text-[11px] font-medium tracking-[0.24em] text-zinc-500 transition hover:text-[#CCFF00]">FEATURES</a>
+            <a href="#how-it-works" onClick={scrollTo('#how-it-works')} className="text-[11px] font-medium tracking-[0.24em] text-zinc-500 transition hover:text-[#CCFF00]">HOW IT WORKS</a>
+            <a href="#examples" onClick={scrollTo('#examples')} className="text-[11px] font-medium tracking-[0.24em] text-zinc-500 transition hover:text-[#CCFF00]">EXAMPLES</a>
+            <Link to="/pricing" className="text-[11px] font-medium tracking-[0.24em] text-zinc-500 transition hover:text-[#CCFF00]">PRICING</Link>
+          </div>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            {!token && (
+              <Link to="/login" className="hidden px-3 text-[11px] font-medium tracking-[0.22em] text-zinc-500 transition hover:text-zinc-100 sm:inline-flex">LOGIN</Link>
+            )}
+            <Link 
+              to={token ? '/dashboard' : '/pricing'} 
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#CCFF00] px-5 text-xs font-black text-black shadow-[0_0_40px_rgba(204,255,0,.2)] transition hover:-translate-y-0.5 hover:shadow-[0_0_70px_rgba(204,255,0,.38)]"
+            >
+              {token ? 'OPEN APP' : 'GET STARTED'}
             </Link>
-          ))}
-        </div>
-
-        <Suspense fallback={null}>
-          <HeroScene />
-        </Suspense>
-
-        <div className="absolute inset-0 z-[2] bg-[radial-gradient(ellipse_at_center,_transparent_0%,_var(--bg)_65%)] pointer-events-none" />
-        <div className="absolute inset-0 z-[2] bg-gradient-to-b from-bg/80 via-transparent to-bg pointer-events-none" />
-
-        <div className="relative z-10 text-center max-w-4xl px-6 pt-24 pb-16 pointer-events-none">
-          <p data-reveal className="text-xs tracking-[0.4em] text-muted mb-8 uppercase">Resonance Engine — V4</p>
-          <h1 ref={heroTitle} className="font-display text-display leading-[1.05] tracking-tight mb-10 uppercase">
-            <span data-reveal className="block">Decode the DNA</span>
-            <span data-reveal className="block">of any song.</span>
-          </h1>
-          <p data-reveal className="text-muted text-fluid-body mb-12 max-w-2xl mx-auto font-light">
-            Upload a track and Beatzy reveals its BPM, key, mood, chords, and the artists it echoes.
-          </p>
-          <div ref={heroCta} className="flex flex-wrap items-center justify-center gap-6 pointer-events-auto">
-            <MagneticCta to={token ? '/dashboard' : '/register'}>
-              {token ? 'OPEN APP' : 'ANALYZE TRACK'}
-            </MagneticCta>
-            <a href="#features" onClick={scrollTo('#features')} className="btn-secondary px-10 py-5 text-sm">LEARN MORE</a>
           </div>
-        </div>
-      </section>
+        </nav>
+      </header>
 
-      {/* STATS */}
-      <section className="relative z-10 border-y border-glass-border bg-surface/30">
-        <div className="max-w-6xl mx-auto px-6 py-20 grid grid-cols-2 md:grid-cols-4 gap-12">
-          {STATS.map((s, i) => {
-            const statRefs = [statRef0, statRef1, statRef2, statRef3];
-            return (
-              <div key={s.label} className="text-center">
-                <div
-                  ref={statRefs[i]}
-                  data-value={s.animate ? s.value : undefined}
-                  data-prefix={s.prefix || ''}
-                  data-suffix={s.suffix || ''}
-                  className="font-display text-4xl md:text-5xl font-bold mb-3"
+      <main id="top" className="relative z-10">
+        <section className="relative mx-auto flex min-h-[900px] max-w-[1440px] items-center px-5 py-20 sm:px-8 lg:px-10">
+          <div className="absolute inset-x-5 top-10 hidden h-[690px] overflow-hidden rounded-[3rem] border border-white/5 bg-[#050505] opacity-70 lg:block">
+            <div className="absolute inset-0 grid grid-cols-4 grid-rows-3 gap-px opacity-35">
+              <div className="bg-[url(https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/uploads/e8da1c0d-9525-4140-9a56-be71e4c6001f/1780652168045-c4de8857/image.png)] bg-cover bg-center grayscale"></div>
+              <div className="bg-white/[0.03]"></div>
+              <div className="bg-[url(https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/uploads/e8da1c0d-9525-4140-9a56-be71e4c6001f/1780652181674-d54f5ae5/image.png)] bg-cover bg-center grayscale"></div>
+              <div className="bg-white/[0.02]"></div>
+              <div className="bg-white/[0.02]"></div>
+              <div className="bg-[url(https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=900&q=80)] bg-cover bg-center grayscale"></div>
+              <div className="bg-white/[0.02]"></div>
+              <div className="bg-[url(https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80)] bg-cover bg-center grayscale"></div>
+              <div className="bg-[url(https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=900&q=80)] bg-cover bg-center grayscale"></div>
+              <div className="bg-white/[0.025]"></div>
+              <div className="bg-[url(https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=900&q=80)] bg-cover bg-center grayscale"></div>
+              <div className="bg-white/[0.02]"></div>
+            </div>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(10,10,10,.2),#050505_72%)]"></div>
+          </div>
+
+          <div className="relative grid w-full items-center gap-12 lg:grid-cols-[1.02fr_.98fr]">
+            <div className="max-w-4xl">
+              <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-[#CCFF00]/20 bg-[#CCFF00]/5 px-4 py-2 text-[11px] font-medium tracking-[0.28em] text-[#CCFF00] shadow-[0_0_50px_rgba(204,255,0,.08)]">
+                <span className="h-2 w-2 rounded-full bg-[#CCFF00] shadow-[0_0_16px_rgba(204,255,0,.9)]"></span>RESONANCE ENGINE — V4
+              </div>
+              <h1 className="hero-title max-w-5xl text-6xl font-black uppercase leading-[0.88] tracking-[-0.08em] text-[#CCFF00] sm:text-7xl md:text-8xl lg:text-[8.8rem]">
+                <span>Decode</span><br />
+                <span>the DNA</span><br />
+                <span>of any song.</span>
+              </h1>
+              <p className="reveal mt-8 max-w-2xl text-lg leading-8 text-zinc-400 sm:text-xl">
+                Upload a track and Beatzy identifies the song, fingerprints the recording, then reveals BPM, key, mood, chords, genre vectors, and API-ready audio intelligence in seconds.
+              </p>
+              <div className="reveal mt-10 flex flex-col gap-4 sm:flex-row">
+                <Link 
+                  to={token ? '/upload' : '/register'} 
+                  className="cta-3d inline-flex min-h-14 items-center justify-center rounded-2xl bg-[#CCFF00] px-8 text-sm font-black uppercase tracking-[0.12em] text-black"
                 >
-                  {s.animate ? `${s.prefix || ''}0${s.suffix || ''}` : `${s.prefix || ''}${s.value}${s.suffix || ''}`}
+                  Start analyzing<ArrowUpRight className="ml-2 w-5 h-5" />
+                </Link>
+                <a href="#examples" onClick={scrollTo('#examples')} className="inline-flex min-h-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-8 text-sm font-semibold uppercase tracking-[0.12em] text-zinc-200 transition hover:border-[#CCFF00]/50 hover:text-[#CCFF00]">
+                  View API demo
+                </a>
+              </div>
+              <div className="reveal mt-12 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+                  <p className="text-3xl font-black text-[#CCFF00]">100M+</p>
+                  <p className="mt-1 text-[10px] tracking-[0.2em] text-zinc-500">TRACKS</p>
                 </div>
-                <div className="font-mono text-xs text-muted uppercase tracking-widest">{s.label}</div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+                  <p className="text-3xl font-black text-[#CCFF00]">&lt;3s</p>
+                  <p className="mt-1 text-[10px] tracking-[0.2em] text-zinc-500">ANALYSIS</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+                  <p className="text-3xl font-black text-[#CCFF00]">99%</p>
+                  <p className="mt-1 text-[10px] tracking-[0.2em] text-zinc-500">ACCURACY</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+                  <p className="text-3xl font-black text-[#CCFF00]">6</p>
+                  <p className="mt-1 text-[10px] tracking-[0.2em] text-zinc-500">DIMENSIONS</p>
+                </div>
               </div>
-            );
-          })}
-        </div>
-      </section>
+            </div>
 
-      {/* PINNED HOW IT WORKS */}
-      <section id="how-it-works" className="relative z-10">
-        <div ref={stepsPin} className="min-h-screen flex flex-col items-center justify-center px-6 py-24">
-          <p className="font-mono text-xs text-muted uppercase tracking-[0.3em] mb-6">Pipeline</p>
-          <h2 className="font-display text-fluid-h2 text-center uppercase tracking-tight mb-16">How it works</h2>
-          <div className="relative w-full max-w-lg min-h-[320px]">
-            {STEPS.map((step, i) => (
-              <div
-                key={step.title}
-                ref={[stepPanel0, stepPanel1, stepPanel2][i]}
-                className="absolute inset-0 flex flex-col items-center text-center glass-panel p-12 border border-glass-border"
-              >
-                <span className="material-symbols-outlined text-6xl mb-8">{step.icon}</span>
-                <span className="font-mono text-xs text-muted mb-3">0{i + 1}</span>
-                <h3 className="font-display text-3xl uppercase tracking-wide mb-4">{step.title}</h3>
-                <p className="text-muted text-base max-w-sm">{step.desc}</p>
+            <div className="relative mx-auto h-[620px] w-full max-w-[590px] perspective-[1200px]">
+              <div className="orbit-dot absolute left-1/2 top-1/2 h-4 w-4 rounded-full bg-[#CCFF00] shadow-[0_0_26px_rgba(204,255,0,1)]"></div>
+              
+              <div className="float-card absolute left-8 top-12 w-72 rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur-2xl glow-lime">
+                <div className="mb-5 flex items-center justify-between">
+                  <span className="text-[10px] tracking-[0.26em] text-zinc-500">NOW SCANNING</span>
+                  <Waves className="w-6 h-6 text-[#CCFF00]" />
+                </div>
+                <div className="equalizer flex h-32 items-end gap-2 rounded-2xl bg-black/50 p-4">
+                  <span className="w-full rounded-full bg-[#CCFF00]"></span>
+                  <span className="w-full rounded-full bg-[#CCFF00]"></span>
+                  <span className="w-full rounded-full bg-[#CCFF00]"></span>
+                  <span className="w-full rounded-full bg-[#CCFF00]"></span>
+                  <span className="w-full rounded-full bg-[#CCFF00]"></span>
+                  <span className="w-full rounded-full bg-[#CCFF00]"></span>
+                </div>
+                <p className="mt-4 text-sm text-zinc-400">Fingerprint match confidence</p>
+                <p className="text-4xl font-black text-white">99.98%</p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* HORIZONTAL DEMO GALLERY */}
-      <section id="demo-gallery" className="relative z-10 border-t border-glass-border">
-        <div className="demo-gallery-wrap">
-          <div className="w-full">
-            <p className="font-mono text-xs text-muted uppercase tracking-[0.3em] text-center mb-12 px-6">Example analyses</p>
-            <div ref={galleryTrack} className="demo-gallery-track">
-              {DEMO_CARDS.map((card) => (
-                <div key={card.title} className="demo-card p-10">
-                  <p className="font-display text-2xl font-bold mb-6">{card.title}</p>
-                  <div className="grid grid-cols-3 gap-6 font-mono text-xs uppercase tracking-wider">
-                    <div>
-                      <span className="text-muted block mb-2">BPM</span>
-                      <span className="text-accent font-bold text-lg">{card.bpm}</span>
+              <div className="float-slow scanline absolute right-0 top-48 w-80 overflow-hidden rounded-[2rem] border border-[#CCFF00]/25 bg-[#111]/80 p-6 shadow-[0_40px_120px_rgba(0,0,0,.6)] backdrop-blur-2xl">
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#CCFF00] text-black">
+                      <BrainCircuit className="w-6 h-6" />
                     </div>
                     <div>
-                      <span className="text-muted block mb-2">Key</span>
-                      <span className="text-accent font-bold text-lg">{card.key}</span>
+                      <p className="text-[10px] tracking-[0.25em] text-zinc-500">AI AUDIO MAP</p>
+                      <p className="text-xl font-black text-white">Mood: Electric</p>
+                    </div>
+                  </div>
+                  <div className="mt-6 space-y-3">
+                    <div>
+                      <div className="mb-2 flex justify-between text-xs text-zinc-500"><span>Key detection</span><span className="text-[#CCFF00]">F# minor</span></div>
+                      <div className="h-2 rounded-full bg-white/10"><div className="h-2 w-[84%] rounded-full bg-[#CCFF00]"></div></div>
                     </div>
                     <div>
-                      <span className="text-muted block mb-2">Mood</span>
-                      <span className="text-accent font-bold text-lg">{card.mood}</span>
+                      <div className="mb-2 flex justify-between text-xs text-zinc-500"><span>Danceability</span><span className="text-[#CCFF00]">92</span></div>
+                      <div className="h-2 rounded-full bg-white/10"><div className="h-2 w-[92%] rounded-full bg-[#CCFF00]"></div></div>
+                    </div>
+                    <div>
+                      <div className="mb-2 flex justify-between text-xs text-zinc-500"><span>Chords</span><span className="text-[#CCFF00]">12 found</span></div>
+                      <div className="h-2 rounded-full bg-white/10"><div className="h-2 w-[71%] rounded-full bg-[#CCFF00]"></div></div>
                     </div>
                   </div>
                 </div>
+              </div>
+
+              <div className="float-card absolute bottom-12 left-16 w-80 rounded-[2rem] border border-white/10 bg-white/[0.055] p-6 backdrop-blur-2xl" style={{ animationDelay: '-2.2s' }}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] tracking-[0.25em] text-zinc-500">MATCH FOUND</p>
+                    <p className="mt-1 text-2xl font-black text-white">Midnight Signal</p>
+                  </div>
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[#CCFF00]/40 bg-[#CCFF00]/10 text-[#CCFF00]">
+                    <Music2 className="w-6 h-6" />
+                  </div>
+                </div>
+                <div className="mt-5 grid grid-cols-3 gap-2 text-center">
+                  <div className="rounded-2xl bg-black/40 p-3">
+                    <p className="text-xl font-black text-[#CCFF00]">128</p>
+                    <p className="text-[9px] tracking-[0.18em] text-zinc-500">BPM</p>
+                  </div>
+                  <div className="rounded-2xl bg-black/40 p-3">
+                    <p className="text-xl font-black text-[#CCFF00]">8A</p>
+                    <p className="text-[9px] tracking-[0.18em] text-zinc-500">CAMELOT</p>
+                  </div>
+                  <div className="rounded-2xl bg-black/40 p-3">
+                    <p className="text-xl font-black text-[#CCFF00]">0.92</p>
+                    <p className="text-[9px] tracking-[0.18em] text-zinc-500">ENERGY</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="absolute inset-20 -z-10 rounded-full border border-[#CCFF00]/10 shadow-[inset_0_0_80px_rgba(204,255,0,.05)]"></div>
+              <div className="absolute inset-32 -z-10 rounded-full border border-white/10"></div>
+            </div>
+          </div>
+        </section>
+
+        <section aria-label="Platform statistics" className="relative border-y border-white/10 bg-[#070707] py-12">
+          <div className="mx-auto grid max-w-[1180px] grid-cols-2 gap-4 px-5 md:grid-cols-4">
+            {[
+              { val: '100M+', lab: 'TRACKS IN DATABASE' },
+              { val: '<3s', lab: 'AVG ANALYSIS SEC' },
+              { val: '99.8%', lab: 'ID ACCURACY' },
+              { val: '6', lab: 'AUDIO DIMENSIONS' }
+            ].map((stat) => (
+              <div key={stat.lab} className="tilt-card reveal rounded-[2rem] border border-white/10 bg-white/[0.035] p-7 text-center backdrop-blur-xl">
+                <p className="text-5xl font-black tracking-tight text-[#CCFF00]">{stat.val}</p>
+                <p className="mt-2 text-[10px] tracking-[0.24em] text-zinc-500">{stat.lab}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="features" className="relative mx-auto max-w-[1440px] px-5 py-28 sm:px-8 lg:px-10">
+          <div className="reveal mx-auto max-w-3xl text-center">
+            <p className="text-[11px] font-semibold tracking-[0.36em] text-zinc-500">FEATURES</p>
+            <h2 className="mt-4 text-5xl font-black uppercase tracking-[-0.06em] text-[#CCFF00] md:text-7xl">Music intelligence with depth.</h2>
+            <p className="mt-5 text-lg leading-8 text-zinc-400">Every component is built for recognition, enrichment, and API-scale delivery — wrapped in a cinematic interface that feels as fast as the engine underneath.</p>
+          </div>
+          <div className="mt-16 grid gap-5 md:grid-cols-3">
+            {[
+              { icon: Fingerprint, title: 'Acoustic fingerprinting', text: 'Match noisy clips, live recordings, stems, and full tracks against a massive recognition layer engineered for sub-second lookup.' },
+              { icon: Radar, title: 'AI audio dimensions', text: 'Extract tempo, key, mood, energy, rhythm density, vocal presence, chords, sections, and similarity vectors for discovery systems.' },
+              { icon: Code2, title: 'SaaS-ready API', text: 'Drop Beatzy into streaming apps, rights workflows, DJ tools, creator platforms, and catalog intelligence products.' }
+            ].map((feat, i) => (
+              <article key={i} className="tilt-card reveal rounded-[2.5rem] border border-white/10 bg-white/[0.045] p-7 backdrop-blur-xl">
+                <div className="mb-10 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#CCFF00] text-black shadow-[0_0_55px_rgba(204,255,0,.32)]">
+                  <feat.icon className="w-8 h-8" />
+                </div>
+                <p className="text-[10px] tracking-[0.28em] text-zinc-500">0{i + 1} / {feat.title.split(' ')[0].toUpperCase()}</p>
+                <h3 className="mt-3 text-3xl font-black tracking-tight text-white">{feat.title}</h3>
+                <p className="mt-4 leading-7 text-zinc-400">{feat.text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section id="how-it-works" className="relative overflow-hidden border-y border-white/10 bg-[#050505] py-28">
+          <div className="absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#CCFF00]/[0.045] blur-[120px]"></div>
+          <div className="relative mx-auto max-w-[1220px] px-5 sm:px-8">
+            <div className="reveal text-center">
+              <p className="text-[11px] font-semibold tracking-[0.36em] text-zinc-500">PIPELINE</p>
+              <h2 className="mt-4 text-5xl font-black uppercase tracking-[-0.06em] text-[#CCFF00] md:text-7xl">How it works</h2>
+            </div>
+            <div className="relative mt-20 grid gap-6 lg:grid-cols-3">
+              <div className="absolute left-[16%] right-[16%] top-24 hidden h-px bg-gradient-to-r from-transparent via-[#CCFF00]/60 to-transparent lg:block"></div>
+              {[
+                { icon: FileAudio, title: 'Upload', text: 'Drop MP3, WAV, FLAC, stems, or short captured snippets into the engine.' },
+                { icon: Waves, title: 'Analyze', text: 'Fingerprinting, source separation, chord inference, tempo grids, and mood models run together.' },
+                { icon: Sparkles, title: 'Reveal', text: 'Return clean metadata, confidence scores, and structured JSON for product teams.' }
+              ].map((step, i) => (
+                <article key={i} className="tilt-card reveal relative rounded-[2.5rem] border border-white/10 bg-[#101010]/80 p-8 text-center backdrop-blur-xl">
+                  <div className="step-badge mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[#CCFF00] text-2xl font-black text-black shadow-[0_0_70px_rgba(204,255,0,.35)]" style={{ animationDelay: `-${i * 2}s` }}>
+                    0{i + 1}
+                  </div>
+                  <step.icon className="mx-auto mt-9 w-12 h-12 text-[#CCFF00]" />
+                  <h3 className="mt-5 text-3xl font-black uppercase tracking-tight text-white">{step.title}</h3>
+                  <p className="mt-4 leading-7 text-zinc-400">{step.text}</p>
+                </article>
               ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* FEATURES */}
-      <section id="features" className="relative z-10 max-w-6xl mx-auto px-6 py-32 border-t border-glass-border">
-        <p className="font-mono text-xs text-muted uppercase tracking-[0.3em] mb-6 text-center">Capabilities</p>
-        <h2 className="font-display text-fluid-h2 text-center uppercase tracking-tight mb-20">
-          Built for producers &amp; listeners
-        </h2>
-        <div ref={featureCards} className="grid md:grid-cols-2 gap-8">
-          {FEATURES.map((f) => (
-            <Card key={f.title} className="feature-tilt flex gap-8 items-start p-10" style={{ transformStyle: 'preserve-3d' }}>
-              <span className="material-symbols-outlined text-4xl shrink-0">{f.icon}</span>
-              <div>
-                <h3 className="font-display text-2xl uppercase tracking-wide mb-3">{f.title}</h3>
-                <p className="text-muted text-base leading-relaxed">{f.desc}</p>
+        <section id="examples" className="relative mx-auto grid max-w-[1440px] gap-10 px-5 py-28 sm:px-8 lg:grid-cols-[.9fr_1.1fr] lg:px-10">
+          <div className="reveal">
+            <p className="text-[11px] font-semibold tracking-[0.36em] text-zinc-500">EXAMPLES</p>
+            <h2 className="mt-4 text-5xl font-black uppercase tracking-[-0.06em] text-[#CCFF00] md:text-7xl">API output that sings.</h2>
+            <p className="mt-6 max-w-xl text-lg leading-8 text-zinc-400">Designed for developers who need a gorgeous dashboard and reliable machine-readable analysis. No guesswork. Just clean signal.</p>
+          </div>
+          <div className="tilt-card reveal overflow-hidden rounded-[2.5rem] border border-[#CCFF00]/25 bg-[#0f0f0f] shadow-[0_40px_140px_rgba(0,0,0,.65)]">
+            <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.03] px-6 py-4">
+              <div className="flex gap-2">
+                <span className="h-3 w-3 rounded-full bg-zinc-600"></span>
+                <span className="h-3 w-3 rounded-full bg-zinc-600"></span>
+                <span className="h-3 w-3 rounded-full bg-[#CCFF00]"></span>
               </div>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="relative z-10 border-t border-glass-border bg-surface/20">
-        <div className="max-w-3xl mx-auto px-6 py-32 text-center">
-          <h2 className="font-display text-fluid-h2 uppercase tracking-tight mb-8">Ready to decode?</h2>
-          <p className="text-muted text-lg mb-12">Free tier includes 5 analyses per month. Upgrade anytime.</p>
-          <div className="flex flex-wrap justify-center gap-6">
-            <MagneticCta to={token ? '/upload' : '/register'}>{token ? 'UPLOAD TRACK' : 'START FREE'}</MagneticCta>
-            <Link to="/pricing" className="btn-secondary px-10 py-5 text-sm">VIEW PRICING</Link>
+              <p className="text-[10px] tracking-[0.26em] text-zinc-500">beatzy.analysis.json</p>
+            </div>
+            <pre className="overflow-x-auto p-6 text-sm leading-7 text-zinc-300">
+              <code>{`{
+  track_id: btz_9081x,
+  match: Midnight Signal,
+  confidence: 0.9998,
+  bpm: 128,
+  key: F# minor,
+  mood: electric, focused,
+  chords: [F#m, D, A, E],
+  energy: 0.92,
+  danceability: 0.88,
+  api_latency_ms: 184
+}`}</code>
+            </pre>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <footer className="relative z-10 border-t border-glass-border px-6 py-16">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
-          <span className="font-display text-lg tracking-[0.2em]">BEATZY</span>
-          <div className="flex flex-wrap justify-center gap-10 text-sm tracking-[0.1em] uppercase text-muted">
-            <a href="#features" onClick={scrollTo('#features')} className="link-sweep hover:text-accent transition">Features</a>
-            <Link to="/pricing" className="link-sweep hover:text-accent transition">Pricing</Link>
-            <Link to="/login" className="link-sweep hover:text-accent transition">Login</Link>
-            <Link to="/privacy" className="link-sweep hover:text-accent transition">Privacy</Link>
-            <Link to="/terms" className="link-sweep hover:text-accent transition">Terms</Link>
+        <section id="pricing" className="relative px-5 pb-28 sm:px-8 lg:px-10">
+          <div className="reveal mx-auto max-w-[1180px] overflow-hidden rounded-[3rem] border border-[#CCFF00]/25 bg-[#CCFF00] p-8 text-black shadow-[0_0_140px_rgba(204,255,0,.22)] md:p-12">
+            <div className="grid items-center gap-10 lg:grid-cols-[1fr_auto]">
+              <div>
+                <p className="text-[11px] font-black tracking-[0.34em] text-black/55">START BUILDING</p>
+                <h2 className="mt-3 max-w-3xl text-5xl font-black uppercase leading-[.92] tracking-[-0.07em] md:text-7xl">Turn every song into structured intelligence.</h2>
+                <p className="mt-5 max-w-2xl text-lg font-medium leading-8 text-black/70">Launch with hosted analysis, dashboard uploads, and API access for recognition-first music products.</p>
+              </div>
+              <Link 
+                to={token ? '/upload' : '/pricing'} 
+                className="inline-flex min-h-16 items-center justify-center rounded-2xl bg-black px-9 text-sm font-black uppercase tracking-[0.16em] text-[#CCFF00] shadow-[0_18px_0_rgba(0,0,0,.25)] transition hover:-translate-y-1"
+              >
+                Get started<ArrowUpRight className="ml-2 w-6 h-6" />
+              </Link>
+            </div>
           </div>
-          <span className="font-mono text-xs text-muted uppercase tracking-widest">© 2026 Beatzy</span>
+        </section>
+      </main>
+
+      <footer className="relative z-10 border-t border-white/10 bg-[#050505] px-5 py-10 sm:px-8 lg:px-10">
+        <div className="mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-5 md:flex-row">
+          <p className="text-sm font-semibold tracking-[0.32em] text-[#CCFF00]">BEATZY</p>
+          <p className="text-sm text-zinc-500 text-center">Music intelligence engine for identification, analysis, and API access.</p>
+          <div className="flex gap-5">
+            <a href="#examples" onClick={scrollTo('#examples')} className="text-sm text-zinc-500 transition hover:text-[#CCFF00]">Docs</a>
+            <a href="#features" onClick={scrollTo('#features')} className="text-sm text-zinc-500 transition hover:text-[#CCFF00]">Features</a>
+            <Link to="/pricing" className="text-sm text-zinc-500 transition hover:text-[#CCFF00]">Pricing</Link>
+          </div>
         </div>
       </footer>
     </div>
