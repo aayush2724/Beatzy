@@ -86,7 +86,7 @@ function PianoView({ keys }) {
                     return (
                         <div key={noteIdx} className={clsx(
                             "absolute top-0 w-[12%] h-20 rounded-b-sm border border-black transition-all duration-300",
-                            active ? "bg-secondary shadow-[0_0_15px_rgba(255,255,255,0.3)] z-20" : "bg-[#1A1410]"
+                            active ? "bg-secondary shadow-[0_0_15px_rgba(255,255,255,0.3)] z-20" : "bg-[#0D0808]"
                         )} style={{ left: `${leftPos}%` }} />
                     );
                 })}
@@ -118,14 +118,14 @@ export default function InstrumentChordPanel({ chords = [] }) {
           <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider">Dynamic fingering guide</span>
         </div>
         
-        <div className="flex p-1 bg-white/5 rounded-xl border border-[#1A1410]/10">
+        <div className="flex p-1 bg-white/5 rounded-xl border border-[#0D0808]/10">
           {INSTRUMENTS.map(ins => (
             <button
               key={ins}
               onClick={() => setInstrument(ins)}
               className={clsx(
                 "px-4 py-2 rounded-lg font-mono text-[10px] uppercase tracking-wider transition-all",
-                instrument === ins ? "bg-primary text-surface font-bold" : "text-on-surface-variant hover:text-[#F5EFE7]"
+                instrument === ins ? "bg-primary text-surface font-bold" : "text-on-surface-variant hover:text-[#FFFFFF]"
               )}
             >
               {ins}
@@ -145,7 +145,7 @@ export default function InstrumentChordPanel({ chords = [] }) {
                             onClick={() => setSelectedChord(c)}
                             className={clsx(
                                 "px-3 py-2 rounded-lg border font-mono text-[11px] font-bold transition-all",
-                                selectedChord === c ? "border-primary bg-primary/10 text-primary" : "border-glass-border bg-white/[0.02] text-on-surface-variant hover:border-[#1A1410]/20"
+                                selectedChord === c ? "border-primary bg-primary/10 text-primary" : "border-glass-border bg-white/[0.02] text-on-surface-variant hover:border-[#0D0808]/20"
                             )}
                         >
                             {c}
@@ -153,7 +153,7 @@ export default function InstrumentChordPanel({ chords = [] }) {
                     ))}
                 </div>
                 <div className="pt-4 border-t border-glass-border">
-                    <div className="text-4xl font-headline font-extrabold text-[#F5EFE7] mb-2">{selectedChord}</div>
+                    <div className="text-4xl font-headline font-extrabold text-[#FFFFFF] mb-2">{selectedChord}</div>
                     <p className="text-[10px] text-on-surface-variant leading-relaxed font-mono uppercase opacity-60">
                         {instrument} Tablature Mode
                     </p>

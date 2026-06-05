@@ -32,7 +32,7 @@ export default function UploadProgressBar({ progress, status, fileName }) {
           <span className="text-on-surface-variant truncate max-w-sm uppercase tracking-wider">
             Sending: {fileName}
           </span>
-          <span className="text-[#F5EFE7] font-bold">{Math.floor(progress)}%</span>
+          <span className="text-[#FFFFFF] font-bold">{Math.floor(progress)}%</span>
         </div>
       )}
       {/* Bar background */}

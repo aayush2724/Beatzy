@@ -99,7 +99,7 @@ export default function StyleDNAChart() {
     <section className="glass-panel rounded-xl border border-glass-border p-6 h-[400px] flex flex-col relative overflow-hidden">
       <div className="flex justify-between items-center mb-6 relative z-10">
         <h3 className="font-headline font-bold text-xs text-primary uppercase tracking-widest">Style DNA Matrix</h3>
-        <span className="font-mono text-[8px] text-[#F5EFE7]/30 uppercase tracking-[0.2em]">3D Projection</span>
+        <span className="font-mono text-[8px] text-[#FFFFFF]/30 uppercase tracking-[0.2em]">3D Projection</span>
       </div>
       
       <div className="flex-1 w-full relative z-0">
@@ -110,8 +110,8 @@ export default function StyleDNAChart() {
           </Canvas>
       </div>
 
-      <div className="pt-4 border-t border-[#1A1410]/5 relative z-10">
-          <p className="font-mono text-[9px] text-[#F5EFE7]/30 uppercase leading-relaxed">
+      <div className="pt-4 border-t border-[#0D0808]/5 relative z-10">
+          <p className="font-mono text-[9px] text-[#FFFFFF]/30 uppercase leading-relaxed">
               Resonance overlap identified in 5 distinct stylistic vectors.
           </p>
       </div>

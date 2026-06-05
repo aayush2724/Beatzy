@@ -261,7 +261,7 @@ const RippleButton: React.FC<RippleButtonProps> = ({
   }
 
   // Default variant
-  const baseClasses = "relative border-none overflow-hidden isolate transition-all duration-200 cursor-pointer px-4 py-2 bg-blue-600 hover:opacity-90 text-[#F5EFE7] rounded-lg";
+  const baseClasses = "relative border-none overflow-hidden isolate transition-all duration-200 cursor-pointer px-4 py-2 bg-blue-600 hover:opacity-90 text-[#FFFFFF] rounded-lg";
   const disabledClasses = disabled ? "opacity-50 cursor-not-allowed" : "";
   const buttonClasses = `${baseClasses} ${disabledClasses} ${className}`;
   return (

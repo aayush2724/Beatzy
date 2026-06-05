@@ -7,7 +7,7 @@ const DEFAULT_ARCHETYPES = [
     desc: 'Electronic Precision',
     img: '',
   },
-  { id: 'crimson', name: 'King Crimson', desc: 'Progressive Intensity', img: '' },
+  { id: 'ember', name: 'Burning Ember', desc: 'Warm Harmonic Depth', img: '' },
   { id: 'queen', name: 'Queen', desc: 'Orchestral Power', img: '' },
 ];
 
