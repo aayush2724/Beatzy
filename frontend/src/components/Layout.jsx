@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import ThreeDStudio from './ThreeDStudio';
 import OnboardingTour from './OnboardingTour';
 import ThemeToggle from './ThemeToggle';
+import { EtherealShadow } from './ui/etheral-shadow';
 import { 
   Waves, 
   LayoutDashboard, 
@@ -41,6 +42,14 @@ export default function Layout() {
   return (
     <div className="flex h-screen overflow-hidden text-on-surface font-body selection:bg-white/20 relative">
       {/* 3D Background Layer */}
+      <div className="fixed inset-0 z-[-1] pointer-events-none opacity-50">
+        <EtherealShadow
+          color="rgba(20, 20, 20, 1)"
+          animation={{ scale: 40, speed: 20 }}
+          noise={{ opacity: 0.2, scale: 1 }}
+          sizing="fill"
+        />
+      </div>
       <ThreeDStudio />
       
       {/* Decorative Grid Overlay */}
