@@ -26,13 +26,23 @@ if (googleOAuthEnabled) {
     callbackURL: `${backendUrl}/api/auth/google/callback`,
   }, async (accessToken, refreshToken, profile, done) => {
     try {
-      const email = profile.emails[0].value;
+      const email = profile.emails?.[0]?.value;
+      if (!email) return done(null, false, { message: 'No email found in Google profile' });
+
       const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-      if (rows[0]) return done(null, rows[0]);
+      
+      if (rows[0]) {
+        // Update google_id if missing
+        if (!rows[0].google_id) {
+          await pool.query('UPDATE users SET google_id = $1 WHERE id = $2', [profile.id, rows[0].id]);
+        }
+        return done(null, rows[0]);
+      }
+
       const { rows: newUser } = await pool.query(
         `INSERT INTO users (id, name, email, google_id, plan, is_active)
          VALUES ($1, $2, $3, $4, 'free', true) RETURNING *`,
-        [uuidv4(), profile.displayName, email, profile.id]
+        [uuidv4(), profile.displayName || profile.name?.givenName || 'Google User', email, profile.id]
       );
       done(null, newUser[0]);
     } catch (err) {
