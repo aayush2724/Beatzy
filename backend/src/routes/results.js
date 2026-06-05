@@ -61,32 +61,50 @@ router.get('/:jobId/export', authenticateApiKey, async (req, res) => {
 router.get('/:jobId', authenticateApiKey, async (req, res) => {
   const cacheKey = `result:${req.params.jobId}`;
   const cached = await getCache(cacheKey);
-  if (cached) return res.json({ success: true, data: cached, cached: true });
+  if (cached) return res.json({ success: true, status: 'complete', data: cached, cached: true });
 
   const { rows } = await pool.query(
-    `SELECT r.*, j.original_filename, j.s3_key, j.created_at as job_created_at, j.status
-     FROM analysis_results r
-     JOIN audio_jobs j ON j.id = r.job_id
-     WHERE r.job_id = $1 AND j.user_id = $2`,
+    `SELECT r.*, j.original_filename, j.s3_key, j.created_at as job_created_at, j.status, j.error_message
+     FROM audio_jobs j
+     LEFT JOIN analysis_results r ON r.job_id = j.id
+     WHERE j.id = $1 AND j.user_id = $2`,
     [req.params.jobId, req.user.id],
   );
 
   if (!rows[0]) {
-    const { rows: jobRows } = await pool.query(
-      'SELECT id, status FROM audio_jobs WHERE id = $1 AND user_id = $2',
-      [req.params.jobId, req.user.id],
-    );
-    if (!jobRows[0]) throw createError(404, 'Job not found');
-    if (jobRows[0].status === 'processing' || jobRows[0].status === 'queued') {
-      return res.status(202).json({
-        success: true,
-        data: { status: jobRows[0].status, message: 'Analysis in progress' },
-      });
-    }
-    throw createError(404, 'Results not found');
+    throw createError(404, 'Job not found');
   }
 
-  const result = { ...rows[0] };
+  const job = rows[0];
+
+  if (job.status === 'queued' || job.status === 'processing') {
+    return res.status(202).json({
+      success: true,
+      status: 'processing',
+      jobId: req.params.jobId,
+      message: 'Analysis in progress'
+    });
+  }
+
+  if (job.status === 'failed') {
+    return res.json({
+      success: true,
+      status: 'failed',
+      error: job.error_message || 'Analysis failed'
+    });
+  }
+
+  // If status is completed but no result record yet (rare race condition)
+  if (!job.id && job.status === 'completed') {
+    return res.status(202).json({
+      success: true,
+      status: 'processing',
+      jobId: req.params.jobId,
+      message: 'Finalizing results'
+    });
+  }
+
+  const result = { ...job };
   if (result.s3_key) {
     try {
       result.audio_url = await getPresignedUrl(result.s3_key);
@@ -97,7 +115,7 @@ router.get('/:jobId', authenticateApiKey, async (req, res) => {
   delete result.s3_key;
 
   await setCache(cacheKey, result, 3600);
-  res.json({ success: true, data: result });
+  res.json({ success: true, status: 'complete', data: result });
 });
 
 module.exports = router;

@@ -10,6 +10,7 @@
  */
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
+import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
 import { useAudioStore } from '../store/audioStore';
 
@@ -36,11 +37,17 @@ export function useJobSocket(jobId) {
     const socket = io(SOCKET_URL, {
       auth: { token },
       transports: ['websocket', 'polling'],
+      reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 2000,
+      reconnectionDelayMax: 10000,
+      randomizationFactor: 0.5,
     });
 
-    socket.on('connect', () => setStatus('connected'));
+    socket.on('connect', () => {
+      setStatus('connected');
+      toast.dismiss('socket-reconnecting');
+    });
 
     socket.on('job:progress', (data) => {
       if (data.jobId !== jobId) return;
@@ -64,10 +71,16 @@ export function useJobSocket(jobId) {
     });
 
     socket.on('disconnect', () => setStatus('disconnected'));
+    
     socket.on('connect_error', (err) => {
       console.warn('[socket] connect_error', err.message);
       setStatus('error');
       setError(err.message);
+      toast.loading('Connecting to server...', { id: 'socket-reconnecting' });
+    });
+
+    socket.on('reconnect_failed', () => {
+      toast.error('Failed to connect to real-time server', { id: 'socket-reconnecting' });
     });
 
     socketRef.current = socket;
