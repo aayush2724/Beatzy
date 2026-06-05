@@ -43,7 +43,7 @@ export default function Navbar() {
           <Link
             className={`font-body-md text-body-md transition-all ${
               isLinkActive('/')
-                ? 'text-crimson-red border-b-2 border-crimson-red pb-1'
+                ? 'text-vibrant-orange border-b-2 border-vibrant-orange pb-1'
                 : 'text-on-surface-variant hover:text-primary-fixed'
             }`}
             to="/"
@@ -53,7 +53,7 @@ export default function Navbar() {
           <Link
             className={`font-body-md text-body-md transition-all ${
               isLinkActive('/artist-echoes')
-                ? 'text-crimson-red border-b-2 border-crimson-red pb-1'
+                ? 'text-vibrant-orange border-b-2 border-vibrant-orange pb-1'
                 : 'text-on-surface-variant hover:text-primary-fixed'
             }`}
             to="/artist-echoes"
@@ -63,7 +63,7 @@ export default function Navbar() {
           <Link
             className={`font-body-md text-body-md transition-all ${
               isLinkActive('/pricing')
-                ? 'text-crimson-red border-b-2 border-crimson-red pb-1'
+                ? 'text-vibrant-orange border-b-2 border-vibrant-orange pb-1'
                 : 'text-on-surface-variant hover:text-primary-fixed'
             }`}
             to="/pricing"
@@ -74,7 +74,7 @@ export default function Navbar() {
         <div className="flex items-center space-x-4">
           <Link
             to={token ? '/dashboard' : '/login'}
-            className="material-symbols-outlined text-on-surface hover:text-crimson-red transition-all cursor-pointer p-2 rounded-full hover:bg-white/5"
+            className="material-symbols-outlined text-on-surface hover:text-vibrant-orange transition-all cursor-pointer p-2 rounded-full hover:bg-white/5"
           >
             account_circle
           </Link>

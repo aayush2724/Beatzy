@@ -142,14 +142,14 @@ export default function MicRecorder({ onRecorded, disabled }) {
           'relative p-12 rounded-2xl border transition-all duration-300 backdrop-blur-xl',
           isRecording 
             ? 'border-primary/30 bg-primary/5 shadow-[0_0_40px_rgba(255,255,255,0.05)]' 
-            : 'border-white/10 bg-white/[0.02]'
+            : 'border-[#1A1410]/10 bg-white/[0.02]'
         )}>
           {/* Microphone icon */}
           <div className={clsx(
             'w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6 transition-all duration-300',
             isRecording 
               ? 'bg-primary/20 border-2 border-primary/40 shadow-[0_0_30px_rgba(255,255,255,0.1)]' 
-              : 'bg-white/10 border border-white/20'
+              : 'bg-white/10 border border-[#1A1410]/20'
           )}>
             <span className={clsx(
               'material-symbols-outlined text-4xl transition-all duration-300',
@@ -178,12 +178,12 @@ export default function MicRecorder({ onRecorded, disabled }) {
           {/* Duration display */}
           {isRecording && (
             <div className="text-center mb-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-black/30 rounded-full border border-white/10">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#2D1F18]/30 rounded-full border border-[#1A1410]/10">
                 <div className={clsx(
                   'w-2 h-2 rounded-full',
                   isPaused ? 'bg-amber-400' : 'bg-red-500 animate-pulse'
                 )} />
-                <span className="font-mono text-xl text-white font-bold">
+                <span className="font-mono text-xl text-[#1A1410] font-bold">
                   {formatDuration(duration)}
                 </span>
               </div>
@@ -235,7 +235,7 @@ export default function MicRecorder({ onRecorded, disabled }) {
             
             <button
               onClick={stopRecording}
-              className="px-8 py-3 bg-red-500/80 hover:bg-red-500 text-white font-bold rounded-lg transition-all flex items-center gap-2"
+              className="px-8 py-3 bg-red-500/80 hover:bg-red-500 text-[#1A1410] font-bold rounded-lg transition-all flex items-center gap-2"
             >
               <span className="material-symbols-outlined text-lg">stop</span>
               Stop & Analyze

@@ -65,7 +65,7 @@ function ParallaxLayer() {
 
 export default function Ambient3D() {
   return (
-    <div className="fixed inset-0 z-[-1] pointer-events-none bg-[#120509]" aria-hidden="true">
+    <div className="fixed inset-0 z-[-1] pointer-events-none bg-[#1A1410]" aria-hidden="true">
       <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
         <Scene />
       </Canvas>

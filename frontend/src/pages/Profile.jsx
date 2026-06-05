@@ -20,17 +20,17 @@ import {
 
 const PLAN_PRICES = { pro: '$19.99 / cycle', enterprise: '$99.99 / cycle', free: '$0 / cycle' };
 
-function ProfileSection({ icon: Icon, title, children, accentColor = 'text-[#c41e3a]' }) {
+function ProfileSection({ icon: Icon, title, children, accentColor = 'text-[#D4860A]' }) {
   return (
-    <section className="glass-card p-10 border border-white/10 relative overflow-hidden group">
+    <section className="glass-card p-10 border border-[#1A1410]/10 relative overflow-hidden group">
       <div className="absolute top-0 right-0 p-10 opacity-[0.03] pointer-events-none group-hover:opacity-[0.06] transition-opacity">
           <Icon className="w-48 h-48" />
       </div>
       <div className="flex items-center gap-4 mb-10 relative z-10">
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-white/[0.03] border border-white/10 group-hover:border-white/20 transition-colors`}>
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-white/[0.03] border border-[#1A1410]/10 group-hover:border-[#1A1410]/20 transition-colors`}>
           <Icon className={`w-5 h-5 ${accentColor}`} />
         </div>
-        <h2 className="font-display font-black text-xl text-white uppercase tracking-widest">{title}</h2>
+        <h2 className="font-display font-black text-xl text-[#1A1410] uppercase tracking-widest">{title}</h2>
       </div>
       <div className="relative z-10">
         {children}
@@ -79,25 +79,25 @@ export default function Profile() {
   return (
     <PageWrapper className="max-w-[1200px] mx-auto space-y-16 pb-20 animate-page-entrance">
       {/* Header */}
-      <header className="flex flex-col md:flex-row items-center gap-10 border-b border-white/5 pb-16 relative overflow-hidden">
-        <div className="absolute top-1/2 left-0 -translate-y-1/2 w-64 h-64 bg-[#c41e3a]/5 blur-[100px] rounded-full -ml-32 pointer-events-none" />
+      <header className="flex flex-col md:flex-row items-center gap-10 border-b border-[#1A1410]/5 pb-16 relative overflow-hidden">
+        <div className="absolute top-1/2 left-0 -translate-y-1/2 w-64 h-64 bg-[#D4860A]/5 blur-[100px] rounded-full -ml-32 pointer-events-none" />
         
         <motion.div 
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-32 h-32 rounded-[3rem] flex items-center justify-center text-5xl font-black text-black flex-shrink-0 bg-[#c41e3a] shadow-[0_0_60px_rgba(196,30,58,0.2)] relative z-10"
+            className="w-32 h-32 rounded-[3rem] flex items-center justify-center text-5xl font-black text-black flex-shrink-0 bg-[#D4860A] shadow-[0_0_60px_rgba(163,81,57,0.2)] relative z-10"
         >
           {user?.name?.[0]?.toUpperCase() || 'U'}
         </motion.div>
         
         <div className="text-center md:text-left relative z-10 space-y-4">
-          <h1 className="text-6xl font-display font-black text-white tracking-tighter uppercase leading-none">{user?.name}</h1>
+          <h1 className="text-6xl font-display font-black text-[#1A1410] tracking-tighter uppercase leading-none">{user?.name}</h1>
           <div className="flex flex-wrap justify-center md:justify-start items-center gap-6">
-              <div className="flex items-center gap-2 text-white/40 font-mono text-[10px] uppercase tracking-widest">
+              <div className="flex items-center gap-2 text-[#1A1410]/40 font-mono text-[10px] uppercase tracking-widest">
                   <Mail className="w-3 h-3" /> {user?.email}
               </div>
               <div className="w-1 h-1 rounded-full bg-white/10" />
-              <div className="px-4 py-1.5 rounded-full font-mono text-[9px] font-black uppercase tracking-[0.2em] bg-[#c41e3a]/10 border border-[#c41e3a]/20 text-[#c41e3a] flex items-center gap-2">
+              <div className="px-4 py-1.5 rounded-full font-mono text-[9px] font-black uppercase tracking-[0.2em] bg-[#D4860A]/10 border border-[#D4860A]/20 text-[#D4860A] flex items-center gap-2">
                 <Zap className="w-3 h-3 fill-current" /> {user?.plan || 'FREE'} SECTOR
               </div>
           </div>
@@ -106,25 +106,25 @@ export default function Profile() {
 
       <div className="grid gap-12">
           {/* Personal Info */}
-          <ProfileSection icon={Fingerprint} title="Operator Identity" accentColor="text-[#c41e3a]">
+          <ProfileSection icon={Fingerprint} title="Operator Identity" accentColor="text-[#D4860A]">
             <div className="grid lg:grid-cols-2 gap-12">
               <div className="space-y-4">
-                <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block ml-1">Permanent Identifier</label>
+                <label className="font-mono text-[10px] text-[#1A1410]/30 uppercase tracking-[0.3em] block ml-1">Permanent Identifier</label>
                 <div className="relative group">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/10 group-focus-within:text-[#c41e3a] transition-colors" />
-                    <input disabled value={user?.email || ''} className="w-full h-14 bg-white/[0.02] border border-dashed border-white/10 rounded-2xl pl-12 pr-4 text-white/40 font-mono text-xs cursor-not-allowed" />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1A1410]/10 group-focus-within:text-[#D4860A] transition-colors" />
+                    <input disabled value={user?.email || ''} className="w-full h-14 bg-white/[0.02] border border-dashed border-[#1A1410]/10 rounded-2xl pl-12 pr-4 text-[#1A1410]/40 font-mono text-xs cursor-not-allowed" />
                 </div>
-                <p className="font-mono text-[9px] text-white/20 mt-2 uppercase tracking-widest italic ml-1">Identity locked to neural core architecture.</p>
+                <p className="font-mono text-[9px] text-[#1A1410]/20 mt-2 uppercase tracking-widest italic ml-1">Identity locked to neural core architecture.</p>
               </div>
 
               <form onSubmit={saveName} className="space-y-4">
-                <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block ml-1">Interface Alias</label>
+                <label className="font-mono text-[10px] text-[#1A1410]/30 uppercase tracking-[0.3em] block ml-1">Interface Alias</label>
                 <div className="flex flex-col sm:flex-row gap-4">
                     <div className="relative flex-1 group">
-                        <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/10 group-focus-within:text-[#c41e3a] transition-colors" />
-                        <input value={name} onChange={e => setName(e.target.value)} placeholder="Operator Alias" required minLength={2} className="w-full h-14 bg-white/[0.03] border border-white/10 rounded-2xl pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-[#c41e3a]/30 transition-all font-medium" />
+                        <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1A1410]/10 group-focus-within:text-[#D4860A] transition-colors" />
+                        <input value={name} onChange={e => setName(e.target.value)} placeholder="Operator Alias" required minLength={2} className="w-full h-14 bg-white/[0.03] border border-[#1A1410]/10 rounded-2xl pl-12 pr-4 text-[#1A1410] placeholder:text-[#1A1410]/20 focus:outline-none focus:border-[#D4860A]/30 transition-all font-medium" />
                     </div>
-                    <button type="submit" disabled={savingName} className="h-14 px-10 rounded-2xl bg-[#c41e3a] text-black font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_30px_rgba(196,30,58,0.15)] disabled:opacity-50">
+                    <button type="submit" disabled={savingName} className="h-14 px-10 rounded-2xl bg-[#D4860A] text-black font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_30px_rgba(163,81,57,0.15)] disabled:opacity-50">
                         {savingName ? 'SYNCING...' : 'SYNC'}
                     </button>
                 </div>
@@ -133,31 +133,31 @@ export default function Profile() {
           </ProfileSection>
 
           {/* Change Password */}
-          <ProfileSection icon={ShieldCheck} title="Access Encryption" accentColor="text-[#f4a460]">
+          <ProfileSection icon={ShieldCheck} title="Access Encryption" accentColor="text-[#D4860A]">
             <form onSubmit={savePassword} className="grid lg:grid-cols-3 gap-8">
               <div className="space-y-4">
-                <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block ml-1">Active Encryption Key</label>
+                <label className="font-mono text-[10px] text-[#1A1410]/30 uppercase tracking-[0.3em] block ml-1">Active Encryption Key</label>
                 <div className="relative group">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/10 group-focus-within:text-[#f4a460] transition-colors" />
-                    <input type="password" value={passwords.current} onChange={e => setPasswords(p => ({ ...p, current: e.target.value }))} required className="w-full h-14 bg-white/[0.03] border border-white/10 rounded-2xl pl-12 pr-4 text-white focus:outline-none focus:border-[#f4a460]/30 transition-all" />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1A1410]/10 group-focus-within:text-[#D4860A] transition-colors" />
+                    <input type="password" value={passwords.current} onChange={e => setPasswords(p => ({ ...p, current: e.target.value }))} required className="w-full h-14 bg-white/[0.03] border border-[#1A1410]/10 rounded-2xl pl-12 pr-4 text-[#1A1410] focus:outline-none focus:border-[#D4860A]/30 transition-all" />
                 </div>
               </div>
               <div className="space-y-4">
-                <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block ml-1">New Generation Key</label>
+                <label className="font-mono text-[10px] text-[#1A1410]/30 uppercase tracking-[0.3em] block ml-1">New Generation Key</label>
                 <div className="relative group">
-                    <Zap className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/10 group-focus-within:text-[#f4a460] transition-colors" />
-                    <input type="password" value={passwords.new} onChange={e => setPasswords(p => ({ ...p, new: e.target.value }))} required minLength={8} className="w-full h-14 bg-white/[0.03] border border-white/10 rounded-2xl pl-12 pr-4 text-white focus:outline-none focus:border-[#f4a460]/30 transition-all" />
+                    <Zap className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1A1410]/10 group-focus-within:text-[#D4860A] transition-colors" />
+                    <input type="password" value={passwords.new} onChange={e => setPasswords(p => ({ ...p, new: e.target.value }))} required minLength={8} className="w-full h-14 bg-white/[0.03] border border-[#1A1410]/10 rounded-2xl pl-12 pr-4 text-[#1A1410] focus:outline-none focus:border-[#D4860A]/30 transition-all" />
                 </div>
               </div>
               <div className="space-y-4">
-                <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block ml-1">Verify Generation Key</label>
+                <label className="font-mono text-[10px] text-[#1A1410]/30 uppercase tracking-[0.3em] block ml-1">Verify Generation Key</label>
                 <div className="relative group">
-                    <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/10 group-focus-within:text-[#f4a460] transition-colors" />
-                    <input type="password" value={passwords.confirm} onChange={e => setPasswords(p => ({ ...p, confirm: e.target.value }))} required minLength={8} className="w-full h-14 bg-white/[0.03] border border-white/10 rounded-2xl pl-12 pr-4 text-white focus:outline-none focus:border-[#f4a460]/30 transition-all" />
+                    <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1A1410]/10 group-focus-within:text-[#D4860A] transition-colors" />
+                    <input type="password" value={passwords.confirm} onChange={e => setPasswords(p => ({ ...p, confirm: e.target.value }))} required minLength={8} className="w-full h-14 bg-white/[0.03] border border-[#1A1410]/10 rounded-2xl pl-12 pr-4 text-[#1A1410] focus:outline-none focus:border-[#D4860A]/30 transition-all" />
                 </div>
               </div>
               <div className="lg:col-span-3 pt-4">
-                <button type="submit" disabled={savingPw} className="h-14 px-12 rounded-2xl border border-[#f4a460]/30 bg-[#f4a460]/5 text-[#f4a460] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-[#f4a460] hover:text-black transition-all shadow-[0_0_30px_rgba(244,164,96,0.1)] disabled:opacity-50">
+                <button type="submit" disabled={savingPw} className="h-14 px-12 rounded-2xl border border-[#D4860A]/30 bg-[#D4860A]/5 text-[#D4860A] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-[#D4860A] hover:text-black transition-all shadow-[0_0_30px_rgba(244,164,96,0.1)] disabled:opacity-50">
                     {savingPw ? 'RE-ENCRYPTING...' : 'INITIALIZE RE-ENCRYPTION PROTOCOL'}
                 </button>
               </div>
@@ -165,28 +165,28 @@ export default function Profile() {
           </ProfileSection>
 
           {/* Subscription */}
-          <ProfileSection icon={Database} title="Resource Matrix" accentColor="text-[#e8a084]">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-12 p-10 rounded-[2.5rem] bg-white/[0.01] border border-white/5 relative overflow-hidden group/matrix">
-              <div className="absolute inset-0 bg-[#e8a084]/5 opacity-0 group-hover/matrix:opacity-100 transition-opacity" />
+          <ProfileSection icon={Database} title="Resource Matrix" accentColor="text-[#FFDAB9]">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-12 p-10 rounded-[2.5rem] bg-white/[0.01] border border-[#1A1410]/5 relative overflow-hidden group/matrix">
+              <div className="absolute inset-0 bg-[#FFDAB9]/5 opacity-0 group-hover/matrix:opacity-100 transition-opacity" />
               
               <div className="space-y-8 relative z-10">
                 <div className="flex items-center gap-4">
-                  <span className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em]">Operational Tier</span>
-                  <div className="px-4 py-1.5 rounded-xl bg-[#e8a084] text-white font-black font-mono text-[10px] uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(232,160,132,0.3)]">
+                  <span className="font-mono text-[10px] text-[#1A1410]/30 uppercase tracking-[0.3em]">Operational Tier</span>
+                  <div className="px-4 py-1.5 rounded-xl bg-[#FFDAB9] text-[#1A1410] font-black font-mono text-[10px] uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(232,160,132,0.3)]">
                     {user?.plan ? `${user.plan} resonance` : 'FREE RESONANCE'}
                   </div>
                 </div>
                 <div className="space-y-2">
-                    <p className="text-5xl font-display font-black text-white uppercase tracking-tighter">{PLAN_PRICES[user?.plan] || PLAN_PRICES.free}</p>
-                    <p className="font-mono text-[10px] text-white/20 uppercase tracking-[0.2em] max-w-sm leading-relaxed">Continuous analysis capability active. Uplink secured via Stripe automated protocols.</p>
+                    <p className="text-5xl font-display font-black text-[#1A1410] uppercase tracking-tighter">{PLAN_PRICES[user?.plan] || PLAN_PRICES.free}</p>
+                    <p className="font-mono text-[10px] text-[#1A1410]/20 uppercase tracking-[0.2em] max-w-sm leading-relaxed">Continuous analysis capability active. Uplink secured via Stripe automated protocols.</p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-4 min-w-[280px] relative z-10">
-                <button onClick={openBillingPortal} className="group flex items-center justify-center gap-3 h-14 rounded-2xl bg-white/[0.03] border border-white/10 text-white font-black text-[10px] uppercase tracking-widest hover:bg-white/[0.06] hover:border-white/20 transition-all">
-                  <CreditCard className="w-4 h-4 text-white/40" /> BILLING CONSOLE
+                <button onClick={openBillingPortal} className="group flex items-center justify-center gap-3 h-14 rounded-2xl bg-white/[0.03] border border-[#1A1410]/10 text-[#1A1410] font-black text-[10px] uppercase tracking-widest hover:bg-white/[0.06] hover:border-[#1A1410]/20 transition-all">
+                  <CreditCard className="w-4 h-4 text-[#1A1410]/40" /> BILLING CONSOLE
                 </button>
-                <Link to="/pricing" className="group flex items-center justify-center gap-2 h-14 rounded-2xl bg-[#e8a084]/10 border border-[#e8a084]/20 text-[#e8a084] font-black text-[10px] uppercase tracking-widest hover:bg-[#e8a084] hover:text-white transition-all">
+                <Link to="/pricing" className="group flex items-center justify-center gap-2 h-14 rounded-2xl bg-[#FFDAB9]/10 border border-[#FFDAB9]/20 text-[#FFDAB9] font-black text-[10px] uppercase tracking-widest hover:bg-[#FFDAB9] hover:text-[#1A1410] transition-all">
                   UPGRADE ACCESS <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </Link>
               </div>
@@ -195,9 +195,9 @@ export default function Profile() {
       </div>
 
       {/* Technical Metadata Decoration */}
-      <div className="flex justify-between items-center pt-20 font-mono text-[8px] text-white/10 uppercase tracking-[0.4em] select-none">
+      <div className="flex justify-between items-center pt-20 font-mono text-[8px] text-[#1A1410]/10 uppercase tracking-[0.4em] select-none">
             <div className="flex items-center gap-4">
-                <div className="w-1 h-1 rounded-full bg-[#c41e3a] animate-pulse" />
+                <div className="w-1 h-1 rounded-full bg-[#D4860A] animate-pulse" />
                 Operator Sync Active
             </div>
             <div>Auth Protocol: JWT-RS256</div>
