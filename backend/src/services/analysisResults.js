@@ -6,10 +6,13 @@ async function persistAnalysisResult({ jobId, mlResult }) {
   const songTitle = mlResult.song?.title;
   const songArtist = mlResult.song?.artist;
   let lyricsResult = null;
-  if (mlResult.lyrics) {
+  // Always try LRCLIB/Genius first for synced lyrics
+  const lrclibResult = await fetchLyrics({ title: songTitle, artist: songArtist });
+  if (lrclibResult && (lrclibResult.syncedLyrics || lrclibResult.lyrics)) {
+    lyricsResult = lrclibResult;
+  } else if (mlResult.lyrics) {
+    // Fallback to ML service lyrics (lyrics.ovh, plain only)
     lyricsResult = { lyrics: mlResult.lyrics, syncedLyrics: null, source: 'lyrics.ovh' };
-  } else {
-    lyricsResult = await fetchLyrics({ title: songTitle, artist: songArtist });
   }
 
   if (lyricsResult) {

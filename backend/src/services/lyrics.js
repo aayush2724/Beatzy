@@ -76,7 +76,7 @@ async function fetchLyrics({ title, artist }) {
     // 1. Try LRCLIB first (better for synced lyrics)
     const { data } = await axios.get(LRCLIB_URL, {
       params: { track_name: trackName, artist_name: artistName },
-      timeout: 6000,
+      timeout: 15000,
       headers: {
         'User-Agent': 'Beatzy/1.0 (portfolio music analysis project)',
       },

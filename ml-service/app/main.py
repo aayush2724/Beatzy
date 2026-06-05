@@ -2,6 +2,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Monkey patch scipy.signal.hann for compatibility with SciPy 1.13+
+import scipy.signal
+if not hasattr(scipy.signal, "hann"):
+    import scipy.signal.windows as windows
+    scipy.signal.hann = windows.hann
+
 import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware

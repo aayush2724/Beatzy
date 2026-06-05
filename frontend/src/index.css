@@ -179,18 +179,15 @@
   animation: pageEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@frontend/src/components/ThemeToggle.jsx inline {
- --radius-none: 0px;
- --radius-xs: 0.125rem;
- --radius-default: 0.375rem;
- --radius-2xl: 1.5rem;
- --radius-3xl: 1.875rem;
- --radius-full: 9999px;
- --color-button-ripple-color: var(----button-ripple-color);
-}
-
 :root {
- --button-ripple-color: rgba(232, 71, 26, 0.1);
+  --radius-none: 0px;
+  --radius-xs: 0.125rem;
+  --radius-default: 0.375rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 1.875rem;
+  --radius-full: 9999px;
+  --color-button-ripple-color: var(--button-ripple-color);
+  --button-ripple-color: rgba(232, 71, 26, 0.1);
 }
 
 .dark {
