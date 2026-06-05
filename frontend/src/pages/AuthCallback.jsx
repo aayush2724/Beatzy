@@ -76,8 +76,12 @@ export default function AuthCallback() {
         setProgress(100);
         finalizeSuccess();
       })
-      .catch(() => {
-        if (!canceled) navigate('/login');
+      .catch((err) => {
+        if (canceled) return;
+        console.error('Google Auth Error:', err);
+        const message = err.response?.data?.message || err.message || 'Authentication failed';
+        toast.error(`Login failed: ${message}`);
+        navigate('/login');
       });
 
     timeouts.push(window.setTimeout(advanceSimulation, 800));

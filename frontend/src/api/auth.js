@@ -6,5 +6,6 @@ export const refreshToken = (token) => api.post('/api/auth/refresh', { refreshTo
 export const getMe = () => api.get('/api/auth/me');
 export const logout = () => api.post('/api/auth/logout');
 export const googleLogin = () => {
-  window.location.href = `${import.meta.env.VITE_API_URL || ''}/api/auth/google`;
+  const baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+  window.location.href = `${baseUrl}/api/auth/google`;
 };
