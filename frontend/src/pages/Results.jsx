@@ -31,20 +31,20 @@ const ResultsAtmosphere = lazy(() => import('../components/ResultsAtmosphere'));
 
 import clsx from 'clsx';
 
-function StatCard({ icon: Icon, label, value, sub, colorClass = 'text-[#c41e3a]', borderClass = 'border-[#c41e3a]/20' }) {
+function StatCard({ icon: Icon, label, value, sub, colorClass = 'text-[#D4860A]', borderClass = 'border-[#D4860A]/20' }) {
   return (
     <motion.div
       whileHover={{ y: -5, scale: 1.02 }}
       className={`glass-card p-6 border ${borderClass} flex flex-col justify-between transition-all duration-500 group cursor-default`}
     >
       <div className="flex justify-between items-start">
-        <div className={`p-2 rounded-xl bg-white/[0.02] border border-white/5 group-hover:border-white/10 transition-colors`}>
+        <div className={`p-2 rounded-xl bg-white/[0.02] border border-[#1A1410]/5 group-hover:border-[#1A1410]/10 transition-colors`}>
             <Icon className={clsx('w-5 h-5 transition-transform duration-500 group-hover:rotate-12', colorClass)} />
         </div>
         <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-[0.2em]">{label}</span>
       </div>
       <div className="mt-6">
-        <div className={`text-3xl font-display font-black text-white tracking-tight uppercase group-hover:text-glow-crimson transition-all`}>{value}</div>
+        <div className={`text-3xl font-display font-black text-[#1A1410] tracking-tight uppercase group-hover:text-glow-orange transition-all`}>{value}</div>
         {sub && <div className="text-[10px] text-on-surface-variant font-black mt-1 uppercase tracking-[0.2em] opacity-60">{sub}</div>}
       </div>
     </motion.div>
@@ -99,8 +99,8 @@ export default function Results() {
     wavesurfer.current = WaveSurfer.create({
       container: waveformRef.current,
       waveColor: 'rgba(255, 255, 255, 0.05)',
-      progressColor: '#c41e3a',
-      cursorColor: '#f4a460',
+      progressColor: '#D4860A',
+      cursorColor: '#D4860A',
       barWidth: 2,
       barGap: 4,
       barRadius: 4,
@@ -187,14 +187,14 @@ export default function Results() {
       <PageWrapper className="py-32">
         <div className="max-w-md mx-auto text-center space-y-8">
           <div className="relative w-24 h-24 mx-auto">
-            <div className="absolute inset-0 rounded-full border border-[#c41e3a]/20 animate-ping" />
-            <div className="absolute inset-4 rounded-full border-2 border-t-[#c41e3a] border-transparent animate-spin" />
+            <div className="absolute inset-0 rounded-full border border-[#D4860A]/20 animate-ping" />
+            <div className="absolute inset-4 rounded-full border-2 border-t-[#D4860A] border-transparent animate-spin" />
             <div className="absolute inset-0 flex items-center justify-center">
-                <Zap className="w-8 h-8 text-[#c41e3a] fill-[#c41e3a]/20" />
+                <Zap className="w-8 h-8 text-[#D4860A] fill-[#D4860A]/20" />
             </div>
           </div>
           <div className="space-y-2">
-            <p className="font-display font-black text-white text-lg uppercase tracking-widest">Decoding Signal</p>
+            <p className="font-display font-black text-[#1A1410] text-lg uppercase tracking-widest">Decoding Signal</p>
             <p className="font-mono text-on-surface-variant text-[10px] uppercase tracking-[0.3em] animate-pulse">Neural clusters synchronizing…</p>
           </div>
         </div>
@@ -210,12 +210,12 @@ export default function Results() {
             <Radio className="w-8 h-8 text-red-400 opacity-70" />
           </div>
           <div className="space-y-2">
-            <h3 className="text-2xl font-display font-black text-white uppercase tracking-tight">Signal Interrupted</h3>
+            <h3 className="text-2xl font-display font-black text-[#1A1410] uppercase tracking-tight">Signal Interrupted</h3>
             <p className="text-red-300/60 font-mono text-xs uppercase tracking-widest leading-relaxed px-12">{error}</p>
           </div>
           <div className="flex justify-center gap-4">
-            <button onClick={fetchResults} className="px-8 py-3 rounded-xl bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-[#c41e3a] transition-all">Initialize Retry</button>
-            <Link to="/upload" className="px-8 py-3 rounded-xl border border-white/10 text-white font-mono text-[10px] uppercase tracking-widest hover:bg-white/5 transition-all">New Extraction</Link>
+            <button onClick={fetchResults} className="px-8 py-3 rounded-xl bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-[#D4860A] transition-all">Initialize Retry</button>
+            <Link to="/upload" className="px-8 py-3 rounded-xl border border-[#1A1410]/10 text-[#1A1410] font-mono text-[10px] uppercase tracking-widest hover:bg-white/5 transition-all">New Extraction</Link>
           </div>
         </div>
       </PageWrapper>
@@ -273,12 +273,12 @@ export default function Results() {
         </Suspense>
 
       {/* Cinematic Header */}
-      <header className="relative rounded-[3rem] overflow-hidden border border-white/10 h-[400px] flex items-end p-10 md:p-16 group">
+      <header className="relative rounded-[3rem] overflow-hidden border border-[#1A1410]/10 h-[400px] flex items-end p-10 md:p-16 group">
           {/* Blurred Background Art */}
           <div className="absolute inset-0 z-0 overflow-hidden">
               <img src={spotifyMeta?.cover_url || '/placeholder-art.jpg'} className="w-full h-full object-cover blur-[80px] opacity-30 scale-125 group-hover:scale-110 transition-transform duration-[2000ms]" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#120509] via-[#120509]/40 to-transparent" />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0,#120509_100%)] opacity-60" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1A1410] via-[#1A1410]/40 to-transparent" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0,#1A1410_100%)] opacity-60" />
           </div>
 
           <div className="relative z-10 flex flex-col md:flex-row gap-12 items-center md:items-end w-full">
@@ -288,36 +288,36 @@ export default function Results() {
                 transition={{ duration: 0.8, ease: "easeOut" }}
                 className="relative shrink-0"
               >
-                <div className="absolute inset-0 bg-[#c41e3a]/20 blur-[40px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                <div className="absolute inset-0 bg-[#D4860A]/20 blur-[40px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                 <motion.img 
                   animate={{ scale: [1, 1.02, 1] }}
                   transition={{ duration: pulseDuration, repeat: Infinity, ease: "easeInOut" }}
                   src={spotifyMeta?.cover_url || '/placeholder-art.jpg'} 
-                  className="w-48 h-48 md:w-64 md:h-64 rounded-3xl shadow-2xl border border-white/10 relative z-10 object-cover" 
+                  className="w-48 h-48 md:w-64 md:h-64 rounded-3xl shadow-2xl border border-[#1A1410]/10 relative z-10 object-cover" 
                 />
               </motion.div>
 
               <div className="flex-1 min-w-0 text-center md:text-left space-y-6">
                   <div className="space-y-2">
                     <div className="flex items-center justify-center md:justify-start gap-4">
-                        <span className="px-3 py-1 bg-[#c41e3a]/10 border border-[#c41e3a]/20 text-[#c41e3a] font-mono text-[10px] font-black rounded-lg uppercase tracking-[0.2em]">Spectral Intelligence Report</span>
-                        <span className="font-mono text-[10px] text-white/30 uppercase tracking-widest">Ref: {jobId.substring(0, 12)}</span>
+                        <span className="px-3 py-1 bg-[#D4860A]/10 border border-[#D4860A]/20 text-[#D4860A] font-mono text-[10px] font-black rounded-lg uppercase tracking-[0.2em]">Spectral Intelligence Report</span>
+                        <span className="font-mono text-[10px] text-[#1A1410]/30 uppercase tracking-widest">Ref: {jobId.substring(0, 12)}</span>
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-display font-black text-white tracking-tighter uppercase truncate leading-none">{result.song_title || 'Unknown Waveform'}</h1>
-                    <p className="text-2xl font-medium text-white/50 tracking-tight">{result.song_artist || 'System Source'}</p>
+                    <h1 className="text-5xl md:text-7xl font-display font-black text-[#1A1410] tracking-tighter uppercase truncate leading-none">{result.song_title || 'Unknown Waveform'}</h1>
+                    <p className="text-2xl font-medium text-[#1A1410]/50 tracking-tight">{result.song_artist || 'System Source'}</p>
                   </div>
                   
                   <div className="flex flex-wrap justify-center md:justify-start gap-4">
-                      <button onClick={handleFavorite} className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-[#8b2e5f]/50 text-white/60 hover:text-[#8b2e5f] transition-all group/btn">
+                      <button onClick={handleFavorite} className="p-4 rounded-2xl bg-white/[0.03] border border-[#1A1410]/10 hover:border-[#1A1410]/50 text-[#1A1410]/60 hover:text-[#1A1410] transition-all group/btn">
                           <Heart className="w-5 h-5 group-hover/btn:fill-current" />
                       </button>
-                      <button onClick={handleShare} className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-[#f4a460]/50 text-white/60 hover:text-[#f4a460] transition-all">
+                      <button onClick={handleShare} className="p-4 rounded-2xl bg-white/[0.03] border border-[#1A1410]/10 hover:border-[#D4860A]/50 text-[#1A1410]/60 hover:text-[#D4860A] transition-all">
                           <Share2 className="w-5 h-5" />
                       </button>
-                      <button onClick={handleExport} className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-[#e8a084]/50 text-white/60 hover:text-[#e8a084] transition-all">
+                      <button onClick={handleExport} className="p-4 rounded-2xl bg-white/[0.03] border border-[#1A1410]/10 hover:border-[#FFDAB9]/50 text-[#1A1410]/60 hover:text-[#FFDAB9] transition-all">
                           <Download className="w-5 h-5" />
                       </button>
-                      <Link to="/upload" className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-[#c41e3a] text-black font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(196,30,58,0.2)] hover:scale-105 transition-all">
+                      <Link to="/upload" className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-[#D4860A] text-black font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(163,81,57,0.2)] hover:scale-105 transition-all">
                           <Plus className="w-4 h-4" /> New Signal
                       </Link>
                   </div>
@@ -327,21 +327,21 @@ export default function Results() {
 
       {/* Primary Metrics Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard icon={Clock} label="Tempo" value={`${Math.round(result.bpm || 0)}`} sub="BPM" colorClass="text-[#c41e3a]" borderClass="border-[#c41e3a]/10" />
-          <StatCard icon={Layers} label="Scale" value={result.key_signature || result.scale || 'N/A'} sub="Signature" colorClass="text-[#f4a460]" borderClass="border-[#f4a460]/10" />
-          <StatCard icon={Activity} label="Energy" value={`${Math.round(result.energy_level * 100)}%`} sub="Intensity" colorClass="text-[#8b2e5f]" borderClass="border-[#8b2e5f]/10" />
-          <StatCard icon={Music} label="Mood" value={result.mood?.toUpperCase() || 'NEUTRAL'} sub="Neural Vector" colorClass="text-[#e8a084]" borderClass="border-[#e8a084]/10" />
+          <StatCard icon={Clock} label="Tempo" value={`${Math.round(result.bpm || 0)}`} sub="BPM" colorClass="text-[#D4860A]" borderClass="border-[#D4860A]/10" />
+          <StatCard icon={Layers} label="Scale" value={result.key_signature || result.scale || 'N/A'} sub="Signature" colorClass="text-[#D4860A]" borderClass="border-[#D4860A]/10" />
+          <StatCard icon={Activity} label="Energy" value={`${Math.round(result.energy_level * 100)}%`} sub="Intensity" colorClass="text-[#1A1410]" borderClass="border-[#1A1410]/10" />
+          <StatCard icon={Music} label="Mood" value={result.mood?.toUpperCase() || 'NEUTRAL'} sub="Neural Vector" colorClass="text-[#FFDAB9]" borderClass="border-[#FFDAB9]/10" />
       </div>
 
       <div className="grid grid-cols-12 gap-8">
           {/* Left Column: Player & Lyrics */}
           <div className="col-span-12 xl:col-span-8 space-y-8">
               {/* REDESIGNED: Audio Control Center */}
-              <div className="glass-card p-10 border border-white/10 overflow-hidden relative group">
+              <div className="glass-card p-10 border border-[#1A1410]/10 overflow-hidden relative group">
                   <motion.div 
                     animate={{ opacity: isPlaying ? [0.03, 0.08, 0.03] : 0.03 }}
                     transition={{ duration: pulseDuration, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute inset-0 bg-[#c41e3a] pointer-events-none blur-[120px] z-0" 
+                    className="absolute inset-0 bg-[#D4860A] pointer-events-none blur-[120px] z-0" 
                   />
 
                   <div className="relative z-10 space-y-12">
@@ -352,7 +352,7 @@ export default function Results() {
                             onClick={() => wavesurfer.current?.playPause()}
                             className="w-28 h-28 rounded-[2.5rem] bg-white text-black flex items-center justify-center hover:scale-105 transition-all shadow-[0_20px_60px_rgba(255,255,255,0.2)] shrink-0 group/play relative overflow-hidden"
                           >
-                              <div className="absolute inset-0 bg-[#c41e3a] opacity-0 group-hover/play:opacity-10 transition-opacity" />
+                              <div className="absolute inset-0 bg-[#D4860A] opacity-0 group-hover/play:opacity-10 transition-opacity" />
                               {isPlaying ? (
                                 <Pause className="w-12 h-12 fill-black" />
                               ) : (
@@ -364,47 +364,47 @@ export default function Results() {
                           <div className="flex-1 w-full space-y-6">
                               <div className="flex justify-between items-center">
                                   <div className="flex items-center gap-3">
-                                      <div className={clsx("w-2 h-2 rounded-full", isPlaying ? "bg-[#c41e3a] animate-pulse shadow-[0_0_10px_#c41e3a]" : "bg-white/10")} />
-                                      <span className="font-mono text-[10px] font-black uppercase tracking-[0.3em] text-white">Live Spectral Stream</span>
+                                      <div className={clsx("w-2 h-2 rounded-full", isPlaying ? "bg-[#D4860A] animate-pulse shadow-[0_0_10px_#D4860A]" : "bg-white/10")} />
+                                      <span className="font-mono text-[10px] font-black uppercase tracking-[0.3em] text-[#1A1410]">Live Spectral Stream</span>
                                   </div>
-                                  <div className="px-3 py-1 rounded-lg bg-white/5 border border-white/10">
-                                    <span className="font-mono text-[9px] text-white/40 uppercase tracking-widest font-black text-glow-crimson">Engine v4.2.0</span>
+                                  <div className="px-3 py-1 rounded-lg bg-white/5 border border-[#1A1410]/10">
+                                    <span className="font-mono text-[9px] text-[#1A1410]/40 uppercase tracking-widest font-black text-glow-orange">Engine v4.2.0</span>
                                   </div>
                               </div>
                               
                               <div className="relative">
                                 <div ref={waveformRef} className="w-full cursor-pointer hover:opacity-80 transition-opacity relative z-10" />
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#c41e3a]/5 to-transparent blur-[40px] pointer-events-none opacity-40" />
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4860A]/5 to-transparent blur-[40px] pointer-events-none opacity-40" />
                               </div>
                               
-                              <div className="flex justify-between font-mono text-[10px] font-black text-white/40 uppercase tracking-widest">
-                                  <span className="text-[#c41e3a] tabular-nums">{new Date(currentTime * 1000).toISOString().substr(14, 5)}</span>
+                              <div className="flex justify-between font-mono text-[10px] font-black text-[#1A1410]/40 uppercase tracking-widest">
+                                  <span className="text-[#D4860A] tabular-nums">{new Date(currentTime * 1000).toISOString().substr(14, 5)}</span>
                                   <span className="tabular-nums">{result.duration_ms ? new Date(result.duration_ms).toISOString().substr(14, 5) : '--:--'}</span>
                               </div>
                           </div>
                       </div>
 
                       {/* Advanced Telemetry Strips */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t border-white/5">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t border-[#1A1410]/5">
                           {[
-                            { label: 'Signal Confidence', value: '98%', color: 'bg-[#c41e3a]' },
-                            { label: 'Spectral Stability', value: '84%', color: 'bg-[#f4a460]' },
+                            { label: 'Signal Confidence', value: '98%', color: 'bg-[#D4860A]' },
+                            { label: 'Spectral Stability', value: '84%', color: 'bg-[#D4860A]' },
                             { label: 'Neural Phase', value: 'SYNCED', isStatus: true },
                             { label: 'Buffer Rate', value: 'OPTIMAL', isStatus: true },
                           ].map((stat, i) => (
                             <div key={i} className="space-y-3">
-                              <span className="font-mono text-[8px] text-white/30 uppercase tracking-[0.2em] font-black">{stat.label}</span>
+                              <span className="font-mono text-[8px] text-[#1A1410]/30 uppercase tracking-[0.2em] font-black">{stat.label}</span>
                               {stat.isStatus ? (
                                 <div className="flex items-center gap-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-[#c41e3a] animate-pulse" />
-                                    <span className="font-mono text-[11px] text-white font-black uppercase tracking-widest">{stat.value}</span>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-[#D4860A] animate-pulse" />
+                                    <span className="font-mono text-[11px] text-[#1A1410] font-black uppercase tracking-widest">{stat.value}</span>
                                 </div>
                               ) : (
                                 <div className="flex items-center gap-3">
                                   <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
                                       <div className={`h-full ${stat.color}`} style={{ width: stat.value }} />
                                   </div>
-                                  <span className="font-mono text-[10px] text-white font-black">{stat.value}</span>
+                                  <span className="font-mono text-[10px] text-[#1A1410] font-black">{stat.value}</span>
                                 </div>
                               )}
                             </div>
@@ -412,11 +412,11 @@ export default function Results() {
                       </div>
 
                       {/* Real-time Chord Scroll Strip */}
-                      <div className="relative h-24 bg-black/60 border border-white/5 rounded-2xl overflow-hidden flex items-center px-6 shadow-[inset_0_4px_30px_rgba(0,0,0,0.5)]">
+                      <div className="relative h-24 bg-[#2D1F18]/60 border border-[#1A1410]/5 rounded-2xl overflow-hidden flex items-center px-6 shadow-[inset_0_4px_30px_rgba(0,0,0,0.5)]">
                           {/* Focal Point Indicator */}
-                          <div className="absolute left-1/2 top-0 bottom-0 w-px bg-[#c41e3a] z-10 shadow-[0_0_20px_#c41e3a]">
-                              <div className="absolute -top-1 -left-1 w-2 h-2 bg-[#c41e3a] rounded-full blur-[1px]" />
-                              <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-[#c41e3a] rounded-full blur-[1px]" />
+                          <div className="absolute left-1/2 top-0 bottom-0 w-px bg-[#D4860A] z-10 shadow-[0_0_20px_#D4860A]">
+                              <div className="absolute -top-1 -left-1 w-2 h-2 bg-[#D4860A] rounded-full blur-[1px]" />
+                              <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-[#D4860A] rounded-full blur-[1px]" />
                           </div>
 
                           {chordSegments.length > 0 ? (
@@ -430,8 +430,8 @@ export default function Results() {
                                   className={clsx(
                                     'flex flex-col items-center justify-center min-w-[100px] h-14 rounded-xl transition-all duration-500',
                                     currentTime >= c.start_time && currentTime <= c.end_time
-                                      ? 'bg-[#c41e3a] text-black scale-110 shadow-[0_0_30px_rgba(196,30,58,0.2)] font-black'
-                                      : 'bg-white/5 text-white/20 border border-white/5 opacity-40'
+                                      ? 'bg-[#D4860A] text-black scale-110 shadow-[0_0_30px_rgba(163,81,57,0.2)] font-black'
+                                      : 'bg-white/5 text-[#1A1410]/20 border border-[#1A1410]/5 opacity-40'
                                   )}
                                   style={{ minWidth: Math.max(100, (c.end_time - c.start_time) * 80) }}
                                 >
@@ -442,8 +442,8 @@ export default function Results() {
                             </div>
                           ) : (
                             <div className="w-full flex items-center justify-center gap-4">
-                                <Radio className="w-5 h-5 text-white/10 animate-pulse" />
-                                <span className="font-mono text-[10px] text-white/20 uppercase tracking-[0.4em] font-black">Decoding Harmonic Matrix...</span>
+                                <Radio className="w-5 h-5 text-[#1A1410]/10 animate-pulse" />
+                                <span className="font-mono text-[10px] text-[#1A1410]/20 uppercase tracking-[0.4em] font-black">Decoding Harmonic Matrix...</span>
                             </div>
                           )}
                       </div>
@@ -451,15 +451,15 @@ export default function Results() {
               </div>
 
               {/* Transcripts Panel */}
-              <div className="obsidian-panel p-10 rounded-[3rem] border border-white/5 h-[500px] overflow-hidden flex flex-col group/lyrics">
+              <div className="obsidian-panel p-10 rounded-[3rem] border border-[#1A1410]/5 h-[500px] overflow-hidden flex flex-col group/lyrics">
                   <div className="flex justify-between items-center mb-10">
-                    <h3 className="font-display font-black text-xs text-[#c41e3a] uppercase tracking-[0.3em] flex items-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#c41e3a]" />
+                    <h3 className="font-display font-black text-xs text-[#D4860A] uppercase tracking-[0.3em] flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#D4860A]" />
                       {result?.synced_lyrics ? 'Neural Sync Transcript' : 'Source Transcript'}
                     </h3>
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-white/5 border border-white/5">
-                        <Activity className="w-3 h-3 text-white/20" />
-                        <span className="font-mono text-[9px] text-white/30 uppercase font-black tracking-widest">Active Tracking</span>
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-white/5 border border-[#1A1410]/5">
+                        <Activity className="w-3 h-3 text-[#1A1410]/20" />
+                        <span className="font-mono text-[9px] text-[#1A1410]/30 uppercase font-black tracking-widest">Active Tracking</span>
                     </div>
                   </div>
                   
@@ -472,19 +472,19 @@ export default function Results() {
                             className={clsx(
                               'text-2xl md:text-4xl font-display font-black transition-all duration-700 leading-tight',
                               i === currentLyricIdx
-                                ? 'text-white text-glow-crimson opacity-100'
-                                : 'text-white/10 hover:text-white/25 cursor-default'
+                                ? 'text-[#1A1410] text-glow-orange opacity-100'
+                                : 'text-[#1A1410]/10 hover:text-[#1A1410]/25 cursor-default'
                             )}
                           >
                             {line.text}
                           </motion.p>
                         ))
                       ) : lyricsText ? (
-                        <pre className="text-white/60 text-lg font-medium whitespace-pre-wrap leading-relaxed font-sans">
+                        <pre className="text-[#1A1410]/60 text-lg font-medium whitespace-pre-wrap leading-relaxed font-sans">
                           {lyricsText}
                         </pre>
                       ) : (
-                        <div className="h-full flex flex-col items-center justify-center space-y-6 text-white/10">
+                        <div className="h-full flex flex-col items-center justify-center space-y-6 text-[#1A1410]/10">
                           <CloudRain className="w-16 h-16 opacity-10" />
                           <p className="font-mono text-xs uppercase tracking-[0.4em] font-black italic">Neural signatures missing for lyrics</p>
                         </div>
@@ -495,27 +495,27 @@ export default function Results() {
 
           {/* Right Column: Technical Metadata & Chord Fingerprints */}
           <div className="col-span-12 xl:col-span-4 space-y-8">
-              <div className="glass-card p-8 border border-[#c41e3a]/20 bg-[#c41e3a]/5 relative overflow-hidden group/chord">
+              <div className="glass-card p-8 border border-[#D4860A]/20 bg-[#D4860A]/5 relative overflow-hidden group/chord">
                   <div className="absolute top-0 right-0 p-4 opacity-5 group-hover/chord:opacity-10 transition-opacity">
-                    <Radio className="w-32 h-32 text-[#c41e3a]" />
+                    <Radio className="w-32 h-32 text-[#D4860A]" />
                   </div>
-                  <span className="font-mono text-[10px] text-[#c41e3a] font-black uppercase tracking-[0.3em] mb-8 block">Live Harmonic Detection</span>
+                  <span className="font-mono text-[10px] text-[#D4860A] font-black uppercase tracking-[0.3em] mb-8 block">Live Harmonic Detection</span>
                   <div className="flex items-center justify-between relative z-10">
-                      <div className="text-6xl font-display font-black text-white tracking-tighter text-glow-crimson">{currentChord}</div>
-                      <div className="w-16 h-16 rounded-[2rem] bg-[#c41e3a]/10 border border-[#c41e3a]/30 flex items-center justify-center">
-                          <Radio className="w-8 h-8 text-[#c41e3a] animate-pulse" />
+                      <div className="text-6xl font-display font-black text-[#1A1410] tracking-tighter text-glow-orange">{currentChord}</div>
+                      <div className="w-16 h-16 rounded-[2rem] bg-[#D4860A]/10 border border-[#D4860A]/30 flex items-center justify-center">
+                          <Radio className="w-8 h-8 text-[#D4860A] animate-pulse" />
                       </div>
                   </div>
-                  <div className="mt-8 flex items-center gap-3 px-4 py-2 rounded-xl bg-black/40 border border-white/5 relative z-10 w-max">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#c41e3a] animate-ping" />
-                    <p className="text-[9px] text-[#c41e3a] uppercase font-mono font-black tracking-widest">Real-time spectral link active</p>
+                  <div className="mt-8 flex items-center gap-3 px-4 py-2 rounded-xl bg-[#2D1F18]/40 border border-[#1A1410]/5 relative z-10 w-max">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#D4860A] animate-ping" />
+                    <p className="text-[9px] text-[#D4860A] uppercase font-mono font-black tracking-widest">Real-time spectral link active</p>
                   </div>
               </div>
 
-              <div className="obsidian-panel rounded-[2.5rem] border border-white/5 overflow-hidden">
-                <div className="p-8 border-b border-white/5 bg-white/[0.01]">
-                    <h3 className="font-display font-black text-xs text-white uppercase tracking-[0.3em] flex items-center gap-3">
-                        <Zap className="w-4 h-4 text-[#c41e3a]" /> Chord Fingerprints
+              <div className="obsidian-panel rounded-[2.5rem] border border-[#1A1410]/5 overflow-hidden">
+                <div className="p-8 border-b border-[#1A1410]/5 bg-white/[0.01]">
+                    <h3 className="font-display font-black text-xs text-[#1A1410] uppercase tracking-[0.3em] flex items-center gap-3">
+                        <Zap className="w-4 h-4 text-[#D4860A]" /> Chord Fingerprints
                     </h3>
                 </div>
                 <div className="p-2">
@@ -523,12 +523,12 @@ export default function Results() {
                 </div>
               </div>
 
-              <div className="obsidian-panel p-8 rounded-[2.5rem] border border-white/5 space-y-8">
+              <div className="obsidian-panel p-8 rounded-[2.5rem] border border-[#1A1410]/5 space-y-8">
                   <div className="flex items-center justify-between">
-                      <h4 className="font-display font-black text-xs text-white uppercase tracking-[0.3em] flex items-center gap-3">
-                        <FileText className="w-4 h-4 text-[#f4a460]" /> Spectral Metadata
+                      <h4 className="font-display font-black text-xs text-[#1A1410] uppercase tracking-[0.3em] flex items-center gap-3">
+                        <FileText className="w-4 h-4 text-[#D4860A]" /> Spectral Metadata
                       </h4>
-                      <CheckCircle2 className="w-4 h-4 text-[#c41e3a] opacity-50" />
+                      <CheckCircle2 className="w-4 h-4 text-[#D4860A] opacity-50" />
                   </div>
                   
                   <div className="space-y-4">
@@ -541,20 +541,20 @@ export default function Results() {
                       ].map((meta, i) => (
                         <div key={i} className="flex justify-between items-center group/meta p-2 rounded-xl hover:bg-white/[0.02] transition-colors cursor-default">
                           <div className="space-y-1">
-                            <span className="font-mono text-[9px] text-white/30 uppercase tracking-widest font-black block group-hover/meta:text-white/50 transition-colors">{meta.label}</span>
+                            <span className="font-mono text-[9px] text-[#1A1410]/30 uppercase tracking-widest font-black block group-hover/meta:text-[#1A1410]/50 transition-colors">{meta.label}</span>
                             <span className="font-mono text-[8px] text-on-surface-variant uppercase tracking-widest opacity-40 block">{meta.sub}</span>
                           </div>
-                          <span className="font-display font-black text-sm text-white group-hover/meta:text-[#c41e3a] transition-colors">{meta.value}</span>
+                          <span className="font-display font-black text-sm text-[#1A1410] group-hover/meta:text-[#D4860A] transition-colors">{meta.value}</span>
                         </div>
                       ))}
                   </div>
 
                   <button 
                     onClick={handleExport}
-                    className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] hover:border-[#c41e3a]/30 transition-all group/export"
+                    className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-white/[0.03] border border-[#1A1410]/10 hover:bg-white/[0.06] hover:border-[#D4860A]/30 transition-all group/export"
                   >
-                    <span className="font-mono text-[10px] font-black text-white uppercase tracking-widest group-hover/export:text-[#c41e3a]">Download Full JSON Report</span>
-                    <ArrowUpRight className="w-3 h-3 text-white/20 group-hover/export:text-[#c41e3a] group-hover/export:translate-x-0.5 group-hover/export:-translate-y-0.5 transition-all" />
+                    <span className="font-mono text-[10px] font-black text-[#1A1410] uppercase tracking-widest group-hover/export:text-[#D4860A]">Download Full JSON Report</span>
+                    <ArrowUpRight className="w-3 h-3 text-[#1A1410]/20 group-hover/export:text-[#D4860A] group-hover/export:translate-x-0.5 group-hover/export:-translate-y-0.5 transition-all" />
                   </button>
               </div>
           </div>

@@ -132,8 +132,8 @@ export default function AuthCallback() {
   }, [navigate, params, setAuth, setTokens]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#120509] text-white font-body">
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#120509_72%)] pointer-events-none" />
+    <div className="relative min-h-screen overflow-hidden bg-[#1A1410] text-[#1A1410] font-body">
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#1A1410_72%)] pointer-events-none" />
       <div
         className="absolute inset-0 z-0 opacity-30 pointer-events-none"
         style={{
@@ -145,13 +145,13 @@ export default function AuthCallback() {
 
       <main className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6">
         <div className="mb-10 relative flex items-center justify-center w-28 h-28">
-          <div className="absolute inset-0 rounded-full border border-white/10 animate-ping opacity-20" />
+          <div className="absolute inset-0 rounded-full border border-[#1A1410]/10 animate-ping opacity-20" />
           <div className="absolute inset-4 rounded-full border border-white/15" />
           <div className="w-3 h-3 rounded-full bg-white shadow-[0_0_20px_rgba(255,255,255,0.35)]" />
         </div>
 
         <div className="text-center space-y-3 max-w-md">
-          <h1 className="font-headline text-2xl font-bold tracking-tight text-white">{mainStatus}</h1>
+          <h1 className="font-headline text-2xl font-bold tracking-tight text-[#1A1410]">{mainStatus}</h1>
           <p className="text-sm text-gray-400">{subStatus}</p>
         </div>
 

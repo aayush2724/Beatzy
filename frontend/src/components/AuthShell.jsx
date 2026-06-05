@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 
 /**
- * Shared layout for sign-in / sign-up — matches Landing (#120509, glass, headline type).
+ * Shared layout for sign-in / sign-up — matches Landing (#1A1410, glass, headline type).
  */
 export default function AuthShell({ title, subtitle, children, footer }) {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#120509] text-white font-body">
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#120509_72%)] pointer-events-none" />
+    <div className="relative min-h-screen overflow-hidden bg-[#1A1410] text-[#1A1410] font-body">
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#1A1410_72%)] pointer-events-none" />
       <div
         className="absolute inset-0 z-0 opacity-40 pointer-events-none"
         style={{
@@ -16,14 +16,14 @@ export default function AuthShell({ title, subtitle, children, footer }) {
       />
 
       <nav className="relative z-20 flex items-center justify-between px-6 md:px-12 py-8">
-        <Link to="/" className="font-headline text-lg tracking-[0.25em] text-white hover:text-gray-200 transition">
+        <Link to="/" className="font-headline text-lg tracking-[0.25em] text-[#1A1410] hover:text-gray-200 transition">
           BEATZY
         </Link>
         <div className="flex items-center gap-6 md:gap-10 text-xs tracking-[0.1em] uppercase text-gray-400">
-          <Link to="/pricing" className="hover:text-white transition">
+          <Link to="/pricing" className="hover:text-[#1A1410] transition">
             Pricing
           </Link>
-          <Link to="/" className="hover:text-white transition hidden sm:inline">
+          <Link to="/" className="hover:text-[#1A1410] transition hidden sm:inline">
             Home
           </Link>
         </div>
@@ -43,7 +43,7 @@ export default function AuthShell({ title, subtitle, children, footer }) {
           >
             <header className="text-center space-y-3">
               <p className="text-[10px] tracking-[0.35em] text-gray-500 uppercase">Beatzy</p>
-              <h1 className="font-headline text-3xl md:text-4xl font-bold tracking-tight text-white">
+              <h1 className="font-headline text-3xl md:text-4xl font-bold tracking-tight text-[#1A1410]">
                 {title}
               </h1>
               {subtitle && (

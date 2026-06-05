@@ -170,21 +170,21 @@ export const PricingCard = ({
   const cardClasses = `
     backdrop-blur-[14px] bg-gradient-to-br rounded-2xl shadow-xl flex-1 max-w-xs px-7 py-8 flex flex-col transition-all duration-300
     from-black/5 to-black/0 border border-black/10
-    dark:from-white/10 dark:to-white/5 dark:border-white/10 dark:backdrop-brightness-[0.91]
-    \${isPopular ? 'scale-105 relative ring-2 ring-crimson-red/20 dark:from-white/20 dark:to-white/10 dark:border-crimson-red/30 shadow-2xl' : ''}
+    dark:from-white/10 dark:to-white/5 dark:border-[#1A1410]/10 dark:backdrop-brightness-[0.91]
+    \${isPopular ? 'scale-105 relative ring-2 ring-vibrant-orange/20 dark:from-white/20 dark:to-white/10 dark:border-vibrant-orange/30 shadow-2xl' : ''}
   `;
   const buttonClasses = `
     mt-auto w-full py-2.5 rounded-xl font-semibold text-[14px] transition font-sans
     \${buttonVariant === 'primary' 
-      ? 'bg-crimson-red hover:bg-wine-red text-foreground' 
-      : 'bg-black/10 hover:bg-black/20 text-foreground border border-black/20 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white dark:border-white/20'
+      ? 'bg-vibrant-orange hover:bg-cosmic-purple text-foreground' 
+      : 'bg-[#2D1F18]/10 hover:bg-[#2D1F18]/20 text-foreground border border-black/20 dark:bg-white/10 dark:hover:bg-white/20 dark:text-[#1A1410] dark:border-[#1A1410]/20'
     }
   `;
 
   return (
     <div className={cardClasses.trim()}>
       {isPopular && (
-        <div className="absolute -top-4 right-4 px-3 py-1 text-[12px] font-semibold rounded-full bg-crimson-red text-foreground dark:text-black">
+        <div className="absolute -top-4 right-4 px-3 py-1 text-[12px] font-semibold rounded-full bg-vibrant-orange text-foreground dark:text-black">
           Most Popular
         </div>
       )}
@@ -200,7 +200,7 @@ export const PricingCard = ({
       <ul className="flex flex-col gap-2 text-[14px] text-foreground/90 mb-6 font-sans">
         {features.map((feature, index) => (
           <li key={index} className="flex items-center gap-2">
-            <Check className="text-crimson-red w-4 h-4" /> {feature}
+            <Check className="text-vibrant-orange w-4 h-4" /> {feature}
           </li>
         ))}
       </ul>
@@ -234,7 +234,7 @@ export const ModernPricingPage = ({
       {showAnimatedBackground && <ShaderCanvas />}
       <main className="relative w-full min-h-screen flex flex-col items-center justify-center px-4 py-8">
         <div className="w-full max-w-5xl mx-auto text-center mb-14">
-          <h1 className="text-[48px] md:text-[64px] font-extralight leading-tight tracking-[-0.03em] bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-wine-red to-blue-600 dark:from-white dark:via-wine-red dark:to-blue-400 font-display">
+          <h1 className="text-[48px] md:text-[64px] font-extralight leading-tight tracking-[-0.03em] bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-cosmic-purple to-blue-600 dark:from-white dark:via-cosmic-purple dark:to-blue-400 font-display">
             {title}
           </h1>
           <p className="mt-3 text-[16px] md:text-[20px] text-foreground/80 max-w-2xl mx-auto font-sans">
