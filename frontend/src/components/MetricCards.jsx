@@ -45,13 +45,13 @@ export default function MetricCards() {
               </span>
               {metric.title}
             </h4>
-            <span className={`font-label-sm border border-[#1A1410]/10 px-2 py-0.5 rounded text-[10px] uppercase ${metric.statusColor}`}>
+            <span className={`font-label-sm border border-[#0D0808]/10 px-2 py-0.5 rounded text-[10px] uppercase ${metric.statusColor}`}>
               {metric.status}
             </span>
           </div>
 
           {metric.id === 'timbre' && (
-            <div className="bg-surface-container-lowest rounded p-6 border border-[#1A1410]/5">
+            <div className="bg-surface-container-lowest rounded p-6 border border-[#0D0808]/5">
               <p className="font-label-sm text-outline mb-4">
                 {metric.label} <span className="text-primary font-semibold">{metric.value}</span>
               </p>
@@ -72,7 +72,7 @@ export default function MetricCards() {
 
           {metric.id === 'resonance' && (
             <div className="flex items-center gap-4">
-              <div className="flex-1 bg-surface-container-lowest border border-[#1A1410]/5 rounded px-5 py-3 font-label-sm text-primary">
+              <div className="flex-1 bg-surface-container-lowest border border-[#0D0808]/5 rounded px-5 py-3 font-label-sm text-primary">
                 Minor 7th | Dim 5
               </div>
               <span className="material-symbols-outlined text-primary/40 animate-spin text-[18px]">

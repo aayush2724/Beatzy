@@ -3,28 +3,28 @@ import { ChevronLeft, FileText } from 'lucide-react';
 
 export default function Terms() {
   return (
-    <div className="min-h-screen bg-[#1A1410] text-[#F5EFE7] font-body selection:bg-[#C41E3A]/30 selection:text-black">
+    <div className="min-h-screen bg-[#0D0808] text-[#FFFFFF] font-body selection:bg-[#FF6B35]/30 selection:text-black">
       <div className="max-w-3xl mx-auto px-8 py-24 space-y-16 animate-page-entrance">
-        <Link to="/" className="group inline-flex items-center gap-2 font-mono text-[10px] text-[#F5EFE7]/30 uppercase tracking-widest hover:text-[#C41E3A] transition-colors">
+        <Link to="/" className="group inline-flex items-center gap-2 font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-widest hover:text-[#FF6B35] transition-colors">
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to Network
         </Link>
 
         <header className="space-y-6">
-          <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full border border-[#C41E3A]/20 bg-[#C41E3A]/5 text-[#C41E3A] font-mono text-[9px] uppercase tracking-[0.2em]">
+          <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full border border-[#FF6B35]/20 bg-[#FF6B35]/5 text-[#FF6B35] font-mono text-[9px] uppercase tracking-[0.2em]">
             <FileText className="w-3 h-3" /> Service Level Protocol
           </div>
-          <h1 className="text-6xl font-display font-black text-[#F5EFE7] uppercase tracking-tighter leading-none">Terms of <span className="text-[#C41E3A] text-glow-rust">Uplink</span></h1>
+          <h1 className="text-6xl font-display font-black text-[#FFFFFF] uppercase tracking-tighter leading-none">Terms of <span className="text-[#FF6B35] text-glow-ember">Uplink</span></h1>
           <p className="text-on-surface-variant font-mono text-[10px] uppercase tracking-[0.3em]">Revision 4.2.0 · Neural Core Governance</p>
         </header>
 
-        <div className="obsidian-panel p-12 rounded-[3rem] border border-[#1A1410]/5 space-y-10 relative overflow-hidden group">
+        <div className="obsidian-panel p-12 rounded-[3rem] border border-[#0D0808]/5 space-y-10 relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-10 opacity-[0.02] group-hover:opacity-[0.05] transition-opacity pointer-events-none">
               <FileText className="w-64 h-64" />
           </div>
 
           <section className="space-y-6 relative z-10">
-            <h3 className="font-display font-black text-xl text-[#F5EFE7] uppercase tracking-tight flex items-center gap-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#C41E3A]" />
+            <h3 className="font-display font-black text-xl text-[#FFFFFF] uppercase tracking-tight flex items-center gap-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#FF6B35]" />
                 Resource Authorization
             </h3>
             <p className="text-on-surface-variant text-base leading-relaxed font-medium">
@@ -33,7 +33,7 @@ export default function Terms() {
           </section>
 
           <section className="space-y-6 relative z-10">
-            <h3 className="font-display font-black text-xl text-[#F5EFE7] uppercase tracking-tight flex items-center gap-3">
+            <h3 className="font-display font-black text-xl text-[#FFFFFF] uppercase tracking-tight flex items-center gap-3">
                 <div className="w-1.5 h-1.5 rounded-full bg-[#FFDAB9]" />
                 Liability Disclaimer
             </h3>
@@ -42,9 +42,9 @@ export default function Terms() {
             </p>
           </section>
 
-          <div className="pt-10 border-t border-[#1A1410]/5 flex flex-col sm:flex-row justify-between items-center gap-6 font-mono text-[9px] text-[#F5EFE7]/20 uppercase tracking-[0.2em] relative z-10">
+          <div className="pt-10 border-t border-[#0D0808]/5 flex flex-col sm:flex-row justify-between items-center gap-6 font-mono text-[9px] text-[#FFFFFF]/20 uppercase tracking-[0.2em] relative z-10">
             <div className="flex items-center gap-3">
-                <div className="w-1 h-1 rounded-full bg-[#C41E3A] animate-pulse" />
+                <div className="w-1 h-1 rounded-full bg-[#FF6B35] animate-pulse" />
                 Governance Level: ENFORCED
             </div>
             <span>End of Transmission</span>
@@ -52,7 +52,7 @@ export default function Terms() {
         </div>
 
         <footer className="text-center pt-10">
-            <p className="font-mono text-[9px] text-[#F5EFE7]/10 uppercase tracking-[0.4em]">Questions? uplink@beatzy.io · Node: Region-EU-1</p>
+            <p className="font-mono text-[9px] text-[#FFFFFF]/10 uppercase tracking-[0.4em]">Questions? uplink@beatzy.io · Node: Region-EU-1</p>
         </footer>
       </div>
     </div>

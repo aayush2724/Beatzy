@@ -42,8 +42,8 @@ export default function BillingSuccess() {
   }, [setUser, navigate]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#1A1410] text-[#F5EFE7] font-body selection:bg-white/20 flex flex-col justify-between">
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#1A1410_72%)] pointer-events-none" />
+    <div className="relative min-h-screen overflow-hidden bg-[#0D0808] text-[#FFFFFF] font-body selection:bg-white/20 flex flex-col justify-between">
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#0D0808_72%)] pointer-events-none" />
       <div
         className="absolute inset-0 z-0 opacity-40 pointer-events-none"
         style={{
@@ -66,7 +66,7 @@ export default function BillingSuccess() {
           <div className="relative inline-block">
             <div className="absolute inset-0 bg-white/5 blur-2xl rounded-full scale-150 animate-pulse" />
             <span
-              className="material-symbols-outlined text-[64px] text-[#F5EFE7] relative select-none leading-none"
+              className="material-symbols-outlined text-[64px] text-[#FFFFFF] relative select-none leading-none"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               check_circle
@@ -74,20 +74,20 @@ export default function BillingSuccess() {
           </div>
 
           <div>
-            <h1 className="font-headline text-2xl font-bold text-[#F5EFE7] tracking-tight mb-2">Payment confirmed</h1>
+            <h1 className="font-headline text-2xl font-bold text-[#FFFFFF] tracking-tight mb-2">Payment confirmed</h1>
             <p className="text-sm text-gray-400 leading-relaxed max-w-xs mx-auto">
               Your plan is active. Syncing your account…
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 bg-white/[0.02] border border-[#1A1410]/10 p-4 rounded-lg text-left">
+          <div className="grid grid-cols-2 gap-4 bg-white/[0.02] border border-[#0D0808]/10 p-4 rounded-lg text-left">
             <div>
               <span className="font-mono text-[8px] text-gray-500 uppercase tracking-widest block mb-0.5">Plan</span>
-              <span className="font-mono text-[10px] font-bold text-[#F5EFE7] uppercase">Pro active</span>
+              <span className="font-mono text-[10px] font-bold text-[#FFFFFF] uppercase">Pro active</span>
             </div>
             <div className="text-right">
               <span className="font-mono text-[8px] text-gray-500 uppercase tracking-widest block mb-0.5">Sync</span>
-              <span className="font-mono text-[10px] font-bold text-[#F5EFE7] uppercase flex items-center justify-end gap-1.5">
+              <span className="font-mono text-[10px] font-bold text-[#FFFFFF] uppercase flex items-center justify-end gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                 Connected
               </span>
@@ -103,7 +103,7 @@ export default function BillingSuccess() {
             </div>
             <span
               className={`font-mono text-[8px] uppercase tracking-widest transition-colors ${
-                syncComplete ? 'text-[#F5EFE7]' : 'text-gray-500'
+                syncComplete ? 'text-[#FFFFFF]' : 'text-gray-500'
               }`}
             >
               {syncComplete ? 'Sync complete' : 'Initializing profile sync…'}
@@ -116,18 +116,18 @@ export default function BillingSuccess() {
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </Link>
             <p className="mt-4 font-mono text-[9px] text-gray-500 uppercase tracking-widest">
-              Redirecting in <span className="text-[#F5EFE7] font-bold">{countdown}</span>s
+              Redirecting in <span className="text-[#FFFFFF] font-bold">{countdown}</span>s
             </p>
           </div>
         </div>
       </div>
 
-      <footer className="relative z-10 w-full py-6 px-8 border-t border-[#1A1410]/10">
+      <footer className="relative z-10 w-full py-6 px-8 border-t border-[#0D0808]/10">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <span className="font-mono text-[8px] text-gray-600 uppercase tracking-widest">© 2026 Beatzy AI</span>
           <div className="flex gap-6 font-mono text-[8px] uppercase tracking-widest text-gray-500">
-            <Link className="hover:text-[#F5EFE7] transition-colors" to="/privacy">Privacy</Link>
-            <Link className="hover:text-[#F5EFE7] transition-colors" to="/terms">Terms</Link>
+            <Link className="hover:text-[#FFFFFF] transition-colors" to="/privacy">Privacy</Link>
+            <Link className="hover:text-[#FFFFFF] transition-colors" to="/terms">Terms</Link>
           </div>
         </div>
       </footer>

@@ -27,10 +27,10 @@ export default function AppBackground() {
   }, []);
 
   return (
-    <div ref={bgRef} className="fixed inset-0 z-0 overflow-hidden pointer-events-none" style={{ background: '#1A1410' }}>
-      <div className="absolute top-[-15%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-[#C41E3A] blur-[120px] animate-pulse" style={{ opacity: 0.04, animationDuration: '8s' }} />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-[#A64D3D] blur-[150px] animate-pulse" style={{ opacity: 0.03, animationDuration: '12s' }} />
-      <div className="absolute top-[30%] left-[20%] w-[40vw] h-[40vw] rounded-full bg-[#C41E3A] blur-[180px] animate-pulse" style={{ opacity: 0.02, animationDuration: '10s' }} />
+    <div ref={bgRef} className="fixed inset-0 z-0 overflow-hidden pointer-events-none" style={{ background: '#0D0808' }}>
+      <div className="absolute top-[-15%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-[#FF6B35] blur-[120px] animate-pulse" style={{ opacity: 0.04, animationDuration: '8s' }} />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-[#E8471A] blur-[150px] animate-pulse" style={{ opacity: 0.03, animationDuration: '12s' }} />
+      <div className="absolute top-[30%] left-[20%] w-[40vw] h-[40vw] rounded-full bg-[#FF6B35] blur-[180px] animate-pulse" style={{ opacity: 0.02, animationDuration: '10s' }} />
       
       {/* 3D Parallax Objects */}
       <div className="absolute inset-0" style={{ perspective: '1000px' }}>
@@ -52,7 +52,7 @@ export default function AppBackground() {
       </div>
       
       {/* Dark Vignette so the center content is always readable */}
-      <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, transparent 15%, #1A1410 85%)', opacity: 0.85 }} />
+      <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, transparent 15%, #0D0808 85%)', opacity: 0.85 }} />
     </div>
   );
 }

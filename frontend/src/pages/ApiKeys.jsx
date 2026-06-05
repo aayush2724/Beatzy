@@ -74,16 +74,16 @@ export default function ApiKeys() {
 
   if (!canUseApiKeys) return (
     <PageWrapper className="flex items-center justify-center py-24 animate-page-entrance">
-      <div className="max-w-xl w-full text-center glass-card p-16 border border-[#1A1410]/5 relative overflow-hidden group">
+      <div className="max-w-xl w-full text-center glass-card p-16 border border-[#0D0808]/5 relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
-            <ShieldAlert className="w-64 h-64 text-[#F5EFE7]" />
+            <ShieldAlert className="w-64 h-64 text-[#FFFFFF]" />
         </div>
-        <div className="w-24 h-24 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 bg-white/[0.03] border border-[#1A1410]/10 group-hover:border-[#1A1410]/30 transition-colors">
-          <ShieldAlert className="w-10 h-10 text-[#F5EFE7] opacity-70" />
+        <div className="w-24 h-24 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 bg-white/[0.03] border border-[#0D0808]/10 group-hover:border-[#0D0808]/30 transition-colors">
+          <ShieldAlert className="w-10 h-10 text-[#FFFFFF] opacity-70" />
         </div>
-        <h2 className="text-4xl font-display font-black text-[#F5EFE7] mb-4 uppercase tracking-tight">Access Restricted</h2>
-        <p className="font-mono text-[10px] text-[#F5EFE7]/30 mb-12 uppercase tracking-[0.2em] leading-relaxed max-w-sm mx-auto">Upgrade to a professional tier to provision secure API credentials for high-frequency neural mapping.</p>
-        <Link to="/pricing" className="group flex items-center justify-center gap-4 h-16 w-full rounded-2xl bg-[#1A1410] text-[#F5EFE7] font-black uppercase tracking-[0.2em] text-xs hover:scale-105 transition-all shadow-[0_0_50px_rgba(139,46,95,0.2)]">
+        <h2 className="text-4xl font-display font-black text-[#FFFFFF] mb-4 uppercase tracking-tight">Access Restricted</h2>
+        <p className="font-mono text-[10px] text-[#FFFFFF]/30 mb-12 uppercase tracking-[0.2em] leading-relaxed max-w-sm mx-auto">Upgrade to a professional tier to provision secure API credentials for high-frequency neural mapping.</p>
+        <Link to="/pricing" className="group flex items-center justify-center gap-4 h-16 w-full rounded-2xl bg-[#0D0808] text-[#FFFFFF] font-black uppercase tracking-[0.2em] text-xs hover:scale-105 transition-all shadow-[0_0_50px_rgba(139,46,95,0.2)]">
           <Cpu className="w-5 h-5 fill-current" />
           <span>Upgrade Protocol</span>
         </Link>
@@ -93,15 +93,15 @@ export default function ApiKeys() {
 
   return (
     <PageWrapper className="space-y-16 pb-20 animate-page-entrance">
-      <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-10 border-b border-[#1A1410]/5 pb-12">
+      <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-10 border-b border-[#0D0808]/5 pb-12">
         <div className="space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#FFDAB9]/20 bg-[#FFDAB9]/5 text-[#FFDAB9] font-mono text-[9px] uppercase tracking-[0.2em]">
               <Key className="w-3 h-3" /> Credential Matrix
           </div>
-          <h1 className="text-6xl font-display font-black text-[#F5EFE7] tracking-tighter uppercase leading-none">API <span className="text-[#FFDAB9] text-glow-wine">Matrix</span></h1>
-          <p className="font-mono text-[10px] text-[#F5EFE7]/30 uppercase tracking-[0.3em]">Programmatic interface for audio intelligence uplinks</p>
+          <h1 className="text-6xl font-display font-black text-[#FFFFFF] tracking-tighter uppercase leading-none">API <span className="text-[#FFDAB9] text-glow-wine">Matrix</span></h1>
+          <p className="font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-[0.3em]">Programmatic interface for audio intelligence uplinks</p>
         </div>
-        <button onClick={() => setShowForm(f => !f)} className="group flex items-center gap-4 px-10 py-5 rounded-2xl bg-[#FFDAB9] text-[#F5EFE7] font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(232,160,132,0.2)] hover:scale-105 transition-all">
+        <button onClick={() => setShowForm(f => !f)} className="group flex items-center gap-4 px-10 py-5 rounded-2xl bg-[#FFDAB9] text-[#FFFFFF] font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(232,160,132,0.2)] hover:scale-105 transition-all">
           {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
           {showForm ? 'CANCEL' : 'PROVISION NODE'}
         </button>
@@ -110,16 +110,16 @@ export default function ApiKeys() {
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-12">
         <div className="xl:col-span-8 space-y-12">
           {newKey && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="glass-card p-10 relative overflow-hidden border-[#C41E3A]/20 bg-[#C41E3A]/5">
-              <div className="absolute top-0 left-0 w-1 h-full bg-[#C41E3A]" />
-              <div className="flex items-center gap-3 mb-6 text-[#C41E3A]">
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="glass-card p-10 relative overflow-hidden border-[#FF6B35]/20 bg-[#FF6B35]/5">
+              <div className="absolute top-0 left-0 w-1 h-full bg-[#FF6B35]" />
+              <div className="flex items-center gap-3 mb-6 text-[#FF6B35]">
                 <ShieldCheck className="w-5 h-5" />
                 <span className="font-mono text-[10px] font-black uppercase tracking-[0.3em]">Credential Provisioned Successfully</span>
               </div>
-              <p className="font-mono text-[10px] text-[#F5EFE7]/40 mb-8 uppercase tracking-widest leading-relaxed">Store this secret key securely. For system integrity, it will not be displayed again.</p>
-              <div className="flex items-center justify-between gap-6 p-6 rounded-2xl bg-[#2A1A15]/60 border border-[#1A1410]/10 shadow-inner group/key">
-                <code className="font-mono text-base text-[#C41E3A] select-all truncate">{newKey}</code>
-                <button onClick={() => copyKey(newKey)} className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/5 border border-[#1A1410]/10 hover:border-[#C41E3A]/50 text-[#F5EFE7]/20 hover:text-[#C41E3A] transition-all group-hover/key:scale-105">
+              <p className="font-mono text-[10px] text-[#FFFFFF]/40 mb-8 uppercase tracking-widest leading-relaxed">Store this secret key securely. For system integrity, it will not be displayed again.</p>
+              <div className="flex items-center justify-between gap-6 p-6 rounded-2xl bg-[#1A1010]/60 border border-[#0D0808]/10 shadow-inner group/key">
+                <code className="font-mono text-base text-[#FF6B35] select-all truncate">{newKey}</code>
+                <button onClick={() => copyKey(newKey)} className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/5 border border-[#0D0808]/10 hover:border-[#FF6B35]/50 text-[#FFFFFF]/20 hover:text-[#FF6B35] transition-all group-hover/key:scale-105">
                     <Copy className="w-5 h-5" />
                 </button>
               </div>
@@ -131,18 +131,18 @@ export default function ApiKeys() {
               <div className="absolute top-0 right-0 p-8 opacity-5">
                   <Terminal className="w-24 h-24 text-[#FFDAB9]" />
               </div>
-              <h3 className="font-display font-black text-xs text-[#F5EFE7] uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
+              <h3 className="font-display font-black text-xs text-[#FFFFFF] uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
                   <Terminal className="w-4 h-4 text-[#FFDAB9]" /> Initialize New Node
               </h3>
               <form onSubmit={createKey} className="flex flex-col md:flex-row gap-6">
                 <input 
-                    className="flex-1 h-16 bg-white/[0.03] border border-[#1A1410]/10 rounded-2xl px-6 text-[#F5EFE7] placeholder:text-[#F5EFE7]/20 focus:outline-none focus:border-[#FFDAB9]/30 transition-all font-medium" 
+                    className="flex-1 h-16 bg-white/[0.03] border border-[#0D0808]/10 rounded-2xl px-6 text-[#FFFFFF] placeholder:text-[#FFFFFF]/20 focus:outline-none focus:border-[#FFDAB9]/30 transition-all font-medium" 
                     placeholder="Node Identifier (e.g. Production Cluster)" 
                     value={newName} 
                     onChange={e => setNewName(e.target.value)} 
                     required 
                 />
-                <button type="submit" disabled={creating} className="h-16 px-12 rounded-2xl bg-[#FFDAB9] text-[#F5EFE7] font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_30px_rgba(232,160,132,0.15)] disabled:opacity-50">
+                <button type="submit" disabled={creating} className="h-16 px-12 rounded-2xl bg-[#FFDAB9] text-[#FFFFFF] font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_30px_rgba(232,160,132,0.15)] disabled:opacity-50">
                   {creating ? 'AUTHORIZING...' : 'AUTHORIZE NODE'}
                 </button>
               </form>
@@ -150,88 +150,88 @@ export default function ApiKeys() {
           )}
 
           <div className="space-y-6">
-            <p className="font-mono text-[10px] text-[#F5EFE7]/20 uppercase tracking-[0.3em] ml-1">Active Neural Access Nodes</p>
+            <p className="font-mono text-[10px] text-[#FFFFFF]/20 uppercase tracking-[0.3em] ml-1">Active Neural Access Nodes</p>
             
             {loading ? (
               <div className="space-y-4">{[...Array(2)].map((_, i) => <div key={i} className="h-28 rounded-[2rem] animate-pulse obsidian-panel" />)}</div>
             ) : keys.length > 0 ? (
                 <div className="space-y-4">
                     {keys.map(key => (
-                        <div key={key.id} className="flex flex-col md:flex-row md:items-center justify-between gap-8 p-8 rounded-[2.5rem] obsidian-panel border border-[#1A1410]/5 hover:border-[#FFDAB9]/20 transition-all group relative overflow-hidden">
+                        <div key={key.id} className="flex flex-col md:flex-row md:items-center justify-between gap-8 p-8 rounded-[2.5rem] obsidian-panel border border-[#0D0808]/5 hover:border-[#FFDAB9]/20 transition-all group relative overflow-hidden">
                             <div className="absolute left-0 top-0 w-1 h-full bg-[#FFDAB9]/20 group-hover:bg-[#FFDAB9] transition-colors" />
                             
                             <div className="flex-1 min-w-0 space-y-3">
                                 <div className="flex items-center gap-4">
-                                    <h4 className="text-xl font-display font-black text-[#F5EFE7] uppercase tracking-tight truncate">{key.name}</h4>
-                                    <div className="px-3 py-1 rounded-lg font-mono text-[8px] font-black uppercase tracking-widest bg-[#C41E3A]/10 border border-[#C41E3A]/20 text-[#C41E3A]">ACTIVE</div>
+                                    <h4 className="text-xl font-display font-black text-[#FFFFFF] uppercase tracking-tight truncate">{key.name}</h4>
+                                    <div className="px-3 py-1 rounded-lg font-mono text-[8px] font-black uppercase tracking-widest bg-[#FF6B35]/10 border border-[#FF6B35]/20 text-[#FF6B35]">ACTIVE</div>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <div className="w-1.5 h-1.5 rounded-full bg-[#FFDAB9] animate-pulse" />
-                                    <code className="font-mono text-[11px] text-[#F5EFE7]/30 tracking-widest">{key.key_prefix}••••••••••••••••</code>
+                                    <code className="font-mono text-[11px] text-[#FFFFFF]/30 tracking-widest">{key.key_prefix}••••••••••••••••</code>
                                 </div>
                             </div>
 
-                            <div className="flex gap-12 shrink-0 px-8 border-l border-[#1A1410]/5">
+                            <div className="flex gap-12 shrink-0 px-8 border-l border-[#0D0808]/5">
                                 <div>
-                                    <p className="font-mono text-[9px] text-[#F5EFE7]/20 uppercase tracking-widest mb-1">Invocations</p>
-                                    <p className="font-display font-black text-lg text-[#F5EFE7]">{key.request_count?.toLocaleString() ?? '0'}</p>
+                                    <p className="font-mono text-[9px] text-[#FFFFFF]/20 uppercase tracking-widest mb-1">Invocations</p>
+                                    <p className="font-display font-black text-lg text-[#FFFFFF]">{key.request_count?.toLocaleString() ?? '0'}</p>
                                 </div>
                                 <div>
-                                    <p className="font-mono text-[9px] text-[#F5EFE7]/20 uppercase tracking-widest mb-1">Last Uplink</p>
-                                    <p className="font-display font-black text-lg text-[#F5EFE7]">{key.last_used_at ? new Date(key.last_used_at).toLocaleDateString() : '—'}</p>
+                                    <p className="font-mono text-[9px] text-[#FFFFFF]/20 uppercase tracking-widest mb-1">Last Uplink</p>
+                                    <p className="font-display font-black text-lg text-[#FFFFFF]">{key.last_used_at ? new Date(key.last_used_at).toLocaleDateString() : '—'}</p>
                                 </div>
                             </div>
 
-                            <button onClick={() => revokeKey(key.id)} className="w-14 h-14 flex items-center justify-center rounded-2xl border border-[#1A1410]/5 hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-400 transition-all opacity-0 group-hover:opacity-100">
+                            <button onClick={() => revokeKey(key.id)} className="w-14 h-14 flex items-center justify-center rounded-2xl border border-[#0D0808]/5 hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-400 transition-all opacity-0 group-hover:opacity-100">
                                 <Trash2 className="w-5 h-5" />
                             </button>
                         </div>
                     ))}
                 </div>
             ) : (
-              <div className="p-20 rounded-[3rem] text-center obsidian-panel border border-dashed border-[#1A1410]/5">
-                <Key className="mx-auto w-12 h-12 text-[#F5EFE7]/10 mb-6" />
-                <h4 className="font-display font-black text-lg text-[#F5EFE7]/20 uppercase tracking-[0.3em]">No active nodes detected</h4>
+              <div className="p-20 rounded-[3rem] text-center obsidian-panel border border-dashed border-[#0D0808]/5">
+                <Key className="mx-auto w-12 h-12 text-[#FFFFFF]/10 mb-6" />
+                <h4 className="font-display font-black text-lg text-[#FFFFFF]/20 uppercase tracking-[0.3em]">No active nodes detected</h4>
               </div>
             )}
           </div>
         </div>
 
         <aside className="xl:col-span-4 space-y-12">
-            <section className="glass-card overflow-hidden border-[#1A1410]/10 shadow-2xl">
-                <div className="flex items-center justify-between px-6 py-5 border-b border-[#1A1410]/5 bg-white/[0.02]">
-                    <span className="font-mono text-[9px] text-[#F5EFE7]/40 flex items-center gap-3 uppercase tracking-[0.2em] font-black">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#C41E3A] animate-pulse" />
+            <section className="glass-card overflow-hidden border-[#0D0808]/10 shadow-2xl">
+                <div className="flex items-center justify-between px-6 py-5 border-b border-[#0D0808]/5 bg-white/[0.02]">
+                    <span className="font-mono text-[9px] text-[#FFFFFF]/40 flex items-center gap-3 uppercase tracking-[0.2em] font-black">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#FF6B35] animate-pulse" />
                         Query Terminal
                     </span>
-                    <button onClick={() => { navigator.clipboard.writeText('curl -X POST https://api.beatzy.io/api/audio/upload -H "X-API-Key: YOUR_KEY" -F "audio=@song.mp3"'); toast.success('Copied to buffer'); }} className="text-[#F5EFE7]/20 hover:text-[#C41E3A] transition-colors">
+                    <button onClick={() => { navigator.clipboard.writeText('curl -X POST https://api.beatzy.io/api/audio/upload -H "X-API-Key: YOUR_KEY" -F "audio=@song.mp3"'); toast.success('Copied to buffer'); }} className="text-[#FFFFFF]/20 hover:text-[#FF6B35] transition-colors">
                         <Copy className="w-4 h-4" />
                     </button>
                 </div>
-                <div className="p-8 overflow-x-auto bg-[#2A1A15]/40">
+                <div className="p-8 overflow-x-auto bg-[#1A1010]/40">
                     <pre className="font-mono text-[10px] leading-relaxed">
-                        <span className="text-[#F5EFE7]/60 font-bold">curl</span><span className="text-[#F5EFE7]/20"> -X POST </span><span className="text-[#C41E3A] font-black">api.beatzy.io</span><span className="text-[#F5EFE7]/20">/upload \{'\n'}</span>
-                        <span className="text-[#F5EFE7]/20">  -H </span><span className="text-[#FFDAB9] font-black">"X-API-Key: YOUR_NODE_KEY"</span><span className="text-[#F5EFE7]/20"> \{'\n'}</span>
-                        <span className="text-[#F5EFE7]/20">  -F </span><span className="text-[#C41E3A] font-black">"audio=@spectral_data.mp3"</span>
+                        <span className="text-[#FFFFFF]/60 font-bold">curl</span><span className="text-[#FFFFFF]/20"> -X POST </span><span className="text-[#FF6B35] font-black">api.beatzy.io</span><span className="text-[#FFFFFF]/20">/upload \{'\n'}</span>
+                        <span className="text-[#FFFFFF]/20">  -H </span><span className="text-[#FFDAB9] font-black">"X-API-Key: YOUR_NODE_KEY"</span><span className="text-[#FFFFFF]/20"> \{'\n'}</span>
+                        <span className="text-[#FFFFFF]/20">  -F </span><span className="text-[#FF6B35] font-black">"audio=@spectral_data.mp3"</span>
                     </pre>
                 </div>
             </section>
 
-            <section className="obsidian-panel p-10 rounded-[3rem] border border-[#1A1410]/5 space-y-10">
-                <p className="font-mono text-[10px] text-[#F5EFE7]/20 uppercase tracking-[0.4em] font-black">Technical Documentation</p>
+            <section className="obsidian-panel p-10 rounded-[3rem] border border-[#0D0808]/5 space-y-10">
+                <p className="font-mono text-[10px] text-[#FFFFFF]/20 uppercase tracking-[0.4em] font-black">Technical Documentation</p>
                 <ul className="space-y-4">
                     {[
                         { label: 'Uplink Authentication', icon: ShieldCheck, color: 'text-[#FFDAB9]' },
-                        { label: 'Neural Bandwidth', icon: Activity, color: 'text-[#C41E3A]' },
-                        { label: 'SDK V4.2 Protocol', icon: Terminal, color: 'text-[#C41E3A]' }
+                        { label: 'Neural Bandwidth', icon: Activity, color: 'text-[#FF6B35]' },
+                        { label: 'SDK V4.2 Protocol', icon: Terminal, color: 'text-[#FF6B35]' }
                     ].map(doc => (
                         <li key={doc.label}>
-                            <a href={`${import.meta.env.VITE_API_URL || ''}/api/docs`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-5 rounded-2xl transition-all group border border-[#1A1410]/5 hover:border-[#1A1410]/20 hover:bg-white/[0.03]">
+                            <a href={`${import.meta.env.VITE_API_URL || ''}/api/docs`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-5 rounded-2xl transition-all group border border-[#0D0808]/5 hover:border-[#0D0808]/20 hover:bg-white/[0.03]">
                                 <div className="flex items-center gap-4">
                                     <doc.icon className={`w-4 h-4 ${doc.color}`} />
-                                    <span className="font-display font-black text-[10px] uppercase tracking-widest text-[#F5EFE7]/40 group-hover:text-[#F5EFE7] transition-colors">{doc.label}</span>
+                                    <span className="font-display font-black text-[10px] uppercase tracking-widest text-[#FFFFFF]/40 group-hover:text-[#FFFFFF] transition-colors">{doc.label}</span>
                                 </div>
-                                <ChevronRight className="w-4 h-4 text-[#F5EFE7]/10 group-hover:translate-x-1 group-hover:text-[#C41E3A] transition-all" />
+                                <ChevronRight className="w-4 h-4 text-[#FFFFFF]/10 group-hover:translate-x-1 group-hover:text-[#FF6B35] transition-all" />
                             </a>
                         </li>
                     ))}
@@ -241,7 +241,7 @@ export default function ApiKeys() {
       </div>
 
       {/* Technical Footer Decoration */}
-      <div className="flex justify-between items-center pt-20 font-mono text-[8px] text-[#F5EFE7]/10 uppercase tracking-[0.4em] select-none">
+      <div className="flex justify-between items-center pt-20 font-mono text-[8px] text-[#FFFFFF]/10 uppercase tracking-[0.4em] select-none">
             <div className="flex items-center gap-4">
                 <div className="w-1 h-1 rounded-full bg-[#FFDAB9] animate-pulse" />
                 API Matrix Synchronized

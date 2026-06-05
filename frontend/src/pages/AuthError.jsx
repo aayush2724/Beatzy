@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 export default function AuthError() {
   return (
-    <div className="min-h-screen bg-[#1A1410] text-[#F5EFE7] font-body flex flex-col items-center justify-center px-6 text-center">
+    <div className="min-h-screen bg-[#0D0808] text-[#FFFFFF] font-body flex flex-col items-center justify-center px-6 text-center">
       <span className="material-symbols-outlined text-5xl text-red-400/80 mb-6">error</span>
       <h1 className="font-headline text-3xl uppercase tracking-tight mb-4">Sign-in failed</h1>
       <p className="text-gray-400 text-sm max-w-md mb-8">

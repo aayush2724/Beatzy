@@ -8,7 +8,7 @@ function Vinyl(props) {
     <Float speed={2} rotationIntensity={1.5} floatIntensity={2} {...props}>
       <mesh castShadow receiveShadow>
         <cylinderGeometry args={[2, 2, 0.05, 64]} />
-        <meshStandardMaterial color="#2A1A15" roughness={0.4} metalness={0.8} />
+        <meshStandardMaterial color="#1A1010" roughness={0.4} metalness={0.8} />
       </mesh>
       {/* Center Label */}
       <mesh position={[0, 0.03, 0]}>
@@ -33,9 +33,9 @@ function EqBar({ position, height, speed, color }) {
 
 export default function ThreeDStudio() {
   return (
-    <div className="fixed inset-0 z-[-1] pointer-events-none bg-[#1A1410]">
+    <div className="fixed inset-0 z-[-1] pointer-events-none bg-[#0D0808]">
       {/* Soft Vignette Overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#1A1410_80%)] z-10" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#0D0808_80%)] z-10" />
       
       <Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
         <Suspense fallback={null}>
@@ -55,9 +55,9 @@ export default function ThreeDStudio() {
             <Vinyl position={[-5, 2, -5]} rotation={[1, 0.5, 0]} />
             <Vinyl position={[6, -3, -8]} rotation={[0.5, -0.5, 0]} scale={1.5} />
             
-            <EqBar position={[4, 2, -4]} height={2} speed={3} color="#C41E3A" />
-            <EqBar position={[4.5, 3, -4]} height={4} speed={4} color="#A64D3D" />
-            <EqBar position={[5, 1.5, -4]} height={1.5} speed={2} color="#F5EFE7" />
+            <EqBar position={[4, 2, -4]} height={2} speed={3} color="#FF6B35" />
+            <EqBar position={[4.5, 3, -4]} height={4} speed={4} color="#E8471A" />
+            <EqBar position={[5, 1.5, -4]} height={1.5} speed={2} color="#FFFFFF" />
           </PresentationControls>
 
           <ContactShadows position={[0, -4, 0]} opacity={0.4} scale={20} blur={2} far={4} />

@@ -15,7 +15,7 @@ export default function ProgressBar({ progress, label, className }) {
       {label && (
         <div className="flex justify-between text-xs mb-1 font-mono text-on-surface-variant uppercase tracking-wider">
           <span>{label}</span>
-          <span className="text-[#F5EFE7] font-bold">{pct}%</span>
+          <span className="text-[#FFFFFF] font-bold">{pct}%</span>
         </div>
       )}
       <div className="h-1 bg-white/5 rounded-full overflow-hidden">

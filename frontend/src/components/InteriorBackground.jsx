@@ -26,9 +26,9 @@ export default function InteriorBackground() {
   }, []);
 
   return (
-    <div ref={bgRef} className="fixed inset-0 z-[-1] bg-[#1A1410] overflow-hidden pointer-events-none">
-      <div className="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] rounded-full bg-[#C41E3A] opacity-[0.04] blur-[120px]" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-[#A64D3D] opacity-[0.03] blur-[120px]" />
+    <div ref={bgRef} className="fixed inset-0 z-[-1] bg-[#0D0808] overflow-hidden pointer-events-none">
+      <div className="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] rounded-full bg-[#FF6B35] opacity-[0.04] blur-[120px]" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-[#E8471A] opacity-[0.03] blur-[120px]" />
       
       {/* 3D Music Objects with Parallax */}
       <div className="absolute inset-0">
