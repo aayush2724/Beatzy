@@ -4,23 +4,69 @@ import { getHistory } from '../api/audio';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import GlassRecordSleeve from '../components/GlassRecordSleeve';
 import PageWrapper from '../components/PageWrapper';
-
-const SG = { fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" };
+import { motion } from 'framer-motion';
+import { 
+  Activity, 
+  Database, 
+  Cpu, 
+  Waves, 
+  ArrowUpRight, 
+  History as HistoryIcon,
+  ChevronRight
+} from 'lucide-react';
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="glass-card p-3 border border-glass-border rounded-lg text-xs font-mono backdrop-blur-xl" style={{ 
-        background: 'rgba(20, 20, 20, 0.92)', 
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)' 
+      <div className="glass-card p-3 border border-white/10 rounded-xl text-xs font-mono backdrop-blur-2xl" style={{ 
+        background: 'rgba(5, 5, 5, 0.95)', 
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)' 
       }}>
         <p className="text-white font-bold">{payload[0].payload.name}</p>
-        <p className="text-primary mt-1">{payload[0].value} {payload[0].unit || ''}</p>
+        <p className="text-[#CCFF00] mt-1">{payload[0].value} BPM</p>
       </div>
     );
   }
   return null;
 };
+
+const TiltCard = ({ children, className }) => {
+  const cardRef = useRef(null);
+
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    const onMouseMove = (e) => {
+      const r = card.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      const rx = ((y / r.height) - 0.5) * -5;
+      const ry = ((x / r.width) - 0.5) * 5;
+      card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
+    };
+
+    const onMouseLeave = () => {
+      card.style.transform = '';
+    };
+
+    card.addEventListener('mousemove', onMouseMove);
+    card.addEventListener('mouseleave', onMouseLeave);
+
+    return () => {
+      card.removeEventListener('mousemove', onMouseMove);
+      card.removeEventListener('mouseleave', onMouseLeave);
+    };
+  }, []);
+
+  return (
+    <div ref={cardRef} className={`transition-all duration-300 ${className}`}>
+      {children}
+    </div>
+  );
+};
+
+import { useRef } from 'react';
 
 export default function Dashboard() {
   const [history, setHistory] = useState([]);
@@ -46,43 +92,58 @@ export default function Dashboard() {
   })).reverse();
 
   return (
-    <PageWrapper className="space-y-12 pb-20">
-      <header className="flex flex-col md:flex-row justify-between items-end gap-6 mb-4 border-b border-white/5 pb-8">
-        <div>
-          <h1 className="text-5xl font-headline font-extrabold text-white tracking-tighter" style={SG}>Control Center</h1>
-          <p className="font-sans text-sm text-on-surface-variant flex items-center gap-2 mt-2">
-            Operational status: <span className="text-primary font-mono uppercase tracking-widest text-[10px]">Optimal</span>
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+    <PageWrapper className="space-y-12 pb-20 animate-page-entrance">
+      <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 border-b border-white/5 pb-12">
+        <div className="space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#CCFF00]/20 bg-[#CCFF00]/5 text-[#CCFF00] font-mono text-[9px] uppercase tracking-[0.2em]">
+            <Activity className="w-3 h-3" /> System Operational
+          </div>
+          <h1 className="text-6xl font-display font-black text-white tracking-[-0.04em] uppercase">
+            Control <span className="text-[#CCFF00] text-glow-lime">Center</span>
+          </h1>
+          <p className="text-on-surface-variant max-w-xl text-sm leading-relaxed">
+            Welcome to the Beatzy AI terminal. Monitor spectral telemetry, manage your track archives, and initialize the neural engine.
           </p>
         </div>
-        <Link 
-          to="/upload" 
-          className="btn-primary flex items-center gap-2 uppercase text-xs tracking-wider"
-        >
-          <span className="material-symbols-outlined text-base">waves</span>
-          Initialize Analyzer
-        </Link>
+        <div className="flex gap-4">
+          <Link 
+            to="/history" 
+            className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/10 text-white font-mono text-[10px] uppercase tracking-widest hover:bg-white/[0.06] transition-all"
+          >
+            <HistoryIcon className="w-4 h-4" /> Archives
+          </Link>
+          <Link 
+            to="/upload" 
+            className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-[#CCFF00] text-black font-black text-[10px] uppercase tracking-[0.15em] shadow-[0_0_30px_rgba(204,255,0,0.2)] hover:scale-105 transition-all"
+          >
+            <Waves className="w-4 h-4" /> Start Engine
+          </Link>
+        </div>
       </header>
 
       {/* Main Grid */}
       <div className="grid grid-cols-12 gap-8">
           {/* Recent Archives Section */}
-          <div className="col-span-12 lg:col-span-8 space-y-6">
+          <div className="col-span-12 xl:col-span-8 space-y-8">
               <div className="flex justify-between items-center">
-                  <h3 className="font-headline font-bold text-sm text-white uppercase tracking-widest">Recent Waveforms</h3>
-                  <Link to="/history" className="text-[10px] font-mono text-primary uppercase tracking-widest hover:underline">View All Archives</Link>
+                  <h3 className="font-display font-bold text-lg text-white uppercase tracking-widest flex items-center gap-4">
+                    <span className="w-8 h-px bg-[#CCFF00]/30" /> Recent Waveforms
+                  </h3>
+                  <Link to="/history" className="group flex items-center gap-2 text-[10px] font-mono text-[#CCFF00] uppercase tracking-widest hover:text-white transition-colors">
+                    View full archive <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                  </Link>
               </div>
               
               {loading ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       {Array.from({ length: 4 }).map((_, i) => (
-                          <div key={i} className="h-64 rounded-xl bg-white/[0.02] border border-white/5 animate-pulse" />
+                          <div key={i} className="h-72 rounded-3xl bg-white/[0.02] border border-white/5 animate-pulse" />
                       ))}
                   </div>
               ) : error ? (
-                  <div className="h-64 glass-panel border border-dashed border-red-500/20 flex flex-col items-center justify-center text-center p-12 gap-4">
+                  <div className="h-72 glass-card flex flex-col items-center justify-center text-center p-12 gap-6">
                       <p className="text-white/50 font-mono text-xs uppercase tracking-widest">{error}</p>
-                      <button onClick={fetchDashboard} className="btn-secondary px-6 py-2 text-xs">Retry</button>
+                      <button onClick={fetchDashboard} className="px-8 py-3 rounded-xl border border-white/10 text-white font-mono text-[10px] uppercase tracking-widest hover:bg-white/5">Initialize Retry</button>
                   </div>
               ) : history.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -91,57 +152,130 @@ export default function Dashboard() {
                       ))}
                   </div>
               ) : (
-                  <div className="h-64 glass-panel border border-dashed border-white/10 flex flex-col items-center justify-center text-center p-12">
-                      <span className="material-symbols-outlined text-4xl text-white/10 mb-4">album</span>
-                      <p className="text-white/40 font-mono text-xs uppercase tracking-widest">Database empty. Start by uploading a signal.</p>
+                  <div className="h-72 glass-card flex flex-col items-center justify-center text-center p-12">
+                      <div className="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center mb-6 border border-white/5">
+                        <Waves className="w-8 h-8 text-white/20" />
+                      </div>
+                      <p className="text-white/40 font-mono text-xs uppercase tracking-[0.2em]">Neural database empty. Start by uploading a signal.</p>
                   </div>
               )}
           </div>
 
           {/* Sidebar Telemetry */}
-          <div className="col-span-12 lg:col-span-4 space-y-8">
-              <section className="glass-panel p-6 border border-glass-border">
-                  <h3 className="font-headline font-bold text-xs text-white uppercase tracking-widest mb-6">Tempo Trends</h3>
-                  <div className="h-48 w-full font-mono text-[9px]">
+          <div className="col-span-12 xl:col-span-4 space-y-8">
+              <TiltCard className="glass-card p-8 border border-white/10 overflow-hidden relative group">
+                  <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <Activity className="w-24 h-24 text-[#CCFF00]" />
+                  </div>
+                  <h3 className="font-display font-bold text-xs text-white uppercase tracking-widest mb-10 flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-[#CCFF00]" /> Tempo Trends
+                  </h3>
+                  <div className="h-56 w-full font-mono text-[9px] relative z-10">
                       <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={chartData}>
                               <defs>
-                                  <linearGradient id="colorBpm" x1="0" y1="0" x2="0" y2="1">
-                                      <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.2}/>
-                                      <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0}/>
+                                  <linearGradient id="colorBpm" x1="0" x2="0" y2="1">
+                                      <stop offset="5%" stopColor="#CCFF00" stopOpacity={0.3}/>
+                                      <stop offset="95%" stopColor="#CCFF00" stopOpacity={0}/>
                                   </linearGradient>
                               </defs>
                               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
                               <XAxis dataKey="name" hide />
-                              <YAxis domain={['dataMin - 10', 'dataMax + 10']} hide />
+                              <YAxis domain={['dataMin - 5', 'dataMax + 5']} hide />
                               <Tooltip content={<CustomTooltip />} />
-                              <Area type="monotone" dataKey="bpm" unit="BPM" stroke="var(--color-primary)" strokeWidth={2} fillOpacity={1} fill="url(#colorBpm)" />
+                              <Area 
+                                type="monotone" 
+                                dataKey="bpm" 
+                                stroke="#CCFF00" 
+                                strokeWidth={3} 
+                                fillOpacity={1} 
+                                fill="url(#colorBpm)" 
+                                animationDuration={1500}
+                              />
                           </AreaChart>
                       </ResponsiveContainer>
                   </div>
-              </section>
+              </TiltCard>
 
-              <section className="glass-panel p-6 border border-glass-border">
-                  <h3 className="font-headline font-bold text-xs text-white uppercase tracking-widest mb-6">System Load</h3>
-                  <div className="space-y-4">
-                      <div className="flex justify-between items-end mb-1">
-                          <span className="font-mono text-[9px] text-white/40 uppercase">ML Pipeline</span>
-                          <span className="font-mono text-[10px] text-primary font-bold">ACTIVE</span>
+              <TiltCard className="obsidian-panel p-8 rounded-3xl border border-white/5 space-y-8">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-display font-bold text-xs text-white uppercase tracking-widest flex items-center gap-3">
+                      <Cpu className="w-4 h-4 text-[#CCFF00]" /> System Status
+                    </h3>
+                    <div className="px-2 py-0.5 rounded border border-[#CCFF00]/30 text-[#CCFF00] font-mono text-[8px] uppercase tracking-tighter">
+                      Operational
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-6">
+                      <div className="space-y-2">
+                          <div className="flex justify-between items-end">
+                              <span className="font-mono text-[9px] text-white/40 uppercase tracking-widest">Neural Pipeline</span>
+                              <span className="font-mono text-[10px] text-[#CCFF00] font-bold">STABLE</span>
+                          </div>
+                          <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                              <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: '78%' }}
+                                transition={{ duration: 1, ease: 'easeOut' }}
+                                className="h-full bg-gradient-to-r from-[#CCFF00] to-[#28E0D4]" 
+                              />
+                          </div>
                       </div>
-                      <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                          <div className="h-full bg-primary w-2/3" />
-                      </div>
-                      <div className="flex justify-between items-end mb-1 pt-2">
-                          <span className="font-mono text-[9px] text-white/40 uppercase">Storage</span>
-                          <span className="font-mono text-[10px] text-secondary font-bold">1.2 TB</span>
-                      </div>
-                      <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                          <div className="h-full bg-secondary w-1/4" />
+                      <div className="space-y-2">
+                          <div className="flex justify-between items-end">
+                              <span className="font-mono text-[9px] text-white/40 uppercase tracking-widest">Cluster Node Load</span>
+                              <span className="font-mono text-[10px] text-[#FF3DAE] font-bold">42%</span>
+                          </div>
+                          <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                              <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: '42%' }}
+                                transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
+                                className="h-full bg-[#FF3DAE]" 
+                              />
+                          </div>
                       </div>
                   </div>
-              </section>
+
+                  <div className="pt-4 grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                      <Database className="w-4 h-4 text-white/20 mb-2" />
+                      <p className="text-[16px] font-display font-black text-white">1.2 TB</p>
+                      <p className="text-[8px] font-mono text-white/30 uppercase tracking-widest">Storage</p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                      <Cpu className="w-4 h-4 text-white/20 mb-2" />
+                      <p className="text-[16px] font-display font-black text-white">184ms</p>
+                      <p className="text-[8px] font-mono text-white/30 uppercase tracking-widest">Latency</p>
+                    </div>
+                  </div>
+              </TiltCard>
           </div>
       </div>
+
+      {/* Quick Actions / Getting Started */}
+      <section className="glass-card p-12 border border-white/10 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-[#CCFF00]/5 blur-[80px] rounded-full group-hover:bg-[#CCFF00]/10 transition-colors" />
+        <div className="relative z-10 grid lg:grid-cols-[1fr_auto] gap-12 items-center text-center lg:text-left">
+          <div className="space-y-6">
+            <h2 className="text-4xl font-display font-black text-white uppercase tracking-tight">
+              Ready to decode <span className="text-[#CCFF00]">new tracks?</span>
+            </h2>
+            <p className="text-on-surface-variant max-w-2xl text-base leading-relaxed">
+              Upload any track up to 50MB. Our neural engine will identify the song, extract BPM, key, mood, and provide a full spectral analysis in seconds.
+            </p>
+          </div>
+          <div className="flex justify-center">
+            <Link 
+              to="/upload" 
+              className="group flex items-center gap-6 px-10 py-6 rounded-3xl bg-white text-black font-black text-[12px] uppercase tracking-[0.2em] hover:bg-[#CCFF00] hover:scale-105 transition-all shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
+            >
+              Initialize Neural Engine <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+            </Link>
+          </div>
+        </div>
+      </section>
     </PageWrapper>
   );
 }

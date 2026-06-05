@@ -1,10 +1,10 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import ThreeDStudio from './ThreeDStudio';
 import OnboardingTour from './OnboardingTour';
-import ThemeToggle from './ThemeToggle';
 import { EtherealShadow } from './ui/etheral-shadow';
 import { 
   Waves, 
@@ -14,7 +14,8 @@ import {
   UserCircle, 
   ShieldCheck, 
   LogOut,
-  Zap
+  Zap,
+  ChevronRight
 } from 'lucide-react';
 
 export default function Layout() {
@@ -40,97 +41,114 @@ export default function Layout() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden text-on-surface font-body selection:bg-white/20 relative">
-      {/* 3D Background Layer */}
-      <div className="fixed inset-0 z-[-1] pointer-events-none opacity-50">
+    <div className="flex h-screen overflow-hidden text-on-surface font-body selection:bg-[#CCFF00]/30 relative bg-[#050505]">
+      {/* Dynamic Background Layer */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
         <EtherealShadow
-          color="rgba(20, 20, 20, 1)"
-          animation={{ scale: 40, speed: 20 }}
-          noise={{ opacity: 0.2, scale: 1 }}
+          color="rgba(10, 10, 10, 1)"
+          animation={{ scale: 30, speed: 15 }}
+          noise={{ opacity: 0.15, scale: 1 }}
           sizing="fill"
         />
       </div>
       <ThreeDStudio />
       
-      {/* Decorative Grid Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" style={{ zIndex: 0 }}></div>
-
-      {/* SideNavBar - Premium Obsidian OS design */}
+      {/* SideNavBar - Obsidian Control Panel */}
       <aside 
         onMouseEnter={() => setIsSidebarHovered(true)}
         onMouseLeave={() => setIsSidebarHovered(false)}
         className={clsx(
-          "h-full z-40 bg-[#0a0a0a]/90 backdrop-blur-3xl border-r border-glass-border flex flex-col pt-8 pb-6 transition-all duration-300 select-none shadow-[5px_0_30px_rgba(0,0,0,0.5)] relative shrink-0",
+          "h-full z-40 bg-[#0a0a0a]/80 backdrop-blur-2xl border-r border-white/5 flex flex-col pt-8 pb-6 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] select-none relative shrink-0",
           isSidebarHovered ? "w-64" : "w-20"
         )}
       >
         {/* Core Header */}
-        <div className="px-6 mb-10 flex items-center space-x-4 overflow-hidden shrink-0">
-          <div className="w-8 h-8 rounded bg-white/5 flex items-center justify-center border border-white/15 shrink-0">
-            <Zap className="w-4 h-4 text-primary fill-primary" />
+        <div className="px-6 mb-12 flex items-center space-x-4 overflow-hidden shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-[#CCFF00]/10 flex items-center justify-center border border-[#CCFF00]/20 shrink-0 shadow-[0_0_20px_rgba(204,255,0,0.1)]">
+            <Zap className="w-4 h-4 text-[#CCFF00] fill-[#CCFF00]" />
           </div>
-          <div className={clsx("transition-opacity duration-300 whitespace-nowrap", isSidebarHovered ? "opacity-100" : "opacity-0")}>
-            <p className="text-white font-bold text-lg leading-none tracking-tight font-headline">BEATZY</p>
-            <p className="font-mono text-[9px] text-on-surface-variant tracking-[0.15em] uppercase">AI Core v4.2</p>
-          </div>
+          <motion.div 
+            animate={{ opacity: isSidebarHovered ? 1 : 0, x: isSidebarHovered ? 0 : -10 }}
+            className="whitespace-nowrap"
+          >
+            <p className="text-white font-bold text-lg leading-none tracking-[0.2em] font-display">BEATZY</p>
+            <p className="font-mono text-[8px] text-[#CCFF00]/60 tracking-[0.3em] uppercase mt-1">OS V4.2</p>
+          </motion.div>
         </div>
 
         {/* Navigation Items */}
-        <nav className="flex-1 space-y-1">
+        <nav className="flex-1 px-3 space-y-2">
           {navItems.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) => clsx(
-                'flex items-center px-6 py-3.5 transition-all relative overflow-hidden group',
+                'flex items-center h-12 rounded-xl transition-all duration-300 relative group overflow-hidden',
                 isActive
-                  ? 'bg-white/[0.06] text-white border-r-4 border-white'
-                  : 'text-on-surface-variant hover:text-on-surface hover:bg-white/[0.03]'
+                  ? 'bg-white/[0.05] text-white'
+                  : 'text-on-surface-variant hover:text-white hover:bg-white/[0.02]'
               )}
             >
-              <Icon className="w-5 h-5 shrink-0" />
-              <span className={clsx(
-                "ml-6 font-mono text-[11px] tracking-[0.1em] uppercase transition-all duration-300 whitespace-nowrap",
-                isSidebarHovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"
-              )}>
+              <div className="w-14 flex justify-center items-center shrink-0">
+                <Icon className={clsx("w-5 h-5 transition-transform duration-300 group-hover:scale-110")} />
+              </div>
+              <motion.span 
+                animate={{ opacity: isSidebarHovered ? 1 : 0, x: isSidebarHovered ? 0 : -5 }}
+                className="font-mono text-[10px] tracking-[0.15em] uppercase whitespace-nowrap"
+              >
                 {label}
-              </span>
+              </motion.span>
+              {isSidebarHovered && (
+                <ChevronRight className="w-3 h-3 ml-auto mr-4 opacity-0 group-hover:opacity-40 transition-opacity" />
+              )}
             </NavLink>
           ))}
         </nav>
 
         {/* User Card & Logout */}
-        <div className="px-4 mt-auto border-t border-glass-border pt-4">
-          <div className="flex items-center gap-3 px-3 py-3.5 mb-2 rounded-lg bg-white/[0.02] border border-glass-border overflow-hidden max-w-full">
-            <div className="w-8 h-8 bg-white/10 border border-white/20 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0">
+        <div className="px-3 mt-auto pt-6 border-t border-white/5">
+          <div className={clsx(
+            "flex items-center gap-3 px-2 py-3 rounded-xl bg-white/[0.03] border border-white/5 transition-all",
+            isSidebarHovered ? "w-full" : "w-12 mx-auto"
+          )}>
+            <div className="w-8 h-8 bg-[#CCFF00]/10 border border-[#CCFF00]/20 text-[#CCFF00] rounded-lg flex items-center justify-center text-xs font-bold shrink-0">
               {user?.name?.[0]?.toUpperCase() || 'U'}
             </div>
-            <div className={clsx("flex-1 min-w-0 transition-opacity duration-300", isSidebarHovered ? "opacity-100" : "opacity-0")}>
-              <p className="text-xs font-semibold truncate text-on-surface leading-none mb-1">{user?.name}</p>
-              <p className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest leading-none capitalize">{user?.plan} plan</p>
-            </div>
-            {isSidebarHovered && <ThemeToggle className="ml-auto" />}
+            {isSidebarHovered && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex-1 min-w-0"
+              >
+                <p className="text-[11px] font-semibold truncate text-white leading-none mb-1">{user?.name}</p>
+                <p className="font-mono text-[8px] text-[#CCFF00] uppercase tracking-widest leading-none opacity-70">{user?.plan}</p>
+              </motion.div>
+            )}
           </div>
           
           <button
             onClick={handleLogout}
-            className="flex items-center gap-6 w-full px-5 py-3 rounded-lg text-xs font-mono tracking-widest text-on-surface-variant hover:text-white hover:bg-white/[0.03] transition-all"
+            className={clsx(
+              "flex items-center h-12 mt-2 rounded-xl text-on-surface-variant hover:text-white hover:bg-white/[0.02] transition-all group",
+              isSidebarHovered ? "w-full" : "w-12 mx-auto"
+            )}
           >
-            <LogOut className="w-5 h-5 shrink-0" />
-            <span className={clsx("transition-opacity duration-300 whitespace-nowrap uppercase", isSidebarHovered ? "opacity-100" : "opacity-0")}>
-              Sign out
-            </span>
+            <div className="w-14 flex justify-center items-center shrink-0">
+              <LogOut className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
+            </div>
+            <motion.span 
+              animate={{ opacity: isSidebarHovered ? 1 : 0 }}
+              className="font-mono text-[10px] tracking-[0.15em] uppercase whitespace-nowrap"
+            >
+              System Exit
+            </motion.span>
           </button>
         </div>
       </aside>
 
       {/* Main Content Layout */}
-      <main className="flex-1 overflow-y-auto z-10 relative">
-        {/* Dynamic Glowing background nodes */}
-        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-white/[0.02] blur-[150px] rounded-full pointer-events-none z-0"></div>
-        <div className="absolute bottom-0 left-1/3 w-[500px] h-[500px] bg-white/[0.015] blur-[150px] rounded-full pointer-events-none z-0"></div>
-
-        <div className="max-w-6xl mx-auto p-8 relative z-10">
+      <main className="flex-1 overflow-y-auto z-10 relative custom-scrollbar">
+        <div className="max-w-[1720px] mx-auto p-6 md:p-12 relative z-10">
           <Outlet />
         </div>
       </main>

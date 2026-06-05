@@ -4,21 +4,33 @@ import toast from 'react-hot-toast';
 import api from '../api/client';
 import PageWrapper from '../components/PageWrapper';
 import { useAuthStore } from '../store/authStore';
+import { motion } from 'framer-motion';
+import { 
+  UserCircle, 
+  Mail, 
+  ShieldCheck, 
+  Lock, 
+  CreditCard, 
+  Zap, 
+  ArrowUpRight, 
+  Database, 
+  Fingerprint,
+  Activity
+} from 'lucide-react';
 
-const SG = { fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" };
 const PLAN_PRICES = { pro: '$19.99 / cycle', enterprise: '$99.99 / cycle', free: '$0 / cycle' };
 
-function Section({ icon, title, children }) {
+function ProfileSection({ icon: Icon, title, children, accentColor = 'text-[#CCFF00]' }) {
   return (
-    <section className="glass-panel p-8 rounded-2xl border border-glass-border transition-all hover:border-white/10 shadow-2xl relative overflow-hidden">
-      <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none">
-          <span className="material-symbols-outlined text-9xl">{icon}</span>
+    <section className="glass-card p-10 border border-white/10 relative overflow-hidden group">
+      <div className="absolute top-0 right-0 p-10 opacity-[0.03] pointer-events-none group-hover:opacity-[0.06] transition-opacity">
+          <Icon className="w-48 h-48" />
       </div>
-      <div className="flex items-center gap-4 mb-8 relative z-10">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary/10 border border-primary/20">
-          <span className="material-symbols-outlined text-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+      <div className="flex items-center gap-4 mb-10 relative z-10">
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-white/[0.03] border border-white/10 group-hover:border-white/20 transition-colors`}>
+          <Icon className={`w-5 h-5 ${accentColor}`} />
         </div>
-        <h2 className="font-headline font-bold text-lg text-white uppercase tracking-widest" style={SG}>{title}</h2>
+        <h2 className="font-display font-black text-xl text-white uppercase tracking-widest">{title}</h2>
       </div>
       <div className="relative z-10">
         {children}
@@ -40,17 +52,17 @@ export default function Profile() {
     try {
       const { data } = await api.patch('/api/users/me', { name });
       setUser(data.data);
-      toast.success('Identity updated', { style: { background: 'var(--color-surface-container)', color: 'var(--color-primary)', border: '1px solid var(--color-glass-border)' } });
+      toast.success('Identity updated in neural core');
     } finally { setSavingName(false); }
   }
 
   async function savePassword(e) {
     e.preventDefault();
-    if (passwords.new !== passwords.confirm) return toast.error('Passwords do not match');
+    if (passwords.new !== passwords.confirm) return toast.error('Encryption keys mismatch');
     setSavingPw(true);
     try {
       await api.patch('/api/users/me/password', { currentPassword: passwords.current, newPassword: passwords.new });
-      toast.success('Protocol re-encrypted', { style: { background: 'var(--color-surface-container)', color: 'var(--color-primary)', border: '1px solid var(--color-glass-border)' } });
+      toast.success('Security protocol re-encrypted');
       setPasswords({ current: '', new: '', confirm: '' });
     } finally { setSavingPw(false); }
   }
@@ -60,97 +72,140 @@ export default function Profile() {
       const { data } = await api.post('/api/billing/portal');
       window.location.href = data.url;
     } catch (err) {
-      toast.error('Billing sync failed');
+      toast.error('Billing interface offline');
     }
   }
 
   return (
-    <PageWrapper className="max-w-4xl mx-auto space-y-12 pb-20">
+    <PageWrapper className="max-w-[1200px] mx-auto space-y-16 pb-20 animate-page-entrance">
       {/* Header */}
-      <header className="flex items-center gap-8 mb-4 p-4 border-b border-white/5 pb-12">
-        <div className="w-24 h-24 rounded-[2.5rem] flex items-center justify-center text-4xl font-extrabold text-surface flex-shrink-0 bg-primary shadow-[0_0_50px_rgba(255,255,255,0.2)]" style={SG}>
+      <header className="flex flex-col md:flex-row items-center gap-10 border-b border-white/5 pb-16 relative overflow-hidden">
+        <div className="absolute top-1/2 left-0 -translate-y-1/2 w-64 h-64 bg-[#CCFF00]/5 blur-[100px] rounded-full -ml-32 pointer-events-none" />
+        
+        <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="w-32 h-32 rounded-[3rem] flex items-center justify-center text-5xl font-black text-black flex-shrink-0 bg-[#CCFF00] shadow-[0_0_60px_rgba(204,255,0,0.2)] relative z-10"
+        >
           {user?.name?.[0]?.toUpperCase() || 'U'}
-        </div>
-        <div>
-          <h1 className="text-5xl font-headline font-extrabold text-white tracking-tighter" style={SG}>{user?.name}</h1>
-          <div className="flex items-center gap-4 mt-2">
-              <span className="font-mono text-[10px] text-white/40 uppercase tracking-[0.2em]">{user?.email}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              <span className="px-3 py-1 rounded-full font-mono text-[9px] uppercase tracking-widest font-extrabold bg-primary/10 border border-primary/30 text-primary">
-                {user?.plan || 'FREE'} SECTOR
-              </span>
+        </motion.div>
+        
+        <div className="text-center md:text-left relative z-10 space-y-4">
+          <h1 className="text-6xl font-display font-black text-white tracking-tighter uppercase leading-none">{user?.name}</h1>
+          <div className="flex flex-wrap justify-center md:justify-start items-center gap-6">
+              <div className="flex items-center gap-2 text-white/40 font-mono text-[10px] uppercase tracking-widest">
+                  <Mail className="w-3 h-3" /> {user?.email}
+              </div>
+              <div className="w-1 h-1 rounded-full bg-white/10" />
+              <div className="px-4 py-1.5 rounded-full font-mono text-[9px] font-black uppercase tracking-[0.2em] bg-[#CCFF00]/10 border border-[#CCFF00]/20 text-[#CCFF00] flex items-center gap-2">
+                <Zap className="w-3 h-3 fill-current" /> {user?.plan || 'FREE'} SECTOR
+              </div>
           </div>
         </div>
       </header>
 
       <div className="grid gap-12">
           {/* Personal Info */}
-          <Section icon="fingerprint" title="Master Identity">
-            <div className="space-y-8">
-              <div className="max-w-md">
-                <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block mb-3">Permanent Identifier</label>
-                <input disabled value={user?.email || ''} className="input opacity-50 cursor-not-allowed bg-white/[0.02] border-dashed" />
-                <p className="font-mono text-[9px] text-white/20 mt-3 italic">Identity linked to neural core. Cannot be altered.</p>
+          <ProfileSection icon={Fingerprint} title="Operator Identity" accentColor="text-[#CCFF00]">
+            <div className="grid lg:grid-cols-2 gap-12">
+              <div className="space-y-4">
+                <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block ml-1">Permanent Identifier</label>
+                <div className="relative group">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/10 group-focus-within:text-[#CCFF00] transition-colors" />
+                    <input disabled value={user?.email || ''} className="w-full h-14 bg-white/[0.02] border border-dashed border-white/10 rounded-2xl pl-12 pr-4 text-white/40 font-mono text-xs cursor-not-allowed" />
+                </div>
+                <p className="font-mono text-[9px] text-white/20 mt-2 uppercase tracking-widest italic ml-1">Identity locked to neural core architecture.</p>
               </div>
-              <form onSubmit={saveName} className="max-w-2xl">
-                <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block mb-3">Interface Label</label>
-                <div className="flex flex-col md:flex-row gap-4">
-                    <input value={name} onChange={e => setName(e.target.value)} placeholder="Operator Alias" required minLength={2} className="input" />
-                    <button type="submit" disabled={savingName} className="btn-primary shrink-0 px-10 uppercase tracking-widest font-bold text-xs">
-                    {savingName ? 'SAVING...' : 'UPDATE'}
+
+              <form onSubmit={saveName} className="space-y-4">
+                <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block ml-1">Interface Alias</label>
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="relative flex-1 group">
+                        <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/10 group-focus-within:text-[#CCFF00] transition-colors" />
+                        <input value={name} onChange={e => setName(e.target.value)} placeholder="Operator Alias" required minLength={2} className="w-full h-14 bg-white/[0.03] border border-white/10 rounded-2xl pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-[#CCFF00]/30 transition-all font-medium" />
+                    </div>
+                    <button type="submit" disabled={savingName} className="h-14 px-10 rounded-2xl bg-[#CCFF00] text-black font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_30px_rgba(204,255,0,0.15)] disabled:opacity-50">
+                        {savingName ? 'SYNCING...' : 'SYNC'}
                     </button>
                 </div>
               </form>
             </div>
-          </Section>
+          </ProfileSection>
 
           {/* Change Password */}
-          <Section icon="security" title="Security Protocol">
-            <form onSubmit={savePassword} className="space-y-8 max-w-2xl">
-              <div>
-                <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block mb-3">Current Access Key</label>
-                <input type="password" value={passwords.current} onChange={e => setPasswords(p => ({ ...p, current: e.target.value }))} required className="input" />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block mb-3">New Access Key</label>
-                  <input type="password" value={passwords.new} onChange={e => setPasswords(p => ({ ...p, new: e.target.value }))} required minLength={8} className="input" />
-                </div>
-                <div>
-                  <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block mb-3">Confirm Key</label>
-                  <input type="password" value={passwords.confirm} onChange={e => setPasswords(p => ({ ...p, confirm: e.target.value }))} required minLength={8} className="input" />
+          <ProfileSection icon={ShieldCheck} title="Access Encryption" accentColor="text-[#28E0D4]">
+            <form onSubmit={savePassword} className="grid lg:grid-cols-3 gap-8">
+              <div className="space-y-4">
+                <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block ml-1">Active Encryption Key</label>
+                <div className="relative group">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/10 group-focus-within:text-[#28E0D4] transition-colors" />
+                    <input type="password" value={passwords.current} onChange={e => setPasswords(p => ({ ...p, current: e.target.value }))} required className="w-full h-14 bg-white/[0.03] border border-white/10 rounded-2xl pl-12 pr-4 text-white focus:outline-none focus:border-[#28E0D4]/30 transition-all" />
                 </div>
               </div>
-              <button type="submit" disabled={savingPw} className="btn-secondary border-primary/20 text-primary hover:bg-primary/5 px-12 py-4 text-[10px] uppercase tracking-[0.2em] font-extrabold">
-                {savingPw ? 'RE-ENCRYPTING...' : 'INITIALIZE RE-ENCRYPTION'}
-              </button>
+              <div className="space-y-4">
+                <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block ml-1">New Generation Key</label>
+                <div className="relative group">
+                    <Zap className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/10 group-focus-within:text-[#28E0D4] transition-colors" />
+                    <input type="password" value={passwords.new} onChange={e => setPasswords(p => ({ ...p, new: e.target.value }))} required minLength={8} className="w-full h-14 bg-white/[0.03] border border-white/10 rounded-2xl pl-12 pr-4 text-white focus:outline-none focus:border-[#28E0D4]/30 transition-all" />
+                </div>
+              </div>
+              <div className="space-y-4">
+                <label className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em] block ml-1">Verify Generation Key</label>
+                <div className="relative group">
+                    <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/10 group-focus-within:text-[#28E0D4] transition-colors" />
+                    <input type="password" value={passwords.confirm} onChange={e => setPasswords(p => ({ ...p, confirm: e.target.value }))} required minLength={8} className="w-full h-14 bg-white/[0.03] border border-white/10 rounded-2xl pl-12 pr-4 text-white focus:outline-none focus:border-[#28E0D4]/30 transition-all" />
+                </div>
+              </div>
+              <div className="lg:col-span-3 pt-4">
+                <button type="submit" disabled={savingPw} className="h-14 px-12 rounded-2xl border border-[#28E0D4]/30 bg-[#28E0D4]/5 text-[#28E0D4] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-[#28E0D4] hover:text-black transition-all shadow-[0_0_30px_rgba(40,224,212,0.1)] disabled:opacity-50">
+                    {savingPw ? 'RE-ENCRYPTING...' : 'INITIALIZE RE-ENCRYPTION PROTOCOL'}
+                </button>
+              </div>
             </form>
-          </Section>
+          </ProfileSection>
 
           {/* Subscription */}
-          <Section icon="verified" title="Resource Matrix">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-12 p-8 rounded-2xl bg-white/[0.01] border border-white/5 shadow-inner">
-              <div className="space-y-4">
+          <ProfileSection icon={Database} title="Resource Matrix" accentColor="text-[#8B5CFF]">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-12 p-10 rounded-[2.5rem] bg-white/[0.01] border border-white/5 relative overflow-hidden group/matrix">
+              <div className="absolute inset-0 bg-[#8B5CFF]/5 opacity-0 group-hover/matrix:opacity-100 transition-opacity" />
+              
+              <div className="space-y-8 relative z-10">
                 <div className="flex items-center gap-4">
-                  <span className="font-mono text-[10px] text-white/30 uppercase tracking-[0.2em]">Active Tier</span>
-                  <span className="px-4 py-1.5 rounded-lg font-mono text-[10px] font-extrabold uppercase tracking-[0.2em] bg-primary text-surface shadow-[0_0_30px_rgba(255,255,255,0.25)]">
+                  <span className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em]">Operational Tier</span>
+                  <div className="px-4 py-1.5 rounded-xl bg-[#8B5CFF] text-white font-black font-mono text-[10px] uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(139,92,255,0.3)]">
                     {user?.plan ? `${user.plan} resonance` : 'FREE RESONANCE'}
-                  </span>
+                  </div>
                 </div>
-                <p className="text-4xl font-headline font-extrabold text-white mt-2" style={SG}>{PLAN_PRICES[user?.plan] || PLAN_PRICES.free}</p>
-                <p className="font-mono text-[10px] text-white/20 uppercase tracking-widest leading-relaxed">Continuous analysis capability active. Billing cycle automated via Stripe Protocol.</p>
+                <div className="space-y-2">
+                    <p className="text-5xl font-display font-black text-white uppercase tracking-tighter">{PLAN_PRICES[user?.plan] || PLAN_PRICES.free}</p>
+                    <p className="font-mono text-[10px] text-white/20 uppercase tracking-[0.2em] max-w-sm leading-relaxed">Continuous analysis capability active. Uplink secured via Stripe automated protocols.</p>
+                </div>
               </div>
-              <div className="flex flex-col gap-4 min-w-[240px]">
-                <button onClick={openBillingPortal} className="btn-secondary py-4 text-[10px] uppercase tracking-[0.2em] font-extrabold bg-white/5 hover:bg-white/10 border-white/20">
-                  BILLING CONSOLE
+
+              <div className="flex flex-col gap-4 min-w-[280px] relative z-10">
+                <button onClick={openBillingPortal} className="group flex items-center justify-center gap-3 h-14 rounded-2xl bg-white/[0.03] border border-white/10 text-white font-black text-[10px] uppercase tracking-widest hover:bg-white/[0.06] hover:border-white/20 transition-all">
+                  <CreditCard className="w-4 h-4 text-white/40" /> BILLING CONSOLE
                 </button>
-                <Link to="/pricing" className="text-center font-mono text-[10px] uppercase tracking-widest text-primary/40 hover:text-primary transition-all font-bold">
-                  UPGRADE ACCESS TIER
+                <Link to="/pricing" className="group flex items-center justify-center gap-2 h-14 rounded-2xl bg-[#8B5CFF]/10 border border-[#8B5CFF]/20 text-[#8B5CFF] font-black text-[10px] uppercase tracking-widest hover:bg-[#8B5CFF] hover:text-white transition-all">
+                  UPGRADE ACCESS <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </Link>
               </div>
             </div>
-          </Section>
+          </ProfileSection>
       </div>
+
+      {/* Technical Metadata Decoration */}
+      <div className="flex justify-between items-center pt-20 font-mono text-[8px] text-white/10 uppercase tracking-[0.4em] select-none">
+            <div className="flex items-center gap-4">
+                <div className="w-1 h-1 rounded-full bg-[#CCFF00] animate-pulse" />
+                Operator Sync Active
+            </div>
+            <div>Auth Protocol: JWT-RS256</div>
+            <div className="flex items-center gap-2">
+                <Activity className="w-2 h-2" />
+                System Core V4.2
+            </div>
+        </div>
     </PageWrapper>
   );
 }

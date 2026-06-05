@@ -3,25 +3,43 @@ import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
 import api from '../api/client';
+import { ModernPricingPage } from '../components/ui/animated-glassy-pricing';
+import { 
+  Cpu, 
+  Activity, 
+  ChevronRight
+} from 'lucide-react';
 
 const plans = [
   {
-    id: 'free', tier: 'Free Tier', name: 'Free', price: 0, period: '/mo',
-    description: 'Perfect for exploring Beatzy',
+    planName: 'Free',
+    price: '0',
+    description: 'Perfect for exploring the neural core.',
     features: ['100 analyses/month', 'Basic audio insights', 'Web dashboard', 'Community support'],
-    highlight: false,
+    buttonText: 'Initialize Free Tier',
+    buttonVariant: 'secondary',
+    isPopular: false,
+    id: 'free'
   },
   {
-    id: 'pro', tier: 'Power User', name: 'Pro', price: 19, period: '/mo',
-    description: 'For developers and audio professionals',
-    features: ['5,000 analyses/month', 'Full AI insights (YAMNet, mood, key)', 'REST API access', '5 API keys', 'Priority processing', 'Email support'],
-    highlight: true,
+    planName: 'Pro',
+    price: '19',
+    description: 'For developers and audio professionals.',
+    features: ['5,000 analyses/month', 'Full AI insights', 'REST API access', '5 API keys', 'Priority queue'],
+    buttonText: 'Upgrade to Pro',
+    buttonVariant: 'primary',
+    isPopular: true,
+    id: 'pro'
   },
   {
-    id: 'enterprise', tier: 'High Scale', name: 'Enterprise', price: 99, period: '/mo',
-    description: 'Unlimited scale with SLA guarantees',
-    features: ['Unlimited analyses', 'All Pro features', '20 API keys', 'Priority queue', 'SLA support', 'Custom integrations'],
-    highlight: false,
+    planName: 'Enterprise',
+    price: '99',
+    description: 'Unlimited scale with SLA guarantees.',
+    features: ['Unlimited analyses', 'All Pro features', '20 API keys', 'Priority support', 'Custom neural nodes'],
+    buttonText: 'Initialize Enterprise',
+    buttonVariant: 'primary',
+    isPopular: false,
+    id: 'enterprise'
   },
 ];
 
@@ -32,144 +50,147 @@ export default function Pricing() {
 
   async function handleUpgrade(planId) {
     if (!token) { navigate('/register'); return; }
+    if (planId === 'free') { navigate('/dashboard'); return; }
+    
     setLoading(planId);
     try {
       const { data } = await api.post('/api/billing/subscribe', { planId });
       window.location.href = data.data.url;
-    } catch { toast.error('Failed to start checkout'); }
-    finally { setLoading(null); }
+    } catch { 
+        toast.error('Checkout protocol initialization failed'); 
+    } finally { 
+        setLoading(null); 
+    }
   }
 
-  return (
-    <div className="relative min-h-screen overflow-hidden bg-[#050505] text-white font-body selection:bg-white/20">
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#050505_72%)] pointer-events-none" />
-      <div
-        className="absolute inset-0 z-0 opacity-40 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse at 20% 20%, rgba(255,255,255,0.04) 0%, transparent 45%), radial-gradient(ellipse at 80% 80%, rgba(255,255,255,0.03) 0%, transparent 50%)',
-        }}
-      />
+  // Map our plans to the component's expected format
+  const formattedPlans = plans.map(plan => ({
+    ...plan,
+    buttonText: loading === plan.id ? 'Processing...' : user?.plan === plan.id ? 'Current Sector' : plan.buttonText,
+    onClick: () => handleUpgrade(plan.id)
+  }));
 
-      <nav className="relative z-20 flex items-center justify-between px-6 md:px-12 py-10">
-        <Link to="/" className="font-headline text-xl tracking-[0.25em] text-white hover:text-gray-200 transition">
-          BEATZY
-        </Link>
-        <div className="flex items-center gap-8 md:gap-12 text-sm tracking-[0.1em] uppercase text-gray-400">
-          <Link to="/" className="hover:text-white transition">Home</Link>
-          {token ? (
-            <Link to="/dashboard" className="btn-primary py-2.5 px-6 text-xs tracking-[0.15em]">Dashboard</Link>
-          ) : (
-            <Link to="/login" className="hover:text-white transition">Sign In</Link>
-          )}
+  return (
+    <div className="bg-[#050505] min-h-screen selection:bg-[#CCFF00]/30">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#050505]/50 backdrop-blur-xl">
+        <div className="max-w-[1720px] mx-auto flex h-20 items-center justify-between px-8 md:px-12">
+            <Link to="/" className="group inline-flex items-center gap-3">
+                <span className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-[#CCFF00]/30 bg-[#CCFF00]/10 shadow-[0_0_35px_rgba(204,255,0,0.16)]">
+                    <span className="absolute h-3 w-3 rounded-full bg-[#CCFF00] shadow-[0_0_22px_rgba(204,255,0,0.8)]"></span>
+                    <span className="h-7 w-7 rounded-full border border-[#CCFF00]/50"></span>
+                </span>
+                <span className="text-sm font-semibold tracking-[0.38em] text-[#CCFF00]">BEATZY</span>
+            </Link>
+            
+            <div className="flex items-center gap-8">
+                <Link to="/" className="text-[11px] font-medium tracking-[0.24em] text-zinc-500 transition hover:text-[#CCFF00]">NETWORK</Link>
+                {token ? (
+                    <Link 
+                        to="/dashboard" 
+                        className="inline-flex h-11 items-center justify-center rounded-2xl bg-[#CCFF00] px-6 text-xs font-black text-black shadow-[0_0_40px_rgba(204,255,0,0.2)] transition hover:-translate-y-0.5"
+                    >
+                        DASHBOARD
+                    </Link>
+                ) : (
+                    <Link to="/login" className="text-[11px] font-medium tracking-[0.24em] text-zinc-500 transition hover:text-white">OPERATOR LOGIN</Link>
+                )}
+            </div>
         </div>
       </nav>
 
-      <main className="relative z-10 pt-10 pb-32 px-6 max-w-5xl mx-auto">
-        <header className="text-center mb-20">
-          <div className="inline-flex items-center gap-3 mb-6 px-4 py-2 rounded-full border border-white/10 bg-white/[0.03]">
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-            <span className="font-mono text-xs text-gray-400 uppercase tracking-[0.25em]">Plans</span>
-          </div>
-          <h1 className="font-headline text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight">
-            Simple, transparent pricing
-          </h1>
-          <p className="text-base text-gray-400">Start free. Upgrade when you need more power.</p>
-        </header>
+      <div className="pt-20">
+        <ModernPricingPage
+            title={
+                <>
+                    Resource <span className="text-[#CCFF00] text-glow-lime">Allocation</span>
+                </>
+            }
+            subtitle="Provision neural bandwidth for your production environment. Scale effortlessly from personal projects to enterprise clusters."
+            plans={formattedPlans}
+            showAnimatedBackground={true}
+        />
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-32">
-          {plans.map(plan => (
-            <div
-              key={plan.id}
-              className={`relative rounded-2xl p-8 flex flex-col transition-all duration-300 hover:-translate-y-1 glass-panel ${
-                plan.highlight ? 'border-white/20 shadow-[0_24px_80px_rgba(0,0,0,0.5)]' : ''
-              }`}
-            >
-              {plan.highlight && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full font-mono text-[10px] font-bold uppercase tracking-wider bg-white text-black">
-                  Most Popular
+      <main className="max-w-[1500px] mx-auto px-8 pb-32 space-y-32 relative z-10">
+        <section className="pt-24 border-t border-white/5 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+            <div className="space-y-10">
+                <div className="space-y-4">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-[#CCFF00] font-black">Architected for Scale</p>
+                    <h2 className="text-5xl font-display font-black text-white uppercase tracking-tight leading-none">Engineered for Technical Mastery</h2>
+                    <p className="text-lg text-on-surface-variant leading-relaxed max-w-xl">
+                        Sub-millisecond classification latency for real-time production environments. Built on a distributed neural cluster designed to handle 100M+ signal extractions.
+                    </p>
                 </div>
-              )}
-
-              <div className="mb-8">
-                <span className={`font-mono text-xs uppercase tracking-[0.2em] block mb-3 ${plan.highlight ? 'text-white' : 'text-gray-500'}`}>{plan.tier}</span>
-                <h3 className="font-headline text-3xl font-bold text-white mb-2">{plan.name}</h3>
-                <div className="flex items-baseline gap-2 mb-4">
-                  <span className="font-headline text-5xl font-bold text-white">${plan.price}</span>
-                  <span className="font-mono text-base text-gray-500">{plan.period}</span>
+                
+                <div className="grid grid-cols-2 gap-8 pt-8">
+                    {[
+                        { label: 'Uptime SLA', value: '99.99%', icon: Activity, color: 'text-[#28E0D4]' },
+                        { label: 'Avg Latency', value: '184ms', icon: Cpu, color: 'text-[#8B5CFF]' },
+                    ].map((stat, i) => (
+                        <div key={i} className="space-y-3 p-6 rounded-2xl bg-white/[0.02] border border-white/5 group hover:border-white/10 transition-colors">
+                            <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                            <p className="text-3xl font-display font-black text-white">{stat.value}</p>
+                            <p className="font-mono text-[9px] text-white/30 uppercase tracking-widest">{stat.label}</p>
+                        </div>
+                    ))}
                 </div>
-                <p className="text-sm text-gray-500">{plan.description}</p>
-              </div>
+            </div>
 
-              <ul className="space-y-4 mb-10 flex-grow">
-                {plan.features.map(f => (
-                  <li key={f} className="flex items-center gap-4">
-                    <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 bg-white/5 border border-white/15">
-                      <span className="material-symbols-outlined text-white" style={{ fontSize: 12, fontVariationSettings: "'FILL' 1" }}>check</span>
+            <div className="glass-card p-12 border border-white/5 relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#CCFF00]/5 via-transparent to-[#28E0D4]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                <div className="relative z-10 space-y-10">
+                    <div className="flex items-center justify-between">
+                        <span className="font-mono text-[10px] text-white/40 uppercase tracking-[0.3em] font-black flex items-center gap-3">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#CCFF00] animate-pulse" />
+                            Neural SDK V4.2
+                        </span>
+                        <ChevronRight className="w-4 h-4 text-white/10 group-hover:text-[#CCFF00] transition-colors" />
                     </div>
-                    <span className={`text-sm ${plan.highlight ? 'text-gray-300' : 'text-gray-500'}`}>{f}</span>
-                  </li>
-                ))}
-              </ul>
+                    
+                    <div className="space-y-6">
+                        <div className="p-6 rounded-2xl bg-black/60 border border-white/10 shadow-inner">
+                            <code className="font-mono text-xs text-white/60 leading-relaxed block overflow-x-auto whitespace-pre">
+                                <span className="text-[#CCFF00]">import</span> Beatzy <span className="text-[#CCFF00]">from</span> <span className="text-[#28E0D4]">'@beatzy/neural-sdk'</span>;{'\n'}
+                                <span className="text-white/30">{"//"} Initialize cluster node</span>{'\n'}
+                                <span className="text-[#CCFF00]">const</span> node = <span className="text-[#8B5CFF]">new</span> Beatzy({'{'}{'\n'}
+                                {'  '}apiKey: <span className="text-[#28E0D4]">'BZ_9081X_...'</span>{'\n'}
+                                {'}'});
+                            </code>
+                        </div>
+                        <p className="font-mono text-[9px] text-white/20 uppercase tracking-[0.2em] text-center italic">Continuous analysis capability active. Distributed nodes online.</p>
+                    </div>
 
-              {plan.id === 'free' ? (
-                <Link
-                  to={token ? '/dashboard' : '/register'}
-                  className="btn-secondary w-full py-4 text-center text-sm uppercase tracking-[0.15em]"
-                >
-                  {user?.plan === 'free' ? 'Current plan' : 'Get started free'}
-                </Link>
-              ) : (
-                <button
-                  onClick={() => handleUpgrade(plan.id)}
-                  disabled={loading === plan.id || user?.plan === plan.id}
-                  className={`w-full py-4 rounded-xl text-sm uppercase tracking-[0.15em] font-bold transition-all active:scale-[0.98] disabled:opacity-50 ${
-                    plan.highlight ? 'btn-primary' : 'btn-secondary'
-                  }`}
-                >
-                  {loading === plan.id ? 'Redirecting...' : user?.plan === plan.id ? 'Current plan' : plan.id === 'pro' ? 'Upgrade to Pro' : 'Upgrade to Enterprise'}
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <section className="pt-20 border-t border-white/10 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-          <div>
-            <p className="font-mono text-xs uppercase tracking-[0.25em] text-gray-500 mb-6">Built for scale</p>
-            <h2 className="font-headline text-3xl font-bold text-white mb-6 tracking-tight">Engineered for technical mastery</h2>
-            <p className="text-sm text-gray-500 leading-relaxed mb-8">
-              Sub-millisecond classification latency for real-time production environments. Join thousands of engineers who trust Beatzy.
-            </p>
-            <div className="flex gap-8">
-              {['AudioLabs', 'Waveform Co.', 'Spectral Inc.'].map(b => (
-                <span key={b} className="font-mono text-xs uppercase tracking-widest text-gray-600">{b}</span>
-              ))}
-            </div>
-          </div>
-          <div className="glass-panel h-56 flex items-center justify-center">
-            <div className="flex items-center gap-10 opacity-40">
-              {['AudioLabs', 'Waveform Co', 'Spectral Inc'].map(brand => (
-                <div key={brand} className="flex flex-col items-center gap-3">
-                  <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-white text-2xl">graphic_eq</span>
-                  </div>
-                  <span className="font-mono text-xs text-gray-500 uppercase tracking-widest">{brand}</span>
+                    <div className="flex justify-between items-center opacity-30 group-hover:opacity-60 transition-opacity">
+                         {['AudioLabs', 'Spectral', 'VocalID', 'Waveform'].map(b => (
+                             <span key={b} className="font-display font-black text-[10px] uppercase tracking-widest text-white">{b}</span>
+                         ))}
+                    </div>
                 </div>
-              ))}
             </div>
-          </div>
         </section>
       </main>
 
-      <footer className="relative z-10 border-t border-white/10 py-16 px-8 flex flex-col md:flex-row justify-between items-center gap-10">
-        <span className="font-headline text-xl tracking-[0.25em] text-white">BEATZY</span>
-        <div className="flex gap-10">
-          {['Architecture', 'Privacy', 'API Docs', 'Terms'].map(l => (
-            <Link key={l} to="/" className="font-mono text-xs uppercase tracking-[0.2em] text-gray-600 hover:text-white transition-colors">{l}</Link>
-          ))}
+      <footer className="relative z-10 border-t border-white/5 bg-[#050505] px-8 py-20">
+        <div className="max-w-[1720px] mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
+          <div className="space-y-4 text-center md:text-left">
+              <p className="text-sm font-semibold tracking-[0.32em] text-[#CCFF00]">BEATZY</p>
+              <p className="text-[10px] text-zinc-500 uppercase tracking-widest max-w-xs leading-relaxed">Music intelligence engine for identification, spectral analysis, and neural API access.</p>
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-12">
+            {['Architecture', 'Privacy Protocol', 'Technical Docs', 'Service Terms'].map(l => (
+              <Link key={l} to="/" className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-600 hover:text-[#CCFF00] transition-colors">{l}</Link>
+            ))}
+          </div>
+          
+          <div className="flex flex-col items-center md:items-end gap-2">
+            <span className="font-mono text-[9px] text-zinc-700 uppercase tracking-[0.3em]">© 2026 BEATZY AI MAINFRMAE</span>
+            <div className="flex items-center gap-2">
+                <div className="w-1 h-1 rounded-full bg-[#CCFF00] opacity-20" />
+                <span className="font-mono text-[8px] text-zinc-800 uppercase tracking-widest leading-none">Node: Region-EU-1</span>
+            </div>
+          </div>
         </div>
-        <span className="font-mono text-xs text-gray-600 uppercase tracking-widest">© 2026 Beatzy AI</span>
       </footer>
     </div>
   );
