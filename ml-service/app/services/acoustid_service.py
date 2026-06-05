@@ -15,7 +15,10 @@ class AcoustIDService:
     def identify_from_bytes(self, audio_bytes: bytes, extension: str = "mp3") -> dict | None:
         """Write the sample to a temp file, fingerprint it, and look it up."""
         if not self.api_key:
-            logger.warning("ACOUSTID_API_KEY not set; skipping fingerprint")
+            logger.warning(
+                "ACOUSTID_API_KEY not set — fingerprinting disabled",
+                hint="Add key from https://acoustid.org",
+            )
             return None
 
         ext = extension.lstrip(".")

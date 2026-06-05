@@ -64,7 +64,7 @@ router.get('/:jobId', authenticateApiKey, async (req, res) => {
   if (cached) return res.json({ success: true, status: 'complete', data: cached, cached: true });
 
   const { rows } = await pool.query(
-    `SELECT r.*, j.original_filename, j.s3_key, j.created_at as job_created_at, j.status, j.error_message
+    `SELECT r.*, j.original_filename, j.s3_key, j.created_at as job_created_at, j.status, j.error_message, j.progress
      FROM audio_jobs j
      LEFT JOIN analysis_results r ON r.job_id = j.id
      WHERE j.id = $1 AND j.user_id = $2`,
@@ -82,6 +82,7 @@ router.get('/:jobId', authenticateApiKey, async (req, res) => {
       success: true,
       status: 'processing',
       jobId: req.params.jobId,
+      progress: { percent: job.progress || 10 },
       message: 'Analysis in progress'
     });
   }

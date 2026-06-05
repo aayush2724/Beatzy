@@ -149,7 +149,8 @@ export default function Results() {
     }
   }, [result, mlData]);
 
-  const lyricsText = mlData?.lyrics || result?.lyrics || null;
+  const mlLyrics = mlData?.lyrics;
+  const lyricsText = (mlLyrics && typeof mlLyrics === 'object' ? mlLyrics.plain : mlLyrics) || result?.lyrics || null;
   const chordSegments = chords;
 
   const currentChord = useMemo(() => {

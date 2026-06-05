@@ -63,10 +63,12 @@ try {
 
     await pool.query("UPDATE audio_jobs SET status = 'processing', started_at = NOW() WHERE id = $1", [jobId]);
     emitToUser(userId, 'job:progress', { jobId, status: 'processing', progress: 10 });
+    await pool.query('UPDATE audio_jobs SET progress = $1 WHERE id = $2', [10, jobId]);
 
     let mlResult;
     try {
       emitToUser(userId, 'job:progress', { jobId, status: 'analyzing', progress: 30 });
+      await pool.query('UPDATE audio_jobs SET progress = $1 WHERE id = $2', [30, jobId]);
       const response = await axios.post(`${ML_URL}/analyze`, {
         job_id: jobId,
         s3_key: s3Key,
@@ -75,6 +77,7 @@ try {
       }, { timeout: 240000 });
       mlResult = response.data;
       emitToUser(userId, 'job:progress', { jobId, status: 'saving', progress: 70 });
+      await pool.query('UPDATE audio_jobs SET progress = $1 WHERE id = $2', [70, jobId]);
     } catch (err) {
       logger.error('ML service failed', { jobId, error: err.message });
       await pool.query(

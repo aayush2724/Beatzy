@@ -11,6 +11,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
+import api from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { useAudioStore } from '../store/audioStore';
 
@@ -19,11 +20,53 @@ const SOCKET_URL = import.meta.env.VITE_API_URL || '';
 export function useJobSocket(jobId) {
   const token = useAuthStore((s) => s.token);
   const setIsAnalyzing = useAudioStore((s) => s.setIsAnalyzing);
+  const setAnalysisResult = useAudioStore((s) => s.setAnalysisResult);
   const socketRef = useRef(null);
+  const pollRef = useRef(null);
 
   const [status, setStatus] = useState('connecting');
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
+
+  const clearPolling = useCallback(() => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  }, []);
+
+  const startPolling = useCallback(() => {
+    if (!jobId || pollRef.current) return;
+    pollRef.current = setInterval(async () => {
+      try {
+        const res = await api.get(`/api/results/${jobId}`);
+        const { status: s, data, progress: p, error: e } = res.data;
+
+        if (s === 'processing') {
+          setStatus('analyzing');
+          setProgress(prev => Math.max(prev, p?.percent || 30));
+        }
+
+        if (s === 'complete') {
+          clearPolling();
+          setStatus('completed');
+          setProgress(100);
+          setIsAnalyzing(false);
+          setAnalysisResult(data);
+          toast.dismiss('socket-reconnecting');
+        }
+
+        if (s === 'failed') {
+          clearPolling();
+          setStatus('failed');
+          setError(e || 'Analysis failed');
+          setIsAnalyzing(false);
+        }
+      } catch (err) {
+        // ignore poll errors silently
+      }
+    }, 3000);
+  }, [jobId, setIsAnalyzing, setAnalysisResult, clearPolling]);
 
   const connect = useCallback(() => {
     if (!token) return;
@@ -58,6 +101,7 @@ export function useJobSocket(jobId) {
 
     socket.on('job:completed', (data) => {
       if (data.jobId !== jobId) return;
+      clearPolling();
       setStatus('completed');
       setProgress(100);
       setIsAnalyzing(false);
@@ -65,6 +109,7 @@ export function useJobSocket(jobId) {
 
     socket.on('job:failed', (data) => {
       if (data.jobId !== jobId) return;
+      clearPolling();
       setStatus('failed');
       setError(data.error);
       setIsAnalyzing(false);
@@ -74,9 +119,7 @@ export function useJobSocket(jobId) {
     
     socket.on('connect_error', (err) => {
       console.warn('[socket] connect_error', err.message);
-      setStatus('error');
-      setError(err.message);
-      toast.loading('Connecting to server...', { id: 'socket-reconnecting' });
+      setStatus('polling');
     });
 
     socket.on('reconnect_failed', () => {
@@ -84,15 +127,24 @@ export function useJobSocket(jobId) {
     });
 
     socketRef.current = socket;
-  }, [token, jobId, setIsAnalyzing]);
+  }, [token, jobId, setIsAnalyzing, clearPolling]);
+
+  useEffect(() => {
+    if (jobId) startPolling();
+    return () => {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    };
+  }, [jobId, startPolling]);
 
   useEffect(() => {
     connect();
     return () => {
+      clearPolling();
       socketRef.current?.disconnect();
       socketRef.current = null;
     };
-  }, [connect]);
+  }, [connect, clearPolling]);
 
   // Return a getter function instead of the stale ref value
   return { status, progress, error, getSocket: () => socketRef.current };
