@@ -171,7 +171,7 @@ export const PricingCard = ({
     backdrop-blur-[14px] bg-gradient-to-br rounded-2xl shadow-xl flex-1 max-w-xs px-7 py-8 flex flex-col transition-all duration-300
     from-black/5 to-black/0 border border-black/10
     dark:from-white/10 dark:to-white/5 dark:border-[#0D0808]/10 dark:backdrop-brightness-[0.91]
-    \${isPopular ? 'scale-105 relative ring-2 ring-primary/20 dark:from-white/20 dark:to-white/10 dark:border-primary/30 shadow-2xl' : ''}
+    \    \${isPopular ? 'scale-105 relative ring-2 ring-primary/20 dark:from-white/20 dark:to-white/10 dark:border-primary/30 shadow-2xl' : ''}
   `;
   const buttonClasses = `
     mt-auto w-full py-2.5 rounded-xl font-semibold text-[14px] transition font-sans
@@ -200,7 +200,7 @@ export const PricingCard = ({
       <ul className="flex flex-col gap-2 text-[14px] text-foreground/90 mb-6 font-sans">
         {features.map((feature, index) => (
           <li key={index} className="flex items-center gap-2">
-            <Check className="text-primary w-4 h-4" /> {feature}
+            <CheckIcon className="text-primary w-4 h-4" /> {feature}
           </li>
         ))}
       </ul>
