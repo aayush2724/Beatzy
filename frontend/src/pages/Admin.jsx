@@ -3,16 +3,28 @@ import { getStats, getUsers, updateUser, getAuditLogs } from '../api/admin';
 import { ResponsiveContainer, BarChart, Bar, Cell, XAxis, YAxis, Tooltip } from 'recharts';
 import PageWrapper from '../components/PageWrapper';
 import clsx from 'clsx';
+import { 
+  ShieldCheck, 
+  Activity, 
+  Users, 
+  ShieldAlert, 
+  Database, 
+  Cpu, 
+  Search, 
+  Terminal,
+  Zap,
+  Lock
+} from 'lucide-react';
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="glass-card p-3 border border-glass-border rounded-lg text-xs font-mono backdrop-blur-xl" style={{ 
-        background: 'rgba(20, 20, 20, 0.92)', 
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)' 
+      <div className="glass-card p-3 border border-white/10 rounded-xl text-xs font-mono backdrop-blur-2xl" style={{ 
+        background: 'rgba(5, 5, 5, 0.95)', 
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)' 
       }}>
         <p className="text-white font-bold">{payload[0].payload.name}</p>
-        <p className="text-primary mt-1">{payload[0].value} {payload[0].unit || ''}</p>
+        <p className="text-[#CCFF00] mt-1">{payload[0].value} Operators</p>
       </div>
     );
   }
@@ -25,6 +37,7 @@ export default function Admin() {
   const [users, setUsers] = useState([]);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     setLoading(true);
@@ -45,21 +58,24 @@ export default function Admin() {
     try {
       await updateUser(u.id, { is_admin: !u.is_admin });
       setUsers(prev => prev.map(item => item.id === u.id ? { ...item, is_admin: !item.is_admin } : item));
-    } catch (e) { alert('Update failed'); }
+      toast.success('Permissions updated');
+    } catch (e) { toast.error('Update failed'); }
   };
 
   const handleToggleActive = async (u) => {
     try {
       await updateUser(u.id, { is_active: !u.is_active });
       setUsers(prev => prev.map(item => item.id === u.id ? { ...item, is_active: !item.is_active } : item));
-    } catch (e) { alert('Update failed'); }
+      toast.success('Operator status updated');
+    } catch (e) { toast.error('Update failed'); }
   };
 
   const handleChangePlan = async (u, plan) => {
     try {
       await updateUser(u.id, { plan });
       setUsers(prev => prev.map(item => item.id === u.id ? { ...item, plan } : item));
-    } catch (e) { alert('Update failed'); }
+      toast.success('Resource tier modified');
+    } catch (e) { toast.error('Update failed'); }
   };
 
   const planData = stats ? [
@@ -75,85 +91,116 @@ export default function Admin() {
   ] : [];
 
   return (
-    <PageWrapper className="space-y-gutter pb-16">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-4">
-        <div>
-          <h1 className="font-headline text-3xl font-extrabold text-white tracking-tight">Admin Operations</h1>
-          <p className="font-sans text-sm text-on-surface-variant flex items-center gap-2 mt-1">
-            System status monitoring and user authorization database controls
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+    <PageWrapper className="space-y-12 pb-20 animate-page-entrance">
+      <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 border-b border-white/5 pb-12">
+        <div className="space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-red-500/20 bg-red-500/5 text-red-400 font-mono text-[9px] uppercase tracking-[0.2em]">
+            <Lock className="w-3 h-3" /> Admin Restricted Sector
+          </div>
+          <h1 className="text-6xl font-display font-black text-white tracking-tighter uppercase leading-none">Control <span className="text-[#CCFF00] text-glow-lime">Terminal</span></h1>
+          <p className="text-on-surface-variant max-w-xl text-sm leading-relaxed">
+            Global system monitoring, operator database management, and high-level security protocol audit.
           </p>
+        </div>
+        <div className="flex gap-4">
+            <div className="flex items-center gap-3 px-6 py-4 rounded-xl border border-white/5 bg-white/[0.02] text-white/40 font-mono text-[9px] uppercase tracking-widest">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#CCFF00] animate-pulse shadow-[0_0_10px_#CCFF00]" />
+                Mainframe Link: Stabilized
+            </div>
         </div>
       </header>
 
       {/* Tabs bar */}
-      <div className="flex border-b border-glass-border">
+      <div className="flex gap-2 p-1 obsidian-panel rounded-2xl border border-white/5 w-max">
         {[
-          { id: 'overview', label: 'Telemetry Overview', icon: 'monitoring' },
-          { id: 'users', label: 'User Directory', icon: 'group' },
-          { id: 'logs', label: 'Security Audit logs', icon: 'security' },
+          { id: 'overview', label: 'Telemetry', icon: Activity },
+          { id: 'users', label: 'Operator Directory', icon: Users },
+          { id: 'logs', label: 'Security Audit', icon: ShieldAlert },
         ].map(t => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
             className={clsx(
-              'flex items-center gap-2 px-6 py-3 border-b-2 font-mono text-[11px] uppercase tracking-wider transition-all',
+              'flex items-center gap-2 px-6 py-2.5 rounded-xl font-mono text-[10px] uppercase tracking-widest transition-all duration-300',
               tab === t.id
-                ? 'border-primary text-primary bg-primary/5'
-                : 'border-transparent text-on-surface-variant hover:text-white'
+                ? 'bg-[#CCFF00] text-black font-black shadow-[0_0_20px_rgba(204,255,0,0.15)]'
+                : 'text-on-surface-variant hover:text-white hover:bg-white/5'
             )}
           >
-            <span className="material-symbols-outlined text-base">{t.icon}</span>
+            <t.icon className="w-3.5 h-3.5" />
             {t.label}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-24">
-          <div className="relative w-16 h-16 mb-4">
-            <div className="absolute inset-0 rounded-full border border-primary/20 animate-ping"></div>
-            <div className="absolute inset-2 rounded-full border border-t-transparent border-primary animate-spin"></div>
+        <div className="flex flex-col items-center justify-center py-32 space-y-8">
+          <div className="relative w-20 h-20">
+            <div className="absolute inset-0 rounded-full border border-[#CCFF00]/20 animate-ping" />
+            <div className="absolute inset-4 rounded-[2rem] border-2 border-t-[#CCFF00] border-transparent animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center">
+                <Terminal className="w-6 h-6 text-[#CCFF00] opacity-40" />
+            </div>
           </div>
-          <span className="font-mono text-[10px] text-primary uppercase tracking-widest">Querying database...</span>
+          <span className="font-mono text-[10px] text-[#CCFF00] uppercase tracking-[0.4em] animate-pulse">Querying Mainframe Database...</span>
         </div>
       ) : (
-        <>
+        <div className="space-y-12">
           {/* TAB 1: OVERVIEW */}
           {tab === 'overview' && stats && (
-            <div className="space-y-gutter">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-                <div className="glass-panel p-6 rounded-xl border border-glass-border">
-                  <p className="font-mono text-[9px] text-on-surface-variant tracking-[0.1em] uppercase mb-1">Total Users</p>
-                  <span className="font-mono text-3xl font-bold text-white">{stats.totalUsers}</span>
+            <div className="space-y-12">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="glass-card p-8 border border-white/10 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <Users className="w-24 h-24 text-white" />
+                  </div>
+                  <p className="font-mono text-[9px] text-on-surface-variant tracking-[0.2em] uppercase font-black mb-6 flex items-center gap-2">
+                    <div className="w-1 h-1 rounded-full bg-white/20" /> Total Operators
+                  </p>
+                  <span className="text-5xl font-display font-black text-white tracking-tighter">{stats.totalUsers}</span>
                 </div>
-                <div className="glass-panel p-6 rounded-xl border border-glass-border">
-                  <p className="font-mono text-[9px] text-on-surface-variant tracking-[0.1em] uppercase mb-1">Signals Analyzed</p>
-                  <span className="font-mono text-3xl font-bold text-primary">
+                <div className="glass-card p-8 border border-[#CCFF00]/20 bg-[#CCFF00]/5 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <Zap className="w-24 h-24 text-[#CCFF00]" />
+                  </div>
+                  <p className="font-mono text-[9px] text-[#CCFF00] tracking-[0.2em] uppercase font-black mb-6 flex items-center gap-2">
+                    <div className="w-1 h-1 rounded-full bg-[#CCFF00]" /> Neural Extractions
+                  </p>
+                  <span className="text-5xl font-display font-black text-white tracking-tighter text-glow-lime">
                     {Object.values(stats.jobsByStatus).reduce((a, b) => a + b, 0)}
                   </span>
                 </div>
-                <div className="glass-panel p-6 rounded-xl border border-glass-border">
-                  <p className="font-mono text-[9px] text-on-surface-variant tracking-[0.1em] uppercase mb-1">Active Subscribers</p>
-                  <span className="font-mono text-3xl font-bold text-secondary">
+                <div className="glass-card p-8 border border-[#28E0D4]/20 bg-[#28E0D4]/5 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <ShieldCheck className="w-24 h-24 text-[#28E0D4]" />
+                  </div>
+                  <p className="font-mono text-[9px] text-[#28E0D4] tracking-[0.2em] uppercase font-black mb-6 flex items-center gap-2">
+                    <div className="w-1 h-1 rounded-full bg-[#28E0D4]" /> Pro Uplinks
+                  </p>
+                  <span className="text-5xl font-display font-black text-white tracking-tighter text-glow-cyan">
                     {(stats.usersByPlan.pro || 0) + (stats.usersByPlan.enterprise || 0)}
                   </span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Plan Distribution */}
-                <div className="glass-panel rounded-xl border border-glass-border p-6 h-[300px] flex flex-col justify-between">
-                  <h3 className="font-headline font-bold text-sm text-primary uppercase tracking-wider">Subscribers Tier Mix</h3>
-                  <div className="w-full h-[200px] font-mono text-[9px]">
+                <div className="obsidian-panel rounded-[2.5rem] border border-white/5 p-10 h-[450px] flex flex-col group relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <Database className="w-32 h-32 text-white" />
+                  </div>
+                  <h3 className="font-display font-black text-lg text-white uppercase tracking-widest mb-12 flex items-center gap-4 relative z-10">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#CCFF00]" /> Resource Tiers
+                  </h3>
+                  <div className="w-full flex-1 font-mono text-[10px] relative z-10">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={planData} margin={{ left: -25, right: 10 }}>
-                        <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" />
-                        <YAxis stroke="rgba(255,255,255,0.3)" />
+                      <BarChart data={planData} margin={{ left: -30, bottom: 20 }}>
+                        <XAxis dataKey="name" stroke="rgba(255,255,255,0.1)" font-family="JetBrains Mono" />
+                        <YAxis stroke="rgba(255,255,255,0.1)" font-family="JetBrains Mono" />
                         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
-                        <Bar dataKey="value">
+                        <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                           {planData.map((e, i) => (
-                            <Cell key={`cell-${i}`} fill={i % 3 === 0 ? 'var(--color-primary)' : i % 3 === 1 ? 'var(--color-secondary)' : '#FFFFFF'} />
+                            <Cell key={`cell-${i}`} fill={i % 3 === 0 ? '#CCFF00' : i % 3 === 1 ? '#28E0D4' : '#8B5CFF'} />
                           ))}
                         </Bar>
                       </BarChart>
@@ -162,17 +209,22 @@ export default function Admin() {
                 </div>
 
                 {/* Job Distribution */}
-                <div className="glass-panel rounded-xl border border-glass-border p-6 h-[300px] flex flex-col justify-between">
-                  <h3 className="font-headline font-bold text-sm text-primary uppercase tracking-wider">Job Status Log</h3>
-                  <div className="w-full h-[200px] font-mono text-[9px]">
+                <div className="obsidian-panel rounded-[2.5rem] border border-white/5 p-10 h-[450px] flex flex-col group relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <Cpu className="w-32 h-32 text-white" />
+                  </div>
+                  <h3 className="font-display font-black text-lg text-white uppercase tracking-widest mb-12 flex items-center gap-4 relative z-10">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#CCFF00]" /> Extraction Pipeline
+                  </h3>
+                  <div className="w-full flex-1 font-mono text-[10px] relative z-10">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={jobData} margin={{ left: -25, right: 10 }}>
-                        <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" />
-                        <YAxis stroke="rgba(255,255,255,0.3)" />
+                      <BarChart data={jobData} margin={{ left: -30, bottom: 20 }}>
+                        <XAxis dataKey="name" stroke="rgba(255,255,255,0.1)" font-family="JetBrains Mono" />
+                        <YAxis stroke="rgba(255,255,255,0.1)" font-family="JetBrains Mono" />
                         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
-                        <Bar dataKey="value">
+                        <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                           {jobData.map((e, i) => (
-                            <Cell key={`cell-${i}`} fill={e.name === 'Completed' ? 'var(--color-primary)' : e.name === 'Failed' ? '#EF4444' : 'var(--color-secondary)'} />
+                            <Cell key={`cell-${i}`} fill={e.name === 'Completed' ? '#CCFF00' : e.name === 'Failed' ? '#FF3DAE' : '#28E0D4'} />
                           ))}
                         </Bar>
                       </BarChart>
@@ -185,39 +237,60 @@ export default function Admin() {
 
           {/* TAB 2: USERS DIRECTORY */}
           {tab === 'users' && (
-            <div className="space-y-4">
-              <div className="glass-panel rounded-xl border border-glass-border overflow-hidden">
+            <div className="space-y-6">
+              <div className="flex justify-between items-center px-4">
+                  <p className="font-mono text-[10px] text-white/20 uppercase tracking-[0.3em]">Operator Registry</p>
+                  <div className="relative w-80 group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4" />
+                    <input 
+                        type="text" 
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Search registry..."
+                        className="w-full h-11 bg-white/[0.03] border border-white/10 rounded-xl pl-12 pr-4 text-white text-xs focus:outline-none focus:border-[#CCFF00]/30 transition-all font-mono uppercase tracking-widest"
+                    />
+                  </div>
+              </div>
+
+              <div className="obsidian-panel rounded-[2.5rem] border border-white/5 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-white/[0.02] border-b border-glass-border font-mono text-[9px] text-on-surface-variant/70 uppercase tracking-widest">
-                        <th className="px-6 py-3.5">User</th>
-                        <th className="px-6 py-3.5">Tier Plan</th>
-                        <th className="px-6 py-3.5">Admin status</th>
-                        <th className="px-6 py-3.5">Usage</th>
-                        <th className="px-6 py-3.5">Status</th>
-                        <th className="px-6 py-3.5 text-right">Registered</th>
+                      <tr className="bg-white/[0.02] border-b border-white/5 font-mono text-[10px] text-white/40 uppercase tracking-[0.2em]">
+                        <th className="px-8 py-5">Operator Identification</th>
+                        <th className="px-8 py-5 text-center">Resource Tier</th>
+                        <th className="px-8 py-5 text-center">Admin Access</th>
+                        <th className="px-8 py-5 text-center">Spectral Usage</th>
+                        <th className="px-8 py-5 text-center">Status</th>
+                        <th className="px-8 py-5 text-right">Uplink Date</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-glass-border">
+                    <tbody className="divide-y divide-white/5">
                       {users.map(u => (
-                        <tr key={u.id} className="hover:bg-white/[0.01] transition-colors">
-                          <td className="px-6 py-4">
-                            <p className="font-sans text-xs font-semibold text-white truncate">{u.name}</p>
-                            <p className="font-mono text-[9px] text-on-surface-variant mt-0.5 tracking-wider">{u.email}</p>
+                        <tr key={u.id} className="hover:bg-white/[0.01] transition-all group">
+                          <td className="px-8 py-6">
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 font-black font-display text-sm group-hover:bg-[#CCFF00] group-hover:text-black transition-all">
+                                    {u.name?.[0]?.toUpperCase()}
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="font-display font-black text-white uppercase tracking-tight truncate">{u.name}</p>
+                                    <p className="font-mono text-[9px] text-on-surface-variant mt-1 tracking-widest lowercase">{u.email}</p>
+                                </div>
+                            </div>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-8 py-6 text-center">
                             <select
                               value={u.plan}
                               onChange={(e) => handleChangePlan(u, e.target.value)}
-                              className="bg-surface-container border border-glass-border text-xs font-mono text-white rounded px-2.5 py-1.5 focus:border-primary focus:outline-none"
+                              className="bg-black border border-white/10 text-[10px] font-mono font-black text-white rounded-lg px-4 py-2 focus:border-[#CCFF00]/50 focus:outline-none uppercase tracking-widest hover:border-white/20 transition-all appearance-none cursor-pointer text-center"
                             >
                               <option value="free">Free</option>
                               <option value="pro">Pro</option>
                               <option value="enterprise">Enterprise</option>
                             </select>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-8 py-6 text-center">
                             <label className="relative inline-flex items-center cursor-pointer">
                               <input
                                 type="checkbox"
@@ -225,26 +298,26 @@ export default function Admin() {
                                 onChange={() => handleToggleAdmin(u)}
                                 className="sr-only peer"
                               />
-                              <div className="w-9 h-5 bg-white/10 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                              <div className="w-10 h-5 bg-white/5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white/40 after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#CCFF00] peer-checked:after:bg-black"></div>
                             </label>
                           </td>
-                          <td className="px-6 py-4 font-mono text-xs text-on-surface">
-                            {u.total_jobs} analyses
+                          <td className="px-8 py-6 text-center">
+                            <span className="font-mono text-[10px] text-white font-bold uppercase">{u.total_jobs} Signatures</span>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-8 py-6 text-center">
                             <button
                               onClick={() => handleToggleActive(u)}
                               className={clsx(
-                                'px-2 py-0.5 rounded font-mono text-[8px] uppercase tracking-wider border',
+                                'px-3 py-1.5 rounded-lg font-mono text-[9px] font-black uppercase tracking-widest border transition-all',
                                 u.is_active
-                                  ? 'bg-primary/10 border-primary/30 text-primary'
-                                  : 'bg-red-500/10 border-red-500/20 text-red-400'
+                                  ? 'bg-[#CCFF00]/10 border-[#CCFF00]/20 text-[#CCFF00] hover:bg-[#CCFF00] hover:text-black'
+                                  : 'bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white'
                               )}
                             >
-                              {u.is_active ? 'Active' : 'Suspended'}
+                              {u.is_active ? 'Active' : 'Locked'}
                             </button>
                           </td>
-                          <td className="px-6 py-4 text-right font-mono text-[10px] text-on-surface-variant">
+                          <td className="px-8 py-6 text-right font-mono text-[10px] text-white/20 uppercase tracking-widest">
                             {new Date(u.created_at).toLocaleDateString()}
                           </td>
                         </tr>
@@ -258,37 +331,38 @@ export default function Admin() {
 
           {/* TAB 3: AUDIT LOGS */}
           {tab === 'logs' && (
-            <div className="space-y-4">
-              <div className="glass-panel rounded-xl border border-glass-border overflow-hidden">
+            <div className="space-y-6">
+              <p className="font-mono text-[10px] text-white/20 uppercase tracking-[0.3em] px-4">System Security Event Log</p>
+              <div className="obsidian-panel rounded-[2.5rem] border border-white/5 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-white/[0.02] border-b border-glass-border font-mono text-[9px] text-on-surface-variant/70 uppercase tracking-widest">
-                        <th className="px-6 py-3.5">Operator</th>
-                        <th className="px-6 py-3.5">Action Code</th>
-                        <th className="px-6 py-3.5">IP Address</th>
-                        <th className="px-6 py-3.5">Metadata Payload</th>
-                        <th className="px-6 py-3.5 text-right">Timestamp</th>
+                      <tr className="bg-white/[0.02] border-b border-white/5 font-mono text-[10px] text-white/40 uppercase tracking-[0.2em]">
+                        <th className="px-8 py-5">Origin Operator</th>
+                        <th className="px-8 py-5">Event Code</th>
+                        <th className="px-8 py-5">Network IP</th>
+                        <th className="px-8 py-5">Diagnostic Payload</th>
+                        <th className="px-8 py-5 text-right">Timestamp</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-glass-border">
+                    <tbody className="divide-y divide-white/5">
                       {logs.map(log => (
-                        <tr key={log.id} className="hover:bg-white/[0.01] transition-colors font-mono text-xs">
-                          <td className="px-6 py-4 text-white font-medium">
-                            {log.email || 'System / Daemon'}
+                        <tr key={log.id} className="hover:bg-white/[0.01] transition-all group font-mono text-[10px]">
+                          <td className="px-8 py-6 text-white font-black uppercase tracking-tight">
+                            {log.email || 'SYSTEM / DAEMON'}
                           </td>
-                          <td className="px-6 py-4">
-                            <span className="px-2 py-0.5 rounded bg-secondary/10 border border-secondary/20 text-secondary text-[9px] tracking-wide">
+                          <td className="px-8 py-6">
+                            <span className="px-3 py-1 rounded-lg bg-[#28E0D4]/10 border border-[#28E0D4]/20 text-[#28E0D4] font-black uppercase tracking-widest">
                               {log.action}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-on-surface-variant">
-                            {log.ip_address || '127.0.0.1'}
+                          <td className="px-8 py-6 text-on-surface-variant/60">
+                            {log.ip_address || '0.0.0.0'}
                           </td>
-                          <td className="px-6 py-4">
-                            <p className="text-[10px] text-on-surface-variant truncate max-w-xs">{JSON.stringify(log.metadata)}</p>
+                          <td className="px-8 py-6">
+                            <p className="text-[#8B5CFF] truncate max-w-xs opacity-60 group-hover:opacity-100 transition-opacity font-bold">{JSON.stringify(log.metadata)}</p>
                           </td>
-                          <td className="px-6 py-4 text-right text-on-surface-variant text-[10px]">
+                          <td className="px-8 py-6 text-right text-white/20 uppercase tracking-widest">
                             {new Date(log.created_at).toLocaleString()}
                           </td>
                         </tr>
@@ -299,8 +373,23 @@ export default function Admin() {
               </div>
             </div>
           )}
-        </>
+        </div>
       )}
+
+      {/* Technical Footer Decoration */}
+      <div className="flex justify-between items-center pt-20 font-mono text-[8px] text-white/10 uppercase tracking-[0.4em] select-none">
+            <div className="flex items-center gap-4">
+                <div className="w-1 h-1 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_red]" />
+                Security Layer: ACTIVE
+            </div>
+            <div>Cluster Load: Balanced</div>
+            <div className="flex items-center gap-2">
+                <Cpu className="w-2 h-2" />
+                Control V4.2.0
+            </div>
+        </div>
     </PageWrapper>
   );
 }
+
+import toast from 'react-hot-toast';

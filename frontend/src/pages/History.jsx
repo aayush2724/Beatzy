@@ -1,8 +1,6 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, PerspectiveCamera } from '@react-three/drei';
 import { getHistory } from '../api/audio';
 import GlassRecordSleeve from '../components/GlassRecordSleeve';
 import PageWrapper from '../components/PageWrapper';
@@ -14,43 +12,15 @@ import {
   Disc, 
   ChevronLeft, 
   ChevronRight, 
-  Search 
+  Search,
+  Activity,
+  Database,
+  ArrowUpRight
 } from 'lucide-react';
-
-const SG = { fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif" };
-
-function CassetteTape() {
-  const mesh = useRef();
-  useFrame((state) => {
-    mesh.current.rotation.y += 0.005;
-    mesh.current.rotation.z = Math.sin(state.clock.getElapsedTime() * 0.5) * 0.1;
-  });
-  return (
-    <Float speed={1.5} rotationIntensity={0.5} floatIntensity={0.5}>
-      <group ref={mesh}>
-        {/* Main Body */}
-        <mesh>
-            <boxGeometry args={[4, 2.5, 0.4]} />
-            <meshStandardMaterial color="#1a1a1a" metalness={0.8} roughness={0.3} />
-        </mesh>
-        {/* Center label */}
-        <mesh position={[0, 0, 0.21]}>
-            <planeGeometry args={[3.2, 1.8]} />
-            <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.1} />
-        </mesh>
-        {/* Window */}
-        <mesh position={[0, -0.4, 0.22]}>
-            <planeGeometry args={[2, 0.6]} />
-            <meshStandardMaterial color="#000000" transparent opacity={0.6} />
-        </mesh>
-      </group>
-    </Float>
-  );
-}
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  show: { opacity: 1, transition: { staggerChildren: 0.08 } }
 };
 
 export default function History() {
@@ -59,6 +29,7 @@ export default function History() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
 
   const fetchHistory = useCallback(() => {
     setLoading(true);
@@ -81,34 +52,32 @@ export default function History() {
   }, [fetchHistory]);
 
   return (
-    <PageWrapper className="space-y-12 pb-20 relative">
-        {/* Cinematic Header */}
-        <header className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-white/5 pb-8 relative">
-            {/* Corner 3D Element */}
-            <div className="absolute -top-20 -right-20 w-64 h-64 opacity-20 pointer-events-none">
-                <Canvas>
-                    <PerspectiveCamera makeDefault position={[0, 0, 8]} />
-                    <ambientLight intensity={0.5} />
-                    <pointLight position={[10, 10, 10]} />
-                    <CassetteTape />
-                </Canvas>
-            </div>
-
-            <div>
-                <h1 className="text-5xl font-headline font-extrabold text-white tracking-tighter mb-2" style={SG}>Signal Archives</h1>
-                <p className="font-mono text-xs text-white/30 uppercase tracking-[0.2em]">{pagination.total} Waveforms registered in database</p>
+    <PageWrapper className="space-y-12 pb-20 animate-page-entrance">
+        {/* Header */}
+        <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10 border-b border-white/5 pb-12 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#CCFF00]/5 blur-[100px] rounded-full -mr-48 -mt-48 pointer-events-none" />
+            
+            <div className="space-y-4 relative z-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#CCFF00]/20 bg-[#CCFF00]/5 text-[#CCFF00] font-mono text-[9px] uppercase tracking-[0.2em]">
+                  <Database className="w-3 h-3" /> Historical Matrix
+              </div>
+              <h1 className="text-6xl font-display font-black text-white tracking-tighter uppercase leading-none">Signal <span className="text-[#CCFF00] text-glow-lime">Archives</span></h1>
+              <p className="font-mono text-[10px] text-white/30 uppercase tracking-[0.3em]">{pagination.total} Waveforms indexed in neural core</p>
             </div>
             
-            <div className="flex items-center gap-4 w-full md:w-auto">
-                <div className="relative flex-1 md:w-64">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4" />
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto relative z-10">
+                <div className="relative w-full sm:w-80 group">
+                    <div className="absolute inset-0 bg-[#CCFF00]/5 blur-[15px] opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4 group-focus-within:text-[#CCFF00] transition-colors" />
                     <input 
                         type="text" 
-                        placeholder="Search archives..."
-                        className="input pl-11 py-2 text-xs"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Search archived signals..."
+                        className="w-full h-12 bg-white/[0.03] border border-white/10 rounded-xl pl-12 pr-4 text-white text-xs placeholder:text-white/20 focus:outline-none focus:border-[#CCFF00]/30 transition-all font-mono uppercase tracking-widest"
                     />
                 </div>
-                <Link to="/upload" className="btn-primary flex items-center gap-2 whitespace-nowrap px-6">
+                <Link to="/upload" className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-[#CCFF00] text-black font-black text-[10px] uppercase tracking-[0.15em] shadow-[0_0_30px_rgba(204,255,0,0.15)] hover:scale-105 transition-all">
                     <Plus className="w-4 h-4" /> New Extraction
                 </Link>
             </div>
@@ -117,20 +86,30 @@ export default function History() {
         {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {Array.from({ length: 8 }).map((_, i) => (
-                    <div key={i} className="h-64 rounded-xl bg-white/[0.02] border border-white/5 animate-pulse" />
+                    <div key={i} className="h-72 rounded-[2.5rem] bg-white/[0.02] border border-white/5 animate-pulse" />
                 ))}
             </div>
         ) : error ? (
-            <div className="h-64 glass-panel border border-dashed border-red-500/20 flex flex-col items-center justify-center text-center p-12 gap-4">
-                <CloudOff className="w-10 h-10 text-red-400/60" />
-                <p className="text-white/50 font-mono text-xs uppercase tracking-widest">{error}</p>
-                <button onClick={fetchHistory} className="btn-secondary px-6 py-2 text-xs">Retry</button>
+            <div className="h-80 glass-card border-red-500/20 flex flex-col items-center justify-center text-center p-12 gap-8">
+                <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center border border-red-500/20">
+                    <CloudOff className="w-8 h-8 text-red-400 opacity-60" />
+                </div>
+                <div className="space-y-2">
+                    <p className="text-white text-lg font-display font-black uppercase tracking-tight">Archives Offline</p>
+                    <p className="text-red-300/40 font-mono text-[10px] uppercase tracking-widest">{error}</p>
+                </div>
+                <button onClick={fetchHistory} className="px-8 py-3 rounded-xl bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-[#CCFF00] transition-all">Retry Link</button>
             </div>
         ) : jobs.length === 0 ? (
-            <div className="h-64 glass-panel border border-dashed border-white/10 flex flex-col items-center justify-center text-center p-12">
-                <Disc className="w-10 h-10 text-white/10 mb-4" />
-                <p className="text-white/40 font-mono text-xs uppercase tracking-widest mb-6">No analyses yet</p>
-                <Link to="/upload" className="btn-primary px-6 py-2 text-xs">Upload your first track</Link>
+            <div className="h-80 obsidian-panel rounded-[3rem] border border-dashed border-white/5 flex flex-col items-center justify-center text-center p-12">
+                <div className="w-20 h-20 bg-white/5 rounded-[2rem] flex items-center justify-center mb-8 border border-white/5">
+                    <Disc className="w-10 h-10 text-white/10" />
+                </div>
+                <h3 className="text-2xl font-display font-black text-white uppercase tracking-tight mb-3">Archive Registry Empty</h3>
+                <p className="text-on-surface-variant font-mono text-[10px] uppercase tracking-[0.2em] mb-8 max-w-xs mx-auto">No spectral signatures detected in your account history.</p>
+                <Link to="/upload" className="flex items-center gap-3 px-8 py-4 rounded-xl bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-[#CCFF00] transition-all">
+                    Initialize Extraction <ArrowUpRight className="w-4 h-4" />
+                </Link>
             </div>
         ) : (
             <>
@@ -138,7 +117,7 @@ export default function History() {
                     variants={containerVariants}
                     initial="hidden"
                     animate="show"
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
                 >
                     {jobs.map(job => (
                         <GlassRecordSleeve key={job.id} job={job} />
@@ -147,26 +126,41 @@ export default function History() {
 
                 {/* Pagination */}
                 {pagination.pages > 1 && (
-                    <div className="flex justify-center items-center gap-6 pt-12 border-t border-white/5">
+                    <div className="flex flex-col sm:flex-row justify-center items-center gap-8 pt-16 border-t border-white/5">
                         <button 
                             disabled={page === 1}
                             onClick={() => setPage(p => p - 1)}
-                            className="flex items-center gap-2 px-6 py-2 rounded-lg border border-white/10 text-white/40 hover:text-white hover:border-white/30 transition-all disabled:opacity-20 font-mono text-xs uppercase tracking-widest"
+                            className="flex items-center gap-3 px-8 py-4 rounded-xl border border-white/5 bg-white/[0.02] text-white/40 hover:text-white hover:border-white/20 transition-all disabled:opacity-10 font-mono text-[10px] font-black uppercase tracking-[0.2em]"
                         >
-                            <ChevronLeft className="w-4 h-4" /> Previous
+                            <ChevronLeft className="w-4 h-4" /> Previous Sector
                         </button>
-                        <span className="font-mono text-xs text-white/20 uppercase tracking-widest">Archive Sector {page} of {pagination.pages}</span>
+                        <div className="px-6 py-2 rounded-lg bg-white/5 border border-white/5">
+                            <span className="font-mono text-[10px] text-white font-black uppercase tracking-[0.2em]"><span className="text-[#CCFF00]">{page}</span> <span className="opacity-20 mx-2">/</span> {pagination.pages}</span>
+                        </div>
                         <button 
                             disabled={page === pagination.pages}
                             onClick={() => setPage(p => p + 1)}
-                            className="flex items-center gap-2 px-6 py-2 rounded-lg border border-white/10 text-white/40 hover:text-white hover:border-white/30 transition-all disabled:opacity-20 font-mono text-xs uppercase tracking-widest"
+                            className="flex items-center gap-3 px-8 py-4 rounded-xl border border-white/5 bg-white/[0.02] text-white/40 hover:text-white hover:border-white/20 transition-all disabled:opacity-10 font-mono text-[10px] font-black uppercase tracking-[0.2em]"
                         >
-                            Next <ChevronRight className="w-4 h-4" />
+                            Next Sector <ChevronRight className="w-4 h-4" />
                         </button>
                     </div>
                 )}
             </>
         )}
+
+        {/* Technical Footer Decoration */}
+        <div className="flex justify-between items-center pt-20 font-mono text-[8px] text-white/10 uppercase tracking-[0.4em] select-none">
+            <div className="flex items-center gap-4">
+                <div className="w-1 h-1 rounded-full bg-[#CCFF00] animate-pulse" />
+                Neural Archive Link Active
+            </div>
+            <div>Database Status: Synchronized</div>
+            <div className="flex items-center gap-2">
+                <Activity className="w-2 h-2" />
+                Pipeline V4.2
+            </div>
+        </div>
     </PageWrapper>
   );
 }
