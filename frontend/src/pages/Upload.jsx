@@ -5,7 +5,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, PerspectiveCamera, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import toast from 'react-hot-toast';
-import { uploadAudio, getResults, searchSongs, analyzeUrl } from '../api/audio';
+import { uploadAudio, getResults, searchSongs, analyzeUrl, getHealth } from '../api/audio';
 import { useJobSocket } from '../hooks/useJobSocket';
 import { useDropzone } from 'react-dropzone';
 import clsx from 'clsx';
@@ -110,7 +110,7 @@ function AudioWave({ active, bars = 12 }) {
 
 export default function Upload() {
   const [tab, setTab] = useState('file'); // 'file' | 'mic' | 'search'
-  const [step, setStep] = useState('upload'); // 'upload' | 'uploading' | 'analyzing' | 'done'
+  const [step, setStep] = useState('upload'); // 'upload' | 'uploading' | 'analyzing' | 'done' | 'error'
   const [file, setFile] = useState(null);
   const [progress, setProgress] = useState(0);
   const [elapsed, setElapsed] = useState(0);
@@ -191,49 +191,77 @@ export default function Upload() {
     abortRef.current = false;
   }
 
+  const waitForServer = async () => {
+    for (let i = 0; i < 10; i++) {
+      try {
+        await getHealth();
+        toast.dismiss('wake-up');
+        return true;
+      } catch (err) {
+        toast.loading('Server is waking up, please wait...', { id: 'wake-up' });
+        await new Promise(r => setTimeout(r, 3000));
+      }
+    }
+    toast.dismiss('wake-up');
+    throw new Error('Server failed to wake up. Please try again later.');
+  };
+
   const handleFile = useCallback(async (f) => {
     setFile(f);
     setStep('uploading');
     abortRef.current = false;
 
     try {
+      await waitForServer();
       const { data } = await uploadAudio(f, setProgress);
       const id = data.data.jobId;
       setJobId(id);
       setStep('analyzing');
 
       toast.success('Signal captured! Neural core syncing...', {
+        id: 'upload-success',
         style: { background: '#1A1010', color: '#FF6B35', border: '1px solid rgba(255,255,255,0.1)' },
       });
 
+      let errorCount404 = 0;
       for (let i = 0; i < 60; i++) {
         if (abortRef.current) return;
         await new Promise(r => setTimeout(r, 3000));
         try {
           const { data: rd } = await getResults(id);
-          if (rd.data?.song_title !== undefined || rd.data?.bpm !== undefined) {
+          errorCount404 = 0;
+          toast.dismiss('polling-status');
+
+          if (rd.status === 'complete' || rd.data?.song_title !== undefined) {
             setStep('done');
             setTimeout(() => navigate(`/results/${id}`), 1200);
             return;
           }
-          if (rd.data?.status === 'failed') {
-            throw new Error(rd.data?.error_message || 'Analysis failed');
-          }
-          if (rd.data?.status === 'completed') {
-            setStep('done');
-            setTimeout(() => navigate(`/results/${id}`), 1200);
-            return;
+          if (rd.status === 'failed') {
+            throw new Error(rd.error || 'Analysis failed');
           }
         } catch (pollErr) {
-          if (pollErr?.response?.status === 404) continue;
+          if (pollErr?.response?.status === 404) {
+            errorCount404++;
+            if (errorCount404 > 10) {
+              setStep('error');
+              return;
+            }
+            if (errorCount404 > 3) {
+              toast.loading('Analysis is taking longer than usual, please wait...', { id: 'polling-status' });
+            }
+            continue;
+          }
+          toast.dismiss('polling-status');
           throw pollErr;
         }
       }
       throw new Error('Analysis timed out');
     } catch (err) {
       if (abortRef.current) return;
+      toast.dismiss('polling-status');
       toast.error(err.message || 'Signal transmission failed');
-      resetState();
+      setStep('error');
     }
   }, [navigate]);
 
@@ -245,10 +273,12 @@ export default function Upload() {
     stopPreview();
     setFile({ name: `${track.title} - ${track.artist} (Preview)` });
     setStep('uploading');
-    setProgress(50);
+    setProgress(10);
     abortRef.current = false;
 
     try {
+      await waitForServer();
+      setProgress(50);
       const { data } = await analyzeUrl(track.preview_url, track.title, track.artist);
       const id = data.data.jobId;
       setJobId(id);
@@ -256,34 +286,45 @@ export default function Upload() {
 
       toast.success('Remote track cached! Analyzing...');
 
+      let errorCount404 = 0;
       for (let i = 0; i < 60; i++) {
         if (abortRef.current) return;
         await new Promise(r => setTimeout(r, 3000));
         try {
           const { data: rd } = await getResults(id);
-          if (rd.data?.song_title !== undefined || rd.data?.bpm !== undefined) {
+          errorCount404 = 0;
+          toast.dismiss('polling-status');
+
+          if (rd.status === 'complete' || rd.data?.song_title !== undefined) {
             setStep('done');
             setTimeout(() => navigate(`/results/${id}`), 1200);
             return;
           }
-          if (rd.data?.status === 'failed') {
-            throw new Error(rd.data?.error_message || 'Analysis failed');
-          }
-          if (rd.data?.status === 'completed') {
-            setStep('done');
-            setTimeout(() => navigate(`/results/${id}`), 1200);
-            return;
+          if (rd.status === 'failed') {
+            throw new Error(rd.error || 'Analysis failed');
           }
         } catch (pollErr) {
-          if (pollErr?.response?.status === 404) continue;
+          if (pollErr?.response?.status === 404) {
+            errorCount404++;
+            if (errorCount404 > 10) {
+              setStep('error');
+              return;
+            }
+            if (errorCount404 > 3) {
+              toast.loading('Analysis is taking longer than usual, please wait...', { id: 'polling-status' });
+            }
+            continue;
+          }
+          toast.dismiss('polling-status');
           throw pollErr;
         }
       }
       throw new Error('Analysis timed out');
     } catch (err) {
       if (abortRef.current) return;
+      toast.dismiss('polling-status');
       toast.error(err.message || 'Signal transmission failed');
-      resetState();
+      setStep('error');
     }
   };
 
@@ -722,6 +763,27 @@ export default function Upload() {
               </motion.div>
             )}
 
+            {/* STEP 5: Error */}
+            {step === 'error' && (
+              <motion.div
+                key="error"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex flex-col items-center text-center relative z-20"
+              >
+                <div className="w-20 h-20 bg-red-500/10 border border-red-500/30 rounded-[2rem] flex items-center justify-center text-red-500 mb-8">
+                  <ShieldCode className="w-10 h-10" />
+                </div>
+                <h3 className="text-4xl font-display font-black text-[#FFFFFF] tracking-tight uppercase mb-3">System Malfunction</h3>
+                <p className="text-on-surface-variant font-medium max-w-md">Something went wrong during the analysis process. This might be due to a server timeout or invalid signal.</p>
+                <button
+                  onClick={resetState}
+                  className="mt-8 px-8 py-3 bg-[#FF6B35] text-black font-black rounded-xl uppercase tracking-widest hover:scale-105 transition-transform shadow-[0_0_20px_rgba(255,107,53,0.3)]"
+                >
+                  Retry Initialization
+                </button>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
       </div>

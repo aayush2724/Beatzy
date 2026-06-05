@@ -1,5 +1,7 @@
 import api from './client';
 
+export const getHealth = () => api.get('/api/health');
+
 export const uploadAudio = (file, onProgress) => {
   const formData = new FormData();
   formData.append('audio', file);

@@ -24,8 +24,25 @@ api.interceptors.response.use(
   (res) => res,
   async (err) => {
     const original = err.config;
-    if (err.response?.status === 401 && !original._retry) {
-      original._retry = true;
+    
+    // Handle Render cold starts with retries on network/timeout errors
+    const isNetworkError = !err.response && (err.code === 'ECONNABORTED' || err.message === 'Network Error');
+    if (isNetworkError && !original._retryCount) {
+      original._retryCount = 0;
+    }
+
+    if (isNetworkError && original._retryCount < 3) {
+      original._retryCount++;
+      const delay = 3000;
+      toast.loading(`Reconnecting... (Attempt ${original._retryCount}/3)`, { id: 'api-retry', duration: delay });
+      await new Promise(resolve => setTimeout(resolve, delay));
+      if (original._retryCount === 3) toast.dismiss('api-retry');
+      return api(original);
+    }
+    toast.dismiss('api-retry');
+
+    if (err.response?.status === 401 && !original._authRetry) {
+      original._authRetry = true;
       const { refreshToken, setTokens, logout } = useAuthStore.getState();
       if (refreshToken) {
         try {

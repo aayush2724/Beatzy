@@ -89,6 +89,10 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'beatzy-backend', timestamp: new Date().toISOString() });
 });
 
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',
   customSiteTitle: 'Beatzy API Documentation',
