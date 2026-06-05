@@ -23,8 +23,8 @@ const CustomTooltip = ({ active, payload }) => {
         background: 'rgba(5, 5, 5, 0.95)', 
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)' 
       }}>
-        <p className="text-[#1A1410] font-bold">{payload[0].payload.name}</p>
-        <p className="text-[#D4860A] mt-1">{payload[0].value} Operators</p>
+        <p className="text-[#F5EFE7] font-bold">{payload[0].payload.name}</p>
+        <p className="text-[#C41E3A] mt-1">{payload[0].value} Operators</p>
       </div>
     );
   }
@@ -97,14 +97,14 @@ export default function Admin() {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-red-500/20 bg-red-500/5 text-red-400 font-mono text-[9px] uppercase tracking-[0.2em]">
             <Lock className="w-3 h-3" /> Admin Restricted Sector
           </div>
-          <h1 className="text-6xl font-display font-black text-[#1A1410] tracking-tighter uppercase leading-none">Control <span className="text-[#D4860A] text-glow-orange">Terminal</span></h1>
+          <h1 className="text-6xl font-display font-black text-[#F5EFE7] tracking-tighter uppercase leading-none">Control <span className="text-[#C41E3A] text-glow-red">Terminal</span></h1>
           <p className="text-on-surface-variant max-w-xl text-sm leading-relaxed">
             Global system monitoring, operator database management, and high-level security protocol audit.
           </p>
         </div>
         <div className="flex gap-4">
-            <div className="flex items-center gap-3 px-6 py-4 rounded-xl border border-[#1A1410]/5 bg-white/[0.02] text-[#1A1410]/40 font-mono text-[9px] uppercase tracking-widest">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#D4860A] animate-pulse shadow-[0_0_10px_#D4860A]" />
+            <div className="flex items-center gap-3 px-6 py-4 rounded-xl border border-[#1A1410]/5 bg-white/[0.02] text-[#F5EFE7]/40 font-mono text-[9px] uppercase tracking-widest">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#C41E3A] animate-pulse shadow-[0_0_10px_#C41E3A]" />
                 Mainframe Link: Stabilized
             </div>
         </div>
@@ -123,8 +123,8 @@ export default function Admin() {
             className={clsx(
               'flex items-center gap-2 px-6 py-2.5 rounded-xl font-mono text-[10px] uppercase tracking-widest transition-all duration-300',
               tab === t.id
-                ? 'bg-[#D4860A] text-black font-black shadow-[0_0_20px_rgba(163,81,57,0.15)]'
-                : 'text-on-surface-variant hover:text-[#1A1410] hover:bg-white/5'
+                ? 'bg-[#C41E3A] text-black font-black shadow-[0_0_20px_rgba(196,30,58,0.15)]'
+                : 'text-on-surface-variant hover:text-[#F5EFE7] hover:bg-white/5'
             )}
           >
             <t.icon className="w-3.5 h-3.5" />
@@ -136,13 +136,13 @@ export default function Admin() {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-32 space-y-8">
           <div className="relative w-20 h-20">
-            <div className="absolute inset-0 rounded-full border border-[#D4860A]/20 animate-ping" />
-            <div className="absolute inset-4 rounded-[2rem] border-2 border-t-[#D4860A] border-transparent animate-spin" />
+            <div className="absolute inset-0 rounded-full border border-[#C41E3A]/20 animate-ping" />
+            <div className="absolute inset-4 rounded-[2rem] border-2 border-t-[#C41E3A] border-transparent animate-spin" />
             <div className="absolute inset-0 flex items-center justify-center">
-                <Terminal className="w-6 h-6 text-[#D4860A] opacity-40" />
+                <Terminal className="w-6 h-6 text-[#C41E3A] opacity-40" />
             </div>
           </div>
-          <span className="font-mono text-[10px] text-[#D4860A] uppercase tracking-[0.4em] animate-pulse">Querying Mainframe Database...</span>
+          <span className="font-mono text-[10px] text-[#C41E3A] uppercase tracking-[0.4em] animate-pulse">Querying Mainframe Database...</span>
         </div>
       ) : (
         <div className="space-y-12">
@@ -152,32 +152,32 @@ export default function Admin() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="glass-card p-8 border border-[#1A1410]/10 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <Users className="w-24 h-24 text-[#1A1410]" />
+                    <Users className="w-24 h-24 text-[#F5EFE7]" />
                   </div>
                   <p className="font-mono text-[9px] text-on-surface-variant tracking-[0.2em] uppercase font-black mb-6 flex items-center gap-2">
                     <div className="w-1 h-1 rounded-full bg-white/20" /> Total Operators
                   </p>
-                  <span className="text-5xl font-display font-black text-[#1A1410] tracking-tighter">{stats.totalUsers}</span>
+                  <span className="text-5xl font-display font-black text-[#F5EFE7] tracking-tighter">{stats.totalUsers}</span>
                 </div>
-                <div className="glass-card p-8 border border-[#D4860A]/20 bg-[#D4860A]/5 relative overflow-hidden group">
+                <div className="glass-card p-8 border border-[#C41E3A]/20 bg-[#C41E3A]/5 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <Zap className="w-24 h-24 text-[#D4860A]" />
+                    <Zap className="w-24 h-24 text-[#C41E3A]" />
                   </div>
-                  <p className="font-mono text-[9px] text-[#D4860A] tracking-[0.2em] uppercase font-black mb-6 flex items-center gap-2">
-                    <div className="w-1 h-1 rounded-full bg-[#D4860A]" /> Neural Extractions
+                  <p className="font-mono text-[9px] text-[#C41E3A] tracking-[0.2em] uppercase font-black mb-6 flex items-center gap-2">
+                    <div className="w-1 h-1 rounded-full bg-[#C41E3A]" /> Neural Extractions
                   </p>
-                  <span className="text-5xl font-display font-black text-[#1A1410] tracking-tighter text-glow-orange">
+                  <span className="text-5xl font-display font-black text-[#F5EFE7] tracking-tighter text-glow-red">
                     {Object.values(stats.jobsByStatus).reduce((a, b) => a + b, 0)}
                   </span>
                 </div>
-                <div className="glass-card p-8 border border-[#D4860A]/20 bg-[#D4860A]/5 relative overflow-hidden group">
+                <div className="glass-card p-8 border border-[#C41E3A]/20 bg-[#C41E3A]/5 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <ShieldCheck className="w-24 h-24 text-[#D4860A]" />
+                    <ShieldCheck className="w-24 h-24 text-[#C41E3A]" />
                   </div>
-                  <p className="font-mono text-[9px] text-[#D4860A] tracking-[0.2em] uppercase font-black mb-6 flex items-center gap-2">
-                    <div className="w-1 h-1 rounded-full bg-[#D4860A]" /> Pro Uplinks
+                  <p className="font-mono text-[9px] text-[#C41E3A] tracking-[0.2em] uppercase font-black mb-6 flex items-center gap-2">
+                    <div className="w-1 h-1 rounded-full bg-[#C41E3A]" /> Pro Uplinks
                   </p>
-                  <span className="text-5xl font-display font-black text-[#1A1410] tracking-tighter text-glow-sandy">
+                  <span className="text-5xl font-display font-black text-[#F5EFE7] tracking-tighter text-glow-rust">
                     {(stats.usersByPlan.pro || 0) + (stats.usersByPlan.enterprise || 0)}
                   </span>
                 </div>
@@ -187,10 +187,10 @@ export default function Admin() {
                 {/* Plan Distribution */}
                 <div className="obsidian-panel rounded-[2.5rem] border border-[#1A1410]/5 p-10 h-[450px] flex flex-col group relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <Database className="w-32 h-32 text-[#1A1410]" />
+                    <Database className="w-32 h-32 text-[#F5EFE7]" />
                   </div>
-                  <h3 className="font-display font-black text-lg text-[#1A1410] uppercase tracking-widest mb-12 flex items-center gap-4 relative z-10">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#D4860A]" /> Resource Tiers
+                  <h3 className="font-display font-black text-lg text-[#F5EFE7] uppercase tracking-widest mb-12 flex items-center gap-4 relative z-10">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#C41E3A]" /> Resource Tiers
                   </h3>
                   <div className="w-full flex-1 font-mono text-[10px] relative z-10">
                     <ResponsiveContainer width="100%" height="100%">
@@ -200,7 +200,7 @@ export default function Admin() {
                         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
                         <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                           {planData.map((e, i) => (
-                            <Cell key={`cell-${i}`} fill={i % 3 === 0 ? '#D4860A' : i % 3 === 1 ? '#D4860A' : '#FFDAB9'} />
+                            <Cell key={`cell-${i}`} fill={i % 3 === 0 ? '#C41E3A' : i % 3 === 1 ? '#C41E3A' : '#FFDAB9'} />
                           ))}
                         </Bar>
                       </BarChart>
@@ -211,10 +211,10 @@ export default function Admin() {
                 {/* Job Distribution */}
                 <div className="obsidian-panel rounded-[2.5rem] border border-[#1A1410]/5 p-10 h-[450px] flex flex-col group relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <Cpu className="w-32 h-32 text-[#1A1410]" />
+                    <Cpu className="w-32 h-32 text-[#F5EFE7]" />
                   </div>
-                  <h3 className="font-display font-black text-lg text-[#1A1410] uppercase tracking-widest mb-12 flex items-center gap-4 relative z-10">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#D4860A]" /> Extraction Pipeline
+                  <h3 className="font-display font-black text-lg text-[#F5EFE7] uppercase tracking-widest mb-12 flex items-center gap-4 relative z-10">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#C41E3A]" /> Extraction Pipeline
                   </h3>
                   <div className="w-full flex-1 font-mono text-[10px] relative z-10">
                     <ResponsiveContainer width="100%" height="100%">
@@ -224,7 +224,7 @@ export default function Admin() {
                         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
                         <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                           {jobData.map((e, i) => (
-                            <Cell key={`cell-${i}`} fill={e.name === 'Completed' ? '#D4860A' : e.name === 'Failed' ? '#1A1410' : '#D4860A'} />
+                            <Cell key={`cell-${i}`} fill={e.name === 'Completed' ? '#C41E3A' : e.name === 'Failed' ? '#1A1410' : '#C41E3A'} />
                           ))}
                         </Bar>
                       </BarChart>
@@ -239,15 +239,15 @@ export default function Admin() {
           {tab === 'users' && (
             <div className="space-y-6">
               <div className="flex justify-between items-center px-4">
-                  <p className="font-mono text-[10px] text-[#1A1410]/20 uppercase tracking-[0.3em]">Operator Registry</p>
+                  <p className="font-mono text-[10px] text-[#F5EFE7]/20 uppercase tracking-[0.3em]">Operator Registry</p>
                   <div className="relative w-80 group">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1A1410]/20 w-4 h-4" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#F5EFE7]/20 w-4 h-4" />
                     <input 
                         type="text" 
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Search registry..."
-                        className="w-full h-11 bg-white/[0.03] border border-[#1A1410]/10 rounded-xl pl-12 pr-4 text-[#1A1410] text-xs focus:outline-none focus:border-[#D4860A]/30 transition-all font-mono uppercase tracking-widest"
+                        className="w-full h-11 bg-white/[0.03] border border-[#1A1410]/10 rounded-xl pl-12 pr-4 text-[#F5EFE7] text-xs focus:outline-none focus:border-[#C41E3A]/30 transition-all font-mono uppercase tracking-widest"
                     />
                   </div>
               </div>
@@ -256,7 +256,7 @@ export default function Admin() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-white/[0.02] border-b border-[#1A1410]/5 font-mono text-[10px] text-[#1A1410]/40 uppercase tracking-[0.2em]">
+                      <tr className="bg-white/[0.02] border-b border-[#1A1410]/5 font-mono text-[10px] text-[#F5EFE7]/40 uppercase tracking-[0.2em]">
                         <th className="px-8 py-5">Operator Identification</th>
                         <th className="px-8 py-5 text-center">Resource Tier</th>
                         <th className="px-8 py-5 text-center">Admin Access</th>
@@ -270,11 +270,11 @@ export default function Admin() {
                         <tr key={u.id} className="hover:bg-white/[0.01] transition-all group">
                           <td className="px-8 py-6">
                             <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-white/5 border border-[#1A1410]/10 flex items-center justify-center text-[#1A1410]/40 font-black font-display text-sm group-hover:bg-[#D4860A] group-hover:text-black transition-all">
+                                <div className="w-10 h-10 rounded-xl bg-white/5 border border-[#1A1410]/10 flex items-center justify-center text-[#F5EFE7]/40 font-black font-display text-sm group-hover:bg-[#C41E3A] group-hover:text-black transition-all">
                                     {u.name?.[0]?.toUpperCase()}
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="font-display font-black text-[#1A1410] uppercase tracking-tight truncate">{u.name}</p>
+                                    <p className="font-display font-black text-[#F5EFE7] uppercase tracking-tight truncate">{u.name}</p>
                                     <p className="font-mono text-[9px] text-on-surface-variant mt-1 tracking-widest lowercase">{u.email}</p>
                                 </div>
                             </div>
@@ -283,7 +283,7 @@ export default function Admin() {
                             <select
                               value={u.plan}
                               onChange={(e) => handleChangePlan(u, e.target.value)}
-                              className="bg-[#1A1410] border border-[#1A1410]/10 text-[10px] font-mono font-black text-[#1A1410] rounded-lg px-4 py-2 focus:border-[#D4860A]/50 focus:outline-none uppercase tracking-widest hover:border-[#1A1410]/20 transition-all appearance-none cursor-pointer text-center"
+                              className="bg-[#1A1410] border border-[#1A1410]/10 text-[10px] font-mono font-black text-[#F5EFE7] rounded-lg px-4 py-2 focus:border-[#C41E3A]/50 focus:outline-none uppercase tracking-widest hover:border-[#1A1410]/20 transition-all appearance-none cursor-pointer text-center"
                             >
                               <option value="free">Free</option>
                               <option value="pro">Pro</option>
@@ -298,11 +298,11 @@ export default function Admin() {
                                 onChange={() => handleToggleAdmin(u)}
                                 className="sr-only peer"
                               />
-                              <div className="w-10 h-5 bg-white/5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white/40 after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#D4860A] peer-checked:after:bg-[#1A1410]"></div>
+                              <div className="w-10 h-5 bg-white/5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white/40 after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#C41E3A] peer-checked:after:bg-[#1A1410]"></div>
                             </label>
                           </td>
                           <td className="px-8 py-6 text-center">
-                            <span className="font-mono text-[10px] text-[#1A1410] font-bold uppercase">{u.total_jobs} Signatures</span>
+                            <span className="font-mono text-[10px] text-[#F5EFE7] font-bold uppercase">{u.total_jobs} Signatures</span>
                           </td>
                           <td className="px-8 py-6 text-center">
                             <button
@@ -310,14 +310,14 @@ export default function Admin() {
                               className={clsx(
                                 'px-3 py-1.5 rounded-lg font-mono text-[9px] font-black uppercase tracking-widest border transition-all',
                                 u.is_active
-                                  ? 'bg-[#D4860A]/10 border-[#D4860A]/20 text-[#D4860A] hover:bg-[#D4860A] hover:text-black'
-                                  : 'bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500 hover:text-[#1A1410]'
+                                  ? 'bg-[#C41E3A]/10 border-[#C41E3A]/20 text-[#C41E3A] hover:bg-[#C41E3A] hover:text-black'
+                                  : 'bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500 hover:text-[#F5EFE7]'
                               )}
                             >
                               {u.is_active ? 'Active' : 'Locked'}
                             </button>
                           </td>
-                          <td className="px-8 py-6 text-right font-mono text-[10px] text-[#1A1410]/20 uppercase tracking-widest">
+                          <td className="px-8 py-6 text-right font-mono text-[10px] text-[#F5EFE7]/20 uppercase tracking-widest">
                             {new Date(u.created_at).toLocaleDateString()}
                           </td>
                         </tr>
@@ -332,12 +332,12 @@ export default function Admin() {
           {/* TAB 3: AUDIT LOGS */}
           {tab === 'logs' && (
             <div className="space-y-6">
-              <p className="font-mono text-[10px] text-[#1A1410]/20 uppercase tracking-[0.3em] px-4">System Security Event Log</p>
+              <p className="font-mono text-[10px] text-[#F5EFE7]/20 uppercase tracking-[0.3em] px-4">System Security Event Log</p>
               <div className="obsidian-panel rounded-[2.5rem] border border-[#1A1410]/5 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-white/[0.02] border-b border-[#1A1410]/5 font-mono text-[10px] text-[#1A1410]/40 uppercase tracking-[0.2em]">
+                      <tr className="bg-white/[0.02] border-b border-[#1A1410]/5 font-mono text-[10px] text-[#F5EFE7]/40 uppercase tracking-[0.2em]">
                         <th className="px-8 py-5">Origin Operator</th>
                         <th className="px-8 py-5">Event Code</th>
                         <th className="px-8 py-5">Network IP</th>
@@ -348,11 +348,11 @@ export default function Admin() {
                     <tbody className="divide-y divide-white/5">
                       {logs.map(log => (
                         <tr key={log.id} className="hover:bg-white/[0.01] transition-all group font-mono text-[10px]">
-                          <td className="px-8 py-6 text-[#1A1410] font-black uppercase tracking-tight">
+                          <td className="px-8 py-6 text-[#F5EFE7] font-black uppercase tracking-tight">
                             {log.email || 'SYSTEM / DAEMON'}
                           </td>
                           <td className="px-8 py-6">
-                            <span className="px-3 py-1 rounded-lg bg-[#D4860A]/10 border border-[#D4860A]/20 text-[#D4860A] font-black uppercase tracking-widest">
+                            <span className="px-3 py-1 rounded-lg bg-[#C41E3A]/10 border border-[#C41E3A]/20 text-[#C41E3A] font-black uppercase tracking-widest">
                               {log.action}
                             </span>
                           </td>
@@ -362,7 +362,7 @@ export default function Admin() {
                           <td className="px-8 py-6">
                             <p className="text-[#FFDAB9] truncate max-w-xs opacity-60 group-hover:opacity-100 transition-opacity font-bold">{JSON.stringify(log.metadata)}</p>
                           </td>
-                          <td className="px-8 py-6 text-right text-[#1A1410]/20 uppercase tracking-widest">
+                          <td className="px-8 py-6 text-right text-[#F5EFE7]/20 uppercase tracking-widest">
                             {new Date(log.created_at).toLocaleString()}
                           </td>
                         </tr>
@@ -377,7 +377,7 @@ export default function Admin() {
       )}
 
       {/* Technical Footer Decoration */}
-      <div className="flex justify-between items-center pt-20 font-mono text-[8px] text-[#1A1410]/10 uppercase tracking-[0.4em] select-none">
+      <div className="flex justify-between items-center pt-20 font-mono text-[8px] text-[#F5EFE7]/10 uppercase tracking-[0.4em] select-none">
             <div className="flex items-center gap-4">
                 <div className="w-1 h-1 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_red]" />
                 Security Layer: ACTIVE

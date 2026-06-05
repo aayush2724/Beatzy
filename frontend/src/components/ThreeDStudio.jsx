@@ -8,7 +8,7 @@ function Vinyl(props) {
     <Float speed={2} rotationIntensity={1.5} floatIntensity={2} {...props}>
       <mesh castShadow receiveShadow>
         <cylinderGeometry args={[2, 2, 0.05, 64]} />
-        <meshStandardMaterial color="#2D1F18" roughness={0.4} metalness={0.8} />
+        <meshStandardMaterial color="#2A1A15" roughness={0.4} metalness={0.8} />
       </mesh>
       {/* Center Label */}
       <mesh position={[0, 0.03, 0]}>
@@ -55,9 +55,9 @@ export default function ThreeDStudio() {
             <Vinyl position={[-5, 2, -5]} rotation={[1, 0.5, 0]} />
             <Vinyl position={[6, -3, -8]} rotation={[0.5, -0.5, 0]} scale={1.5} />
             
-            <EqBar position={[4, 2, -4]} height={2} speed={3} color="#ffffff" />
-            <EqBar position={[4.5, 3, -4]} height={4} speed={4} color="#a0a0a0" />
-            <EqBar position={[5, 1.5, -4]} height={1.5} speed={2} color="#ffffff" />
+            <EqBar position={[4, 2, -4]} height={2} speed={3} color="#C41E3A" />
+            <EqBar position={[4.5, 3, -4]} height={4} speed={4} color="#A64D3D" />
+            <EqBar position={[5, 1.5, -4]} height={1.5} speed={2} color="#F5EFE7" />
           </PresentationControls>
 
           <ContactShadows position={[0, -4, 0]} opacity={0.4} scale={20} blur={2} far={4} />

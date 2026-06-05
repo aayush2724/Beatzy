@@ -40,12 +40,12 @@ function Scene() {
       {/* Cinematic Ambient Lights */}
       <ambientLight intensity={0.2} />
       <pointLight position={[10, 10, 10]} intensity={1} color="#ffffff" />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#4361ee" />
+      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#C41E3A" />
       
       {/* Floating Abstract "Instruments" / Orbs */}
-      <FloatingObject position={[-viewport.width / 3, viewport.height / 4, -2]} color="#ffffff" size={1.2} speed={0.5} distort={0.3} />
-      <FloatingObject position={[viewport.width / 4, -viewport.height / 3, -3]} color="#d1d5db" size={2} speed={0.3} distort={0.5} />
-      <FloatingObject position={[viewport.width / 2.5, viewport.height / 3, -5]} color="#9ca3af" size={1.5} speed={0.7} distort={0.2} />
+      <FloatingObject position={[-viewport.width / 3, viewport.height / 4, -2]} color="#C41E3A" size={1.2} speed={0.5} distort={0.3} />
+      <FloatingObject position={[viewport.width / 4, -viewport.height / 3, -3]} color="#A64D3D" size={2} speed={0.3} distort={0.5} />
+      <FloatingObject position={[viewport.width / 2.5, viewport.height / 3, -5]} color="#B85A3A" size={1.5} speed={0.7} distort={0.2} />
       
       {/* Add interactive Parallax linked to mouse */}
       <ParallaxLayer />

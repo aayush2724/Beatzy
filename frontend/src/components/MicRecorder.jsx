@@ -178,12 +178,12 @@ export default function MicRecorder({ onRecorded, disabled }) {
           {/* Duration display */}
           {isRecording && (
             <div className="text-center mb-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#2D1F18]/30 rounded-full border border-[#1A1410]/10">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#2A1A15]/30 rounded-full border border-[#1A1410]/10">
                 <div className={clsx(
                   'w-2 h-2 rounded-full',
-                  isPaused ? 'bg-amber-400' : 'bg-red-500 animate-pulse'
+                  isPaused ? 'bg-secondary' : 'bg-red-500 animate-pulse'
                 )} />
-                <span className="font-mono text-xl text-[#1A1410] font-bold">
+                <span className="font-mono text-xl text-[#F5EFE7] font-bold">
                   {formatDuration(duration)}
                 </span>
               </div>
@@ -218,7 +218,7 @@ export default function MicRecorder({ onRecorded, disabled }) {
             {!isPaused ? (
               <button
                 onClick={pauseRecording}
-                className="btn-secondary border-amber-500/50 text-amber-500 hover:bg-amber-500/10 flex items-center gap-2"
+                className="btn-secondary border-secondary/50 text-secondary hover:bg-secondary/10 flex items-center gap-2"
               >
                 <span className="material-symbols-outlined text-lg">pause</span>
                 Pause
@@ -235,7 +235,7 @@ export default function MicRecorder({ onRecorded, disabled }) {
             
             <button
               onClick={stopRecording}
-              className="px-8 py-3 bg-red-500/80 hover:bg-red-500 text-[#1A1410] font-bold rounded-lg transition-all flex items-center gap-2"
+              className="px-8 py-3 bg-red-500/80 hover:bg-red-500 text-[#F5EFE7] font-bold rounded-lg transition-all flex items-center gap-2"
             >
               <span className="material-symbols-outlined text-lg">stop</span>
               Stop & Analyze

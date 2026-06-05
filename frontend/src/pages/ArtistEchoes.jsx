@@ -10,7 +10,7 @@ export default function ArtistEchoes() {
     <PageWrapper className="space-y-gutter pb-16">
       {/* Page Header */}
       <header className="mb-12 border-b border-[#1A1410]/5 pb-8">
-        <h1 className="text-5xl font-headline font-extrabold text-[#1A1410] tracking-tighter" style={SG}>Artist Echoes</h1>
+        <h1 className="text-5xl font-headline font-extrabold text-[#F5EFE7] tracking-tighter" style={SG}>Artist Echoes</h1>
         <p className="font-sans text-sm text-on-surface-variant mt-2 max-w-2xl">
           Infuse your production with the stylistic DNA of legendary sound architectures through minimalist spectral synthesis and 3D vector mapping.
         </p>
@@ -27,14 +27,14 @@ export default function ArtistEchoes() {
             
             <div className="relative z-20 flex justify-between items-start">
               <div>
-                <h2 className="font-headline text-xl font-bold text-[#1A1410] tracking-tight">Spectral Resonance</h2>
+                <h2 className="font-headline text-xl font-bold text-[#F5EFE7] tracking-tight">Spectral Resonance</h2>
                 <div className="flex items-center mt-1 gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                     <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-[0.2em]">Live Analyser Active</span>
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-mono text-[8px] text-[#1A1410]/30 uppercase tracking-widest">Buffer Status</p>
+                <p className="font-mono text-[8px] text-[#F5EFE7]/30 uppercase tracking-widest">Buffer Status</p>
                 <p className="font-mono text-[10px] font-bold text-primary">SYNCHRONIZED</p>
               </div>
             </div>
@@ -46,11 +46,11 @@ export default function ArtistEchoes() {
             <div className="absolute bottom-8 right-8 flex gap-8 z-20">
               <div className="text-right border-r border-[#1A1410]/10 pr-8">
                 <p className="font-mono text-[8px] text-on-surface-variant uppercase tracking-widest">Rate</p>
-                <p className="font-mono text-xs font-bold text-[#1A1410] mt-1">192kHz / 32-bit</p>
+                <p className="font-mono text-xs font-bold text-[#F5EFE7] mt-1">192kHz / 32-bit</p>
               </div>
               <div className="text-right">
                 <p className="font-mono text-[8px] text-on-surface-variant uppercase tracking-widest">Protocol</p>
-                <p className="font-mono text-xs font-bold text-[#1A1410] mt-1">v4.2.1-NEURAL</p>
+                <p className="font-mono text-xs font-bold text-[#F5EFE7] mt-1">v4.2.1-NEURAL</p>
               </div>
             </div>
           </div>
@@ -60,14 +60,14 @@ export default function ArtistEchoes() {
             {[
                 { label: 'AI Match', val: '98.4%', sub: 'Conf', color: 'text-primary' },
                 { label: 'Latency', val: '14ms', sub: 'RTT', color: 'text-secondary' },
-                { label: 'Timbre', val: 'CRISP', sub: 'Spec', color: 'text-[#1A1410]' },
-                { label: 'Entropy', val: '0.42', sub: 'Bit', color: 'text-[#1A1410]/60' }
+                { label: 'Timbre', val: 'CRISP', sub: 'Spec', color: 'text-[#F5EFE7]' },
+                { label: 'Entropy', val: '0.42', sub: 'Bit', color: 'text-[#F5EFE7]/60' }
             ].map(s => (
                 <div key={s.label} className="glass-panel rounded-xl p-5 border border-glass-border hover:border-[#1A1410]/20 transition-all cursor-default group">
-                    <p className="font-mono text-[8px] text-[#1A1410]/30 uppercase tracking-widest mb-2">{s.label}</p>
+                    <p className="font-mono text-[8px] text-[#F5EFE7]/30 uppercase tracking-widest mb-2">{s.label}</p>
                     <div className="flex justify-between items-end">
                         <span className={clsx("text-lg font-mono font-bold group-hover:scale-105 transition-transform", s.color)}>{s.val}</span>
-                        <span className="text-[8px] font-mono text-[#1A1410]/20 uppercase">{s.sub}</span>
+                        <span className="text-[8px] font-mono text-[#F5EFE7]/20 uppercase">{s.sub}</span>
                     </div>
                 </div>
             ))}
@@ -92,7 +92,7 @@ export default function ArtistEchoes() {
                 <div key={item.name} className="flex items-center justify-between group">
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-primary text-base group-hover:scale-110 transition-transform">{item.icon}</span>
-                    <span className="font-mono text-[10px] uppercase tracking-wider text-[#1A1410]/80">{item.name}</span>
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-[#F5EFE7]/80">{item.name}</span>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" defaultChecked={item.checked} className="sr-only peer" />
@@ -117,8 +117,8 @@ export default function ArtistEchoes() {
                 <div key={idx} className="flex gap-4 items-start border-l border-[#1A1410]/10 pl-4 relative">
                   <div className="absolute -left-[3px] top-1 w-1.5 h-1.5 rounded-full bg-primary" />
                   <div>
-                    <p className="font-mono text-[8px] text-[#1A1410]/30 uppercase tracking-widest">{event.time} · {event.status}</p>
-                    <p className="font-sans text-xs text-[#1A1410]/80 mt-1 leading-relaxed">{event.text}</p>
+                    <p className="font-mono text-[8px] text-[#F5EFE7]/30 uppercase tracking-widest">{event.time} · {event.status}</p>
+                    <p className="font-sans text-xs text-[#F5EFE7]/80 mt-1 leading-relaxed">{event.text}</p>
                   </div>
                 </div>
               ))}

@@ -11,6 +11,10 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Train mood classifier model during build
+COPY scripts/ scripts/
+RUN python scripts/train_mood_model.py
+
 FROM base AS development
 COPY . .
 EXPOSE 8000

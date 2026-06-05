@@ -24,8 +24,8 @@ export default function ResultsAtmosphereScene({ bpm }) {
     <Canvas>
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} />
-      <PulsingOrb bpm={bpm} position={[-5, 2, -5]} color="#ffffff" />
-      <PulsingOrb bpm={bpm} position={[5, -2, -8]} color="#9ca3af" />
+      <PulsingOrb bpm={bpm} position={[-5, 2, -5]} color="#C41E3A" />
+      <PulsingOrb bpm={bpm} position={[5, -2, -8]} color="#A64D3D" />
     </Canvas>
   );
 }
