@@ -7,13 +7,13 @@ const MOOD_COLORS = {
   sad: 'text-blue-400 bg-blue-400/10',
   calm: 'text-green-400 bg-green-400/10',
   excited: 'text-white bg-white/10',
-  melancholic: 'text-prism-violet bg-prism-violet/10',
+  melancholic: 'text-coral-peach bg-coral-peach/10',
   neutral: 'text-on-surface-variant bg-surface-container',
 };
 
-function MetricCard({ icon: Icon, label, value, sub, color = 'text-sonic-lime' }) {
+function MetricCard({ icon: Icon, label, value, sub, color = 'text-crimson-red' }) {
   return (
-    <div className="glass-card hover:border-sonic-lime/30 transition-colors">
+    <div className="glass-card hover:border-crimson-red/30 transition-colors">
       <div className="flex items-start justify-between mb-3">
         <div className="w-10 h-10 bg-surface-container-low rounded-xl flex items-center justify-center border border-glass-border">
           <Icon size={20} className={color} />
@@ -28,10 +28,10 @@ function MetricCard({ icon: Icon, label, value, sub, color = 'text-sonic-lime' }
 
 export function SongCard({ result }) {
   return (
-    <div className="glass-card border-sonic-lime/30 bg-gradient-to-br from-sonic-lime/5 to-surface-container-low">
+    <div className="glass-card border-crimson-red/30 bg-gradient-to-br from-crimson-red/5 to-surface-container-low">
       <div className="flex items-start gap-4">
-        <div className="w-16 h-16 bg-sonic-lime/10 rounded-xl flex items-center justify-center shrink-0 border border-sonic-lime/30">
-          <Music2 size={32} className="text-sonic-lime" />
+        <div className="w-16 h-16 bg-crimson-red/10 rounded-xl flex items-center justify-center shrink-0 border border-crimson-red/30">
+          <Music2 size={32} className="text-crimson-red" />
         </div>
         <div className="flex-1 min-w-0">
           <h2 className="text-2xl font-bold truncate text-on-surface">
@@ -75,9 +75,9 @@ export function AudioMetricsGrid({ result }) {
         label="Energy Level"
         value={energyPercent}
         sub="Audio energy intensity"
-        color="text-sonic-lime"
+        color="text-crimson-red"
       />
-      <div className="glass-card hover:border-sonic-lime/30 transition-colors">
+      <div className="glass-card hover:border-crimson-red/30 transition-colors">
         <div className="w-10 h-10 bg-surface-container-low rounded-xl flex items-center justify-center mb-3 border border-glass-border">
           <Heart size={20} className="text-white" />
         </div>
@@ -92,14 +92,14 @@ export function AudioMetricsGrid({ result }) {
         label="Key Signature"
         value={result.key_signature}
         sub="Musical key"
-        color="text-prism-violet"
+        color="text-coral-peach"
       />
       <MetricCard
         icon={Clock}
         label="Time Signature"
         value={result.time_signature}
         sub="Rhythmic structure"
-        color="text-neon-cyan"
+        color="text-sandy-orange"
       />
       <MetricCard
         icon={Activity}
@@ -121,7 +121,7 @@ export function YAMNetCard({ result }) {
   return (
     <div className="glass-card">
       <div className="flex items-center gap-2 mb-4">
-        <Tag size={18} className="text-sonic-lime" />
+        <Tag size={18} className="text-crimson-red" />
         <h3 className="font-semibold text-on-surface">Audio Event Classification</h3>
         <span className="badge bg-surface-container-high text-on-surface-variant ml-auto text-xs">YAMNet</span>
       </div>
@@ -134,7 +134,7 @@ export function YAMNetCard({ result }) {
             </div>
             <div className="h-1.5 bg-surface-container-high rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-sonic-lime to-neon-cyan rounded-full transition-all duration-700"
+                className="h-full bg-gradient-to-r from-crimson-red to-sandy-orange rounded-full transition-all duration-700"
                 style={{ width: `${(scores[i] || 0) * 100}%` }}
               />
             </div>
