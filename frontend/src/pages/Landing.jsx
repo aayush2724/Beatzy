@@ -99,7 +99,7 @@ export default function Landing() {
       </div>
 
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0a]">
-        <nav className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-10">
+        <nav className="mx-auto flex h-20 max-w-[1720px] items-center justify-between px-5 sm:px-8 lg:px-10">
           <Link to="/" className="group inline-flex items-center gap-3">
             <span className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-[#CCFF00]/30 bg-[#CCFF00]/10 shadow-[0_0_35px_rgba(204,255,0,.16)]">
               <span className="absolute h-3 w-3 rounded-full bg-[#CCFF00] shadow-[0_0_22px_rgba(204,255,0,.8)]"></span>
@@ -129,7 +129,7 @@ export default function Landing() {
       </header>
 
       <main id="top" className="relative z-10">
-        <section className="relative mx-auto flex min-h-[900px] max-w-[1440px] items-center px-5 py-20 sm:px-8 lg:px-10">
+        <section className="relative mx-auto flex min-h-[900px] max-w-[1720px] items-center px-5 py-20 sm:px-8 lg:px-10">
           <div className="absolute inset-x-5 top-10 hidden h-[690px] overflow-hidden rounded-[3rem] border border-white/5 bg-[#050505] opacity-70 lg:block">
             <div className="absolute inset-0 grid grid-cols-4 grid-rows-3 gap-px opacity-35">
               <div className="bg-[url(https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/uploads/e8da1c0d-9525-4140-9a56-be71e4c6001f/1780652168045-c4de8857/image.png)] bg-cover bg-center grayscale"></div>
@@ -149,16 +149,16 @@ export default function Landing() {
           </div>
 
           <div className="relative grid w-full items-center gap-12 lg:grid-cols-[1.02fr_.98fr]">
-            <div className="max-w-4xl">
+            <div className="max-w-6xl">
               <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-[#CCFF00]/20 bg-[#CCFF00]/5 px-4 py-2 text-[11px] font-medium tracking-[0.28em] text-[#CCFF00] shadow-[0_0_50px_rgba(204,255,0,.08)]">
                 <span className="h-2 w-2 rounded-full bg-[#CCFF00] shadow-[0_0_16px_rgba(204,255,0,.9)]"></span>RESONANCE ENGINE — V4
               </div>
-              <h1 className="hero-title max-w-5xl text-6xl font-black uppercase leading-[0.88] tracking-[-0.08em] text-[#CCFF00] sm:text-7xl md:text-8xl lg:text-[8.8rem]">
+              <h1 className="hero-title max-w-7xl text-6xl font-black uppercase leading-[0.88] tracking-[-0.08em] text-[#CCFF00] sm:text-7xl md:text-8xl lg:text-[8.8rem]">
                 <span>Decode</span><br />
                 <span>the DNA</span><br />
                 <span>of any song.</span>
               </h1>
-              <p className="reveal mt-8 max-w-2xl text-lg leading-8 text-zinc-400 sm:text-xl">
+              <p className="reveal mt-8 max-w-4xl text-lg leading-8 text-zinc-400 sm:text-xl">
                 Upload a track and Beatzy identifies the song, fingerprints the recording, then reveals BPM, key, mood, chords, genre vectors, and API-ready audio intelligence in seconds.
               </p>
               <div className="reveal mt-10 flex flex-col gap-4 sm:flex-row">
@@ -172,7 +172,7 @@ export default function Landing() {
                   View API demo
                 </a>
               </div>
-              <div className="reveal mt-12 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="reveal mt-12 grid max-w-4xl grid-cols-2 gap-3 sm:grid-cols-4">
                 <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
                   <p className="text-3xl font-black text-[#CCFF00]">100M+</p>
                   <p className="mt-1 text-[10px] tracking-[0.2em] text-zinc-500">TRACKS</p>
@@ -273,7 +273,7 @@ export default function Landing() {
         </section>
 
         <section aria-label="Platform statistics" className="relative border-y border-white/10 bg-[#070707] py-12">
-          <div className="mx-auto grid max-w-[1180px] grid-cols-2 gap-4 px-5 md:grid-cols-4">
+          <div className="mx-auto grid max-w-[1500px] grid-cols-2 gap-4 px-5 md:grid-cols-4">
             {[
               { val: '100M+', lab: 'TRACKS IN DATABASE' },
               { val: '<3s', lab: 'AVG ANALYSIS SEC' },
@@ -288,8 +288,8 @@ export default function Landing() {
           </div>
         </section>
 
-        <section id="features" className="relative mx-auto max-w-[1440px] px-5 py-28 sm:px-8 lg:px-10">
-          <div className="reveal mx-auto max-w-3xl text-center">
+        <section id="features" className="relative mx-auto max-w-[1720px] px-5 py-28 sm:px-8 lg:px-10">
+          <div className="reveal mx-auto max-w-5xl text-center">
             <p className="text-[11px] font-semibold tracking-[0.36em] text-zinc-500">FEATURES</p>
             <h2 className="mt-4 text-5xl font-black uppercase tracking-[-0.06em] text-[#CCFF00] md:text-7xl">Music intelligence with depth.</h2>
             <p className="mt-5 text-lg leading-8 text-zinc-400">Every component is built for recognition, enrichment, and API-scale delivery — wrapped in a cinematic interface that feels as fast as the engine underneath.</p>
@@ -314,7 +314,7 @@ export default function Landing() {
 
         <section id="how-it-works" className="relative overflow-hidden border-y border-white/10 bg-[#050505] py-28">
           <div className="absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#CCFF00]/[0.045] blur-[120px]"></div>
-          <div className="relative mx-auto max-w-[1220px] px-5 sm:px-8">
+          <div className="relative mx-auto max-w-[1500px] px-5 sm:px-8">
             <div className="reveal text-center">
               <p className="text-[11px] font-semibold tracking-[0.36em] text-zinc-500">PIPELINE</p>
               <h2 className="mt-4 text-5xl font-black uppercase tracking-[-0.06em] text-[#CCFF00] md:text-7xl">How it works</h2>
@@ -339,11 +339,11 @@ export default function Landing() {
           </div>
         </section>
 
-        <section id="examples" className="relative mx-auto grid max-w-[1440px] gap-10 px-5 py-28 sm:px-8 lg:grid-cols-[.9fr_1.1fr] lg:px-10">
+        <section id="examples" className="relative mx-auto grid max-w-[1720px] gap-10 px-5 py-28 sm:px-8 lg:grid-cols-[.9fr_1.1fr] lg:px-10">
           <div className="reveal">
             <p className="text-[11px] font-semibold tracking-[0.36em] text-zinc-500">EXAMPLES</p>
             <h2 className="mt-4 text-5xl font-black uppercase tracking-[-0.06em] text-[#CCFF00] md:text-7xl">API output that sings.</h2>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-zinc-400">Designed for developers who need a gorgeous dashboard and reliable machine-readable analysis. No guesswork. Just clean signal.</p>
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-400">Designed for developers who need a gorgeous dashboard and reliable machine-readable analysis. No guesswork. Just clean signal.</p>
           </div>
           <div className="tilt-card reveal overflow-hidden rounded-[2.5rem] border border-[#CCFF00]/25 bg-[#0f0f0f] shadow-[0_40px_140px_rgba(0,0,0,.65)]">
             <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.03] px-6 py-4">
@@ -372,12 +372,12 @@ export default function Landing() {
         </section>
 
         <section id="pricing" className="relative px-5 pb-28 sm:px-8 lg:px-10">
-          <div className="reveal mx-auto max-w-[1180px] overflow-hidden rounded-[3rem] border border-[#CCFF00]/25 bg-[#CCFF00] p-8 text-black shadow-[0_0_140px_rgba(204,255,0,.22)] md:p-12">
+          <div className="reveal mx-auto max-w-[1500px] overflow-hidden rounded-[3rem] border border-[#CCFF00]/25 bg-[#CCFF00] p-8 text-black shadow-[0_0_140px_rgba(204,255,0,.22)] md:p-12">
             <div className="grid items-center gap-10 lg:grid-cols-[1fr_auto]">
               <div>
                 <p className="text-[11px] font-black tracking-[0.34em] text-black/55">START BUILDING</p>
-                <h2 className="mt-3 max-w-3xl text-5xl font-black uppercase leading-[.92] tracking-[-0.07em] md:text-7xl">Turn every song into structured intelligence.</h2>
-                <p className="mt-5 max-w-2xl text-lg font-medium leading-8 text-black/70">Launch with hosted analysis, dashboard uploads, and API access for recognition-first music products.</p>
+                <h2 className="mt-3 max-w-5xl text-5xl font-black uppercase leading-[.92] tracking-[-0.07em] md:text-7xl">Turn every song into structured intelligence.</h2>
+                <p className="mt-5 max-w-4xl text-lg font-medium leading-8 text-black/70">Launch with hosted analysis, dashboard uploads, and API access for recognition-first music products.</p>
               </div>
               <Link 
                 to={token ? '/upload' : '/pricing'} 
@@ -391,7 +391,7 @@ export default function Landing() {
       </main>
 
       <footer className="relative z-10 border-t border-white/10 bg-[#050505] px-5 py-10 sm:px-8 lg:px-10">
-        <div className="mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-5 md:flex-row">
+        <div className="mx-auto flex max-w-[1720px] flex-col items-center justify-between gap-5 md:flex-row">
           <p className="text-sm font-semibold tracking-[0.32em] text-[#CCFF00]">BEATZY</p>
           <p className="text-sm text-zinc-500 text-center">Music intelligence engine for identification, analysis, and API access.</p>
           <div className="flex gap-5">
