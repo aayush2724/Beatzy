@@ -259,6 +259,8 @@ export default function Results() {
     }
   }
 
+  const isLiveRecording = result?.song_title === 'Live Recording' && result?.song_artist === 'Unknown';
+
   const spotifyMeta = result?.spotify_features
     ? (typeof result.spotify_features === 'string' ? JSON.parse(result.spotify_features) : result.spotify_features)
     : null;
@@ -304,8 +306,19 @@ export default function Results() {
                         <span className="px-3 py-1 bg-[#FF6B35]/10 border border-[#FF6B35]/20 text-[#FF6B35] font-mono text-[10px] font-black rounded-lg uppercase tracking-[0.2em]">Spectral Intelligence Report</span>
                         <span className="font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-widest">Ref: {jobId.substring(0, 12)}</span>
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-display font-black text-[#FFFFFF] tracking-tighter uppercase truncate leading-none">{result.song_title || 'Unknown Waveform'}</h1>
-                    <p className="text-2xl font-medium text-[#FFFFFF]/50 tracking-tight">{result.song_artist || 'System Source'}</p>
+                    {isLiveRecording ? (
+                      <div>
+                        <p className="text-orange-400 text-sm uppercase tracking-widest">
+                          Live Capture
+                        </p>
+                        <h1 className="text-5xl md:text-7xl font-display font-black text-[#FFFFFF] tracking-tighter uppercase leading-none">Audio Analysis</h1>
+                      </div>
+                    ) : (
+                      <>
+                        <h1 className="text-5xl md:text-7xl font-display font-black text-[#FFFFFF] tracking-tighter uppercase truncate leading-none">{result.song_title || 'Unknown Waveform'}</h1>
+                        <p className="text-2xl font-medium text-[#FFFFFF]/50 tracking-tight">{result.song_artist || 'System Source'}</p>
+                      </>
+                    )}
                   </div>
                   
                   <div className="flex flex-wrap justify-center md:justify-start gap-4">

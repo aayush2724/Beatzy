@@ -1,5 +1,6 @@
 import asyncio
 import os
+import subprocess
 
 from fastapi import APIRouter, HTTPException, Request, Query
 from pydantic import BaseModel
@@ -63,6 +64,19 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
         raise HTTPException(status_code=404, detail=str(e)) from e
 
     try:
+        if audio_path.endswith('.webm'):
+            wav_path = audio_path.replace('.webm', '.wav')
+            try:
+                subprocess.run([
+                    'ffmpeg', '-i', audio_path,
+                    '-ar', '22050', '-ac', '1', '-y', wav_path
+                ], capture_output=True, timeout=30)
+                if os.path.exists(wav_path):
+                    audio_path = wav_path
+                    log.info('Converted webm to wav for analysis')
+            except Exception as e:
+                log.warning('webm conversion failed, using original', error=str(e))
+
         # Core audio features (BPM, mood via ML model, energy, MFCCs, key …)
         audio_service = AudioAnalysisService()
         audio_features = await audio_service.analyze(audio_path)
@@ -85,7 +99,9 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
             log.warning("AcoustID step failed, using fallbacks", error=str(e))
             song_info = None
 
-        if not song_info and req.original_filename:
+        is_mic_recording = req.original_filename in ('live-capture.webm',) or (req.original_filename or '').startswith('recording-')
+
+        if not song_info and not is_mic_recording and req.original_filename:
             try:
                 song_info = parse_filename(req.original_filename)
                 if song_info and song_info.get("title"):
@@ -96,7 +112,7 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
                 log.warning("Filename parse fallback failed", error=str(e))
                 song_info = None
 
-        if not song_info and req.original_filename:
+        if not song_info and not is_mic_recording and req.original_filename:
             basename = os.path.splitext(req.original_filename)[0].replace("_", " ").strip()
             if basename:
                 try:
@@ -112,6 +128,14 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
                         log.info("Used iTunes filename search fallback", extracted=song_info)
                 except Exception as e:
                     log.warning("iTunes filename fallback failed", error=str(e))
+
+        if not song_info and is_mic_recording:
+            song_info = {
+                "title": "Live Recording",
+                "artist": "Unknown",
+                "source": "microphone",
+                "isrc": None,
+            }
 
         song_info = song_info or {}
         # ---------------------------------------------------------
