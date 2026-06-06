@@ -88,25 +88,42 @@ try {
       throw err;
     }
 
-    await persistAnalysisResult({ jobId, mlResult });
-
-    await deleteSourceAudio(s3Key, jobId);
-
-    await pool.query("UPDATE audio_jobs SET status = 'completed', completed_at = NOW() WHERE id = $1", [jobId]);
-
+    // --- Post-ML processing (persist, cleanup, complete) ---
     try {
-      await pool.query(
-        `INSERT INTO usage_tracking (user_id, job_id, action, plan_at_time)
-         VALUES ($1, $2, 'analysis_completed', (SELECT plan FROM users WHERE id = $1))`,
-        [userId, jobId]
-      );
-    } catch (e) {
-      /* ignore */
-    }
+      emitToUser(userId, 'job:progress', { jobId, status: 'saving', progress: 70 });
+      await pool.query('UPDATE audio_jobs SET progress = $1 WHERE id = $2', [70, jobId]);
 
-    emitToUser(userId, 'job:completed', { jobId, status: 'completed', progress: 100 });
-    logger.info('Analysis job completed', { jobId });
-    return { jobId, status: 'completed' };
+      await persistAnalysisResult({ jobId, mlResult });
+
+      await deleteSourceAudio(s3Key, jobId);
+
+      await pool.query(
+        "UPDATE audio_jobs SET status = 'completed', completed_at = NOW(), progress = 100 WHERE id = $1",
+        [jobId]
+      );
+
+      try {
+        await pool.query(
+          `INSERT INTO usage_tracking (user_id, job_id, action, plan_at_time)
+           VALUES ($1, $2, 'analysis_completed', (SELECT plan FROM users WHERE id = $1))`,
+          [userId, jobId]
+        );
+      } catch (e) { /* ignore usage tracking errors */ }
+
+      emitToUser(userId, 'job:completed', { jobId, status: 'completed', progress: 100 });
+      logger.info('Analysis job completed', { jobId });
+      return { jobId, status: 'completed' };
+
+    } catch (err) {
+      // persistAnalysisResult or DB update failed
+      logger.error('Post-analysis persistence failed', { jobId, error: err.message, stack: err.stack });
+      await pool.query(
+        "UPDATE audio_jobs SET status = 'failed', error_message = $1, completed_at = NOW() WHERE id = $2",
+        [`Persistence failed: ${err.message}`, jobId]
+      );
+      emitToUser(userId, 'job:failed', { jobId, error: err.message });
+      throw err;
+    }
   }, {
     connection,
     concurrency: 4,

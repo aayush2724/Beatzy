@@ -7,17 +7,23 @@ async function persistAnalysisResult({ jobId, mlResult }) {
   const songArtist = mlResult.song?.artist;
   let lyricsResult = null;
   // Always try LRCLIB/Genius first for synced lyrics
-  const lrclibResult = await fetchLyrics({ title: songTitle, artist: songArtist });
-  if (lrclibResult && (lrclibResult.syncedLyrics || lrclibResult.lyrics)) {
-    lyricsResult = lrclibResult;
-  } else if (mlResult.lyrics) {
-    const mlLyrics = mlResult.lyrics;
-    const isDict = typeof mlLyrics === 'object' && mlLyrics !== null;
-    lyricsResult = {
-      lyrics: isDict ? (mlLyrics.plain || null) : mlLyrics,
-      syncedLyrics: isDict ? (mlLyrics.synced || null) : null,
-      source: 'ml-service'
-    };
+  try {
+    const lrclibResult = await fetchLyrics({ title: songTitle, artist: songArtist });
+    if (lrclibResult && (lrclibResult.syncedLyrics || lrclibResult.lyrics)) {
+      lyricsResult = lrclibResult;
+    } else if (mlResult.lyrics) {
+      const mlLyrics = mlResult.lyrics;
+      const isDict = typeof mlLyrics === 'object' && mlLyrics !== null;
+      lyricsResult = {
+        lyrics: isDict ? (mlLyrics.plain || null) : mlLyrics,
+        syncedLyrics: isDict ? (mlLyrics.synced || null) : null,
+        source: 'ml-service'
+      };
+    }
+  } catch (lyricsErr) {
+    logger.warn('Lyrics fetch failed during persist, continuing without lyrics',
+      { jobId, error: lyricsErr.message });
+    lyricsResult = null;
   }
 
   if (lyricsResult) {
