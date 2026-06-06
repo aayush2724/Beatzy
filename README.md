@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/logo.svg" alt="Beatzy Logo" width="80" />
+  <img src="docs/logo.svg" alt="Beatzy Logo" width="200" />
 </p>
 
 <h1 align="center">Beatzy — Music Intelligence Engine</h1>
@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react" />
   <img src="https://img.shields.io/badge/Node.js-20-339933?style=flat-square&logo=node.js" />
   <img src="https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python" />
   <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql" />
@@ -75,7 +75,8 @@ graph TB
         LIBROSA["librosa<br/><i>BPM · Energy · Key</i>"]
         YAMNET["YAMNet<br/><i>Event Classification</i>"]
         ACOUSTID["AcoustID<br/><i>Fingerprint Matching</i>"]
-        MOOD["Mood Classifier<br/><i>TensorFlow</i>"]
+        MOOD["Mood Classifier<br/><i>XGBoost</i>"]
+        WAVEFORM["Waveform<br/><i>Amplitude Envelope</i>"]
     end
 
     subgraph DATA["Data Layer"]
@@ -117,15 +118,123 @@ graph TB
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | React 18, Vite, Zustand, TailwindCSS, Recharts, Framer Motion, Socket.IO Client |
+| **Frontend** | React 19, Vite, Zustand, TailwindCSS, Recharts, Framer Motion, Socket.IO Client, Three.js |
 | **Backend** | Node.js 20, Express, BullMQ, Socket.IO, Swagger UI |
-| **ML Service** | Python 3.11, FastAPI, librosa, TensorFlow (YAMNet), Scikit-learn |
+| **ML Service** | Python 3.11, FastAPI, librosa, TensorFlow (YAMNet), Scikit-learn (XGBoost), AcoustID |
 | **Database** | PostgreSQL 16 |
 | **Cache / Queue** | Redis 7 |
 | **Storage** | AWS S3 / MinIO |
 | **Auth** | JWT (access + refresh rotation) + Google OAuth 2.0 |
 | **Payments** | Stripe (Checkout, Webhooks, Billing Portal) |
 | **Deployment** | Docker Compose (dev) · Kubernetes + Kustomize (prod) |
+
+---
+
+## 📚 API Endpoints
+
+### Backend API (`/api`)
+
+#### Auth
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/auth/register` | Register a new user |
+| `POST` | `/api/auth/login` | Login with email & password |
+| `POST` | `/api/auth/refresh` | Refresh JWT tokens (rotation) |
+| `GET` | `/api/auth/google` | Initiate Google OAuth flow |
+| `GET` | `/api/auth/me` | Get current user profile |
+| `POST` | `/api/auth/logout` | Logout (invalidate refresh token) |
+
+#### Audio
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/audio/upload` | Upload audio file for analysis |
+| `POST` | `/api/audio/upload-batch` | Upload multiple files (batch processing) |
+| `POST` | `/api/audio/analyze-url` | Analyze a remote audio URL |
+| `GET` | `/api/audio/jobs/{jobId}` | Get job status |
+| `DELETE` | `/api/audio/jobs/{jobId}` | Delete a job |
+| `GET` | `/api/audio/history` | Get user analysis history (with filters) |
+| `GET` | `/api/audio/search` | Search songs via Spotify/iTunes |
+
+#### Results
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/results/{jobId}` | Get analysis results for a job |
+| `GET` | `/api/results` | List all user results (max 100) |
+
+#### API Keys
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/keys` | List all API keys |
+| `POST` | `/api/keys` | Generate a new API key (Pro/Enterprise) |
+| `DELETE` | `/api/keys/{id}` | Revoke an API key |
+
+#### Billing
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/billing/plans` | List subscription plans |
+| `POST` | `/api/billing/subscribe` | Create Stripe checkout session |
+| `GET` | `/api/billing/subscription` | Get current subscription status |
+| `POST` | `/api/billing/portal` | Open Stripe billing portal |
+| `POST` | `/api/billing/webhook` | Stripe webhook endpoint |
+
+#### Users
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/users/me` | Get detailed user profile |
+| `PATCH` | `/api/users/me` | Update user name |
+| `PATCH` | `/api/users/me/password` | Change password |
+| `GET` | `/api/users/usage` | Get 30-day usage breakdown |
+
+#### Library
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/library/favorites` | Get favorite jobs |
+| `POST` | `/api/library/favorites/{jobId}` | Add job to favorites |
+| `DELETE` | `/api/library/favorites/{jobId}` | Remove from favorites |
+| `GET` | `/api/library/collections` | List user collections |
+| `POST` | `/api/library/collections` | Create a collection |
+| `POST` | `/api/library/collections/{id}/items` | Add item to collection |
+| `POST` | `/api/library/share/{jobId}` | Share a job (get shareable URL) |
+| `DELETE` | `/api/library/share/{jobId}` | Disable sharing |
+
+#### Admin
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/admin/users` | List all users (admin only) |
+| `GET` | `/api/admin/users/{id}` | Get single user detail |
+| `PATCH` | `/api/admin/users/{id}` | Update user flags |
+| `GET` | `/api/admin/stats` | Platform-wide KPIs |
+| `GET` | `/api/admin/audit-log` | Paginated audit log |
+
+#### Public
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/public/r/{shareToken}` | Get shared analysis result |
+| `GET` | `/api/public/status` | Service health check |
+
+### ML Service API (`/`)
+
+#### Analysis
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/analyze` | Full audio analysis (BPM, mood, YAMNet, Spotify enrichment) |
+| `GET` | `/spotify/search` | Search tracks by name/artist |
+
+#### Waveform
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/waveform` | Generate amplitude envelope for visualization |
 
 ---
 
