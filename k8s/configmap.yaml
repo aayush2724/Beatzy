@@ -5,6 +5,7 @@ metadata:
   namespace: beatzy
 data:
   NODE_ENV: production
+  PORT: "3000"
   ML_SERVICE_URL: http://ml-service:8000
   FRONTEND_URL: https://beatzy.app
   AWS_REGION: us-east-1

@@ -11,7 +11,6 @@ namespace: beatzy
 resources:
   - namespace.yaml
   - configmap.yaml
-  - configmap-backend.yaml
   - database.yaml
   - backend.yaml
   - frontend.yaml

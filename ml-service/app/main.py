@@ -9,7 +9,6 @@ if not hasattr(scipy.signal, "hann"):
     scipy.signal.hann = windows.hann
 
 import os
-import asyncio
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -22,14 +21,9 @@ from app.services.storage_service import check_storage_connectivity
 
 logger = structlog.get_logger()
 
-# Global state for lazy-loading
-_startup_complete = False
-_startup_lock = asyncio.Lock()
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Minimal startup — just check storage, defer model loading."""
     storage_status = check_storage_connectivity()
     app.state.storage_status = storage_status
     if storage_status.get("reachable"):
@@ -37,35 +31,18 @@ async def lifespan(app: FastAPI):
     else:
         logger.warning("Storage connectivity check failed — uploads may fail", **storage_status)
 
-    # Initialize model holders (don't load yet)
-    app.state.yamnet = None
-    app.state.mood_model = None
+    logger.info("Loading YAMNet model...")
+    app.state.yamnet = YAMNetService()
+    await app.state.yamnet.load()
+    logger.info("YAMNet model loaded")
+
+    # Pre‑load mood classifier so the first request isn't slow
+    from app.services.audio_service import _load_mood_model
+    _load_mood_model()
+    logger.info("Mood classifier ready")
 
     yield
     logger.info("ML service shutting down")
-
-
-async def _ensure_models_loaded(app):
-    """Lazy-load models on first request."""
-    global _startup_complete
-
-    if _startup_complete:
-        return
-
-    async with _startup_lock:
-        if _startup_complete:  # Double-check after acquiring lock
-            return
-
-        logger.info("Loading YAMNet model...")
-        app.state.yamnet = YAMNetService()
-        await app.state.yamnet.load()
-        logger.info("YAMNet model loaded")
-
-        from app.services.audio_service import _load_mood_model
-        _load_mood_model()
-        logger.info("Mood classifier ready")
-
-        _startup_complete = True
 
 
 app = FastAPI(
@@ -97,12 +74,10 @@ app.include_router(waveform_router, prefix="", tags=["Waveform"])
 
 @app.get("/health")
 async def health(request: Request):
-    """Quick health check — does NOT wait for models."""
     storage = getattr(request.app.state, "storage_status", None) or check_storage_connectivity()
     return {
         "status": "ok",
         "service": "beatzy-ml",
         "version": "2.0.0",
         "storage": storage,
-        "models_loaded": _startup_complete,  # Informational
     }

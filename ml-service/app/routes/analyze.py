@@ -54,10 +54,6 @@ class AnalyzeResponse(BaseModel):
 async def analyze_audio(req: AnalyzeRequest, request: Request):
     log = logger.bind(job_id=req.job_id)
     log.info("Starting audio analysis")
-    
-    # Ensure models are loaded before processing
-    from app.main import _ensure_models_loaded
-    await _ensure_models_loaded(request.app)
 
     storage = StorageService()
     try:
