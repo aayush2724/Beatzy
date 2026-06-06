@@ -81,66 +81,80 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
         audio_service = AudioAnalysisService()
         audio_features = await audio_service.analyze(audio_path)
 
-        # --- Song identification: AcoustID → filename → iTunes ---
+        # --- Song identification: AcoustID (start sample -> mid sample) -> filename -> iTunes ---
         song_info = None
-        spotify_features = None  # Initialize to avoid UnboundLocalError
+        spotify_features = None
         ext = AcoustIDService.extension_from_path(audio_path)
-        sample_bytes = AcoustIDService.read_fingerprint_sample(audio_path)
-
+        pre_sample_bytes = AcoustIDService.read_30s_start_sample(audio_path)
+        fallback_sample_bytes = AcoustIDService.read_fingerprint_sample(audio_path)
         acoustid_service = AcoustIDService()
         loop = asyncio.get_event_loop()
-        try:
-            song_info = await loop.run_in_executor(
-                None,
-                acoustid_service.identify_from_bytes,
-                sample_bytes,
-                ext,
-            )
-        except Exception as e:
-            log.warning("AcoustID step failed, using fallbacks", error=str(e))
-            song_info = None
 
         is_mic_recording = req.original_filename in ('live-capture.webm',) or (req.original_filename or '').startswith('recording-')
 
-        if not song_info and not is_mic_recording and req.original_filename:
+        if not is_mic_recording:
+            # Primary: 30s start-sample AcoustID fingerprint
             try:
-                song_info = parse_filename(req.original_filename)
-                if song_info and song_info.get("title"):
-                    song_info["title"] = clean_title(song_info["title"])
-                if song_info:
-                    log.info("Used local filename fallback", extracted=song_info)
+                song_info = await loop.run_in_executor(
+                    None,
+                    acoustid_service.identify_from_start_sample,
+                    pre_sample_bytes,
+                    ext,
+                )
             except Exception as e:
-                log.warning("Filename parse fallback failed", error=str(e))
+                log.warning("AcoustID start-sample lookup failed", error=str(e))
                 song_info = None
 
-        if not song_info and not is_mic_recording and req.original_filename:
-            basename = os.path.splitext(req.original_filename)[0].replace("_", " ").strip()
-            if basename:
+            # Fallback: acoustid mid-file sample
+            if not song_info:
                 try:
-                    itunes = iTunesService()
-                    hit = await itunes.enrich(title=clean_title(basename))
-                    if hit:
-                        song_info = {
-                            "title": hit.get("title"),
-                            "artist": hit.get("artist"),
-                            "source": "itunes",
-                            "isrc": None,
-                        }
-                        log.info("Used iTunes filename search fallback", extracted=song_info)
+                    song_info = await loop.run_in_executor(
+                        None,
+                        acoustid_service.identify_from_bytes,
+                        fallback_sample_bytes,
+                        ext,
+                    )
                 except Exception as e:
-                    log.warning("iTunes filename fallback failed", error=str(e))
+                    log.warning("AcoustID mid-file lookup failed", error=str(e))
+                    song_info = None
 
-        if not song_info and is_mic_recording:
+            # Fallback: filename parse
+            if not song_info and req.original_filename:
+                try:
+                    song_info = parse_filename(req.original_filename)
+                    if song_info and song_info.get("title"):
+                        song_info["title"] = clean_title(song_info["title"])
+                    if song_info:
+                        log.info("Used local filename fallback", extracted=song_info)
+                except Exception as e:
+                    log.warning("Filename parse fallback failed", error=str(e))
+                    song_info = None
+
+            # Fallback: iTunes search using filename
+            if not song_info and req.original_filename:
+                basename = os.path.splitext(req.original_filename)[0].replace("_", " ").strip()
+                if basename:
+                    try:
+                        itunes = iTunesService()
+                        hit = await itunes.enrich(title=clean_title(basename))
+                        if hit:
+                            song_info = {
+                                "title": hit.get("title"),
+                                "artist": hit.get("artist"),
+                                "source": "itunes",
+                                "isrc": None,
+                            }
+                            log.info("Used iTunes filename search fallback", extracted=song_info)
+                    except Exception as e:
+                        log.warning("iTunes filename fallback failed", error=str(e))
+        else:
             song_info = {
                 "title": "Live Recording",
                 "artist": "Unknown",
                 "source": "microphone",
                 "isrc": None,
             }
-            spotify_features = None  # Skip enrichment for mic recordings
-
-        song_info = song_info or {}
-        # ---------------------------------------------------------
+            spotify_features = None
 
         # YAMNet classification
         yamnet = request.app.state.yamnet

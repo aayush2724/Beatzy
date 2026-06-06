@@ -36,10 +36,7 @@ async def lifespan(app: FastAPI):
     await app.state.yamnet.load()
     logger.info("YAMNet model loaded")
 
-    # Pre‑load mood classifier so the first request isn't slow
-    from app.services.audio_service import _load_mood_model
-    _load_mood_model()
-    logger.info("Mood classifier ready")
+    logger.info("Mood classifier ready (rule-based heuristic)")
 
     yield
     logger.info("ML service shutting down")
