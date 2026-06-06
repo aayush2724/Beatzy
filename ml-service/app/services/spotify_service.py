@@ -1,6 +1,7 @@
 import aiohttp
 import structlog
 from urllib.parse import quote
+from app.services.itunes_service import iTunesService
 
 logger = structlog.get_logger()
 
@@ -53,39 +54,12 @@ class EnrichmentService:
             return {}
 
     async def search_tracks(self, query: str, limit: int = 10) -> list[dict]:
-        """Search MusicBrainz for tracks matching query."""
-        url = (
-            f"{self.BASE_MB}/recording"
-            f"?query={quote(query)}"
-            f"&limit={limit}"
-            f"&fmt=json"
-        )
+        """Search iTunes for tracks matching query to get preview and cover URLs."""
         try:
-            async with aiohttp.ClientSession(headers=self.HEADERS) as session:
-                async with session.get(url, timeout=10) as r:
-                    if r.status != 200:
-                        return []
-                    data = await r.json()
-                    results = []
-                    for rec in data.get("recordings", []):
-                        artist_credit = rec.get("artist-credit", [])
-                        artist_name = (
-                            artist_credit[0]["artist"]["name"] 
-                            if artist_credit else ""
-                        )
-                        releases = rec.get("releases", [])
-                        release = releases[0] if releases else {}
-                        results.append({
-                            "title": rec.get("title"),
-                            "artist": artist_name,
-                            "album": release.get("title"),
-                            "release_date": release.get("date"),
-                            "musicbrainz_id": rec.get("id"),
-                            "score": rec.get("score"),
-                        })
-                    return results
+            itunes = iTunesService()
+            return await itunes.search_tracks(query, limit)
         except Exception as e:
-            logger.warning("MusicBrainz search failed", error=str(e))
+            logger.warning("iTunes search failed in EnrichmentService", error=str(e))
             return []
 
     async def _find_recording(self, isrc, title, artist) -> dict | None:

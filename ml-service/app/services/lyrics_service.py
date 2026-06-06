@@ -49,10 +49,8 @@ class LyricsService:
                         data = await r.json()
                         plain = data.get("plainLyrics")
                         synced_raw = data.get("syncedLyrics")
-                        synced = (
-                            self._parse_lrc(synced_raw) if synced_raw else None
-                        )
-                        return {"plain": plain, "synced": synced}
+                        # Return raw LRC string — frontend parses it with regex
+                        return {"plain": plain, "synced": synced_raw or None}
                     return {"plain": None, "synced": None}
         except Exception as e:
             logger.warning("LRCLIB fetch failed", error=str(e))

@@ -36,6 +36,7 @@ async function fetchFromGenius(title, artist) {
     const { data } = await axios.get(GENIUS_API_URL, {
       params: { q: `${title} ${artist}` },
       headers: { Authorization: `Bearer ${GENIUS_ACCESS_TOKEN}` },
+      timeout: 8000,
     });
 
     const hits = data.response.hits;
@@ -43,7 +44,7 @@ async function fetchFromGenius(title, artist) {
 
     // Get the first hit's URL and scrape lyrics
     const song = hits[0].result;
-    const { data: html } = await axios.get(song.url);
+    const { data: html } = await axios.get(song.url, { timeout: 8000 });
     const $ = cheerio.load(html);
     
     // Genius often changes their classes, this is a common selector
