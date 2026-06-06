@@ -83,6 +83,7 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
 
         # --- Song identification: AcoustID → filename → iTunes ---
         song_info = None
+        spotify_features = None  # Initialize to avoid UnboundLocalError
         ext = AcoustIDService.extension_from_path(audio_path)
         sample_bytes = AcoustIDService.read_fingerprint_sample(audio_path)
 
@@ -136,6 +137,7 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
                 "source": "microphone",
                 "isrc": None,
             }
+            spotify_features = None  # Skip enrichment for mic recordings
 
         song_info = song_info or {}
         # ---------------------------------------------------------
@@ -146,12 +148,13 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
 
         # Spotify enrichment (iTunes fallback when Spotify dev app is restricted)
         spotify_service = SpotifyService()
-        spotify_features = await spotify_service.enrich(
-            isrc=song_info.get("isrc"),
-            title=song_info.get("title"),
-            artist=song_info.get("artist"),
-        )
-        if not spotify_features and song_info.get("title"):
+        if song_info.get("isrc"):
+            spotify_features = await spotify_service.enrich(
+                isrc=song_info.get("isrc"),
+                title=song_info.get("title"),
+                artist=song_info.get("artist"),
+            )
+        if not spotify_features and song_info.get("title") and song_info.get("source") != "microphone":
             itunes = iTunesService()
             itunes_hit = await itunes.enrich(
                 title=clean_title(song_info.get("title")),
@@ -173,7 +176,7 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
 
         # Lyrics (after title/artist resolved)
         lyrics = None
-        if song_info.get("title"):
+        if song_info.get("title") and song_info.get("source") != "microphone":
             try:
                 lyrics_service = LyricsService()
                 lyrics = await lyrics_service.fetch_lyrics(
