@@ -35,9 +35,9 @@ export default function Navbar() {
       <div className="flex justify-between items-center px-8 py-4 max-w-[1280px] mx-auto">
         <Link 
           to="/" 
-          className="font-headline-xl text-headline-lg tracking-tighter gradient-text hover:brightness-110 transition-all"
+          className="hover:brightness-110 transition-all"
         >
-          Beatzy AI
+          <img src="/logo.svg" alt="Beatzy" className="h-7 w-auto" />
         </Link>
         <div className="hidden md:flex space-x-8 items-center">
           <Link
