@@ -114,6 +114,15 @@ app.use(errorHandler);
 async function bootstrap() {
   try {
     await connectDB();
+
+    // Apply any pending database migrations before starting the server
+    const { runMigrations } = require('./db/migrate-auto');
+    try {
+      await runMigrations();
+    } catch (err) {
+      logger.error('Auto-migration failed — starting server anyway', { error: err.message });
+    }
+
     await connectRedis();
     await initQueue();
     initIO(server);
