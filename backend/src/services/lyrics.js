@@ -44,7 +44,11 @@ async function fetchFromGenius(title, artist) {
 
     // Get the first hit's URL and scrape lyrics
     const song = hits[0].result;
-    const { data: html } = await axios.get(song.url, { timeout: 8000 });
+    const { data: html } = await axios.get(song.url, { 
+      timeout: 8000,
+      maxContentLength: 500000,
+      maxBodyLength: 500000,
+    });
     const $ = cheerio.load(html);
     
     // Genius often changes their classes, this is a common selector
