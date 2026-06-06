@@ -27,12 +27,13 @@ class YAMNetService:
                 self.class_names = [row["display_name"] for row in reader]
             logger.info("YAMNet loaded", classes=len(self.class_names))
         except Exception as e:
-            logger.warning("YAMNet failed to load, using stub", error=str(e))
+            logger.warning("YAMNet model unavailable", error=str(e))
             self.model = None
 
     async def classify(self, audio_path: str) -> dict:
         if self.model is None:
-            return self._stub_result()
+            logger.warning("YAMNet model unavailable — returning empty classification")
+            return {"labels": [], "confidence_scores": [], "status": "Classification Unavailable"}
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, self._classify_sync, audio_path)
 
@@ -55,10 +56,8 @@ class YAMNetService:
             top_indices = np.argsort(mean_scores)[::-1][:top_n]
             labels = [self.class_names[i] for i in top_indices]
             confidence = [float(round(mean_scores[i], 4)) for i in top_indices]
-            return {"labels": labels, "confidence_scores": confidence}
+            return {"labels": labels, "confidence_scores": confidence, "status": "ok"}
         except Exception as e:
             logger.error("YAMNet classification failed", error=str(e))
-            return self._stub_result()
+            return {"labels": [], "confidence_scores": [], "status": f"Classification Unavailable: {str(e)}"}
 
-    def _stub_result(self) -> dict:
-        return {"labels": ["Music", "Singing", "Musical instrument"], "confidence_scores": [0.9, 0.7, 0.5]}

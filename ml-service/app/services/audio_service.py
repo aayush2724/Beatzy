@@ -1,5 +1,4 @@
 import asyncio
-import pathlib
 import numpy as np
 import librosa
 import structlog
@@ -9,31 +8,6 @@ logger = structlog.get_logger()
 KEY_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 MAJOR_PROFILE = np.array([6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88])
 MINOR_PROFILE = np.array([6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17])
-
-# ── Model loading (singleton) ────────────────────────────────────────────────
-
-_MODEL_PATH = pathlib.Path(__file__).resolve().parent.parent.parent / "models" / "mood_classifier.joblib"
-_mood_model = None
-
-
-def _load_mood_model():
-    """Lazily load the trained mood classifier (once per process)."""
-    global _mood_model
-    if _mood_model is not None:
-        return _mood_model
-
-    if not _MODEL_PATH.exists():
-        logger.warning("Mood model not found, falling back to rule‑based inference", path=str(_MODEL_PATH))
-        return None
-
-    try:
-        import joblib
-        _mood_model = joblib.load(_MODEL_PATH)
-        logger.info("Mood model loaded", path=str(_MODEL_PATH))
-        return _mood_model
-    except Exception as e:
-        logger.error("Failed to load mood model", error=str(e))
-        return None
 
 
 class AudioAnalysisService:
@@ -56,18 +30,27 @@ class AudioAnalysisService:
         tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
         bpm = float(round(tempo, 2))
 
-        # Energy
+        # Energy (RMS-based)
         rms = librosa.feature.rms(y=y)[0]
         energy_level = float(round(np.mean(rms), 4))
 
         # Spectral features
         spectral_centroid = float(np.mean(librosa.feature.spectral_centroid(y=y, sr=sr)))
         spectral_rolloff = float(np.mean(librosa.feature.spectral_rolloff(y=y, sr=sr)))
+        spectral_bandwidth = float(np.mean(librosa.feature.spectral_bandwidth(y=y, sr=sr)))
         zero_crossing_rate = float(np.mean(librosa.feature.zero_crossing_rate(y=y)))
+
+        # Spectral contrast (perceptual frequency differences)
+        spectral_contrast = librosa.feature.spectral_contrast(y=y, sr=sr)
+        spectral_contrast_mean = float(np.mean(spectral_contrast))
 
         # MFCCs (13 coefficients)
         mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
         mfcc_means = [float(round(m, 4)) for m in np.mean(mfccs, axis=1)]
+
+        # Tonnetz (harmonic content) for valence proxy
+        tonnetz = librosa.feature.tonnetz(y=y, sr=sr)
+        tonnetz_mean = float(np.mean(tonnetz))
 
         # Key, scale, and chord extraction
         chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
@@ -79,9 +62,10 @@ class AudioAnalysisService:
         # Time signature (simplified)
         time_signature = "4/4"
 
-        # Mood inference — ML model with rule‑based fallback
+        # Mood inference — robust rule-based heuristic using weighted features
         mood, mood_confidence = self._predict_mood(
-            bpm, energy_level, spectral_centroid, zero_crossing_rate, mfcc_means,
+            bpm, energy_level, spectral_centroid, spectral_rolloff,
+            zero_crossing_rate, mfcc_means, spectral_contrast_mean, tonnetz_mean,
         )
 
         return {
@@ -95,8 +79,10 @@ class AudioAnalysisService:
             "time_signature": time_signature,
             "spectral_centroid": round(spectral_centroid, 4),
             "spectral_rolloff": round(spectral_rolloff, 4),
+            "spectral_bandwidth": round(spectral_bandwidth, 4),
             "zero_crossing_rate": round(zero_crossing_rate, 6),
             "mfcc_means": mfcc_means,
+            "tonnetz_mean": round(tonnetz_mean, 4),
         }
 
     def _extract_chords(self, y, sr) -> list[dict]:
@@ -152,46 +138,91 @@ class AudioAnalysisService:
             logger.error("Chord extraction failed", error=str(e))
             return []
 
-    # ── ML‑based mood prediction ─────────────────────────────────────────────
-
     def _predict_mood(
-        self, bpm: float, energy: float, centroid: float, zcr: float, mfccs: list,
+        self,
+        bpm: float,
+        energy: float,
+        centroid: float,
+        rolloff: float,
+        zcr: float,
+        mfccs: list,
+        spectral_contrast: float,
+        tonnetz_mean: float,
     ) -> tuple[str, float]:
-        """Return (mood_label, confidence).  Uses trained model when available."""
-        model_data = _load_mood_model()
+        """Return (mood_label, confidence) using a weighted rule-based heuristic.
 
-        if model_data is not None:
-            try:
-                clf = model_data["model"]
-                features = np.array([[bpm, energy, centroid, zcr, *mfccs]])
-                proba = clf.predict_proba(features)[0]
-                idx = int(np.argmax(proba))
-                label = clf.classes_[idx]
-                confidence = float(round(proba[idx], 4))
-                logger.debug("ML mood prediction", mood=label, confidence=confidence)
-                return label, confidence
-            except Exception as e:
-                logger.warning("ML prediction failed, falling back to rules", error=str(e))
+        We combine multiple perceptual features into valence/arousal axes, then map
+        to discrete mood labels. Confidence is derived from the strength of the
+        dominant axis signal relative to a calibrated band.
+        """
+        mood, confidence = self._infer_mood_weighted(
+            bpm=bpm,
+            energy=energy,
+            centroid=centroid,
+            rolloff=rolloff,
+            zcr=zcr,
+            mfccs=mfccs,
+            spectral_contrast=spectral_contrast,
+            tonnetz_mean=tonnetz_mean,
+        )
+        return mood, confidence
 
-        # Fallback: original rule‑based heuristic
-        return self._infer_mood_rules(bpm, energy, centroid, mfccs), 0.0
+    def _infer_mood_weighted(
+        self,
+        bpm: float,
+        energy: float,
+        centroid: float,
+        rolloff: float,
+        zcr: float,
+        mfccs: list,
+        spectral_contrast: float,
+        tonnetz_mean: float,
+    ) -> tuple[str, float]:
+        """Weighted feature scoring for arousal, valence, and tension."""
+        norm_bpm = min(max((bpm - 60.0) / 160.0, 0.0), 1.0)
+        norm_energy = min(max(energy * 8.0, 0.0), 1.0)
+        norm_centroid = min(max((centroid - 500.0) / 6000.0, 0.0), 1.0)
+        norm_rolloff = min(max((rolloff - 1000.0) / 10000.0, 0.0), 1.0)
+        norm_zcr = min(max(zcr * 40.0, 0.0), 1.0)
+        norm_spectral_contrast = min(max(spectral_contrast / 30.0, 0.0), 1.0)
+        mfcc_brightness = min(max(np.mean(mfccs[:3]) / 15.0 + 0.15, 0.0), 1.0)
+        norm_tonnetz = min(max((tonnetz_mean + 0.4) / 0.8, 0.0), 1.0)
 
-    def _infer_mood_rules(self, bpm: float, energy: float, centroid: float, mfccs: list) -> str:
-        """Legacy rule‑based mood inference (kept as fallback)."""
-        if bpm > 140 and energy > 0.08:
-            return "energetic"
-        elif bpm > 120 and energy > 0.05:
-            return "happy"
-        elif bpm < 80 and energy < 0.03:
-            return "sad"
-        elif bpm < 90 and energy < 0.05:
-            return "calm"
-        elif bpm > 100 and energy > 0.06:
-            return "excited"
-        elif energy < 0.04:
-            return "melancholic"
+        arousal = 0.35 * norm_bpm + 0.40 * norm_energy + 0.15 * norm_centroid + 0.10 * norm_zcr
+        valence = (
+            0.35 * (1.0 - norm_rolloff)
+            + 0.25 * norm_tonnetz
+            + 0.20 * mfcc_brightness
+            + 0.20 * norm_spectral_contrast
+        )
+
+        return self._classify_mood(arousal, valence)
+
+    def _classify_mood(self, arousal: float, valence: float) -> tuple[str, float]:
+        if arousal >= 0.65 and valence >= 0.65:
+            mood = "happy"
+        elif arousal >= 0.65 and valence < 0.35:
+            mood = "angry"
+        elif arousal >= 0.60 and 0.35 <= valence < 0.55:
+            mood = "excited"
+        elif arousal < 0.35 and valence >= 0.55:
+            mood = "calm"
+        elif arousal < 0.35 and valence < 0.35:
+            mood = "sad"
+        elif 0.35 <= arousal < 0.60 and valence < 0.40:
+            mood = "melancholic"
+        elif arousal < 0.45 and valence >= 0.45:
+            mood = "serene"
+        elif arousal >= 0.50 and valence >= 0.55:
+            mood = "energetic"
+        elif arousal <= 0.30 and valence <= 0.30:
+            mood = "depressed"
         else:
-            return "neutral"
+            mood = "neutral"
+
+        confidence = float(round(min(abs(arousal - 0.5), abs(valence - 0.5)) * 2.0, 4))
+        confidence = max(confidence, 0.25)
+        return mood, confidence
 
     def _estimate_scale(self, chroma: np.ndarray) -> str:
         """Estimate major/minor scale from average chroma using Krumhansl profiles."""

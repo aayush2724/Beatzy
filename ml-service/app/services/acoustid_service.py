@@ -42,9 +42,8 @@ class AcoustIDService:
                 logger.info("AcoustID found no match for this audio")
                 return None
 
-            # Sort by score descending (it should be already, but being safe)
             matches.sort(key=lambda x: x[0], reverse=True)
-            
+
             for score, recording_id, title, artist in matches:
                 if title and artist:
                     logger.info(
@@ -52,14 +51,14 @@ class AcoustIDService:
                         title=title,
                         artist=artist,
                         score=round(float(score), 3),
-                        recording_id=recording_id
+                        recording_id=recording_id,
                     )
                     return {
                         "title": title,
                         "artist": artist,
                         "score": round(float(score), 3),
                         "source": "acoustid",
-                        "acr_id": recording_id,
+                        "acoustid_recording_id": recording_id,
                         "isrc": None,
                     }
             return None
@@ -75,6 +74,63 @@ class AcoustIDService:
         finally:
             if tmp_path and os.path.exists(tmp_path):
                 os.remove(tmp_path)
+
+    def identify_from_start_sample(self, audio_bytes: bytes, extension: str = "mp3") -> dict | None:
+        """Write a 30s start-sample to a temp file and fingerprint it."""
+        if not self.api_key:
+            return None
+
+        ext = extension.lstrip(".")
+        tmp_path = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                suffix=f".{ext}", delete=False
+            ) as tmp:
+                tmp.write(audio_bytes)
+                tmp_path = tmp.name
+
+            try:
+                matches = list(acoustid.match(self.api_key, tmp_path))
+            except acoustid.WebServiceError as e:
+                if "invalid api key" in str(e).lower():
+                    logger.error("AcoustID API key is invalid")
+                    return None
+                raise e
+
+            if matches:
+                matches.sort(key=lambda x: x[0], reverse=True)
+                for score, recording_id, title, artist in matches:
+                    if title and artist:
+                        logger.info(
+                            "AcoustID start-sample matched track",
+                            title=title,
+                            artist=artist,
+                            score=round(float(score), 3),
+                            recording_id=recording_id,
+                        )
+                        return {
+                            "title": title,
+                            "artist": artist,
+                            "score": round(float(score), 3),
+                            "source": "acoustid",
+                            "acoustid_recording_id": recording_id,
+                            "isrc": None,
+                        }
+            logger.info("AcoustID start-sample found no match")
+            return None
+        except Exception as e:
+            logger.warning("AcoustID start-sample attempt failed", error=str(e))
+            return None
+        finally:
+            if tmp_path and os.path.exists(tmp_path):
+                os.remove(tmp_path)
+
+    @staticmethod
+    def read_30s_start_sample(audio_path: str) -> bytes:
+        """Read the first ~30 seconds of audio from the start of the file."""
+        sample_size = 2 * 1024 * 1024
+        with open(audio_path, "rb") as f:
+            return f.read(sample_size)
 
     @staticmethod
     def read_fingerprint_sample(audio_path: str) -> bytes:
