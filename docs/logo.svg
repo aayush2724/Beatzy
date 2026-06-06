@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 44" width="200" height="44">
+  <rect x="0" y="15" width="5" height="14" rx="2.5" fill="#FF6B35" opacity="0.45"/>
+  <rect x="9" y="7" width="5" height="30" rx="2.5" fill="#FF6B35" opacity="0.65"/>
+  <rect x="18" y="0" width="5" height="44" rx="2.5" fill="#FF6B35"/>
+  <rect x="27" y="7" width="5" height="30" rx="2.5" fill="#FF6B35" opacity="0.65"/>
+  <rect x="36" y="15" width="5" height="14" rx="2.5" fill="#FF6B35" opacity="0.45"/>
+  <text x="50" y="28" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="700" fill="#FFFFFF" letter-spacing="2">BEATZY</text>
+  <text x="51" y="40" font-family="system-ui, -apple-system, sans-serif" font-size="6" fill="#FF6B35" letter-spacing="3.5">MUSIC INTELLIGENCE</text>
+</svg>
