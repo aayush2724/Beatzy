@@ -2,7 +2,7 @@ const rateLimit = require('express-rate-limit');
 const logger = require('../utils/logger');
 
 const PLAN_LIMITS = {
-  free: { requestsPerDay: 100, analysesPerMonth: 5, uploadSizeMB: 10, batchSize: 1 },
+  free: { requestsPerDay: 100, analysesPerMonth: 30, uploadSizeMB: 10, batchSize: 1 },
   pro: { requestsPerDay: 5000, analysesPerMonth: 100, uploadSizeMB: 50, batchSize: 5 },
   enterprise: { requestsPerDay: Infinity, analysesPerMonth: Infinity, uploadSizeMB: 200, batchSize: 20 },
 };
