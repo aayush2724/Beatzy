@@ -20,6 +20,9 @@ spec:
           image: beatzy/ml-service:latest
           ports:
             - containerPort: 8000
+          env:
+            - name: PORT
+              value: "8000"  # Explicitly override ConfigMap
           envFrom:
             - secretRef:
                 name: beatzy-secrets
@@ -29,8 +32,18 @@ spec:
             httpGet:
               path: /health
               port: 8000
-            initialDelaySeconds: 10
+            initialDelaySeconds: 90  # Increased from 10 to allow model loading
             periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 120  # Increased from default
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
           resources:
             requests:
               cpu: 500m
