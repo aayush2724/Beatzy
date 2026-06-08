@@ -41,7 +41,7 @@ if (googleOAuthEnabled) {
 
       const { rows: newUser } = await pool.query(
         `INSERT INTO users (id, name, email, google_id, plan, is_active)
-         VALUES ($1, $2, $3, $4, 'free', true) RETURNING *`,
+         VALUES ($1, $2, $3, $4, 'pro', true) RETURNING *`,
         [uuidv4(), profile.displayName || profile.name?.givenName || 'Google User', email, profile.id]
       );
       done(null, newUser[0]);
@@ -82,7 +82,7 @@ router.post('/register', authLimiter, validate(schemas.register), async (req, re
   const passwordHash = await bcrypt.hash(password, 12);
   const { rows } = await pool.query(
     `INSERT INTO users (id, name, email, password_hash, plan, is_active)
-     VALUES ($1, $2, $3, $4, 'free', true) RETURNING id, name, email, plan, is_admin`,
+     VALUES ($1, $2, $3, $4, 'pro', true) RETURNING id, name, email, plan, is_admin`,
     [uuidv4(), name, email, passwordHash]
   );
   const user = rows[0];
