@@ -34,6 +34,7 @@ const connection = {
   ...parseRedisUrl(process.env.REDIS_URL),
   enableOfflineQueue: false,
   maxRetriesPerRequest: 0,
+  lazyConnect: true,
 };
 
 const ML_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
@@ -129,6 +130,11 @@ try {
     concurrency: 4,
   });
 
+  worker.on('error', (err) => {
+    logger.error('BullMQ worker error', { error: err.message });
+  });
+
+  worker.waitUntilReady().catch(() => {});
   worker.on('failed', (job, err) => {
     logger.error('Job permanently failed', { jobId: job?.data?.jobId, error: err.message });
   });
