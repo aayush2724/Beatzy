@@ -18,7 +18,7 @@ export default function Login() {
     setLoading(true);
     try {
       const { data } = await login({ email, password });
-      setAuth(data.data.user, data.data.token, data.data.refreshToken);
+      setAuth(data.data.user, data.data.accessToken, data.data.refreshToken);
       toast.success('Uplink established. Welcome back, operator.');
       navigate('/upload');
     } catch (err) {

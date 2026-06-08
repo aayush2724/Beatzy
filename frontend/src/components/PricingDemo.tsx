@@ -2,27 +2,27 @@ import { ModernPricingPage, PricingCardProps  } from "@/components/ui/animated-g
 
 const myPricingPlans: PricingCardProps[] = [
   { 
-    planName: 'Basic', 
-    description: 'Perfect for personal projects and hobbyists.', 
+    planName: 'Free', 
+    description: 'Perfect for exploring the neural core.', 
     price: '0', 
-    features: ['1 User', '1GB Storage', 'Community Forum'], 
+    features: ['500 requests/day', '100 analyses/month', 'Web dashboard'], 
     buttonText: 'Get Started', 
     buttonVariant: 'secondary'
   },
   { 
-    planName: 'Team', 
-    description: 'Collaborate with your team on multiple projects.', 
-    price: '49', 
-    features: ['10 Users', '100GB Storage', 'Email Support', 'Shared Workspaces'], 
-    buttonText: 'Choose Team Plan', 
+    planName: 'Pro', 
+    description: 'For developers and audio professionals.', 
+    price: '4.99', 
+    features: ['10,000 requests/day', '1,000 analyses/month', 'API access'], 
+    buttonText: 'Choose Pro Plan', 
     isPopular: true, 
     buttonVariant: 'primary' 
   },
   { 
-    planName: 'Agency', 
-    description: 'Manage all your clients under one roof.', 
-    price: '149', 
-    features: ['Unlimited Users', '1TB Storage', 'Dedicated Support', 'Client Invoicing'], 
+    planName: 'Enterprise', 
+    description: 'Unlimited scale with SLA guarantees.', 
+    price: '19.99', 
+    features: ['Unlimited analyses', 'Priority support', '20 API keys'], 
     buttonText: 'Contact Us', 
     buttonVariant: 'primary' 
   },

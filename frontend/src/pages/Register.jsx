@@ -17,7 +17,7 @@ export default function Register() {
     setLoading(true);
     try {
       const { data } = await register(formData);
-      setAuth(data.data.user, data.data.token, data.data.refreshToken);
+      setAuth(data.data.user, data.data.accessToken, data.data.refreshToken);
       toast.success('Account initialized. Welcome to the neural core.');
       navigate('/upload');
     } catch (err) {

@@ -11,8 +11,8 @@ const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').trim()
 
 const PLANS = [
   { id: 'free', name: 'Free', price: 0, requests: 100, features: ['100 analyses/mo', 'Basic insights', 'Web dashboard'] },
-  { id: 'pro', name: 'Pro', price: 1900, priceId: process.env.STRIPE_PRO_PRICE_ID, requests: 5000, features: ['5,000 analyses/mo', 'Full AI insights', 'API access', '5 API keys'] },
-  { id: 'enterprise', name: 'Enterprise', price: 9900, priceId: process.env.STRIPE_ENTERPRISE_PRICE_ID, requests: -1, features: ['Unlimited analyses', 'Priority processing', '20 API keys', 'SLA support'] },
+  { id: 'pro', name: 'Pro', price: 499, priceId: process.env.STRIPE_PRO_PRICE_ID, requests: 5000, features: ['5,000 analyses/mo', 'Full AI insights', 'API access', '5 API keys'] },
+  { id: 'enterprise', name: 'Enterprise', price: 1999, priceId: process.env.STRIPE_ENTERPRISE_PRICE_ID, requests: -1, features: ['Unlimited analyses', 'Priority processing', '20 API keys', 'SLA support'] },
 ];
 
 router.get('/plans', (req, res) => {
