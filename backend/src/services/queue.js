@@ -37,17 +37,35 @@ async function initQueue() {
         removeOnFail: 500,
       },
     });
+
+    // Prevent unhandled error events from crashing the process
+    q.on('error', (err) => {
+      logger.error('BullMQ Queue error', { error: err.message });
+    });
+
+    const readyPromise = q.waitUntilReady();
+    
+    // Prevent unhandled rejection if timeout wins the race
+    readyPromise.catch(() => {});
+
     await Promise.race([
-      q.waitUntilReady(),
+      readyPromise,
       new Promise((_, rej) => setTimeout(() => rej(new Error('Redis timeout')), 2000)),
     ]);
+    
     analysisQueue = q;
     useQueue = true;
     logger.info('BullMQ queue ready');
   } catch (err) {
     logger.warn('BullMQ unavailable, using inline processing', { error: err.message });
     useQueue = false;
-    if (q) { try { await q.close(); } catch (e) { /* ignore */ } }
+    if (q) {
+      try {
+        await q.close();
+      } catch (e) {
+        /* ignore */
+      }
+    }
   }
 }
 

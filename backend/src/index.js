@@ -54,6 +54,26 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
 
+// Global error handlers to prevent process crashes from unhandled rejections
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Rejection at:', { 
+    promise, 
+    reason: reason instanceof Error ? reason.message : reason,
+    stack: reason instanceof Error ? reason.stack : undefined
+  });
+});
+
+process.on('uncaughtException', (err) => {
+  logger.error('Uncaught Exception:', { 
+    error: err.message, 
+    stack: err.stack 
+  });
+  // In production, it's often better to let the process exit and be restarted after an uncaught exception
+  if (process.env.NODE_ENV === 'production') {
+    setTimeout(() => process.exit(1), 1000);
+  }
+});
+
 const isDev = process.env.NODE_ENV !== 'production';
 
 app.use(helmet({ contentSecurityPolicy: false }));
