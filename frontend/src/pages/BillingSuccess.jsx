@@ -82,11 +82,11 @@ export default function BillingSuccess() {
 
           <div className="grid grid-cols-2 gap-4 bg-white/[0.02] border border-[#0D0808]/10 p-4 rounded-lg text-left">
             <div>
-              <span className="font-mono text-[8px] text-gray-500 uppercase tracking-widest block mb-0.5">Plan</span>
+              <span className="font-mono text-[10px] text-gray-500 uppercase tracking-widest block mb-0.5">Plan</span>
               <span className="font-mono text-[10px] font-bold text-[#FFFFFF] uppercase">Pro active</span>
             </div>
             <div className="text-right">
-              <span className="font-mono text-[8px] text-gray-500 uppercase tracking-widest block mb-0.5">Sync</span>
+              <span className="font-mono text-[10px] text-gray-500 uppercase tracking-widest block mb-0.5">Sync</span>
               <span className="font-mono text-[10px] font-bold text-[#FFFFFF] uppercase flex items-center justify-end gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                 Connected
@@ -102,7 +102,7 @@ export default function BillingSuccess() {
               />
             </div>
             <span
-              className={`font-mono text-[8px] uppercase tracking-widest transition-colors ${
+              className={`font-mono text-[10px] uppercase tracking-widest transition-colors ${
                 syncComplete ? 'text-[#FFFFFF]' : 'text-gray-500'
               }`}
             >
@@ -124,8 +124,8 @@ export default function BillingSuccess() {
 
       <footer className="relative z-10 w-full py-6 px-8 border-t border-[#0D0808]/10">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-          <span className="font-mono text-[8px] text-gray-600 uppercase tracking-widest">© 2026 Beatzy AI</span>
-          <div className="flex gap-6 font-mono text-[8px] uppercase tracking-widest text-gray-500">
+          <span className="font-mono text-[10px] text-gray-600 uppercase tracking-widest">© 2026 Beatzy AI</span>
+          <div className="flex gap-6 font-mono text-[10px] uppercase tracking-widest text-gray-500">
             <Link className="hover:text-[#FFFFFF] transition-colors" to="/privacy">Privacy</Link>
             <Link className="hover:text-[#FFFFFF] transition-colors" to="/terms">Terms</Link>
           </div>

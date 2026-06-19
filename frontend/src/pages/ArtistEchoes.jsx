@@ -34,7 +34,7 @@ export default function ArtistEchoes() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-mono text-[8px] text-[#FFFFFF]/30 uppercase tracking-widest">Buffer Status</p>
+                <p className="font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-widest">Buffer Status</p>
                 <p className="font-mono text-[10px] font-bold text-primary">SYNCHRONIZED</p>
               </div>
             </div>
@@ -45,11 +45,11 @@ export default function ArtistEchoes() {
 
             <div className="absolute bottom-8 right-8 flex gap-8 z-20">
               <div className="text-right border-r border-[#0D0808]/10 pr-8">
-                <p className="font-mono text-[8px] text-on-surface-variant uppercase tracking-widest">Rate</p>
+                <p className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest">Rate</p>
                 <p className="font-mono text-xs font-bold text-[#FFFFFF] mt-1">192kHz / 32-bit</p>
               </div>
               <div className="text-right">
-                <p className="font-mono text-[8px] text-on-surface-variant uppercase tracking-widest">Protocol</p>
+                <p className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest">Protocol</p>
                 <p className="font-mono text-xs font-bold text-[#FFFFFF] mt-1">v4.2.1-NEURAL</p>
               </div>
             </div>
@@ -64,10 +64,10 @@ export default function ArtistEchoes() {
                 { label: 'Entropy', val: '0.42', sub: 'Bit', color: 'text-[#FFFFFF]/60' }
             ].map(s => (
                 <div key={s.label} className="glass-panel rounded-xl p-5 border border-glass-border hover:border-[#0D0808]/20 transition-all cursor-default group">
-                    <p className="font-mono text-[8px] text-[#FFFFFF]/30 uppercase tracking-widest mb-2">{s.label}</p>
+                    <p className="font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-widest mb-2">{s.label}</p>
                     <div className="flex justify-between items-end">
                         <span className={clsx("text-lg font-mono font-bold group-hover:scale-105 transition-transform", s.color)}>{s.val}</span>
-                        <span className="text-[8px] font-mono text-[#FFFFFF]/20 uppercase">{s.sub}</span>
+                        <span className="text-[10px] font-mono text-[#FFFFFF]/20 uppercase">{s.sub}</span>
                     </div>
                 </div>
             ))}
@@ -117,7 +117,7 @@ export default function ArtistEchoes() {
                 <div key={idx} className="flex gap-4 items-start border-l border-[#0D0808]/10 pl-4 relative">
                   <div className="absolute -left-[3px] top-1 w-1.5 h-1.5 rounded-full bg-primary" />
                   <div>
-                    <p className="font-mono text-[8px] text-[#FFFFFF]/30 uppercase tracking-widest">{event.time} · {event.status}</p>
+                    <p className="font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-widest">{event.time} · {event.status}</p>
                     <p className="font-sans text-xs text-[#FFFFFF]/80 mt-1 leading-relaxed">{event.text}</p>
                   </div>
                 </div>

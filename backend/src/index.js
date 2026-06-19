@@ -6,7 +6,9 @@ function validateEnv() {
   const required = ['DATABASE_URL', 'JWT_SECRET', 'JWT_REFRESH_SECRET', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET'];
   const missing = required.filter(key => !process.env[key]);
   if (missing.length > 0) {
-    console.error(`❌ Missing required environment variables: ${missing.join(', ')}`);
+    const msg = `Missing required environment variables: ${missing.join(', ')}`;
+    if (process.env.NODE_ENV === 'test') throw new Error(msg);
+    console.error(`❌ ${msg}`);
     process.exit(1);
   }
   
