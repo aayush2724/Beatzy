@@ -42,12 +42,12 @@ export default function AuthShell({ title, subtitle, children, footer }) {
             }}
           >
             <header className="text-center space-y-3">
-              <p className="text-[10px] tracking-[0.35em] text-gray-500 uppercase">Beatzy</p>
+              <p className="text-xs tracking-[0.25em] text-gray-500 uppercase font-mono">Beatzy</p>
               <h1 className="font-headline text-3xl md:text-4xl font-bold tracking-tight text-[#FFFFFF]">
                 {title}
               </h1>
               {subtitle && (
-                <p className="text-sm text-gray-400 font-light max-w-md mx-auto">{subtitle}</p>
+                <p className="text-sm text-gray-400 max-w-md mx-auto">{subtitle}</p>
               )}
             </header>
             {children}

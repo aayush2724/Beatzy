@@ -43,7 +43,11 @@ async function planRateLimit(req, res, next) {
       });
     }
   } catch (err) {
-    logger.warn('Rate limit check failed (skipping)', { error: err.message });
+    logger.warn('Rate limit check failed (denying request)', { error: err.message });
+    return res.status(503).json({
+      success: false,
+      error: { message: 'Service temporarily unavailable. Please try again.' },
+    });
   }
   next();
 }
@@ -71,7 +75,11 @@ async function monthlyAnalysisLimit(req, res, next) {
       });
     }
   } catch (err) {
-    logger.warn('Monthly limit check failed (skipping)', { error: err.message });
+    logger.warn('Monthly limit check failed (denying request)', { error: err.message });
+    return res.status(503).json({
+      success: false,
+      error: { message: 'Service temporarily unavailable. Please try again.' },
+    });
   }
   next();
 }

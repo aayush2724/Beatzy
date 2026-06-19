@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const axios = require('axios');
+const { URL } = require('url');
 const { authenticate, authenticateApiKey } = require('../middleware/auth');
 const { planRateLimit, monthlyAnalysisLimit, PLAN_LIMITS } = require('../middleware/rateLimit');
 const { pool } = require('../db/client');
@@ -15,6 +16,50 @@ const router = express.Router();
 const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
 
 const ALLOWED_MIME = ['audio/mpeg', 'audio/wav', 'audio/mp4', 'audio/ogg', 'audio/flac', 'audio/x-flac', 'audio/webm'];
+
+const AUDIO_MIME_MAP = {
+  '.mp3': 'audio/mpeg', '.wav': 'audio/wav', '.m4a': 'audio/mp4',
+  '.ogg': 'audio/ogg', '.flac': 'audio/flac', '.webm': 'audio/webm',
+};
+
+const LOCAL_STORAGE_DIR = process.env.LOCAL_STORAGE_DIR || '/tmp/beatzy-audio';
+
+const ALLOWED_AUDIO_HOSTS = [
+  'open.spotify.com',
+  'i.scdn.co',
+  'audio-ak-spotify-com.akamaized.net',
+  'files.freemusicarchive.org',
+  'soundcloud.com',
+  'sndcdn.com',
+  'itunes.apple.com',
+  'audio.itunes.apple.com',
+];
+
+const PRIVATE_IP_RANGES = [
+  /^127\./,
+  /^10\./,
+  /^172\.(1[6-9]|2\d|3[01])\./,
+  /^192\.168\./,
+  /^169\.254\./,
+  /^0\./,
+  /^::1$/,
+  /^fc00:/,
+  /^fe80:/,
+  /^localhost$/i,
+];
+
+function isUrlSafe(targetUrl) {
+  try {
+    const parsed = new URL(targetUrl);
+    if (!['http:', 'https:'].includes(parsed.protocol)) return false;
+    if (PRIVATE_IP_RANGES.some(re => re.test(parsed.hostname))) return false;
+    const host = parsed.hostname.toLowerCase();
+    if (ALLOWED_AUDIO_HOSTS.some(h => host === h || host.endsWith('.' + h))) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -35,7 +80,7 @@ router.post('/upload', authenticateApiKey, planRateLimit, monthlyAnalysisLimit, 
   }
 
   const jobId = uuidv4();
-  const s3Key = `audio/${req.user.id}/${jobId}/${req.file.originalname}`;
+  const s3Key = `audio/${req.user.id}/${jobId}/${req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
 
   const s3Url = await uploadToS3(req.file.buffer, s3Key, req.file.mimetype);
 
@@ -82,7 +127,7 @@ router.post('/upload-batch', authenticateApiKey, planRateLimit, monthlyAnalysisL
     if (file.size > maxSize) continue;
 
     const jobId = uuidv4();
-    const s3Key = `audio/${req.user.id}/${jobId}/${file.originalname}`;
+    const s3Key = `audio/${req.user.id}/${jobId}/${file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
     const s3Url = await uploadToS3(file.buffer, s3Key, file.mimetype);
 
     const { rows } = await pool.query(
@@ -149,6 +194,10 @@ router.get('/search', authenticateApiKey, async (req, res) => {
 router.post('/analyze-url', authenticateApiKey, planRateLimit, async (req, res) => {
   const { url, title, artist } = req.body;
   if (!url) throw createError(400, 'Field "url" is required');
+
+  if (!isUrlSafe(url)) {
+    throw createError(400, 'URL not allowed. Only public audio CDN URLs are accepted.');
+  }
 
   // Download the remote audio into a buffer
   let audioBuffer;
@@ -289,6 +338,26 @@ router.delete('/jobs/:jobId', authenticate, async (req, res) => {
   );
   if (!rows[0]) throw createError(404, 'Job not found');
   res.json({ success: true, message: 'Job deleted' });
+});
+
+router.get('/file/:encodedKey(*)', authenticate, async (req, res) => {
+  const fs = require('fs');
+  const pathMod = require('path');
+  const key = decodeURIComponent(req.params.encodedKey);
+  const fullPath = pathMod.join(LOCAL_STORAGE_DIR, key);
+
+  if (!fullPath.startsWith(LOCAL_STORAGE_DIR)) {
+    return res.status(403).json({ success: false, error: { message: 'Forbidden' } });
+  }
+  if (!fs.existsSync(fullPath)) {
+    return res.status(404).json({ success: false, error: { message: 'File not found' } });
+  }
+
+  const ext = pathMod.extname(fullPath).toLowerCase();
+  const contentType = AUDIO_MIME_MAP[ext] || 'application/octet-stream';
+  res.setHeader('Content-Type', contentType);
+  res.setHeader('Cache-Control', 'private, max-age=3600');
+  fs.createReadStream(fullPath).pipe(res);
 });
 
 module.exports = router;

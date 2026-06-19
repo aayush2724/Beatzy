@@ -17,6 +17,29 @@ from app.services.lyrics_service import LyricsService
 logger = structlog.get_logger()
 router = APIRouter()
 
+# Magic bytes for common audio formats
+_AUDIO_MAGIC = {
+    b'ID3': 'mp3', b'\xff\xfb': 'mp3', b'\xff\xf3': 'mp3', b'\xff\xf2': 'mp3',
+    b'RIFF': 'wav', b'OggS': 'ogg', b'fLaC': 'flac',
+    b'\x1aE\xdf\xa3': 'm4a', b'ftyp': 'm4a',
+}
+
+
+def _detect_audio_format(path: str) -> str | None:
+    """Detect actual audio format from magic bytes instead of filename extension."""
+    try:
+        with open(path, 'rb') as f:
+            header = f.read(12)
+        for magic, fmt in _AUDIO_MAGIC.items():
+            if header.startswith(magic):
+                return fmt
+        # WebM starts with 0x1a 0x45 0xdf 0xa3 (EBML header)
+        if header[:4] == b'\x1a\x45\xdf\xa3':
+            return 'webm'
+    except Exception:
+        pass
+    return None
+
 
 # ── Spotify Search ────────────────────────────────────────────────────────────
 
@@ -64,8 +87,9 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
         raise HTTPException(status_code=404, detail=str(e)) from e
 
     try:
-        if audio_path.endswith('.webm'):
-            wav_path = audio_path.replace('.webm', '.wav')
+        actual_format = _detect_audio_format(audio_path)
+        if actual_format == 'webm' or audio_path.endswith('.webm'):
+            wav_path = audio_path.rsplit('.', 1)[0] + '.wav'
             try:
                 subprocess.run([
                     'ffmpeg', '-i', audio_path,
@@ -85,6 +109,7 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
         song_info = None
         spotify_features = None
         ext = AcoustIDService.extension_from_path(audio_path)
+        real_ext = _detect_audio_format(audio_path) or ext
         pre_sample_bytes = AcoustIDService.read_30s_start_sample(audio_path)
         fallback_sample_bytes = AcoustIDService.read_fingerprint_sample(audio_path)
         acoustid_service = AcoustIDService()
@@ -92,34 +117,36 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
 
         is_mic_recording = req.original_filename in ('live-capture.webm',) or (req.original_filename or '').startswith('recording-')
 
-        if not is_mic_recording:
-            # Primary: 30s start-sample AcoustID fingerprint
+        # Try AcoustID fingerprinting for all audio (including mic recordings)
+        # If someone records a song playing, we can identify it and fetch lyrics
+        try:
+            song_info = await loop.run_in_executor(
+                None,
+                acoustid_service.identify_from_start_sample,
+                pre_sample_bytes,
+                real_ext,
+            )
+        except Exception as e:
+            log.warning("AcoustID start-sample lookup failed", error=str(e))
+            song_info = None
+
+        # Fallback: acoustid mid-file sample
+        if not song_info:
             try:
                 song_info = await loop.run_in_executor(
                     None,
-                    acoustid_service.identify_from_start_sample,
-                    pre_sample_bytes,
-                    ext,
+                    acoustid_service.identify_from_bytes,
+                    fallback_sample_bytes,
+                    real_ext,
                 )
             except Exception as e:
-                log.warning("AcoustID start-sample lookup failed", error=str(e))
+                log.warning("AcoustID mid-file lookup failed", error=str(e))
                 song_info = None
 
-            # Fallback: acoustid mid-file sample
-            if not song_info:
-                try:
-                    song_info = await loop.run_in_executor(
-                        None,
-                        acoustid_service.identify_from_bytes,
-                        fallback_sample_bytes,
-                        ext,
-                    )
-                except Exception as e:
-                    log.warning("AcoustID mid-file lookup failed", error=str(e))
-                    song_info = None
-
+        # For non-mic recordings, also try filename and iTunes fallbacks
+        if not song_info and not is_mic_recording:
             # Fallback: filename parse
-            if not song_info and req.original_filename:
+            if req.original_filename:
                 try:
                     song_info = parse_filename(req.original_filename)
                     if song_info and song_info.get("title"):
@@ -147,7 +174,9 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
                             log.info("Used iTunes filename search fallback", extracted=song_info)
                     except Exception as e:
                         log.warning("iTunes filename fallback failed", error=str(e))
-        else:
+
+        # If no song identified (mic recording of unknown audio), use fallback
+        if not song_info:
             song_info = {
                 "title": "Live Recording",
                 "artist": "Unknown",

@@ -41,11 +41,11 @@ function StatCard({ icon: Icon, label, value, sub, colorClass = 'text-[#FF6B35]'
         <div className={`p-2 rounded-xl bg-white/[0.02] border border-[#0D0808]/5 group-hover:border-[#0D0808]/10 transition-colors`}>
             <Icon className={clsx('w-5 h-5 transition-transform duration-500 group-hover:rotate-12', colorClass)} />
         </div>
-        <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-[0.2em]">{label}</span>
+        <span className="font-mono text-[11px] text-on-surface-variant uppercase tracking-[0.15em]">{label}</span>
       </div>
       <div className="mt-6">
         <div className={`text-3xl font-display font-black text-[#FFFFFF] tracking-tight uppercase group-hover:text-glow-orange transition-all`}>{value}</div>
-        {sub && <div className="text-[10px] text-on-surface-variant font-black mt-1 uppercase tracking-[0.2em] opacity-60">{sub}</div>}
+        {sub && <div className="text-[11px] text-on-surface-variant font-black mt-1 uppercase tracking-[0.15em] opacity-60">{sub}</div>}
       </div>
     </motion.div>
   );
@@ -303,8 +303,8 @@ export default function Results() {
               <div className="flex-1 min-w-0 text-center md:text-left space-y-6">
                   <div className="space-y-2">
                     <div className="flex items-center justify-center md:justify-start gap-4">
-                        <span className="px-3 py-1 bg-[#FF6B35]/10 border border-[#FF6B35]/20 text-[#FF6B35] font-mono text-[10px] font-black rounded-lg uppercase tracking-[0.2em]">Spectral Intelligence Report</span>
-                        <span className="font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-widest">Ref: {jobId.substring(0, 12)}</span>
+                        <span className="px-3 py-1 bg-[#FF6B35]/10 border border-[#FF6B35]/20 text-[#FF6B35] font-mono text-[11px] font-black rounded-lg uppercase tracking-[0.15em]">Spectral Intelligence Report</span>
+                        <span className="font-mono text-[11px] text-[#FFFFFF]/30 uppercase tracking-widest">Ref: {jobId.substring(0, 12)}</span>
                     </div>
                     {isLiveRecording ? (
                       <div>
@@ -379,10 +379,10 @@ export default function Results() {
                               <div className="flex justify-between items-center">
                                   <div className="flex items-center gap-3">
                                       <div className={clsx("w-2 h-2 rounded-full", isPlaying ? "bg-[#FF6B35] animate-pulse shadow-[0_0_10px_#FF6B35]" : "bg-white/10")} />
-                                      <span className="font-mono text-[10px] font-black uppercase tracking-[0.3em] text-[#FFFFFF]">Live Spectral Stream</span>
+                                        <span className="font-mono text-[11px] font-black uppercase tracking-[0.2em] text-[#FFFFFF]">Live Spectral Stream</span>
                                   </div>
                                   <div className="px-3 py-1 rounded-lg bg-white/5 border border-[#0D0808]/10">
-                                    <span className="font-mono text-[9px] text-[#FFFFFF]/40 uppercase tracking-widest font-black text-glow-orange">Engine v4.2.0</span>
+                                    <span className="font-mono text-[10px] text-[#FFFFFF]/40 uppercase tracking-widest font-black text-glow-orange">Engine v4.2.0</span>
                                   </div>
                               </div>
                               
@@ -407,7 +407,7 @@ export default function Results() {
                             { label: 'Buffer Rate', value: 'OPTIMAL', isStatus: true },
                           ].map((stat, i) => (
                             <div key={i} className="space-y-3">
-                              <span className="font-mono text-[8px] text-[#FFFFFF]/30 uppercase tracking-[0.2em] font-black">{stat.label}</span>
+                              <span className="font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-[0.15em] font-black">{stat.label}</span>
                               {stat.isStatus ? (
                                 <div className="flex items-center gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-[#FF6B35] animate-pulse" />
@@ -418,7 +418,7 @@ export default function Results() {
                                   <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
                                       <div className={`h-full ${stat.color}`} style={{ width: stat.value }} />
                                   </div>
-                                  <span className="font-mono text-[10px] text-[#FFFFFF] font-black">{stat.value}</span>
+                                  <span className="font-mono text-[11px] text-[#FFFFFF] font-black">{stat.value}</span>
                                 </div>
                               )}
                             </div>
@@ -450,7 +450,7 @@ export default function Results() {
                                   style={{ minWidth: Math.max(100, (c.end_time - c.start_time) * 80) }}
                                 >
                                   <span className="text-lg font-display uppercase tracking-tighter leading-none">{c.chord}</span>
-                                  <span className="text-[8px] font-mono opacity-60 uppercase mt-1 tracking-widest">{Math.round(c.start_time)}s</span>
+                                    <span className="text-[10px] font-mono opacity-60 uppercase mt-1 tracking-widest">{Math.round(c.start_time)}s</span>
                                 </div>
                               ))}
                             </div>
@@ -513,7 +513,7 @@ export default function Results() {
                   <div className="absolute top-0 right-0 p-4 opacity-5 group-hover/chord:opacity-10 transition-opacity">
                     <Radio className="w-32 h-32 text-[#FF6B35]" />
                   </div>
-                  <span className="font-mono text-[10px] text-[#FF6B35] font-black uppercase tracking-[0.3em] mb-8 block">Live Harmonic Detection</span>
+                    <span className="font-mono text-[11px] text-[#FF6B35] font-black uppercase tracking-[0.2em] mb-8 block">Live Harmonic Detection</span>
                   <div className="flex items-center justify-between relative z-10">
                       <div className="text-6xl font-display font-black text-[#FFFFFF] tracking-tighter text-glow-orange">{currentChord}</div>
                       <div className="w-16 h-16 rounded-[2rem] bg-[#FF6B35]/10 border border-[#FF6B35]/30 flex items-center justify-center">
@@ -522,7 +522,7 @@ export default function Results() {
                   </div>
                   <div className="mt-8 flex items-center gap-3 px-4 py-2 rounded-xl bg-[#1A1010]/40 border border-[#0D0808]/5 relative z-10 w-max">
                     <div className="w-1.5 h-1.5 rounded-full bg-[#FF6B35] animate-ping" />
-                    <p className="text-[9px] text-[#FF6B35] uppercase font-mono font-black tracking-widest">Real-time spectral link active</p>
+                    <p className="text-[11px] text-[#FF6B35] uppercase font-mono font-black tracking-widest">Real-time spectral link active</p>
                   </div>
               </div>
 
@@ -555,8 +555,8 @@ export default function Results() {
                       ].map((meta, i) => (
                         <div key={i} className="flex justify-between items-center group/meta p-2 rounded-xl hover:bg-white/[0.02] transition-colors cursor-default">
                           <div className="space-y-1">
-                            <span className="font-mono text-[9px] text-[#FFFFFF]/30 uppercase tracking-widest font-black block group-hover/meta:text-[#FFFFFF]/50 transition-colors">{meta.label}</span>
-                            <span className="font-mono text-[8px] text-on-surface-variant uppercase tracking-widest opacity-40 block">{meta.sub}</span>
+                            <span className="font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-widest font-black block group-hover/meta:text-[#FFFFFF]/50 transition-colors">{meta.label}</span>
+                            <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest opacity-40 block">{meta.sub}</span>
                           </div>
                           <span className="font-display font-black text-sm text-[#FFFFFF] group-hover/meta:text-[#FF6B35] transition-colors">{meta.value}</span>
                         </div>

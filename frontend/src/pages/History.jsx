@@ -58,11 +58,11 @@ export default function History() {
             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#FF6B35]/5 blur-[100px] rounded-full -mr-48 -mt-48 pointer-events-none" />
             
             <div className="space-y-4 relative z-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#FF6B35]/20 bg-[#FF6B35]/5 text-[#FF6B35] font-mono text-[9px] uppercase tracking-[0.2em]">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#FF6B35]/20 bg-[#FF6B35]/5 text-[#FF6B35] font-mono text-[11px] uppercase tracking-[0.15em]">
                   <Database className="w-3 h-3" /> Historical Matrix
               </div>
               <h1 className="text-6xl font-display font-black text-[#FFFFFF] tracking-tighter uppercase leading-none">Signal <span className="text-[#FF6B35] text-glow-orange">Archives</span></h1>
-              <p className="font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-[0.3em]">{pagination.total} Waveforms indexed in neural core</p>
+              <p className="font-mono text-[11px] text-[#FFFFFF]/30 uppercase tracking-[0.2em]">{pagination.total} Waveforms indexed in neural core</p>
             </div>
             
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto relative z-10">
@@ -96,7 +96,7 @@ export default function History() {
                 </div>
                 <div className="space-y-2">
                     <p className="text-[#FFFFFF] text-lg font-display font-black uppercase tracking-tight">Archives Offline</p>
-                    <p className="text-red-300/40 font-mono text-[10px] uppercase tracking-widest">{error}</p>
+                    <p className="text-red-300/40 font-mono text-[11px] uppercase tracking-widest">{error}</p>
                 </div>
                 <button onClick={fetchHistory} className="px-8 py-3 rounded-xl bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-[#FF6B35] transition-all">Retry Link</button>
             </div>
@@ -106,7 +106,7 @@ export default function History() {
                     <Disc className="w-10 h-10 text-[#FFFFFF]/10" />
                 </div>
                 <h3 className="text-2xl font-display font-black text-[#FFFFFF] uppercase tracking-tight mb-3">Archive Registry Empty</h3>
-                <p className="text-on-surface-variant font-mono text-[10px] uppercase tracking-[0.2em] mb-8 max-w-xs mx-auto">No spectral signatures detected in your account history.</p>
+                <p className="text-on-surface-variant font-mono text-[11px] uppercase tracking-[0.15em] mb-8 max-w-xs mx-auto">No spectral signatures detected in your account history.</p>
                 <Link to="/upload" className="flex items-center gap-3 px-8 py-4 rounded-xl bg-white text-black font-black text-[10px] uppercase tracking-widest hover:bg-[#FF6B35] transition-all">
                     Initialize Extraction <ArrowUpRight className="w-4 h-4" />
                 </Link>
@@ -150,7 +150,7 @@ export default function History() {
         )}
 
         {/* Technical Footer Decoration */}
-        <div className="flex justify-between items-center pt-20 font-mono text-[8px] text-[#FFFFFF]/10 uppercase tracking-[0.4em] select-none">
+        <div className="flex justify-between items-center pt-20 font-mono text-[10px] text-[#FFFFFF]/10 uppercase tracking-[0.3em] select-none">
             <div className="flex items-center gap-4">
                 <div className="w-1 h-1 rounded-full bg-[#FF6B35] animate-pulse" />
                 Neural Archive Link Active

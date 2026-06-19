@@ -110,7 +110,7 @@ export default function Pricing() {
         <section className="pt-24 border-t border-[#0D0808]/5 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
             <div className="space-y-10">
                 <div className="space-y-4">
-                    <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-[#FF6B35] font-black">Architected for Scale</p>
+                    <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#FF6B35] font-black">Architected for Scale</p>
                     <h2 className="text-5xl font-display font-black text-[#FFFFFF] uppercase tracking-tight leading-none">Engineered for Technical Mastery</h2>
                     <p className="text-lg text-on-surface-variant leading-relaxed max-w-xl">
                         Sub-millisecond classification latency for real-time production environments. Built on a distributed neural cluster designed to handle 100M+ signal extractions.
@@ -125,7 +125,7 @@ export default function Pricing() {
                         <div key={i} className="space-y-3 p-6 rounded-2xl bg-white/[0.02] border border-[#0D0808]/5 group hover:border-[#0D0808]/10 transition-colors">
                             <stat.icon className={`w-5 h-5 ${stat.color}`} />
                             <p className="text-3xl font-display font-black text-[#FFFFFF]">{stat.value}</p>
-                            <p className="font-mono text-[9px] text-[#FFFFFF]/30 uppercase tracking-widest">{stat.label}</p>
+                            <p className="font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-widest">{stat.label}</p>
                         </div>
                     ))}
                 </div>
@@ -135,7 +135,7 @@ export default function Pricing() {
                 <div className="absolute inset-0 bg-gradient-to-br from-[#FF6B35]/5 via-transparent to-[#FF6B35]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                 <div className="relative z-10 space-y-10">
                     <div className="flex items-center justify-between">
-                        <span className="font-mono text-[10px] text-[#FFFFFF]/40 uppercase tracking-[0.3em] font-black flex items-center gap-3">
+                        <span className="font-mono text-[11px] text-[#FFFFFF]/40 uppercase tracking-[0.2em] font-black flex items-center gap-3">
                             <div className="w-1.5 h-1.5 rounded-full bg-[#FF6B35] animate-pulse" />
                             Neural SDK V4.2
                         </span>
@@ -152,7 +152,7 @@ export default function Pricing() {
                                 {'}'});
                             </code>
                         </div>
-                        <p className="font-mono text-[9px] text-[#FFFFFF]/20 uppercase tracking-[0.2em] text-center italic">Continuous analysis capability active. Distributed nodes online.</p>
+                        <p className="font-mono text-[10px] text-[#FFFFFF]/20 uppercase tracking-[0.15em] text-center italic">Continuous analysis capability active. Distributed nodes online.</p>
                     </div>
 
                     <div className="flex justify-between items-center opacity-30 group-hover:opacity-60 transition-opacity">
@@ -174,15 +174,15 @@ export default function Pricing() {
           
           <div className="flex flex-wrap justify-center gap-12">
             {['Architecture', 'Privacy Protocol', 'Technical Docs', 'Service Terms'].map(l => (
-              <Link key={l} to="/" className="text-[9px] font-black uppercase tracking-[0.2em] text-[#FF6B35]/60 hover:text-[#FF6B35] transition-colors">{l}</Link>
+              <Link key={l} to="/" className="text-[10px] font-black uppercase tracking-[0.15em] text-[#FF6B35]/60 hover:text-[#FF6B35] transition-colors">{l}</Link>
             ))}
           </div>
           
           <div className="flex flex-col items-center md:items-end gap-2">
-            <span className="font-mono text-[9px] text-zinc-700 uppercase tracking-[0.3em]">© 2026 BEATZY AI MAINFRMAE</span>
+            <span className="font-mono text-[10px] text-zinc-700 uppercase tracking-[0.2em]">© 2026 BEATZY AI MAINFRMAE</span>
             <div className="flex items-center gap-2">
                 <div className="w-1 h-1 rounded-full bg-[#FF6B35] opacity-20" />
-                <span className="font-mono text-[8px] text-zinc-800 uppercase tracking-widest leading-none">Node: Region-EU-1</span>
+                <span className="font-mono text-[10px] text-zinc-800 uppercase tracking-widest leading-none">Node: Region-EU-1</span>
             </div>
           </div>
         </div>
