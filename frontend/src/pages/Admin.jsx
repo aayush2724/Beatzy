@@ -377,7 +377,7 @@ export default function Admin() {
       )}
 
       {/* Technical Footer Decoration */}
-      <div className="flex justify-between items-center pt-20 font-mono text-[8px] text-[#FFFFFF]/10 uppercase tracking-[0.4em] select-none">
+      <div className="flex justify-between items-center pt-20 font-mono text-[10px] text-[#FFFFFF]/10 uppercase tracking-[0.3em] select-none">
             <div className="flex items-center gap-4">
                 <div className="w-1 h-1 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_red]" />
                 Security Layer: ACTIVE

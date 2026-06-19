@@ -6,24 +6,39 @@ async function persistAnalysisResult({ jobId, mlResult }) {
   const songTitle = mlResult.song?.title;
   const songArtist = mlResult.song?.artist;
   let lyricsResult = null;
-  // Always try LRCLIB/Genius first for synced lyrics
-  try {
-    const lrclibResult = await fetchLyrics({ title: songTitle, artist: songArtist });
-    if (lrclibResult && (lrclibResult.syncedLyrics || lrclibResult.lyrics)) {
-      lyricsResult = lrclibResult;
-    } else if (mlResult.lyrics) {
+
+  // Skip lyrics fetch for unidentified recordings
+  const isUnidentified = !songTitle || songTitle === 'Live Recording';
+
+  if (!isUnidentified) {
+    // First check if ML service already returned lyrics
+    if (mlResult.lyrics) {
       const mlLyrics = mlResult.lyrics;
       const isDict = typeof mlLyrics === 'object' && mlLyrics !== null;
-      lyricsResult = {
-        lyrics: isDict ? (mlLyrics.plain || null) : mlLyrics,
-        syncedLyrics: isDict ? (mlLyrics.synced || null) : null,
-        source: 'ml-service'
-      };
+      const mlPlain = isDict ? (mlLyrics.plain || null) : mlLyrics;
+      const mlSynced = isDict ? (mlLyrics.synced || null) : null;
+
+      if (mlPlain || mlSynced) {
+        lyricsResult = {
+          lyrics: mlPlain,
+          syncedLyrics: mlSynced,
+          source: mlLyrics.source || 'ml-service',
+        };
+      }
     }
-  } catch (lyricsErr) {
-    logger.warn('Lyrics fetch failed during persist, continuing without lyrics',
-      { jobId, error: lyricsErr.message });
-    lyricsResult = null;
+
+    // Fallback: LRCLIB/Genius if ML service didn't find lyrics
+    if (!lyricsResult) {
+      try {
+        const lrclibResult = await fetchLyrics({ title: songTitle, artist: songArtist });
+        if (lrclibResult && (lrclibResult.syncedLyrics || lrclibResult.lyrics)) {
+          lyricsResult = lrclibResult;
+        }
+      } catch (lyricsErr) {
+        logger.warn('Lyrics fetch failed during persist, continuing without lyrics',
+          { jobId, error: lyricsErr.message });
+      }
+    }
   }
 
   if (lyricsResult) {

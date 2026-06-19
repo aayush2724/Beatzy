@@ -73,7 +73,7 @@ function PianoView({ keys }) {
                         "flex-1 border-x border-black/40 rounded-b-sm transition-all duration-300",
                         active ? "bg-primary shadow-[0_0_15px_rgba(255,255,255,0.3)] z-10" : "bg-white/90"
                     )}>
-                        <span className="absolute bottom-1 w-full text-center text-[7px] text-black/40 font-bold">{note.label}</span>
+                        <span className="absolute bottom-1 w-full text-center text-[9px] text-black/40 font-bold">{note.label}</span>
                     </div>
                 );
             })}
