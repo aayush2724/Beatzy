@@ -3,7 +3,7 @@ require('express-async-errors');
 
 // Basic environment validation
 function validateEnv() {
-  const required = ['DATABASE_URL', 'JWT_SECRET', 'JWT_REFRESH_SECRET', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET'];
+  const required = ['DATABASE_URL', 'JWT_SECRET', 'JWT_REFRESH_SECRET'];
   const missing = required.filter(key => !process.env[key]);
   if (missing.length > 0) {
     const msg = `Missing required environment variables: ${missing.join(', ')}`;
@@ -13,7 +13,7 @@ function validateEnv() {
   }
   
   // Warn about important optional vars
-  const optional = ['AWS_ACCESS_KEY_ID', 'ACOUSTID_API_KEY', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET'];
+  const optional = ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'AWS_ACCESS_KEY_ID', 'ACOUSTID_API_KEY', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET'];
   const missingOptional = optional.filter(key => !process.env[key]);
   if (missingOptional.length > 0) {
     console.warn(`⚠️  Missing optional environment variables: ${missingOptional.join(', ')}`);
