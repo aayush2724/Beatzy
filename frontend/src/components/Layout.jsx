@@ -72,7 +72,7 @@ export default function Layout() {
             className="whitespace-nowrap"
           >
             <p className="text-[#FFFFFF] font-bold text-lg leading-none tracking-[0.2em] font-display">BEATZY</p>
-            <p className="font-mono text-[8px] text-[#FF6B35]/60 tracking-[0.3em] uppercase mt-1">OS V4.2</p>
+            <p className="font-mono text-[10px] text-[#FF6B35]/60 tracking-[0.2em] uppercase mt-1">OS V4.2</p>
           </motion.div>
         </div>
 
@@ -121,7 +121,7 @@ export default function Layout() {
                 className="flex-1 min-w-0"
               >
                 <p className="text-[11px] font-semibold truncate text-[#FFFFFF] leading-none mb-1">{user?.name}</p>
-                <p className="font-mono text-[8px] text-[#FF6B35] uppercase tracking-widest leading-none opacity-70">{user?.plan}</p>
+                <p className="font-mono text-[10px] text-[#FF6B35] uppercase tracking-widest leading-none opacity-70">{user?.plan}</p>
               </motion.div>
             )}
           </div>

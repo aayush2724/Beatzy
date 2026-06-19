@@ -12,7 +12,8 @@ import {
   ArrowRightLeft,
   FolderPlus,
   History,
-  ArrowUpRight
+  ArrowUpRight,
+  X
 } from 'lucide-react';
 
 export default function Library() {
@@ -56,11 +57,11 @@ export default function Library() {
     <PageWrapper className="space-y-16 pb-20 animate-page-entrance">
       <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 border-b border-[#0D0808]/5 pb-12">
         <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#FF6B35]/20 bg-[#FF6B35]/5 text-[#FF6B35] font-mono text-[9px] uppercase tracking-[0.2em]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#FF6B35]/20 bg-[#FF6B35]/5 text-[#FF6B35] font-mono text-[11px] uppercase tracking-[0.15em]">
               <Layers className="w-3 h-3" /> Central Registry
           </div>
           <h1 className="text-6xl font-display font-black text-[#FFFFFF] tracking-tighter uppercase leading-none">Neural <span className="text-[#FF6B35] text-glow-ember">Library</span></h1>
-          <p className="font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-[0.3em]">Curated spectral signatures and collections</p>
+          <p className="font-mono text-[11px] text-[#FFFFFF]/30 uppercase tracking-[0.2em]">Curated spectral signatures and collections</p>
         </div>
         
         <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
@@ -101,11 +102,11 @@ export default function Library() {
                     <Star className="w-5 h-5 text-[#FFFFFF] fill-[#0D0808]/20" />
                     Starred Signatures
                 </h2>
-                <span className="font-mono text-[10px] text-[#FFFFFF]/20 uppercase tracking-widest">{favorites.length} entries</span>
+                <span className="font-mono text-[11px] text-[#FFFFFF]/20 uppercase tracking-widest">{favorites.length} entries</span>
             </div>
             {favorites.length === 0 ? (
               <div className="obsidian-panel p-12 rounded-[2.5rem] border border-dashed border-[#0D0808]/5 text-center">
-                <p className="text-[#FFFFFF]/20 text-xs font-mono uppercase tracking-[0.2em]">No starred signatures found in registry.</p>
+                <p className="text-[#FFFFFF]/20 text-xs font-mono uppercase tracking-[0.15em]">No starred signatures found in registry.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -161,13 +162,13 @@ export default function Library() {
                   </div>
                   <div className="relative z-10">
                       <p className="font-display font-black text-lg text-[#FFFFFF] uppercase tracking-tight group-hover:text-[#FFDAB9] transition-colors">{c.name}</p>
-                      <p className="font-mono text-[9px] text-[#FFFFFF]/30 mt-2 uppercase tracking-[0.2em]">{c.item_count} Signatures Indexed</p>
+                      <p className="font-mono text-[10px] text-[#FFFFFF]/30 mt-2 uppercase tracking-[0.15em]">{c.item_count} Signatures Indexed</p>
                   </div>
                 </div>
               ))}
               {collections.length === 0 && (
                 <div className="lg:col-span-4 obsidian-panel p-12 rounded-[2.5rem] border border-dashed border-[#0D0808]/5 text-center">
-                    <p className="text-[#FFFFFF]/20 text-xs font-mono uppercase tracking-[0.2em]">No collections initialized.</p>
+                    <p className="text-[#FFFFFF]/20 text-xs font-mono uppercase tracking-[0.15em]">No collections initialized.</p>
                 </div>
               )}
             </div>
@@ -196,4 +197,4 @@ export default function Library() {
   );
 }
 
-import { X } from 'lucide-react';
+

@@ -109,16 +109,16 @@ export default function Profile() {
           <ProfileSection icon={Fingerprint} title="Operator Identity" accentColor="text-[#FF6B35]">
             <div className="grid lg:grid-cols-2 gap-12">
               <div className="space-y-4">
-                <label className="font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-[0.3em] block ml-1">Permanent Identifier</label>
+                <label className="text-sm text-[#FFFFFF]/60 font-medium block ml-1">Permanent Identifier</label>
                 <div className="relative group">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#FFFFFF]/10 group-focus-within:text-[#FF6B35] transition-colors" />
                     <input disabled value={user?.email || ''} className="w-full h-14 bg-white/[0.02] border border-dashed border-[#0D0808]/10 rounded-2xl pl-12 pr-4 text-[#FFFFFF]/40 font-mono text-xs cursor-not-allowed" />
                 </div>
-                <p className="font-mono text-[9px] text-[#FFFFFF]/20 mt-2 uppercase tracking-widest italic ml-1">Identity locked to neural core architecture.</p>
+                <p className="font-mono text-[11px] text-[#FFFFFF]/20 mt-2 uppercase tracking-widest italic ml-1">Identity locked to neural core architecture.</p>
               </div>
 
               <form onSubmit={saveName} className="space-y-4">
-                <label className="font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-[0.3em] block ml-1">Interface Alias</label>
+                <label className="text-sm text-[#FFFFFF]/60 font-medium block ml-1">Interface Alias</label>
                 <div className="flex flex-col sm:flex-row gap-4">
                     <div className="relative flex-1 group">
                         <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#FFFFFF]/10 group-focus-within:text-[#FF6B35] transition-colors" />
@@ -136,21 +136,21 @@ export default function Profile() {
           <ProfileSection icon={ShieldCheck} title="Access Encryption" accentColor="text-[#FF6B35]">
             <form onSubmit={savePassword} className="grid lg:grid-cols-3 gap-8">
               <div className="space-y-4">
-                <label className="font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-[0.3em] block ml-1">Active Encryption Key</label>
+                <label className="text-sm text-[#FFFFFF]/60 font-medium block ml-1">Active Encryption Key</label>
                 <div className="relative group">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#FFFFFF]/10 group-focus-within:text-[#FF6B35] transition-colors" />
                     <input type="password" value={passwords.current} onChange={e => setPasswords(p => ({ ...p, current: e.target.value }))} required className="w-full h-14 bg-white/[0.03] border border-[#0D0808]/10 rounded-2xl pl-12 pr-4 text-[#FFFFFF] focus:outline-none focus:border-[#FF6B35]/30 transition-all" />
                 </div>
               </div>
               <div className="space-y-4">
-                <label className="font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-[0.3em] block ml-1">New Generation Key</label>
+                <label className="text-sm text-[#FFFFFF]/60 font-medium block ml-1">New Generation Key</label>
                 <div className="relative group">
                     <Zap className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#FFFFFF]/10 group-focus-within:text-[#FF6B35] transition-colors" />
                     <input type="password" value={passwords.new} onChange={e => setPasswords(p => ({ ...p, new: e.target.value }))} required minLength={8} className="w-full h-14 bg-white/[0.03] border border-[#0D0808]/10 rounded-2xl pl-12 pr-4 text-[#FFFFFF] focus:outline-none focus:border-[#FF6B35]/30 transition-all" />
                 </div>
               </div>
               <div className="space-y-4">
-                <label className="font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-[0.3em] block ml-1">Verify Generation Key</label>
+                <label className="text-sm text-[#FFFFFF]/60 font-medium block ml-1">Verify Generation Key</label>
                 <div className="relative group">
                     <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#FFFFFF]/10 group-focus-within:text-[#FF6B35] transition-colors" />
                     <input type="password" value={passwords.confirm} onChange={e => setPasswords(p => ({ ...p, confirm: e.target.value }))} required minLength={8} className="w-full h-14 bg-white/[0.03] border border-[#0D0808]/10 rounded-2xl pl-12 pr-4 text-[#FFFFFF] focus:outline-none focus:border-[#FF6B35]/30 transition-all" />
@@ -195,7 +195,7 @@ export default function Profile() {
       </div>
 
       {/* Technical Metadata Decoration */}
-      <div className="flex justify-between items-center pt-20 font-mono text-[8px] text-[#FFFFFF]/10 uppercase tracking-[0.4em] select-none">
+      <div className="flex justify-between items-center pt-20 font-mono text-[10px] text-[#FFFFFF]/10 uppercase tracking-[0.3em] select-none">
             <div className="flex items-center gap-4">
                 <div className="w-1 h-1 rounded-full bg-[#FF6B35] animate-pulse" />
                 Operator Sync Active

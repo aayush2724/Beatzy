@@ -3,7 +3,7 @@ require('express-async-errors');
 
 // Basic environment validation
 function validateEnv() {
-  const required = ['DATABASE_URL', 'JWT_SECRET', 'JWT_REFRESH_SECRET'];
+  const required = ['DATABASE_URL', 'JWT_SECRET', 'JWT_REFRESH_SECRET', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET'];
   const missing = required.filter(key => !process.env[key]);
   if (missing.length > 0) {
     console.error(`❌ Missing required environment variables: ${missing.join(', ')}`);
@@ -11,7 +11,7 @@ function validateEnv() {
   }
   
   // Warn about important optional vars
-  const optional = ['STRIPE_SECRET_KEY', 'AWS_ACCESS_KEY_ID', 'ACOUSTID_API_KEY'];
+  const optional = ['AWS_ACCESS_KEY_ID', 'ACOUSTID_API_KEY', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET'];
   const missingOptional = optional.filter(key => !process.env[key]);
   if (missingOptional.length > 0) {
     console.warn(`⚠️  Missing optional environment variables: ${missingOptional.join(', ')}`);
@@ -76,23 +76,37 @@ process.on('uncaughtException', (err) => {
 
 const isDev = process.env.NODE_ENV !== 'production';
 
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
 app.use(compression());
 
 app.use(cors({
-  origin: isDev ? true : function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
+  origin: function(origin, callback) {
     if (!origin) return callback(null, true);
-    
+
     const allowedOrigins = [
       process.env.FRONTEND_URL?.trim().replace(/^["']|["']$/g, '') || 'http://localhost:5173',
-      process.env.BACKEND_URL?.trim().replace(/^["']|["']$/g, ''), // For same-origin requests
+      process.env.BACKEND_URL?.trim().replace(/^["']|["']$/g, ''),
       'http://localhost:5173',
       'http://localhost:5174',
       'http://localhost:3000'
     ].filter(Boolean);
-    
-    const isAllowed = allowedOrigins.some(allowed => origin.startsWith(allowed));
+
+    const isAllowed = allowedOrigins.some(allowed => origin === allowed);
     callback(null, isAllowed);
   },
   credentials: true,
@@ -113,10 +127,12 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'Beatzy API Documentation',
-}));
+if (isDev) {
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'Beatzy API Documentation',
+  }));
+}
 
 app.use('/api/auth', authRoutes);
 app.use('/api/audio', audioRoutes);

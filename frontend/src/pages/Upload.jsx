@@ -24,7 +24,9 @@ import {
   Database,
   Play,
   Pause,
-  ArrowUpRight
+  ArrowUpRight,
+  ShieldCheck,
+  ShieldAlert as ShieldCode
 } from 'lucide-react';
 import PageWrapper from '../components/PageWrapper';
 
@@ -418,7 +420,7 @@ export default function Upload() {
   return (
     <PageWrapper className="space-y-10 pb-16 animate-page-entrance">
       <header className="space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#FF6B35]/20 bg-[#FF6B35]/5 text-[#FF6B35] font-mono text-[9px] uppercase tracking-[0.2em]">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#FF6B35]/20 bg-[#FF6B35]/5 text-[#FF6B35] font-mono text-[11px] uppercase tracking-[0.15em]">
             <Database className="w-3 h-3" /> Neural Core V4.2
         </div>
         <h1 className="text-5xl font-display font-black text-[#FFFFFF] tracking-tight uppercase">
@@ -526,7 +528,7 @@ export default function Upload() {
                       {/* Format Pills */}
                       <div className="flex justify-center gap-2 mt-2">
                         {['MP3', 'WAV', 'FLAC', 'OGG'].map(ext => (
-                          <span key={ext} className="text-[8px] font-mono text-[#FFFFFF]/30 border border-[#0D0808]/5 rounded-lg px-4 py-2 bg-white/5 tracking-[0.2em]">
+                          <span key={ext} className="text-[10px] font-mono text-[#FFFFFF]/30 border border-[#0D0808]/5 rounded-lg px-4 py-2 bg-white/5 tracking-[0.15em]">
                             {ext}
                           </span>
                         ))}
@@ -565,7 +567,7 @@ export default function Upload() {
                     </form>
 
                     {query.trim().length > 0 && query.trim().length < 3 && (
-                      <p className="text-[10px] text-on-surface-variant/40 font-mono uppercase tracking-widest text-center">Spectral signature too short...</p>
+                      <p className="text-[11px] text-on-surface-variant/40 font-mono uppercase tracking-widest text-center">Spectral signature too short...</p>
                     )}
 
                     <div className="grid gap-3 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
@@ -584,7 +586,7 @@ export default function Upload() {
                             )}
                             <div className="min-w-0">
                               <h4 className="text-sm font-bold text-[#FFFFFF] truncate group-hover/item:text-[#FF6B35] transition-colors">{track.title}</h4>
-                              <p className="text-[10px] font-mono text-on-surface-variant uppercase tracking-wider truncate">{track.artist} • {track.album}</p>
+                              <p className="text-[11px] font-mono text-on-surface-variant uppercase tracking-wider truncate">{track.artist} • {track.album}</p>
                             </div>
                           </div>
 
@@ -612,7 +614,7 @@ export default function Upload() {
                               </>
                             ) : (
                               <div className="px-4 py-2 rounded-xl bg-white/5 border border-[#0D0808]/5">
-                                <span className="text-[8px] font-mono text-[#FFFFFF]/20 uppercase tracking-widest select-none">No Preview</span>
+                                  <span className="text-[10px] font-mono text-[#FFFFFF]/20 uppercase tracking-widest select-none">No Preview</span>
                               </div>
                             )}
                           </div>
@@ -622,7 +624,7 @@ export default function Upload() {
                       {tracks.length === 0 && !searching && (
                         <div className="text-center py-12 obsidian-panel rounded-[2rem] border border-dashed border-[#0D0808]/5">
                           <Waves className="mx-auto w-8 h-8 text-[#FFFFFF]/10 mb-4" />
-                          <p className="text-[10px] font-mono text-[#FFFFFF]/30 uppercase tracking-[0.2em]">Enter query to scan global archives</p>
+                          <p className="text-[11px] font-mono text-[#FFFFFF]/30 uppercase tracking-[0.15em]">Enter query to scan global archives</p>
                         </div>
                       )}
                     </div>
@@ -671,7 +673,7 @@ export default function Upload() {
                     />
                   </div>
                   {file && (
-                    <p className="font-mono text-[9px] text-on-surface-variant text-center mt-3 uppercase tracking-widest opacity-60 truncate">
+                        <p className="font-mono text-[11px] text-on-surface-variant text-center mt-3 uppercase tracking-widest opacity-60 truncate">
                       Source: {file.name}
                     </p>
                   )}
@@ -703,11 +705,11 @@ export default function Upload() {
                       </div>
                       <div>
                         <h4 className="text-[11px] font-black text-[#FFFFFF] uppercase tracking-wider">{card.title}</h4>
-                        <p className="font-mono text-[8px] text-on-surface-variant uppercase tracking-widest mt-0.5">{card.engine}</p>
+                        <p className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest mt-0.5">{card.engine}</p>
                       </div>
                       <div className="pt-3 border-t border-[#0D0808]/5 flex items-center gap-2">
                         <div className={clsx('w-1.5 h-1.5 rounded-full', card.active ? 'bg-[#FF6B35] animate-pulse shadow-[0_0_10px_#FF6B35]' : 'bg-white/10')} />
-                        <span className={clsx('font-mono text-[8px] font-black uppercase tracking-widest', card.active ? 'text-[#FF6B35]' : 'text-on-surface-variant')}>
+                        <span className={clsx('font-mono text-[10px] font-black uppercase tracking-widest', card.active ? 'text-[#FF6B35]' : 'text-on-surface-variant')}>
                           {card.status}
                         </span>
                       </div>
@@ -715,7 +717,7 @@ export default function Upload() {
                   ))}
                 </div>
 
-                <div className="mt-8 w-full flex justify-between font-mono text-[9px] text-on-surface-variant uppercase tracking-[0.2em] px-2 opacity-60">
+                <div className="mt-8 w-full flex justify-between font-mono text-[11px] text-on-surface-variant uppercase tracking-[0.15em] px-2 opacity-60">
                   <div className="flex items-center gap-2">
                     <div className="w-1 h-1 rounded-full bg-[#FF6B35] animate-ping" />
                     Neural Core Online
@@ -808,4 +810,4 @@ export default function Upload() {
   );
 }
 
-import { ShieldCheck, ShieldAlert as ShieldCode } from 'lucide-react';
+

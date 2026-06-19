@@ -95,11 +95,11 @@ export default function ApiKeys() {
     <PageWrapper className="space-y-16 pb-20 animate-page-entrance">
       <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-10 border-b border-[#0D0808]/5 pb-12">
         <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#FFDAB9]/20 bg-[#FFDAB9]/5 text-[#FFDAB9] font-mono text-[9px] uppercase tracking-[0.2em]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#FFDAB9]/20 bg-[#FFDAB9]/5 text-[#FFDAB9] font-mono text-[11px] uppercase tracking-[0.15em]">
               <Key className="w-3 h-3" /> Credential Matrix
           </div>
           <h1 className="text-6xl font-display font-black text-[#FFFFFF] tracking-tighter uppercase leading-none">API <span className="text-[#FFDAB9] text-glow-wine">Matrix</span></h1>
-          <p className="font-mono text-[10px] text-[#FFFFFF]/30 uppercase tracking-[0.3em]">Programmatic interface for audio intelligence uplinks</p>
+          <p className="font-mono text-[11px] text-[#FFFFFF]/30 uppercase tracking-[0.2em]">Programmatic interface for audio intelligence uplinks</p>
         </div>
         <button onClick={() => setShowForm(f => !f)} className="group flex items-center gap-4 px-10 py-5 rounded-2xl bg-[#FFDAB9] text-[#FFFFFF] font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(232,160,132,0.2)] hover:scale-105 transition-all">
           {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
@@ -116,7 +116,7 @@ export default function ApiKeys() {
                 <ShieldCheck className="w-5 h-5" />
                 <span className="font-mono text-[10px] font-black uppercase tracking-[0.3em]">Credential Provisioned Successfully</span>
               </div>
-              <p className="font-mono text-[10px] text-[#FFFFFF]/40 mb-8 uppercase tracking-widest leading-relaxed">Store this secret key securely. For system integrity, it will not be displayed again.</p>
+              <p className="font-mono text-[11px] text-[#FFFFFF]/40 mb-8 uppercase tracking-widest leading-relaxed">Store this secret key securely. For system integrity, it will not be displayed again.</p>
               <div className="flex items-center justify-between gap-6 p-6 rounded-2xl bg-[#1A1010]/60 border border-[#0D0808]/10 shadow-inner group/key">
                 <code className="font-mono text-base text-[#FF6B35] select-all truncate">{newKey}</code>
                 <button onClick={() => copyKey(newKey)} className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/5 border border-[#0D0808]/10 hover:border-[#FF6B35]/50 text-[#FFFFFF]/20 hover:text-[#FF6B35] transition-all group-hover/key:scale-105">
@@ -150,7 +150,7 @@ export default function ApiKeys() {
           )}
 
           <div className="space-y-6">
-            <p className="font-mono text-[10px] text-[#FFFFFF]/20 uppercase tracking-[0.3em] ml-1">Active Neural Access Nodes</p>
+            <p className="font-mono text-[11px] text-[#FFFFFF]/20 uppercase tracking-[0.2em] ml-1">Active Neural Access Nodes</p>
             
             {loading ? (
               <div className="space-y-4">{[...Array(2)].map((_, i) => <div key={i} className="h-28 rounded-[2rem] animate-pulse obsidian-panel" />)}</div>
@@ -163,7 +163,7 @@ export default function ApiKeys() {
                             <div className="flex-1 min-w-0 space-y-3">
                                 <div className="flex items-center gap-4">
                                     <h4 className="text-xl font-display font-black text-[#FFFFFF] uppercase tracking-tight truncate">{key.name}</h4>
-                                    <div className="px-3 py-1 rounded-lg font-mono text-[8px] font-black uppercase tracking-widest bg-[#FF6B35]/10 border border-[#FF6B35]/20 text-[#FF6B35]">ACTIVE</div>
+                                    <div className="px-3 py-1 rounded-lg font-mono text-[10px] font-black uppercase tracking-widest bg-[#FF6B35]/10 border border-[#FF6B35]/20 text-[#FF6B35]">ACTIVE</div>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <div className="w-1.5 h-1.5 rounded-full bg-[#FFDAB9] animate-pulse" />
@@ -173,11 +173,11 @@ export default function ApiKeys() {
 
                             <div className="flex gap-12 shrink-0 px-8 border-l border-[#0D0808]/5">
                                 <div>
-                                    <p className="font-mono text-[9px] text-[#FFFFFF]/20 uppercase tracking-widest mb-1">Invocations</p>
+                                    <p className="font-mono text-[10px] text-[#FFFFFF]/20 uppercase tracking-widest mb-1">Invocations</p>
                                     <p className="font-display font-black text-lg text-[#FFFFFF]">{key.request_count?.toLocaleString() ?? '0'}</p>
                                 </div>
                                 <div>
-                                    <p className="font-mono text-[9px] text-[#FFFFFF]/20 uppercase tracking-widest mb-1">Last Uplink</p>
+                                    <p className="font-mono text-[10px] text-[#FFFFFF]/20 uppercase tracking-widest mb-1">Last Uplink</p>
                                     <p className="font-display font-black text-lg text-[#FFFFFF]">{key.last_used_at ? new Date(key.last_used_at).toLocaleDateString() : '—'}</p>
                                 </div>
                             </div>
@@ -200,7 +200,7 @@ export default function ApiKeys() {
         <aside className="xl:col-span-4 space-y-12">
             <section className="glass-card overflow-hidden border-[#0D0808]/10 shadow-2xl">
                 <div className="flex items-center justify-between px-6 py-5 border-b border-[#0D0808]/5 bg-white/[0.02]">
-                    <span className="font-mono text-[9px] text-[#FFFFFF]/40 flex items-center gap-3 uppercase tracking-[0.2em] font-black">
+                    <span className="font-mono text-[10px] text-[#FFFFFF]/40 flex items-center gap-3 uppercase tracking-[0.15em] font-black">
                         <div className="w-1.5 h-1.5 rounded-full bg-[#FF6B35] animate-pulse" />
                         Query Terminal
                     </span>
@@ -241,7 +241,7 @@ export default function ApiKeys() {
       </div>
 
       {/* Technical Footer Decoration */}
-      <div className="flex justify-between items-center pt-20 font-mono text-[8px] text-[#FFFFFF]/10 uppercase tracking-[0.4em] select-none">
+        <div className="flex justify-between items-center pt-20 font-mono text-[10px] text-[#FFFFFF]/10 uppercase tracking-[0.3em] select-none">
             <div className="flex items-center gap-4">
                 <div className="w-1 h-1 rounded-full bg-[#FFDAB9] animate-pulse" />
                 API Matrix Synchronized

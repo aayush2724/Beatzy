@@ -8,17 +8,27 @@ const isDev = process.env.NODE_ENV !== 'production';
 function initIO(httpServer) {
   io = new Server(httpServer, {
     cors: {
-      origin: isDev ? true : (process.env.FRONTEND_URL || 'http://localhost:5000'),
+      origin: function(origin, callback) {
+        if (!origin) return callback(null, true);
+        const allowedOrigins = [
+          process.env.FRONTEND_URL || 'http://localhost:5173',
+          'http://localhost:5173',
+          'http://localhost:5174',
+          'http://localhost:3000',
+        ];
+        const isAllowed = allowedOrigins.some(allowed => origin === allowed);
+        callback(null, isAllowed);
+      },
       credentials: true,
     },
-    transports: ['websocket', 'polling'],
+    transports: isDev ? ['websocket', 'polling'] : ['websocket'],
   });
 
   io.use((socket, next) => {
     const token = socket.handshake.auth?.token;
     if (!token) return next(new Error('Authentication required'));
     try {
-      const payload = jwt.verify(token, process.env.JWT_SECRET || 'dev_secret');
+      const payload = jwt.verify(token, process.env.JWT_SECRET);
       socket.userId = payload.sub;
       next();
     } catch {

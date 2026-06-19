@@ -1,4 +1,5 @@
 import os
+import subprocess
 import tempfile
 from pathlib import Path
 
@@ -127,24 +128,93 @@ class AcoustIDService:
 
     @staticmethod
     def read_30s_start_sample(audio_path: str) -> bytes:
-        """Read the first ~30 seconds of audio from the start of the file."""
-        sample_size = 2 * 1024 * 1024
-        with open(audio_path, "rb") as f:
-            return f.read(sample_size)
+        """Extract the first ~30 seconds of audio using ffmpeg, regardless of input format."""
+        tmp_path = None
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
+                tmp_path = tmp.name
+
+            result = subprocess.run(
+                [
+                    "ffmpeg", "-i", audio_path,
+                    "-t", "30",
+                    "-ar", "44100", "-ac", "1",
+                    "-codec:a", "libmp3lame", "-b:a", "128k",
+                    "-y", tmp_path,
+                ],
+                capture_output=True,
+                timeout=30,
+            )
+
+            if result.returncode != 0 or not os.path.exists(tmp_path) or os.path.getsize(tmp_path) == 0:
+                logger.warning("ffmpeg 30s extraction failed, falling back to raw read",
+                               stderr=result.stderr.decode(errors="replace")[:200])
+                return AcoustIDService._raw_read(audio_path, 2 * 1024 * 1024)
+
+            with open(tmp_path, "rb") as f:
+                return f.read()
+        except Exception as e:
+            logger.warning("30s sample extraction failed", error=str(e))
+            return AcoustIDService._raw_read(audio_path, 2 * 1024 * 1024)
+        finally:
+            if tmp_path and os.path.exists(tmp_path):
+                os.remove(tmp_path)
 
     @staticmethod
     def read_fingerprint_sample(audio_path: str) -> bytes:
-        """Read ~25s of audio from mid-file to skip long intros/silence at the start."""
-        sample_size = 3 * 1024 * 1024
-        with open(audio_path, "rb") as f:
-            f.seek(0, os.SEEK_END)
-            size = f.tell()
-            if size <= sample_size:
-                f.seek(0)
+        """Extract ~25s from mid-file using ffmpeg to skip intros/silence."""
+        tmp_path = None
+        try:
+            probe = subprocess.run(
+                ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                 "-of", "csv=p=0", audio_path],
+                capture_output=True, timeout=10,
+            )
+            duration = float(probe.stdout.decode().strip() or "0")
+            start = max(0, duration * 0.25) if duration > 60 else 0
+
+            with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
+                tmp_path = tmp.name
+
+            result = subprocess.run(
+                [
+                    "ffmpeg", "-i", audio_path,
+                    "-ss", str(int(start)),
+                    "-t", "25",
+                    "-ar", "44100", "-ac", "1",
+                    "-codec:a", "libmp3lame", "-b:a", "128k",
+                    "-y", tmp_path,
+                ],
+                capture_output=True,
+                timeout=30,
+            )
+
+            if result.returncode != 0 or not os.path.exists(tmp_path) or os.path.getsize(tmp_path) == 0:
+                logger.warning("ffmpeg mid-file extraction failed, falling back to raw read",
+                               stderr=result.stderr.decode(errors="replace")[:200])
+                return AcoustIDService._raw_read(audio_path, 3 * 1024 * 1024, offset_pct=0.25)
+
+            with open(tmp_path, "rb") as f:
                 return f.read()
-            start = min(int(size * 0.25), max(0, size - sample_size))
-            f.seek(start)
-            return f.read(sample_size)
+        except Exception as e:
+            logger.warning("Mid-file sample extraction failed", error=str(e))
+            return AcoustIDService._raw_read(audio_path, 3 * 1024 * 1024, offset_pct=0.25)
+        finally:
+            if tmp_path and os.path.exists(tmp_path):
+                os.remove(tmp_path)
+
+    @staticmethod
+    def _raw_read(audio_path: str, size: int, offset_pct: float = 0) -> bytes:
+        """Fallback: read raw bytes from file."""
+        try:
+            with open(audio_path, "rb") as f:
+                f.seek(0, os.SEEK_END)
+                file_size = f.tell()
+                start = int(file_size * offset_pct) if offset_pct > 0 else 0
+                f.seek(min(start, file_size))
+                return f.read(size)
+        except Exception:
+            return b""
 
     @staticmethod
     def extension_from_path(audio_path: str) -> str:

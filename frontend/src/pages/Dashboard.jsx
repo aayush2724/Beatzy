@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { getHistory } from '../api/audio';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
@@ -66,8 +66,6 @@ const TiltCard = ({ children, className }) => {
   );
 };
 
-import { useRef } from 'react';
-
 export default function Dashboard() {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -95,7 +93,7 @@ export default function Dashboard() {
     <PageWrapper className="space-y-12 pb-20 animate-page-entrance">
       <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 border-b border-[#0D0808]/5 pb-12">
         <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#FF6B35]/20 bg-[#FF6B35]/5 text-[#FF6B35] font-mono text-[9px] uppercase tracking-[0.2em]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#FF6B35]/20 bg-[#FF6B35]/5 text-[#FF6B35] font-mono text-[11px] uppercase tracking-[0.15em]">
             <Activity className="w-3 h-3" /> System Operational
           </div>
           <h1 className="text-6xl font-display font-black text-[#FFFFFF] tracking-[-0.04em] uppercase">
@@ -129,7 +127,7 @@ export default function Dashboard() {
                   <h3 className="font-display font-bold text-lg text-[#FFFFFF] uppercase tracking-widest flex items-center gap-4">
                     <span className="w-8 h-px bg-[#FF6B35]/30" /> Recent Waveforms
                   </h3>
-                  <Link to="/history" className="group flex items-center gap-2 text-[10px] font-mono text-[#FF6B35] uppercase tracking-widest hover:text-[#FFFFFF] transition-colors">
+                  <Link to="/history" className="group flex items-center gap-2 text-[11px] font-mono text-[#FF6B35] uppercase tracking-widest hover:text-[#FFFFFF] transition-colors">
                     View full archive <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                   </Link>
               </div>
@@ -143,7 +141,7 @@ export default function Dashboard() {
               ) : error ? (
                   <div className="h-72 glass-card flex flex-col items-center justify-center text-center p-12 gap-6">
                       <p className="text-[#FFFFFF]/50 font-mono text-xs uppercase tracking-widest">{error}</p>
-                      <button onClick={fetchDashboard} className="px-8 py-3 rounded-xl border border-[#0D0808]/10 text-[#FFFFFF] font-mono text-[10px] uppercase tracking-widest hover:bg-white/5">Initialize Retry</button>
+                      <button onClick={fetchDashboard} className="px-8 py-3 rounded-xl border border-[#0D0808]/10 text-[#FFFFFF] font-mono text-[11px] uppercase tracking-widest hover:bg-white/5">Initialize Retry</button>
                   </div>
               ) : history.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -170,7 +168,7 @@ export default function Dashboard() {
                   <h3 className="font-display font-bold text-xs text-[#FFFFFF] uppercase tracking-widest mb-10 flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-[#FF6B35]" /> Tempo Trends
                   </h3>
-                  <div className="h-56 w-full font-mono text-[9px] relative z-10">
+                  <div className="h-56 w-full font-mono text-[10px] relative z-10">
                       <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={chartData}>
                               <defs>
@@ -202,7 +200,7 @@ export default function Dashboard() {
                     <h3 className="font-display font-bold text-xs text-[#FFFFFF] uppercase tracking-widest flex items-center gap-3">
                       <Cpu className="w-4 h-4 text-[#FF6B35]" /> System Status
                     </h3>
-                    <div className="px-2 py-0.5 rounded border border-[#FF6B35]/30 text-[#FF6B35] font-mono text-[8px] uppercase tracking-tighter">
+                    <div className="px-2 py-0.5 rounded border border-[#FF6B35]/30 text-[#FF6B35] font-mono text-[10px] uppercase tracking-tighter">
                       Operational
                     </div>
                   </div>
@@ -210,8 +208,8 @@ export default function Dashboard() {
                   <div className="space-y-6">
                       <div className="space-y-2">
                           <div className="flex justify-between items-end">
-                              <span className="font-mono text-[9px] text-[#FFFFFF]/40 uppercase tracking-widest">Neural Pipeline</span>
-                              <span className="font-mono text-[10px] text-[#FF6B35] font-bold">STABLE</span>
+                              <span className="font-mono text-[11px] text-[#FFFFFF]/40 uppercase tracking-widest">Neural Pipeline</span>
+                              <span className="font-mono text-[11px] text-[#FF6B35] font-bold">STABLE</span>
                           </div>
                           <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                               <motion.div 
@@ -224,8 +222,8 @@ export default function Dashboard() {
                       </div>
                       <div className="space-y-2">
                           <div className="flex justify-between items-end">
-                              <span className="font-mono text-[9px] text-[#FFFFFF]/40 uppercase tracking-widest">Cluster Node Load</span>
-                              <span className="font-mono text-[10px] text-[#FFFFFF] font-bold">42%</span>
+                              <span className="font-mono text-[11px] text-[#FFFFFF]/40 uppercase tracking-widest">Cluster Node Load</span>
+                              <span className="font-mono text-[11px] text-[#FFFFFF] font-bold">42%</span>
                           </div>
                           <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                               <motion.div 
@@ -242,12 +240,12 @@ export default function Dashboard() {
                     <div className="p-4 rounded-2xl bg-white/[0.02] border border-[#0D0808]/5">
                       <Database className="w-4 h-4 text-[#FFFFFF]/20 mb-2" />
                       <p className="text-[16px] font-display font-black text-[#FFFFFF]">1.2 TB</p>
-                      <p className="text-[8px] font-mono text-[#FFFFFF]/30 uppercase tracking-widest">Storage</p>
+                      <p className="text-[10px] font-mono text-[#FFFFFF]/30 uppercase tracking-widest">Storage</p>
                     </div>
                     <div className="p-4 rounded-2xl bg-white/[0.02] border border-[#0D0808]/5">
                       <Cpu className="w-4 h-4 text-[#FFFFFF]/20 mb-2" />
                       <p className="text-[16px] font-display font-black text-[#FFFFFF]">184ms</p>
-                      <p className="text-[8px] font-mono text-[#FFFFFF]/30 uppercase tracking-widest">Latency</p>
+                      <p className="text-[10px] font-mono text-[#FFFFFF]/30 uppercase tracking-widest">Latency</p>
                     </div>
                   </div>
               </TiltCard>

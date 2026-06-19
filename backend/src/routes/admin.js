@@ -52,7 +52,9 @@ router.get('/users', async (req, res) => {
 // ── Single user detail ──────────────────────────────────────────────────────
 router.get('/users/:id', async (req, res) => {
   const { rows } = await pool.query(
-    `SELECT u.*, COUNT(DISTINCT j.id)::int AS total_jobs
+    `SELECT u.id, u.name, u.email, u.plan, u.is_active, u.is_admin,
+            u.created_at, u.last_login_at, u.subscription_status,
+            COUNT(DISTINCT j.id)::int AS total_jobs
      FROM users u
      LEFT JOIN audio_jobs j ON j.user_id = u.id
      WHERE u.id = $1

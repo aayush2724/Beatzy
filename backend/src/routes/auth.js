@@ -56,10 +56,10 @@ function hashToken(token) {
 }
 
 async function generateTokens(userId) {
-  const accessToken = jwt.sign({ sub: userId }, process.env.JWT_SECRET || 'dev_secret', {
+  const accessToken = jwt.sign({ sub: userId }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '15m',
   });
-  const refreshToken = jwt.sign({ sub: userId, jti: uuidv4() }, process.env.JWT_REFRESH_SECRET || 'dev_refresh_secret', {
+  const refreshToken = jwt.sign({ sub: userId, jti: uuidv4() }, process.env.JWT_REFRESH_SECRET, {
     expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   });
 
@@ -114,12 +114,12 @@ router.post('/login', authLimiter, validate(schemas.login), async (req, res) => 
   });
 });
 
-router.post('/refresh', async (req, res) => {
+router.post('/refresh', authLimiter, async (req, res) => {
   const { refreshToken } = req.body;
   if (!refreshToken) throw createError(400, 'Refresh token required');
   let payload;
   try {
-    payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || 'dev_refresh_secret');
+    payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
   } catch {
     throw createError(401, 'Invalid or expired refresh token');
   }

@@ -78,7 +78,11 @@ async function deleteFromS3(key) {
 
 async function getPresignedUrl(key, expiresIn = 3600) {
   if (useLocalStorage) {
-    return path.join(LOCAL_STORAGE_DIR, key);
+    const http = require('http');
+    const fs = require('fs');
+    const fullPath = path.join(LOCAL_STORAGE_DIR, key);
+    if (!fs.existsSync(fullPath)) throw new Error('File not found');
+    return `${process.env.BACKEND_URL || 'http://localhost:3000'}/api/audio/file/${encodeURIComponent(key)}`;
   }
   const { GetObjectCommand } = require('@aws-sdk/client-s3');
   const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
