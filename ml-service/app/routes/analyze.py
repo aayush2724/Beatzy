@@ -143,7 +143,22 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
                 log.warning("AcoustID mid-file lookup failed", error=str(e))
                 song_info = None
 
-        # For non-mic recordings, also try filename and iTunes fallbacks
+        # Fallback: acoustid full file (better for longer recordings)
+        if not song_info:
+            try:
+                with open(audio_path, 'rb') as f:
+                    full_bytes = f.read()
+                song_info = await loop.run_in_executor(
+                    None,
+                    acoustid_service.identify_from_bytes,
+                    full_bytes,
+                    real_ext,
+                )
+            except Exception as e:
+                log.warning("AcoustID full-file lookup failed", error=str(e))
+                song_info = None
+
+        # For non-mic recordings, try filename and iTunes fallbacks
         if not song_info and not is_mic_recording:
             # Fallback: filename parse
             if req.original_filename:
