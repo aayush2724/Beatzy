@@ -38,7 +38,7 @@ class LyricsService:
 
     async def _fetch_lrclib(self, artist: str, title: str) -> dict:
         url = (
-            f"https://lrclib.net/api/get"
+            f"https://lrclib.net/api/search"
             f"?artist_name={quote(artist)}"
             f"&track_name={quote(title)}"
         )
@@ -47,9 +47,14 @@ class LyricsService:
                 async with session.get(url, timeout=15) as r:
                     if r.status == 200:
                         data = await r.json()
-                        plain = data.get("plainLyrics")
-                        synced_raw = data.get("syncedLyrics")
-                        # Return raw LRC string — frontend parses it with regex
+                        if isinstance(data, list) and len(data) > 0:
+                            best = data[0]
+                        elif isinstance(data, dict):
+                            best = data
+                        else:
+                            return {"plain": None, "synced": None}
+                        plain = best.get("plainLyrics")
+                        synced_raw = best.get("syncedLyrics")
                         return {"plain": plain, "synced": synced_raw or None}
                     return {"plain": None, "synced": None}
         except Exception as e:

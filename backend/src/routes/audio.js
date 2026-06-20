@@ -156,15 +156,20 @@ router.get('/search', authenticateApiKey, async (req, res) => {
   if (!q) throw createError(400, 'Query parameter "q" is required');
 
   try {
-    const { data } = await axios.get(`${ML_SERVICE_URL}/spotify/search`, {
-      params: { q, limit: limit || 10 },
-      timeout: 15000,
-    });
-    if (data?.data?.length) {
-      return res.json(data);
+    // Try ML service first
+    try {
+      const { data } = await axios.get(`${ML_SERVICE_URL}/spotify/search`, {
+        params: { q, limit: limit || 10 },
+        timeout: 15000,
+      });
+      if (data?.data?.length) {
+        return res.json(data);
+      }
+    } catch (mlErr) {
+      logger.warn('ML service search failed, falling back to iTunes', { error: mlErr.message });
     }
 
-    // iTunes fallback when Spotify dev app returns 403 / empty
+    // iTunes fallback
     const itunesResponse = await axios.get('https://itunes.apple.com/search', {
       params: { term: q, entity: 'song', limit: limit || 10 },
       timeout: 10000,
@@ -185,7 +190,7 @@ router.get('/search', authenticateApiKey, async (req, res) => {
 
     return res.json({ success: true, data: tracks });
   } catch (err) {
-    logger.error('Spotify search failed', { error: err.message });
+    logger.error('Song search failed', { error: err.message });
     throw createError(502, 'Song search service unavailable');
   }
 });
