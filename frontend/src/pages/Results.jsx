@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { getResults } from '../api/audio';
 import { enableShare, exportReport, addFavorite } from '../api/library';
 import InstrumentChordPanel from '../components/InstrumentChordPanel';
+import GestureChordStage from '../components/GestureChordStage';
 import PageWrapper from '../components/PageWrapper';
 
 import { 
@@ -58,6 +59,7 @@ export default function Results() {
   const [error, setError] = useState(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [chordMode, setChordMode] = useState('view');
   const waveformRef = useRef(null);
   const wavesurfer = useRef(null);
 
@@ -118,6 +120,20 @@ export default function Results() {
 
     return () => wavesurfer.current.destroy();
   }, [result]);
+
+  useEffect(() => {
+    if (!wavesurfer.current) return;
+    if (chordMode === 'play') {
+      wavesurfer.current.setVolume(0.3);
+    } else {
+      wavesurfer.current.setVolume(1.0);
+    }
+    return () => {
+      if (wavesurfer.current) {
+        wavesurfer.current.setVolume(1.0);
+      }
+    };
+  }, [chordMode]);
 
   const mlData = useMemo(() => {
     try {
@@ -527,13 +543,38 @@ export default function Results() {
               </div>
 
               <div className="obsidian-panel rounded-[2.5rem] border border-[#0D0808]/5 overflow-hidden">
-                <div className="p-8 border-b border-[#0D0808]/5 bg-white/[0.01]">
+                <div className="p-8 border-b border-[#0D0808]/5 bg-white/[0.01] flex items-center justify-between">
                     <h3 className="font-display font-black text-xs text-[#FFFFFF] uppercase tracking-[0.3em] flex items-center gap-3">
-                        <Zap className="w-4 h-4 text-[#FF6B35]" /> Chord Fingerprints
+                        <Zap className="w-4 h-4 text-[#FF6B35]" /> Harmonic Stage
                     </h3>
+                    <div className="flex p-1 bg-white/5 rounded-xl border border-[#0D0808]/10">
+                      <button
+                        onClick={() => setChordMode('view')}
+                        className={clsx(
+                          "px-3 py-1.5 rounded-lg font-mono text-[10px] uppercase tracking-wider transition-all",
+                          chordMode === 'view' ? "bg-[#FF6B35] text-black font-bold" : "text-[#FFFFFF]/60 hover:text-[#FFFFFF]"
+                        )}
+                      >
+                        View
+                      </button>
+                      <button
+                        onClick={() => setChordMode('play')}
+                        className={clsx(
+                          "px-3 py-1.5 rounded-lg font-mono text-[10px] uppercase tracking-wider transition-all flex items-center gap-1.5",
+                          chordMode === 'play' ? "bg-[#FF6B35] text-black font-bold" : "text-[#FFFFFF]/60 hover:text-[#FFFFFF]"
+                        )}
+                      >
+                        <span className="material-symbols-outlined text-xs">pan_tool</span>
+                        Play
+                      </button>
+                    </div>
                 </div>
-                <div className="p-2">
+                <div className="p-4">
+                  {chordMode === 'play' ? (
+                    <GestureChordStage chords={chordSegments} />
+                  ) : (
                     <InstrumentChordPanel chords={chordSegments} />
+                  )}
                 </div>
               </div>
 
