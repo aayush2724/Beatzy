@@ -49,6 +49,11 @@ class YAMNetService:
                 import librosa
                 waveform = librosa.resample(waveform, orig_sr=sr, target_sr=16000)
 
+            # Pad waveform to at least 0.96 seconds (15360 samples at 16kHz)
+            # to prevent empty output from YAMNet for short voice clips
+            if len(waveform) < 15360:
+                waveform = np.pad(waveform, (0, 15360 - len(waveform)), mode='constant')
+
             scores, embeddings, spectrogram = self.model(waveform)
             scores_np = scores.numpy()
             mean_scores = scores_np.mean(axis=0)
