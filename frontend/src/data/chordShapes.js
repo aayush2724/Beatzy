@@ -137,8 +137,11 @@ export function getChordShape(chordStr) {
   
   // Normalize quality names (e.g., "C#" + "min7" -> "C#min")
   // For now, we fall back to base maj/min if 7ths aren't in the dict
-  const base = chordStr.replace(/7|sus4|maj7|min7/g, '');
-  const shape = CHORD_SHAPES[chordStr] || CHORD_SHAPES[base];
+  let base = chordStr.replace(/7|sus4|maj7|min7/g, '');
+  if (/^[A-G]#?$/.test(base)) {
+    base += 'maj';
+  }
+  const shape = CHORD_SHAPES[chordStr] || CHORD_SHAPES[base] || CHORD_SHAPES[`${chordStr}maj`];
   
   return shape || null;
 }

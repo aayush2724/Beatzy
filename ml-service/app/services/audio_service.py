@@ -124,7 +124,7 @@ class AudioAnalysisService:
                 chord = chord_names[idx]
                 if chord != current_chord:
                     end_time = i / frames_per_sec
-                    if end_time - start_time > 1.5: # only keep stable chords > 1.5s
+                    if end_time - start_time >= 0.5: # keep chords >= 0.5s
                         segments.append({
                             "chord": current_chord,
                             "start": round(start_time, 1),
@@ -132,6 +132,15 @@ class AudioAnalysisService:
                         })
                     current_chord = chord
                     start_time = end_time
+            
+            # Append the final chord
+            end_time = len(best_chords_idx) / frames_per_sec
+            if end_time - start_time >= 0.5:
+                segments.append({
+                    "chord": current_chord,
+                    "start": round(start_time, 1),
+                    "end": round(end_time, 1)
+                })
             
             return segments
         except Exception as e:
