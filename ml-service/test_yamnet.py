@@ -1,7 +1,6 @@
 import asyncio
 from app.services.yamnet_service import YAMNetService
 import structlog
-import logging
 structlog.configure(
     processors=[structlog.processors.JSONRenderer()]
 )
