@@ -55,6 +55,39 @@ const AUDIO_MIME_MAP = {
   '.ogg': 'audio/ogg', '.flac': 'audio/flac', '.webm': 'audio/webm',
 };
 
+// Reverse of AUDIO_MIME_MAP, plus the aliases CDNs actually send.
+const MIME_EXT_MAP = {
+  'audio/mpeg': '.mp3', 'audio/mp3': '.mp3',
+  'audio/wav': '.wav', 'audio/x-wav': '.wav', 'audio/wave': '.wav',
+  'audio/mp4': '.m4a', 'audio/x-m4a': '.m4a', 'audio/aac': '.m4a', 'audio/aacp': '.m4a',
+  'audio/ogg': '.ogg', 'audio/opus': '.ogg',
+  'audio/flac': '.flac', 'audio/x-flac': '.flac',
+  'audio/webm': '.webm', 'video/webm': '.webm',
+};
+
+/**
+ * Work out the real container of a downloaded preview.
+ *
+ * iTunes previews are AAC in an .m4a container, so storing them as .mp3 with
+ * an audio/mpeg type made every decoder that trusts the extension (YAMNet's
+ * soundfile reader, ffmpeg/fpcalc) fail on them.
+ */
+function resolveAudioType(contentType, url) {
+  const declared = (contentType || '').split(';')[0].trim().toLowerCase();
+  if (MIME_EXT_MAP[declared]) {
+    return { ext: MIME_EXT_MAP[declared], mimeType: declared };
+  }
+
+  try {
+    const ext = pathMod.extname(new URL(url).pathname).toLowerCase();
+    if (AUDIO_MIME_MAP[ext]) return { ext, mimeType: AUDIO_MIME_MAP[ext] };
+  } catch {
+    /* fall through to the default below */
+  }
+
+  return { ext: '.mp3', mimeType: 'audio/mpeg' };
+}
+
 class AudioController {
   static async upload(req, res) {
     if (!req.file) throw createError(400, 'No audio file provided');
@@ -197,13 +230,18 @@ class AudioController {
     }
 
     let audioBuffer;
+    let audioType;
     try {
       const response = await axios.get(url, {
         responseType: 'arraybuffer',
         timeout: 30000,
         maxContentLength: 50 * 1024 * 1024,
+        // Redirects are not re-checked against the allowlist, so an allowed
+        // host could bounce us at an internal address. Refuse to follow them.
+        maxRedirects: 0,
       });
       audioBuffer = Buffer.from(response.data);
+      audioType = resolveAudioType(response.headers['content-type'], url);
     } catch (err) {
       logger.error('Failed to download remote audio', { url, error: err.message });
       throw createError(502, 'Could not download audio from the provided URL');
@@ -213,11 +251,11 @@ class AudioController {
     const safeTitle = (title || 'preview').replace(/[^a-zA-Z0-9]/g, ' ').trim();
     const safeArtist = (artist || '').replace(/[^a-zA-Z0-9]/g, ' ').trim();
     const filename = safeArtist
-      ? `${safeArtist} - ${safeTitle}.mp3`
-      : `${safeTitle.replace(/\s+/g, '_')}.mp3`;
+      ? `${safeArtist} - ${safeTitle}${audioType.ext}`
+      : `${safeTitle.replace(/\s+/g, '_')}${audioType.ext}`;
     const s3Key = `audio/${req.user.id}/${jobId}/${filename.replace(/[^a-zA-Z0-9._ -]/g, '_')}`;
 
-    const s3Url = await uploadToS3(audioBuffer, s3Key, 'audio/mpeg');
+    const s3Url = await uploadToS3(audioBuffer, s3Key, audioType.mimeType);
 
     const job = await AudioModel.createJob({
       id: jobId,
@@ -226,7 +264,7 @@ class AudioController {
       s3Key,
       s3Url,
       fileSize: audioBuffer.length,
-      mimeType: 'audio/mpeg',
+      mimeType: audioType.mimeType,
       status: 'queued'
     });
 
@@ -297,9 +335,20 @@ class AudioController {
 
   static async getFile(req, res) {
     const key = decodeURIComponent(req.params.encodedKey);
-    const fullPath = pathMod.join(LOCAL_STORAGE_DIR, key);
 
-    if (!fullPath.startsWith(LOCAL_STORAGE_DIR)) {
+    // Keys are laid out as `audio/<userId>/<jobId>/<filename>`. Without this
+    // check any authenticated user could stream another user's uploads just by
+    // swapping the id in the path.
+    const [prefix, ownerId] = key.split('/');
+    if (prefix !== 'audio' || ownerId !== req.user.id) {
+      return res.status(403).json({ success: false, error: { message: 'Forbidden' } });
+    }
+
+    const root = pathMod.resolve(LOCAL_STORAGE_DIR);
+    const fullPath = pathMod.resolve(root, key);
+
+    // `startsWith(root)` alone would also accept a sibling like `<root>-evil`.
+    if (fullPath !== root && !fullPath.startsWith(root + pathMod.sep)) {
       return res.status(403).json({ success: false, error: { message: 'Forbidden' } });
     }
     if (!fs.existsSync(fullPath)) {

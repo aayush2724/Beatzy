@@ -86,18 +86,28 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
         log.error("Storage download failed", s3_key=req.s3_key, error=str(e))
         raise HTTPException(status_code=404, detail=str(e)) from e
 
+    # Every temp file we create needs removing in `finally`, not just the last
+    # one we happened to assign to `audio_path`.
+    temp_paths = [audio_path]
     try:
         actual_format = _detect_audio_format(audio_path)
         if actual_format == 'webm' or audio_path.endswith('.webm'):
             wav_path = audio_path.rsplit('.', 1)[0] + '.wav'
             try:
-                subprocess.run([
+                result = subprocess.run([
                     'ffmpeg', '-i', audio_path,
                     '-ar', '22050', '-ac', '1', '-y', wav_path
                 ], capture_output=True, timeout=30)
-                if os.path.exists(wav_path):
+                if result.returncode == 0 and os.path.exists(wav_path) and os.path.getsize(wav_path) > 0:
+                    temp_paths.append(wav_path)
                     audio_path = wav_path
                     log.info('Converted webm to wav for analysis')
+                else:
+                    log.warning(
+                        'webm conversion failed, using original',
+                        returncode=result.returncode,
+                        stderr=result.stderr.decode(errors='replace')[:200],
+                    )
             except Exception as e:
                 log.warning('webm conversion failed, using original', error=str(e))
 
@@ -266,4 +276,5 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
         log.error("Analysis failed", error=str(e))
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
     finally:
-        storage.cleanup(audio_path)
+        for path in temp_paths:
+            storage.cleanup(path)

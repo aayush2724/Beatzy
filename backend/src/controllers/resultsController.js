@@ -40,7 +40,9 @@ class ResultsController {
   }
 
   static async getResult(req, res) {
-    const cacheKey = `result:${req.params.jobId}`;
+    // Scope by user: the cache is consulted before the ownership query below,
+    // so a shared key would hand any result to anyone who knows the job id.
+    const cacheKey = `result:${req.user.id}:${req.params.jobId}`;
     const cached = await getCache(cacheKey);
     if (cached) return res.json({ success: true, status: 'complete', data: cached, cached: true });
 

@@ -54,9 +54,9 @@ class AudioAnalysisService:
 
         # Key, scale, and chord extraction
         chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
-        key_idx = int(np.argmax(np.mean(chroma, axis=1)))
+        key_idx, mode = self._estimate_key(chroma)
         key_signature = KEY_NAMES[key_idx]
-        scale = self._estimate_scale(chroma)
+        scale = f"{key_signature} {mode}"
         chord_timeline = self._extract_chords(y, sr)
 
         # Time signature (simplified)
@@ -233,29 +233,35 @@ class AudioAnalysisService:
         confidence = max(confidence, 0.25)
         return mood, confidence
 
-    def _estimate_scale(self, chroma: np.ndarray) -> str:
-        """Estimate major/minor scale from average chroma using Krumhansl profiles."""
-        # Use CENS for more robust scale estimation
-        cens = librosa.feature.chroma_cens(C=chroma)
-        profile = np.mean(cens, axis=1)
-        
-        if np.max(profile) > 0:
-            profile = profile / np.max(profile)
+    def _estimate_key(self, chroma: np.ndarray) -> tuple[int, str]:
+        """Estimate (tonic index, "Major"/"Minor") by correlating the average
+        chroma against the Krumhansl-Schmuckler key profiles.
+
+        The profiles are written for C, so rolling a profile by `key_idx`
+        transposes it to that tonic.
+        """
+        profile = np.mean(chroma, axis=1)
+        if not np.all(np.isfinite(profile)) or np.ptp(profile) == 0:
+            return 0, "Major"
 
         best_score = float("-inf")
         best_key = 0
         best_mode = "Major"
 
         for key_idx in range(12):
-            major_score = float(np.corrcoef(profile, np.roll(MAJOR_PROFILE, key_idx))[0, 1])
-            minor_score = float(np.corrcoef(profile, np.roll(MINOR_PROFILE, key_idx))[0, 1])
-            if major_score > best_score:
-                best_score = major_score
-                best_key = key_idx
-                best_mode = "Major"
-            if minor_score > best_score:
-                best_score = minor_score
-                best_key = key_idx
-                best_mode = "Minor"
+            for candidate, mode in (
+                (np.roll(MAJOR_PROFILE, key_idx), "Major"),
+                (np.roll(MINOR_PROFILE, key_idx), "Minor"),
+            ):
+                score = float(np.corrcoef(profile, candidate)[0, 1])
+                if np.isfinite(score) and score > best_score:
+                    best_score = score
+                    best_key = key_idx
+                    best_mode = mode
 
-        return f"{KEY_NAMES[best_key]} {best_mode}"
+        return best_key, best_mode
+
+    def _estimate_scale(self, chroma: np.ndarray) -> str:
+        """Estimate the key and mode of a chromagram, e.g. "F# Minor"."""
+        key_idx, mode = self._estimate_key(chroma)
+        return f"{KEY_NAMES[key_idx]} {mode}"

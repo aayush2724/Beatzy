@@ -37,6 +37,7 @@ const { initQueue } = require('./services/queue');
 const { errorHandler } = require('./middleware/errorHandler');
 const { notFound } = require('./middleware/notFound');
 const { idempotency } = require('./middleware/idempotency');
+const { globalLimiter } = require('./middleware/rateLimit');
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
@@ -118,6 +119,7 @@ app.use('/api/billing/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('combined', { stream: { write: msg => logger.info(msg.trim()) } }));
+app.use('/api', globalLimiter);
 app.use(idempotency);
 app.use(passport.initialize());
 

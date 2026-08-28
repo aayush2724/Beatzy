@@ -28,12 +28,17 @@ async function authenticateApiKey(req, res, next) {
   const apiKey = req.headers['x-api-key'];
   if (!apiKey) return authenticate(req, res, next);
 
+  // Narrow on the indexed prefix first. Matching on `crypt()` alone made
+  // Postgres run bcrypt against every row in api_keys on every request, which
+  // is both slow and a cheap way to burn CPU.
+  const keyPrefix = apiKey.slice(0, 10);
+
   const { rows } = await pool.query(
     `SELECT ak.id, ak.user_id, ak.name, u.id as uid, u.email, u.plan, u.is_active
      FROM api_keys ak
      JOIN users u ON u.id = ak.user_id
-     WHERE ak.key_hash = crypt($1, ak.key_hash) AND ak.is_active = true`,
-    [apiKey]
+     WHERE ak.key_prefix = $2 AND ak.key_hash = crypt($1, ak.key_hash) AND ak.is_active = true`,
+    [apiKey, keyPrefix]
   );
   if (!rows[0] || !rows[0].is_active) {
     return next(createError(401, 'Invalid API key'));

@@ -37,17 +37,39 @@ class YAMNetService:
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, self._classify_sync, audio_path)
 
-    def _classify_sync(self, audio_path: str) -> dict:
+    @staticmethod
+    def _read_waveform(audio_path: str):
+        """Decode `audio_path` to a mono 16 kHz float32 waveform.
+
+        soundfile only handles the formats libsndfile knows about, so anything
+        else (AAC/M4A previews, MP3, WebM/Opus captures) falls back to librosa,
+        which shells out to audioread/ffmpeg.
+        """
         try:
             import soundfile as sf
 
             waveform, sr = sf.read(audio_path, dtype="float32")
             if waveform.ndim > 1:
                 waveform = waveform.mean(axis=1)
-
             if sr != 16000:
                 import librosa
+
                 waveform = librosa.resample(waveform, orig_sr=sr, target_sr=16000)
+            return waveform
+        except Exception as e:
+            logger.info(
+                "soundfile could not decode audio, falling back to librosa",
+                path=audio_path,
+                error=str(e),
+            )
+            import librosa
+
+            waveform, _ = librosa.load(audio_path, sr=16000, mono=True)
+            return np.asarray(waveform, dtype=np.float32)
+
+    def _classify_sync(self, audio_path: str) -> dict:
+        try:
+            waveform = self._read_waveform(audio_path)
 
             # Pad waveform to at least 0.96 seconds (15360 samples at 16kHz)
             # to prevent empty output from YAMNet for short voice clips

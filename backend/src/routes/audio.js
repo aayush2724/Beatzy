@@ -20,7 +20,7 @@ const upload = multer({
 
 router.post('/upload', authenticateApiKey, planRateLimit, monthlyAnalysisLimit, upload.single('audio'), AudioController.upload);
 router.post('/upload-batch', authenticateApiKey, planRateLimit, monthlyAnalysisLimit, upload.array('audio', 20), AudioController.uploadBatch);
-router.get('/search', authenticateApiKey, AudioController.search);
+router.get('/search', authenticateApiKey, planRateLimit, AudioController.search);
 router.post('/analyze-url', authenticateApiKey, planRateLimit, AudioController.analyzeUrl);
 router.get('/jobs/:jobId', authenticateApiKey, AudioController.getJob);
 router.get('/history', authenticateApiKey, AudioController.getHistory);
