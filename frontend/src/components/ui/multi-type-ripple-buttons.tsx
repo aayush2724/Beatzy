@@ -60,9 +60,9 @@ const RippleButton: React.FC<RippleButtonProps> = ({
   variant = 'default',
   rippleColor: userProvidedRippleColor,
   rippleDuration = 600,
-  hoverBaseColor = '#6996e2',
+  hoverBaseColor = 'var(--brand)',
   hoverRippleColor: customHoverRippleColor,
-  hoverBorderEffectColor = '#6996e277',
+  hoverBorderEffectColor = 'color-mix(in oklab, var(--brand) 47%, transparent)',
   hoverBorderEffectThickness = '0.3em',
 }) => {
   const [jsRipples, setJsRipples] = useState<RippleState[]>([]);
@@ -261,7 +261,7 @@ const RippleButton: React.FC<RippleButtonProps> = ({
   }
 
   // Default variant
-  const baseClasses = "relative border-none overflow-hidden isolate transition-all duration-200 cursor-pointer px-4 py-2 bg-[#FF6B35] hover:bg-[#E8471A] text-[#FFFFFF] rounded-lg";
+  const baseClasses = "relative border-none overflow-hidden isolate transition-all duration-200 cursor-pointer px-4 py-2 bg-brand hover:bg-brand-hover text-brand-ink rounded-lg";
   const disabledClasses = disabled ? "opacity-50 cursor-not-allowed" : "";
   const buttonClasses = `${baseClasses} ${disabledClasses} ${className}`;
   return (
