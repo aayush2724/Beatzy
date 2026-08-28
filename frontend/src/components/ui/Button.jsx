@@ -4,7 +4,7 @@ import clsx from 'clsx';
 const variants = {
   primary: 'btn-primary',
   secondary: 'btn-secondary',
-  ghost: 'bg-transparent border border-transparent text-on-surface-variant hover:text-on-surface hover:bg-white/5 px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-[var(--duration-normal)]',
+  ghost: 'bg-transparent border border-transparent text-on-surface-variant hover:text-on-surface hover:bg-ink/5 px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-[var(--duration-normal)]',
   danger: 'bg-red-500/10 border border-red-500/30 text-red-300 hover:bg-red-500/20 px-4 py-2 rounded-xl font-semibold text-sm transition-all',
 };
 

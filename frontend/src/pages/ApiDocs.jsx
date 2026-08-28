@@ -31,8 +31,8 @@ export default function ApiDocs() {
         <div>
           <h1 className="font-display text-fluid-h1 uppercase tracking-tight mb-4">API</h1>
           <p className="text-muted text-sm leading-relaxed">
-            Authenticate with <code className="text-accent bg-white/5 px-1 rounded">Authorization: Bearer &lt;token&gt;</code> or{' '}
-            <code className="text-accent bg-white/5 px-1 rounded">X-API-Key</code>. Base URL:{' '}
+            Authenticate with <code className="text-accent bg-ink/5 px-1 rounded">Authorization: Bearer &lt;token&gt;</code> or{' '}
+            <code className="text-accent bg-ink/5 px-1 rounded">X-API-Key</code>. Base URL:{' '}
             <code className="text-accent">{apiBase}</code>
           </p>
         </div>
@@ -40,7 +40,7 @@ export default function ApiDocs() {
         <ul className="space-y-3">
           {ENDPOINTS.map((ep) => (
             <li key={ep.path + ep.method} className="glass-panel p-4 flex gap-4 items-start border border-glass-border">
-              <span className="font-mono text-[10px] font-bold text-accent bg-white/10 px-2 py-1 rounded shrink-0">{ep.method}</span>
+              <span className="font-mono text-[10px] font-bold text-accent bg-ink/10 px-2 py-1 rounded shrink-0">{ep.method}</span>
               <div>
                 <code className="text-sm block mb-1">{ep.path}</code>
                 <p className="text-muted text-xs">{ep.desc}</p>

@@ -19,7 +19,7 @@ const PIANO_NOTES = [
 function Fretboard({ shape, strings }) {
   if (!shape) {
     return (
-      <div className="h-48 rounded-lg border border-dashed border-glass-border flex items-center justify-center px-6 text-center bg-white/[0.01]">
+      <div className="h-48 rounded-lg border border-dashed border-glass-border flex items-center justify-center px-6 text-center bg-ink/[0.01]">
         <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest">
           Shape data not synchronized
         </span>
@@ -32,28 +32,28 @@ function Fretboard({ shape, strings }) {
   const fretCount = 5;
 
   return (
-    <div className="relative p-4 bg-white/[0.02] rounded-xl border border-glass-border">
+    <div className="relative p-4 bg-ink/[0.02] rounded-xl border border-glass-border">
       <svg viewBox="0 0 220 160" className="w-full h-48">
         {/* Strings */}
         {Array.from({ length: strings }).map((_, i) => (
-          <line key={i} x1={20 + i * 36} y1={20} x2={20 + i * 36} y2={140} stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+          <line key={i} x1={20 + i * 36} y1={20} x2={20 + i * 36} y2={140} stroke="color-mix(in_oklab,var(--ink)_15%,transparent)" strokeWidth="1.5" />
         ))}
         {/* Frets */}
         {Array.from({ length: fretCount + 1 }).map((_, i) => (
-          <line key={i} x1={20} y1={20 + i * 24} x2={20 + (strings - 1) * 36} y2={20 + i * 24} stroke={i === 0 ? "var(--color-primary)" : "rgba(255,255,255,0.1)"} strokeWidth={i === 0 ? 3 : 1} />
+          <line key={i} x1={20} y1={20 + i * 24} x2={20 + (strings - 1) * 36} y2={20 + i * 24} stroke={i === 0 ? "var(--color-primary)" : "color-mix(in_oklab,var(--ink)_10%,transparent)"} strokeWidth={i === 0 ? 3 : 1} />
         ))}
         
         {/* Markers */}
         {frets.map((fret, i) => {
           const x = 20 + i * 36;
-          if (fret === -1) return <text key={i} x={x} y={15} textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="10" fontWeight="bold">✕</text>;
+          if (fret === -1) return <text key={i} x={x} y={15} textAnchor="middle" fill="color-mix(in_oklab,var(--ink)_30%,transparent)" fontSize="10" fontWeight="bold">✕</text>;
           if (fret === 0) return <circle key={i} cx={x} cy={12} r={4} fill="none" stroke="var(--color-primary)" strokeWidth="1.5" />;
           
           const y = 20 + (fret - 0.5) * 24;
           return (
             <g key={i}>
               <circle cx={x} cy={y} r={10} fill="var(--color-primary)" />
-              <text x={x} y={y + 3.5} textAnchor="middle" fill="#000" fontSize="9" fontWeight="800">{fingers[i]}</text>
+              <text x={x} y={y + 3.5} textAnchor="middle" fill="var(--brand-ink)" fontSize="9" fontWeight="800">{fingers[i]}</text>
             </g>
           );
         })}
@@ -64,16 +64,16 @@ function Fretboard({ shape, strings }) {
 
 function PianoView({ keys }) {
   return (
-    <div className="relative h-48 bg-white/[0.02] rounded-xl border border-glass-border p-4 flex items-end justify-center overflow-hidden">
+    <div className="relative h-48 bg-ink/[0.02] rounded-xl border border-glass-border p-4 flex items-end justify-center overflow-hidden">
         <div className="flex h-32 w-full max-w-xs relative">
             {PIANO_NOTES.filter(n => !n.black).map((note, i) => {
                 const active = keys.includes(note.note % 12);
                 return (
                     <div key={i} className={clsx(
-                        "flex-1 border-x border-black/40 rounded-b-sm transition-all duration-300",
-                        active ? "bg-primary shadow-[0_0_15px_rgba(255,255,255,0.3)] z-10" : "bg-white/90"
+                        "flex-1 border-x border-canvas/40 rounded-b-sm transition-all duration-300",
+                        active ? "bg-primary shadow-[0_0_15px_color-mix(in_oklab,var(--ink)_30%,transparent)] z-10" : "bg-ink/90"
                     )}>
-                        <span className="absolute bottom-1 w-full text-center text-[9px] text-black/40 font-bold">{note.label}</span>
+                        <span className="absolute bottom-1 w-full text-center text-[9px] text-canvas/40 font-bold">{note.label}</span>
                     </div>
                 );
             })}
@@ -85,8 +85,8 @@ function PianoView({ keys }) {
                     const leftPos = noteIdx <= 3 ? (noteIdx * 14) : (noteIdx * 14.5);
                     return (
                         <div key={noteIdx} className={clsx(
-                            "absolute top-0 w-[12%] h-20 rounded-b-sm border border-black transition-all duration-300",
-                            active ? "bg-secondary shadow-[0_0_15px_rgba(255,255,255,0.3)] z-20" : "bg-[#0D0808]"
+                            "absolute top-0 w-[12%] h-20 rounded-b-sm border border-canvas transition-all duration-300",
+                            active ? "bg-secondary shadow-[0_0_15px_color-mix(in_oklab,var(--ink)_30%,transparent)] z-20" : "bg-canvas"
                         )} style={{ left: `${leftPos}%` }} />
                     );
                 })}
@@ -118,14 +118,14 @@ export default function InstrumentChordPanel({ chords = [] }) {
           <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider">Dynamic fingering guide</span>
         </div>
         
-        <div className="flex p-1 bg-white/5 rounded-xl border border-[#0D0808]/10">
+        <div className="flex p-1 bg-ink/5 rounded-xl border border-line">
           {INSTRUMENTS.map(ins => (
             <button
               key={ins}
               onClick={() => setInstrument(ins)}
               className={clsx(
                 "px-4 py-2 rounded-lg font-mono text-[10px] uppercase tracking-wider transition-all",
-                instrument === ins ? "bg-primary text-surface font-bold" : "text-on-surface-variant hover:text-[#FFFFFF]"
+                instrument === ins ? "bg-primary text-surface font-bold" : "text-on-surface-variant hover:text-ink"
               )}
             >
               {ins}
@@ -145,7 +145,7 @@ export default function InstrumentChordPanel({ chords = [] }) {
                             onClick={() => setSelectedChord(c)}
                             className={clsx(
                                 "px-3 py-2 rounded-lg border font-mono text-[11px] font-bold transition-all",
-                                selectedChord === c ? "border-primary bg-primary/10 text-primary" : "border-glass-border bg-white/[0.02] text-on-surface-variant hover:border-[#0D0808]/20"
+                                selectedChord === c ? "border-primary bg-primary/10 text-primary" : "border-glass-border bg-ink/[0.02] text-on-surface-variant hover:border-line"
                             )}
                         >
                             {c}
@@ -153,7 +153,7 @@ export default function InstrumentChordPanel({ chords = [] }) {
                     ))}
                 </div>
                 <div className="pt-4 border-t border-glass-border">
-                    <div className="text-4xl font-headline font-extrabold text-[#FFFFFF] mb-2">{selectedChord}</div>
+                    <div className="text-4xl font-headline font-extrabold text-ink mb-2">{selectedChord}</div>
                     <p className="text-[10px] text-on-surface-variant leading-relaxed font-mono uppercase opacity-60">
                         {instrument} Tablature Mode
                     </p>

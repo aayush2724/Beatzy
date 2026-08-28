@@ -99,7 +99,7 @@ export default function AuthCallback() {
       const draw = () => {
         if (!ctx || canceled) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.strokeStyle = 'color-mix(in_oklab,var(--ink)_8%,transparent)';
         ctx.lineWidth = 1;
 
         for (let j = 0; j < 3; j += 1) {
@@ -132,12 +132,12 @@ export default function AuthCallback() {
   }, [navigate, params, setAuth, setTokens]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0D0808] text-[#FFFFFF] font-body">
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#0D0808_72%)] pointer-events-none" />
+    <div className="relative min-h-screen overflow-hidden bg-canvas text-ink font-body">
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_var(--canvas)_72%)] pointer-events-none" />
       <div
         className="absolute inset-0 z-0 opacity-30 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.04) 0%, transparent 60%)',
+          background: 'radial-gradient(ellipse at 50% 50%, color-mix(in_oklab,var(--ink)_4%,transparent) 0%, transparent 60%)',
         }}
       />
 
@@ -145,19 +145,19 @@ export default function AuthCallback() {
 
       <main className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6">
         <div className="mb-10 relative flex items-center justify-center w-28 h-28">
-          <div className="absolute inset-0 rounded-full border border-[#0D0808]/10 animate-ping opacity-20" />
-          <div className="absolute inset-4 rounded-full border border-white/15" />
-          <div className="w-3 h-3 rounded-full bg-white shadow-[0_0_20px_rgba(255,255,255,0.35)]" />
+          <div className="absolute inset-0 rounded-full border border-line animate-ping opacity-20" />
+          <div className="absolute inset-4 rounded-full border border-ink/15" />
+          <div className="w-3 h-3 rounded-full bg-ink shadow-[0_0_20px_color-mix(in_oklab,var(--ink)_35%,transparent)]" />
         </div>
 
         <div className="text-center space-y-3 max-w-md">
-          <h1 className="font-headline text-2xl font-bold tracking-tight text-[#FFFFFF]">{mainStatus}</h1>
+          <h1 className="font-headline text-2xl font-bold tracking-tight text-ink">{mainStatus}</h1>
           <p className="text-sm text-gray-400">{subStatus}</p>
         </div>
 
-        <div className="mt-10 w-64 h-0.5 bg-white/10 rounded-full overflow-hidden">
+        <div className="mt-10 w-64 h-0.5 bg-ink/10 rounded-full overflow-hidden">
           <div
-            className="h-full bg-white transition-all duration-300 ease-out shadow-[0_0_10px_rgba(255,255,255,0.2)]"
+            className="h-full bg-ink transition-all duration-300 ease-out shadow-[0_0_10px_color-mix(in_oklab,var(--ink)_20%,transparent)]"
             style={{ width: `${progress}%` }}
           />
         </div>

@@ -74,7 +74,7 @@ export default function Navbar() {
         <div className="flex items-center space-x-4">
           <Link
             to={token ? '/dashboard' : '/login'}
-            className="material-symbols-outlined text-on-surface hover:text-primary transition-all cursor-pointer p-2 rounded-full hover:bg-white/5"
+            className="material-symbols-outlined text-on-surface hover:text-primary transition-all cursor-pointer p-2 rounded-full hover:bg-ink/5"
           >
             account_circle
           </Link>

@@ -5,18 +5,28 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Beatzy — AI-powered music intelligence. Identify songs and get deep audio analysis." />
-    <meta name="theme-color" content="#050505" />
+    <meta name="theme-color" content="#0B0711" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#FCFAFF" media="(prefers-color-scheme: light)" />
     <title>Beatzy — Music Intelligence Engine</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="canonical" href="https://beatzy.app/" />
     <style>
-      html, body {
-        background-color: #050505;
-        margin: 0;
-        padding: 0;
-      }
+      html, body { margin: 0; padding: 0; background-color: #0B0711; }
+      html[data-theme='light'], html[data-theme='light'] body { background-color: #FCFAFF; }
     </style>
+    <script>
+      // Apply the stored theme before first paint, otherwise a light-theme
+      // user sees a dark flash while the bundle boots.
+      (function () {
+        try {
+          var t = localStorage.getItem('beatzy-theme') || 'dark';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

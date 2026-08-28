@@ -32,13 +32,13 @@ export default function UploadProgressBar({ progress, status, fileName }) {
           <span className="text-on-surface-variant truncate max-w-sm uppercase tracking-wider">
             Sending: {fileName}
           </span>
-          <span className="text-[#FFFFFF] font-bold">{Math.floor(progress)}%</span>
+          <span className="text-ink font-bold">{Math.floor(progress)}%</span>
         </div>
       )}
       {/* Bar background */}
-      <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+      <div className="h-1 bg-ink/5 rounded-full overflow-hidden">
         <motion.div
-          className="h-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.2)] rounded-full"
+          className="h-full bg-ink shadow-[0_0_10px_color-mix(in_oklab,var(--ink)_20%,transparent)] rounded-full"
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.1 }}
         />

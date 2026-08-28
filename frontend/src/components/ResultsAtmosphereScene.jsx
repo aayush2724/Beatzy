@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, Sphere, MeshDistortMaterial } from '@react-three/drei';
+import { usePalette } from '../lib/palette';
 
 function PulsingOrb({ bpm = 120, position, color }) {
   const mesh = useRef();
@@ -20,12 +21,13 @@ function PulsingOrb({ bpm = 120, position, color }) {
 }
 
 export default function ResultsAtmosphereScene({ bpm }) {
+  const c = usePalette();
   return (
     <Canvas>
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} />
-      <PulsingOrb bpm={bpm} position={[-5, 2, -5]} color="#FF6B35" />
-      <PulsingOrb bpm={bpm} position={[5, -2, -8]} color="#E8471A" />
+      <PulsingOrb bpm={bpm} position={[-5, 2, -5]} color={c.brand} />
+      <PulsingOrb bpm={bpm} position={[5, -2, -8]} color={c.brandDeep} />
     </Canvas>
   );
 }

@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
+import { usePalette } from '../lib/palette';
 
 export default function WaveformVisualizer({ barCount = 52 }) {
+  const c = usePalette();
   const containerRef = useRef(null);
   const barsRef = useRef([]);
   const rafRef = useRef(null);
@@ -41,7 +43,7 @@ export default function WaveformVisualizer({ barCount = 52 }) {
     <div className="w-full h-full flex items-end justify-center gap-1 pb-12 px-6" ref={containerRef}>
       {Array.from({ length: barCount }).map((_, i) => {
         const ratio = i / barCount;
-        const bg = ratio < 0.7 ? '#ffffff' : '#9ca3af';
+        const bg = ratio < 0.7 ? c.brand : c.inkMuted;
         return (
           <div
             key={i}

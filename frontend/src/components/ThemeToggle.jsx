@@ -10,7 +10,7 @@ export default function ThemeToggle({ className = '' }) {
       <button
         type="button"
         onClick={toggleTheme}
-        className={`p-2 rounded-full border border-glass-border hover:bg-white/5 transition-colors flex items-center justify-center ${className}`}
+        className={`p-2 rounded-full border border-glass-border hover:bg-ink/5 transition-colors flex items-center justify-center ${className}`}
         aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
       >
         {theme === 'dark' ? (

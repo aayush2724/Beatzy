@@ -1,4 +1,5 @@
 import React, { ReactNode, useState, useMemo, MouseEvent, CSSProperties } from 'react';
+import { cn } from "@/lib/utils";
 
 interface RippleState {
   key: number;
@@ -263,7 +264,9 @@ const RippleButton: React.FC<RippleButtonProps> = ({
   // Default variant
   const baseClasses = "relative border-none overflow-hidden isolate transition-all duration-200 cursor-pointer px-4 py-2 bg-brand hover:bg-brand-hover text-brand-ink rounded-lg";
   const disabledClasses = disabled ? "opacity-50 cursor-not-allowed" : "";
-  const buttonClasses = `${baseClasses} ${disabledClasses} ${className}`;
+  // twMerge so a caller passing e.g. `bg-transparent text-brand` reliably
+  // overrides the base fill — class order in the attribute does not decide this.
+  const buttonClasses = cn(baseClasses, disabledClasses, className);
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: JS_RIPPLE_KEYFRAMES }} />

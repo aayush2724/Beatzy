@@ -41,7 +41,7 @@ export default function Layout() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden text-on-surface font-body selection:bg-[#FF6B35]/30 relative bg-[#0D0808]">
+    <div className="flex h-screen overflow-hidden text-on-surface font-body selection:bg-brand/30 relative bg-canvas">
       {/* Dynamic Background Layer */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
         <EtherealShadow
@@ -58,21 +58,21 @@ export default function Layout() {
         onMouseEnter={() => setIsSidebarHovered(true)}
         onMouseLeave={() => setIsSidebarHovered(false)}
         className={clsx(
-          "h-full z-40 bg-[#1A1010]/80 backdrop-blur-2xl border-r border-[#0D0808]/5 flex flex-col pt-8 pb-6 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] select-none relative shrink-0",
+          "h-full z-40 bg-surface/80 backdrop-blur-2xl border-r border-line-subtle flex flex-col pt-8 pb-6 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] select-none relative shrink-0",
           isSidebarHovered ? "w-64" : "w-20"
         )}
       >
         {/* Core Header */}
         <div className="px-6 mb-12 flex items-center space-x-4 overflow-hidden shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-[#FF6B35]/10 flex items-center justify-center border border-[#FF6B35]/20 shrink-0 shadow-[0_0_20px_rgba(255,107,53,0.1)]">
-            <Zap className="w-4 h-4 text-[#FF6B35] fill-[#FF6B35]" />
+          <div className="w-8 h-8 rounded-lg bg-brand/10 flex items-center justify-center border border-brand/20 shrink-0 shadow-[0_0_20px_rgba(255,107,53,0.1)]">
+            <Zap className="w-4 h-4 text-brand fill-brand" />
           </div>
           <motion.div 
             animate={{ opacity: isSidebarHovered ? 1 : 0, x: isSidebarHovered ? 0 : -10 }}
             className="whitespace-nowrap"
           >
-            <p className="text-[#FFFFFF] font-bold text-lg leading-none tracking-[0.2em] font-display">BEATZY</p>
-            <p className="font-mono text-[10px] text-[#FF6B35]/60 tracking-[0.2em] uppercase mt-1">OS V4.2</p>
+            <p className="text-ink font-bold text-lg leading-none tracking-[0.2em] font-display">BEATZY</p>
+            <p className="font-mono text-[10px] text-brand/60 tracking-[0.2em] uppercase mt-1">OS V4.2</p>
           </motion.div>
         </div>
 
@@ -85,8 +85,8 @@ export default function Layout() {
               className={({ isActive }) => clsx(
                 'flex items-center h-12 rounded-xl transition-all duration-300 relative group overflow-hidden',
                 isActive
-                  ? 'bg-white/[0.05] text-[#FFFFFF]'
-                  : 'text-on-surface-variant hover:text-[#FFFFFF] hover:bg-white/[0.02]'
+                  ? 'bg-ink/[0.05] text-ink'
+                  : 'text-on-surface-variant hover:text-ink hover:bg-ink/[0.02]'
               )}
             >
               <div className="w-14 flex justify-center items-center shrink-0">
@@ -106,12 +106,12 @@ export default function Layout() {
         </nav>
 
         {/* User Card & Logout */}
-        <div className="px-3 mt-auto pt-6 border-t border-[#0D0808]/5">
+        <div className="px-3 mt-auto pt-6 border-t border-line-subtle">
           <div className={clsx(
-            "flex items-center gap-3 px-2 py-3 rounded-xl bg-white/[0.03] border border-[#0D0808]/5 transition-all",
+            "flex items-center gap-3 px-2 py-3 rounded-xl bg-ink/[0.03] border border-line-subtle transition-all",
             isSidebarHovered ? "w-full" : "w-12 mx-auto"
           )}>
-            <div className="w-8 h-8 bg-[#FF6B35]/10 border border-[#FF6B35]/20 text-[#FF6B35] rounded-lg flex items-center justify-center text-xs font-bold shrink-0">
+            <div className="w-8 h-8 bg-brand/10 border border-brand/20 text-brand rounded-lg flex items-center justify-center text-xs font-bold shrink-0">
               {user?.name?.[0]?.toUpperCase() || 'U'}
             </div>
             {isSidebarHovered && (
@@ -120,8 +120,8 @@ export default function Layout() {
                 animate={{ opacity: 1 }}
                 className="flex-1 min-w-0"
               >
-                <p className="text-[11px] font-semibold truncate text-[#FFFFFF] leading-none mb-1">{user?.name}</p>
-                <p className="font-mono text-[10px] text-[#FF6B35] uppercase tracking-widest leading-none opacity-70">{user?.plan}</p>
+                <p className="text-[11px] font-semibold truncate text-ink leading-none mb-1">{user?.name}</p>
+                <p className="font-mono text-[10px] text-brand uppercase tracking-widest leading-none opacity-70">{user?.plan}</p>
               </motion.div>
             )}
           </div>
@@ -129,7 +129,7 @@ export default function Layout() {
           <button
             onClick={handleLogout}
             className={clsx(
-              "flex items-center h-12 mt-2 rounded-xl text-on-surface-variant hover:text-[#FFFFFF] hover:bg-white/[0.02] transition-all group",
+              "flex items-center h-12 mt-2 rounded-xl text-on-surface-variant hover:text-ink hover:bg-ink/[0.02] transition-all group",
               isSidebarHovered ? "w-full" : "w-12 mx-auto"
             )}
           >

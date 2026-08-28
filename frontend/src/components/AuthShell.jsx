@@ -1,29 +1,29 @@
 import { Link } from 'react-router-dom';
 
 /**
- * Shared layout for sign-in / sign-up — matches Landing (#0D0808, glass, headline type).
+ * Shared layout for sign-in / sign-up — matches Landing (var(--canvas), glass, headline type).
  */
 export default function AuthShell({ title, subtitle, children, footer }) {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0D0808] text-[#FFFFFF] font-body">
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#0D0808_72%)] pointer-events-none" />
+    <div className="relative min-h-screen overflow-hidden bg-canvas text-ink font-body">
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_var(--canvas)_72%)] pointer-events-none" />
       <div
         className="absolute inset-0 z-0 opacity-40 pointer-events-none"
         style={{
           background:
-            'radial-gradient(ellipse at 20% 20%, rgba(255,255,255,0.04) 0%, transparent 45%), radial-gradient(ellipse at 80% 80%, rgba(255,255,255,0.03) 0%, transparent 50%)',
+            'radial-gradient(ellipse at 20% 20%, color-mix(in_oklab,var(--ink)_4%,transparent) 0%, transparent 45%), radial-gradient(ellipse at 80% 80%, color-mix(in_oklab,var(--ink)_3%,transparent) 0%, transparent 50%)',
         }}
       />
 
       <nav className="relative z-20 flex items-center justify-between px-6 md:px-12 py-8">
-        <Link to="/" className="font-headline text-lg tracking-[0.25em] text-[#FFFFFF] hover:text-gray-200 transition">
+        <Link to="/" className="font-headline text-lg tracking-[0.25em] text-ink hover:text-gray-200 transition">
           BEATZY
         </Link>
         <div className="flex items-center gap-6 md:gap-10 text-xs tracking-[0.1em] uppercase text-gray-400">
-          <Link to="/pricing" className="hover:text-[#FFFFFF] transition">
+          <Link to="/pricing" className="hover:text-ink transition">
             Pricing
           </Link>
-          <Link to="/" className="hover:text-[#FFFFFF] transition hidden sm:inline">
+          <Link to="/" className="hover:text-ink transition hidden sm:inline">
             Home
           </Link>
         </div>
@@ -37,13 +37,13 @@ export default function AuthShell({ title, subtitle, children, footer }) {
               background: 'rgba(20, 20, 20, 0.55)',
               backdropFilter: 'blur(24px)',
               WebkitBackdropFilter: 'blur(24px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: '1px solid color-mix(in_oklab,var(--ink)_10%,transparent)',
               boxShadow: '0 24px 80px rgba(0, 0, 0, 0.65)',
             }}
           >
             <header className="text-center space-y-3">
               <p className="text-xs tracking-[0.25em] text-gray-500 uppercase font-mono">Beatzy</p>
-              <h1 className="font-headline text-3xl md:text-4xl font-bold tracking-tight text-[#FFFFFF]">
+              <h1 className="font-headline text-3xl md:text-4xl font-bold tracking-tight text-ink">
                 {title}
               </h1>
               {subtitle && (

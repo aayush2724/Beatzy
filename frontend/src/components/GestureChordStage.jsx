@@ -156,7 +156,7 @@ export default function GestureChordStage({ chords = [] }) {
   // Empty state fallback
   if (count === 0) {
     return (
-      <div className="h-64 rounded-xl border border-dashed border-glass-border flex flex-col items-center justify-center p-6 text-center bg-white/[0.01] space-y-3">
+      <div className="h-64 rounded-xl border border-dashed border-glass-border flex flex-col items-center justify-center p-6 text-center bg-ink/[0.01] space-y-3">
         <span className="material-symbols-outlined text-4xl text-on-surface-variant/40">
           music_off
         </span>
@@ -198,7 +198,7 @@ export default function GestureChordStage({ chords = [] }) {
       </div>
 
       {/* Main Wheel & Video Stage */}
-      <div className="relative w-full max-w-md aspect-square rounded-2xl overflow-hidden border border-glass-border bg-[#0D0808]/80 shadow-2xl flex items-center justify-center">
+      <div className="relative w-full max-w-md aspect-square rounded-2xl overflow-hidden border border-glass-border bg-canvas/80 shadow-2xl flex items-center justify-center">
         {/* Webcam feed */}
         <video
           ref={videoRef}
@@ -210,7 +210,7 @@ export default function GestureChordStage({ chords = [] }) {
 
         {/* Loading Overlay */}
         {!isReady && !error && (
-          <div className="absolute inset-0 bg-[#0D0808]/80 backdrop-blur-md flex flex-col items-center justify-center gap-3 z-30">
+          <div className="absolute inset-0 bg-canvas/80 backdrop-blur-md flex flex-col items-center justify-center gap-3 z-30">
             <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest animate-pulse">
               Starting camera & hand tracking…
@@ -220,7 +220,7 @@ export default function GestureChordStage({ chords = [] }) {
 
         {/* Error Overlay */}
         {error && (
-          <div className="absolute inset-0 bg-[#0D0808]/90 backdrop-blur-md flex flex-col items-center justify-center gap-4 p-6 text-center z-30">
+          <div className="absolute inset-0 bg-canvas/90 backdrop-blur-md flex flex-col items-center justify-center gap-4 p-6 text-center z-30">
             <span className="material-symbols-outlined text-4xl text-red-500">videocam_off</span>
             <p className="font-mono text-xs text-red-400 uppercase tracking-widest">{error}</p>
             <button
@@ -242,7 +242,7 @@ export default function GestureChordStage({ chords = [] }) {
           </defs>
 
           {/* Inner Deadzone Circle */}
-          <circle cx="200" cy="200" r="60" fill="rgba(13,8,8,0.4)" stroke="rgba(255,255,255,0.1)" strokeDasharray="4 4" />
+          <circle cx="200" cy="200" r="60" fill="rgba(13,8,8,0.4)" stroke="color-mix(in_oklab,var(--ink)_10%,transparent)" strokeDasharray="4 4" />
 
           {/* Wheel Segments */}
           {uniqueChords.map((chord, idx) => {
@@ -265,10 +265,10 @@ export default function GestureChordStage({ chords = [] }) {
                     isActive
                       ? 'rgba(255, 107, 53, 0.45)'
                       : idx % 2 === 0
-                      ? 'rgba(255, 255, 255, 0.04)'
-                      : 'rgba(255, 255, 255, 0.08)'
+                      ? 'color-mix(in_oklab,var(--ink)_4%,transparent)'
+                      : 'color-mix(in_oklab,var(--ink)_8%,transparent)'
                   }
-                  stroke={isActive ? 'var(--color-primary)' : 'rgba(255, 255, 255, 0.15)'}
+                  stroke={isActive ? 'var(--color-primary)' : 'color-mix(in_oklab,var(--ink)_15%,transparent)'}
                   strokeWidth={isActive ? '3' : '1.5'}
                   filter={isActive ? 'url(#glow)' : undefined}
                   className="transition-all duration-200"
@@ -280,7 +280,7 @@ export default function GestureChordStage({ chords = [] }) {
                   y={labelPos.y}
                   textAnchor="middle"
                   dominantBaseline="central"
-                  fill={isActive ? '#FFFFFF' : 'rgba(255, 255, 255, 0.7)'}
+                  fill={isActive ? 'var(--ink)' : 'color-mix(in oklab, var(--ink) 70%, transparent)'}
                   fontSize={isActive ? '16' : '13'}
                   fontWeight={isActive ? '900' : '700'}
                   className="font-headline tracking-wider uppercase transition-all duration-200"
@@ -292,7 +292,7 @@ export default function GestureChordStage({ chords = [] }) {
           })}
 
           {/* Wheel Outer Border */}
-          <circle cx="200" cy="200" r="150" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
+          <circle cx="200" cy="200" r="150" fill="none" stroke="color-mix(in_oklab,var(--ink)_20%,transparent)" strokeWidth="2" />
 
           {/* Frozen State Indicator (Dashed Ring) */}
           {isFist && (
@@ -311,7 +311,7 @@ export default function GestureChordStage({ chords = [] }) {
 
           {/* Center Hub Indicator */}
           <g>
-            <circle cx="200" cy="200" r="24" fill="rgba(26,16,16,0.9)" stroke="rgba(255,255,255,0.2)" />
+            <circle cx="200" cy="200" r="24" fill="rgba(26,16,16,0.9)" stroke="color-mix(in_oklab,var(--ink)_20%,transparent)" />
             <text
               x="200"
               y="200"
@@ -334,7 +334,7 @@ export default function GestureChordStage({ chords = [] }) {
                 cy={fingertipY}
                 r="12"
                 fill="none"
-                stroke={activeChord ? 'var(--color-primary)' : 'rgba(255,255,255,0.5)'}
+                stroke={activeChord ? 'var(--color-primary)' : 'color-mix(in_oklab,var(--ink)_50%,transparent)'}
                 strokeWidth="2"
                 className="animate-ping"
               />
@@ -342,7 +342,7 @@ export default function GestureChordStage({ chords = [] }) {
                 cx={fingertipX}
                 cy={fingertipY}
                 r="6"
-                fill={activeChord ? 'var(--color-primary)' : '#FFFFFF'}
+                fill={activeChord ? 'var(--brand)' : 'var(--ink)'}
                 filter="url(#glow)"
               />
             </g>
@@ -380,13 +380,13 @@ export default function GestureChordStage({ chords = [] }) {
           <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest block">
             Triggered Chord
           </span>
-          <span className="text-2xl font-headline font-black text-[#FFFFFF]">
+          <span className="text-2xl font-headline font-black text-ink">
             {activeChord || 'None'}
           </span>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className={clsx('w-3 h-3 rounded-full', activeChord ? 'bg-primary animate-pulse' : 'bg-white/10')} />
+          <div className={clsx('w-3 h-3 rounded-full', activeChord ? 'bg-primary animate-pulse' : 'bg-ink/10')} />
           <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-wider font-bold">
             {activeChord ? 'PLAYING TRIAD' : 'HOVER SEGMENT'}
           </span>

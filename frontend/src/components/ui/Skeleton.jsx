@@ -3,7 +3,7 @@ import clsx from 'clsx';
 export function Skeleton({ className, ...props }) {
   return (
     <div
-      className={clsx('animate-pulse rounded-lg bg-white/[0.06] border border-[#0D0808]/5', className)}
+      className={clsx('animate-pulse rounded-lg bg-ink/[0.06] border border-line-subtle', className)}
       aria-hidden
       {...props}
     />

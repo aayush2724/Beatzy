@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Float, MeshDistortMaterial, Sphere, Stars } from '@react-three/drei';
+import { usePalette } from '../lib/palette';
 
 function FloatingObject({ position, color, speed = 1, size = 1, distort = 0.4 }) {
   const mesh = useRef();
@@ -31,6 +32,7 @@ function FloatingObject({ position, color, speed = 1, size = 1, distort = 0.4 })
 }
 
 function Scene() {
+  const c = usePalette();
   const { viewport } = useThree();
   
   return (
@@ -39,13 +41,13 @@ function Scene() {
       
       {/* Cinematic Ambient Lights */}
       <ambientLight intensity={0.2} />
-      <pointLight position={[10, 10, 10]} intensity={1} color="#ffffff" />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#FF6B35" />
+      <pointLight position={[10, 10, 10]} intensity={1} color={c.ink} />
+      <pointLight position={[-10, -10, -10]} intensity={0.5} color={c.brand} />
       
       {/* Floating Abstract "Instruments" / Orbs */}
-      <FloatingObject position={[-viewport.width / 3, viewport.height / 4, -2]} color="#FF6B35" size={1.2} speed={0.5} distort={0.3} />
-      <FloatingObject position={[viewport.width / 4, -viewport.height / 3, -3]} color="#E8471A" size={2} speed={0.3} distort={0.5} />
-      <FloatingObject position={[viewport.width / 2.5, viewport.height / 3, -5]} color="#FF5722" size={1.5} speed={0.7} distort={0.2} />
+      <FloatingObject position={[-viewport.width / 3, viewport.height / 4, -2]} color={c.brand} size={1.2} speed={0.5} distort={0.3} />
+      <FloatingObject position={[viewport.width / 4, -viewport.height / 3, -3]} color={c.brandDeep} size={2} speed={0.3} distort={0.5} />
+      <FloatingObject position={[viewport.width / 2.5, viewport.height / 3, -5]} color={c.accentWarm} size={1.5} speed={0.7} distort={0.2} />
       
       {/* Add interactive Parallax linked to mouse */}
       <ParallaxLayer />
@@ -65,7 +67,7 @@ function ParallaxLayer() {
 
 export default function Ambient3D() {
   return (
-    <div className="fixed inset-0 z-[-1] pointer-events-none bg-[#0D0808]" aria-hidden="true">
+    <div className="fixed inset-0 z-[-1] pointer-events-none bg-canvas" aria-hidden="true">
       <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
         <Scene />
       </Canvas>

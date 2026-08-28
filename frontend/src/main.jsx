@@ -11,14 +11,14 @@ import './index.css';
 const toastConfig = {
   style: {
     background: 'rgba(20, 20, 20, 0.92)',
-    color: '#e5e2e1',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
+    color: 'var(--ink)',
+    border: '1px solid color-mix(in_oklab,var(--ink)_10%,transparent)',
     backdropFilter: 'blur(10px)',
     borderRadius: '0.75rem',
     padding: '1rem 1.25rem',
   },
-  success: { iconTheme: { primary: '#ffffff', secondary: '#F5E6BE' } },
-  error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
+  success: { iconTheme: { primary: 'var(--ok)', secondary: 'var(--ok-ink)' } },
+  error: { iconTheme: { primary: 'var(--danger)', secondary: 'var(--danger-ink)' } },
 };
 
 function AnalyticsListener() {

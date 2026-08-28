@@ -136,20 +136,20 @@ export default function MicRecorder({ onRecorded, disabled }) {
     <div className="w-full flex flex-col items-center gap-6">
       {/* Recording visualization */}
       <div className="relative w-full max-w-md">
-        <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent rounded-2xl" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink/5 to-transparent rounded-2xl" />
         
         <div className={clsx(
           'relative p-12 rounded-2xl border transition-all duration-300 backdrop-blur-xl',
           isRecording 
-            ? 'border-primary/30 bg-primary/5 shadow-[0_0_40px_rgba(255,255,255,0.05)]' 
-            : 'border-[#0D0808]/10 bg-white/[0.02]'
+            ? 'border-primary/30 bg-primary/5 shadow-[0_0_40px_color-mix(in_oklab,var(--ink)_5%,transparent)]' 
+            : 'border-line bg-ink/[0.02]'
         )}>
           {/* Microphone icon */}
           <div className={clsx(
             'w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6 transition-all duration-300',
             isRecording 
-              ? 'bg-primary/20 border-2 border-primary/40 shadow-[0_0_30px_rgba(255,255,255,0.1)]' 
-              : 'bg-white/10 border border-[#0D0808]/20'
+              ? 'bg-primary/20 border-2 border-primary/40 shadow-[0_0_30px_color-mix(in_oklab,var(--ink)_10%,transparent)]' 
+              : 'bg-ink/10 border border-line'
           )}>
             <span className={clsx(
               'material-symbols-outlined text-4xl transition-all duration-300',
@@ -178,12 +178,12 @@ export default function MicRecorder({ onRecorded, disabled }) {
           {/* Duration display */}
           {isRecording && (
             <div className="text-center mb-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#1A1010]/30 rounded-full border border-[#0D0808]/10">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-surface/30 rounded-full border border-line">
                 <div className={clsx(
                   'w-2 h-2 rounded-full',
                   isPaused ? 'bg-secondary' : 'bg-red-500 animate-pulse'
                 )} />
-                <span className="font-mono text-xl text-[#FFFFFF] font-bold">
+                <span className="font-mono text-xl text-ink font-bold">
                   {formatDuration(duration)}
                 </span>
               </div>
@@ -235,7 +235,7 @@ export default function MicRecorder({ onRecorded, disabled }) {
             
             <button
               onClick={stopRecording}
-              className="px-8 py-3 bg-red-500/80 hover:bg-red-500 text-[#FFFFFF] font-bold rounded-lg transition-all flex items-center gap-2"
+              className="px-8 py-3 bg-red-500/80 hover:bg-red-500 text-ink font-bold rounded-lg transition-all flex items-center gap-2"
             >
               <span className="material-symbols-outlined text-lg">stop</span>
               Stop & Analyze
