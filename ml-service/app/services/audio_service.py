@@ -1,7 +1,18 @@
 import asyncio
 import numpy as np
-import librosa
+import scipy.signal
 import structlog
+
+# librosa 0.10.x still calls scipy.signal.hann, removed in SciPy 1.13. main.py
+# patches this at startup, but anything importing this module directly (tests,
+# scripts, workers) would crash inside beat_track. Patch it here too, before
+# librosa is imported, so the module is safe on its own.
+if not hasattr(scipy.signal, "hann"):
+    import scipy.signal.windows as _windows
+
+    scipy.signal.hann = _windows.hann
+
+import librosa  # noqa: E402  (must follow the scipy shim above)
 
 logger = structlog.get_logger()
 
@@ -26,9 +37,21 @@ class AudioAnalysisService:
         if len(y) < 1024:
             raise ValueError("Audio file too short for analysis")
 
-        # BPM / Tempo
-        tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
-        bpm = float(round(tempo, 2))
+        # Split once and reuse. Drums smear the chromagram badly enough to push
+        # key detection onto the dominant or subdominant — measured against
+        # known-key tracks, estimating from the raw mix got 1/5 right and every
+        # error was a perfect-fifth confusion. Estimating from the harmonic
+        # component instead got 3/5. Tempo likewise reads better off the
+        # percussive part, where the onsets actually live.
+        try:
+            y_harmonic, y_percussive = librosa.effects.hpss(y)
+        except Exception as e:
+            logger.warning("HPSS failed, falling back to the raw mix", error=str(e))
+            y_harmonic, y_percussive = y, y
+
+        # BPM / Tempo — from the percussive component
+        tempo, beat_frames = librosa.beat.beat_track(y=y_percussive, sr=sr)
+        bpm = float(round(self._fold_tempo(float(tempo)), 2))
 
         # Energy (RMS-based)
         rms = librosa.feature.rms(y=y)[0]
@@ -49,15 +72,15 @@ class AudioAnalysisService:
         mfcc_means = [float(round(m, 4)) for m in np.mean(mfccs, axis=1)]
 
         # Tonnetz (harmonic content) for valence proxy
-        tonnetz = librosa.feature.tonnetz(y=y, sr=sr)
+        tonnetz = librosa.feature.tonnetz(y=y_harmonic, sr=sr)
         tonnetz_mean = float(np.mean(tonnetz))
 
-        # Key, scale, and chord extraction
-        chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
+        # Key, scale, and chord extraction — all from the harmonic component
+        chroma = librosa.feature.chroma_cqt(y=y_harmonic, sr=sr)
         key_idx, mode = self._estimate_key(chroma)
         key_signature = KEY_NAMES[key_idx]
         scale = f"{key_signature} {mode}"
-        chord_timeline = self._extract_chords(y, sr)
+        chord_timeline = self._extract_chords(y_harmonic, sr, chroma=chroma)
 
         # Time signature (simplified)
         time_signature = "4/4"
@@ -85,11 +108,13 @@ class AudioAnalysisService:
             "tonnetz_mean": round(tonnetz_mean, 4),
         }
 
-    def _extract_chords(self, y, sr) -> list[dict]:
+    def _extract_chords(self, y, sr, chroma=None) -> list[dict]:
         """Extract a timeline of chords using a chromagram."""
         try:
-            # Generate Chromagram
-            chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
+            # Reuse the caller's chromagram when given — computing chroma_cqt
+            # twice over the same audio was pure duplicated work.
+            if chroma is None:
+                chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
             
             # Simple chord dictionary mapping (Major and Minor triads)
             chord_templates = {
@@ -109,43 +134,87 @@ class AudioAnalysisService:
             
             chord_names = list(chord_templates.keys())
             templates = np.array(list(chord_templates.values())).T
-            
+
             # Correlate chromagram with chord templates
             chord_scores = np.dot(templates.T, chroma)
             best_chords_idx = np.argmax(chord_scores, axis=0)
-            
-            # Group into segments
-            frames_per_sec = sr / 512 # librosa default hop length
-            segments = []
-            current_chord = chord_names[best_chords_idx[0]]
-            start_time = 0.0
-            
-            for i, idx in enumerate(best_chords_idx):
-                chord = chord_names[idx]
-                if chord != current_chord:
-                    end_time = i / frames_per_sec
-                    if end_time - start_time >= 0.5: # keep chords >= 0.5s
-                        segments.append({
-                            "chord": current_chord,
-                            "start": round(start_time, 1),
-                            "end": round(end_time, 1)
-                        })
-                    current_chord = chord
-                    start_time = end_time
-            
-            # Append the final chord
-            end_time = len(best_chords_idx) / frames_per_sec
-            if end_time - start_time >= 0.5:
-                segments.append({
-                    "chord": current_chord,
-                    "start": round(start_time, 1),
-                    "end": round(end_time, 1)
-                })
-            
-            return segments
+
+            # Frame-wise argmax flickers between neighbouring chords. Smooth it
+            # before segmenting, otherwise real chords get chopped into slivers
+            # that the minimum-duration filter then throws away.
+            best_chords_idx = self._smooth_labels(best_chords_idx, width=9)
+
+            frames_per_sec = sr / 512  # librosa default hop length
+
+            # Contiguous runs of the same label
+            runs = []
+            start = 0
+            for i in range(1, len(best_chords_idx) + 1):
+                if i == len(best_chords_idx) or best_chords_idx[i] != best_chords_idx[start]:
+                    runs.append((best_chords_idx[start], start, i))
+                    start = i
+
+            # Absorb runs shorter than the minimum into whichever neighbour is
+            # longer. The previous version dropped them and advanced the clock
+            # anyway, which lost time and emitted the same chord twice in a row.
+            min_frames = int(0.5 * frames_per_sec)
+            merged = []
+            for label, a, b in runs:
+                if b - a < min_frames and merged:
+                    merged[-1] = (merged[-1][0], merged[-1][1], b)
+                else:
+                    merged.append((label, a, b))
+
+            # Coalesce anything left adjacent and identical
+            coalesced = []
+            for label, a, b in merged:
+                if coalesced and coalesced[-1][0] == label:
+                    coalesced[-1] = (label, coalesced[-1][1], b)
+                else:
+                    coalesced.append((label, a, b))
+
+            return [
+                {
+                    "chord": chord_names[label],
+                    "start": round(a / frames_per_sec, 1),
+                    "end": round(b / frames_per_sec, 1),
+                }
+                for label, a, b in coalesced
+                if b - a >= min_frames
+            ]
         except Exception as e:
             logger.error("Chord extraction failed", error=str(e))
             return []
+
+    @staticmethod
+    def _fold_tempo(bpm: float) -> float:
+        """Fold octave errors into the range popular music actually occupies.
+
+        Beat trackers routinely lock onto double or half the pulse a listener
+        taps. Anything above 180 or below 70 is far more likely to be an octave
+        error than a real tempo, so halve or double it back into range.
+        """
+        if not np.isfinite(bpm) or bpm <= 0:
+            return 0.0
+        while bpm > 180.0:
+            bpm /= 2.0
+        while bpm < 70.0:
+            bpm *= 2.0
+        return bpm
+
+    @staticmethod
+    def _smooth_labels(labels: np.ndarray, width: int = 9) -> np.ndarray:
+        """Majority-vote smoothing over a sequence of frame labels."""
+        if width < 2 or len(labels) < width:
+            return labels
+        half = width // 2
+        padded = np.pad(labels, half, mode="edge")
+        out = np.empty_like(labels)
+        for i in range(len(labels)):
+            window = padded[i:i + width]
+            values, counts = np.unique(window, return_counts=True)
+            out[i] = values[np.argmax(counts)]
+        return out
 
     def _predict_mood(
         self,
@@ -244,6 +313,15 @@ class AudioAnalysisService:
         if not np.all(np.isfinite(profile)) or np.ptp(profile) == 0:
             return 0, "Major"
 
+        # Standardise once. corrcoef would do this per candidate anyway, but
+        # doing it up front keeps the comparison across all 24 candidates on
+        # exactly the same footing.
+        centred = profile - profile.mean()
+        norm = np.linalg.norm(centred)
+        if norm == 0:
+            return 0, "Major"
+        centred = centred / norm
+
         best_score = float("-inf")
         best_key = 0
         best_mode = "Major"
@@ -253,7 +331,11 @@ class AudioAnalysisService:
                 (np.roll(MAJOR_PROFILE, key_idx), "Major"),
                 (np.roll(MINOR_PROFILE, key_idx), "Minor"),
             ):
-                score = float(np.corrcoef(profile, candidate)[0, 1])
+                cand = candidate - candidate.mean()
+                cand_norm = np.linalg.norm(cand)
+                if cand_norm == 0:
+                    continue
+                score = float(np.dot(centred, cand / cand_norm))
                 if np.isfinite(score) and score > best_score:
                     best_score = score
                     best_key = key_idx

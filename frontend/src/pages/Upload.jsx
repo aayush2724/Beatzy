@@ -17,7 +17,7 @@ import {
   Music, 
   Upload as UploadIcon, 
   X, 
-  CheckCircle2, 
+
   SearchCode, 
   Activity, 
   Cpu, 
@@ -31,12 +31,18 @@ import {
 import PageWrapper from '../components/PageWrapper';
 import { usePalette } from '../lib/palette';
 
+// Keep the aliases browsers actually report — Chrome calls .m4a `audio/x-m4a`,
+// not `audio/mp4`. Listing only the canonical types made the dropzone and the
+// API disagree about the same file.
 const ACCEPTED = {
   'audio/mpeg': ['.mp3'],
-  'audio/wav': ['.wav'],
-  'audio/ogg': ['.ogg'],
+  'audio/wav': ['.wav', '.wave'],
+  'audio/ogg': ['.ogg', '.oga', '.opus'],
   'audio/flac': ['.flac'],
-  'audio/mp4': ['.m4a'],
+  'audio/mp4': ['.m4a', '.mp4'],
+  'audio/x-m4a': ['.m4a'],
+  'audio/aac': ['.aac'],
+  'audio/webm': ['.webm'],
 };
 
 function VinylRecord({ spinning, drop }) {
@@ -114,7 +120,7 @@ function AudioWave({ active, bars = 12 }) {
 
 export default function Upload() {
   const [tab, setTab] = useState('file'); // 'file' | 'mic' | 'search'
-  const [step, setStep] = useState('upload'); // 'upload' | 'uploading' | 'analyzing' | 'done' | 'error'
+  const [step, setStep] = useState('upload'); // 'upload' | 'uploading' | 'analyzing' | 'error'
   const [file, setFile] = useState(null);
   const [progress, setProgress] = useState(0);
   const [elapsed, setElapsed] = useState(0);
@@ -169,8 +175,7 @@ export default function Upload() {
   useEffect(() => {
       if (!jobId) return;
       if (socketStatus === 'completed') {
-        setStep('done');
-        setTimeout(() => navigate(`/results/${jobId}`), 1200);
+        navigate(`/results/${jobId}`);
       } else if (socketStatus === 'failed') {
         // Try to fetch the specific error message from the job record
         getResults(jobId).then(({ data }) => {
@@ -237,8 +242,7 @@ export default function Upload() {
           toast.dismiss('polling-status');
 
           if (rd.status === 'complete' || rd.data?.song_title !== undefined) {
-            setStep('done');
-            setTimeout(() => navigate(`/results/${id}`), 1200);
+            navigate(`/results/${id}`);
             return;
           }
           if (rd.status === 'failed') {
@@ -300,8 +304,7 @@ export default function Upload() {
           toast.dismiss('polling-status');
 
           if (rd.status === 'complete' || rd.data?.song_title !== undefined) {
-            setStep('done');
-            setTimeout(() => navigate(`/results/${id}`), 1200);
+            navigate(`/results/${id}`);
             return;
           }
           if (rd.status === 'failed') {
@@ -387,9 +390,7 @@ export default function Upload() {
 
   const rejected = fileRejections[0]?.errors[0]?.message;
   const liveProgress = socketProgress > 0 ? socketProgress : null;
-  const visibleProgress = step === 'done'
-    ? 100
-    : liveProgress != null
+  const visibleProgress = liveProgress != null
       ? liveProgress
       : step === 'analyzing'
         ? Math.min(99, Math.max(68, Math.floor(68 + elapsed * 2.5)))
@@ -736,36 +737,6 @@ export default function Upload() {
               </motion.div>
             )}
 
-            {/* STEP 4: Done */}
-            {step === 'done' && (
-              <motion.div
-                key="done"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex flex-col items-center text-center"
-              >
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                  className="w-20 h-20 bg-brand/10 border border-brand/30 rounded-[2rem] flex items-center justify-center text-brand mb-8 shadow-[0_0_50px_rgba(255,107,53,0.1)]"
-                >
-                  <CheckCircle2 className="w-10 h-10" />
-                </motion.div>
-                <h3 className="text-4xl font-display font-black text-ink tracking-tight uppercase mb-3">Analysis Secured</h3>
-                <p className="text-on-surface-variant font-medium">Decoding spectral report... Prepare for initialization.</p>
-                <div className="mt-8 flex gap-2">
-                  {[0, 1, 2].map(i => (
-                    <motion.div 
-                      key={i} 
-                      animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
-                      transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-                      className="w-1.5 h-1.5 bg-brand rounded-full" 
-                    />
-                  ))}
-                </div>
-              </motion.div>
-            )}
 
             {/* STEP 5: Error */}
             {step === 'error' && (
