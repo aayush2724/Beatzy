@@ -64,7 +64,7 @@ export default function Layout() {
       >
         {/* Core Header */}
         <div className="px-6 mb-12 flex items-center space-x-4 overflow-hidden shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-brand/10 flex items-center justify-center border border-brand/20 shrink-0 shadow-[0_0_20px_rgba(255,107,53,0.1)]">
+          <div className="w-8 h-8 rounded-lg bg-brand/10 flex items-center justify-center border border-brand/20 shrink-0 shadow-[0_0_20px_color-mix(in_oklab,var(--brand)_10%,transparent)]">
             <Zap className="w-4 h-4 text-brand fill-brand" />
           </div>
           <motion.div 

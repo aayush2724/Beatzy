@@ -263,7 +263,7 @@ export default function GestureChordStage({ chords = [] }) {
                   d={pathD}
                   fill={
                     isActive
-                      ? 'rgba(255, 107, 53, 0.45)'
+                      ? 'color-mix(in oklab, var(--brand) 45%, transparent)'
                       : idx % 2 === 0
                       ? 'color-mix(in_oklab,var(--ink)_4%,transparent)'
                       : 'color-mix(in_oklab,var(--ink)_8%,transparent)'

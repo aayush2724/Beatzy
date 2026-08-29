@@ -124,7 +124,7 @@ export default function Admin() {
             className={clsx(
               'flex items-center gap-2 px-6 py-2.5 rounded-xl font-mono text-[10px] uppercase tracking-widest transition-all duration-300',
               tab === t.id
-                ? 'bg-brand text-brand-ink font-black shadow-[0_0_20px_rgba(255,107,53,0.15)]'
+                ? 'bg-brand text-brand-ink font-black shadow-[0_0_20px_color-mix(in_oklab,var(--brand)_15%,transparent)]'
                 : 'text-on-surface-variant hover:text-ink hover:bg-ink/5'
             )}
           >

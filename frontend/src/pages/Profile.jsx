@@ -85,7 +85,7 @@ export default function Profile() {
         <motion.div 
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-32 h-32 rounded-[3rem] flex items-center justify-center text-5xl font-black text-brand-ink flex-shrink-0 bg-brand shadow-[0_0_60px_rgba(255,107,53,0.2)] relative z-10"
+            className="w-32 h-32 rounded-[3rem] flex items-center justify-center text-5xl font-black text-brand-ink flex-shrink-0 bg-brand shadow-[0_0_60px_color-mix(in_oklab,var(--brand)_20%,transparent)] relative z-10"
         >
           {user?.name?.[0]?.toUpperCase() || 'U'}
         </motion.div>
@@ -124,7 +124,7 @@ export default function Profile() {
                         <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/10 group-focus-within:text-brand transition-colors" />
                         <input value={name} onChange={e => setName(e.target.value)} placeholder="Operator Alias" required minLength={2} className="w-full h-14 bg-ink/[0.03] border border-line rounded-2xl pl-12 pr-4 text-ink placeholder:text-ink/20 focus:outline-none focus:border-brand/30 transition-all font-medium" />
                     </div>
-                    <button type="submit" disabled={savingName} className="h-14 px-10 rounded-2xl bg-brand text-brand-ink font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,107,53,0.15)] disabled:opacity-50">
+                    <button type="submit" disabled={savingName} className="h-14 px-10 rounded-2xl bg-brand text-brand-ink font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_30px_color-mix(in_oklab,var(--brand)_15%,transparent)] disabled:opacity-50">
                         {savingName ? 'SYNCING...' : 'SYNC'}
                     </button>
                 </div>

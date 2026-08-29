@@ -114,7 +114,7 @@ export default function Dashboard() {
           </Link>
           <Link 
             to="/upload" 
-            className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-brand text-brand-ink font-black text-[10px] uppercase tracking-[0.15em] shadow-[0_0_30px_rgba(255,107,53,0.2)] hover:scale-105 transition-all"
+            className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-brand text-brand-ink font-black text-[10px] uppercase tracking-[0.15em] shadow-[0_0_30px_color-mix(in_oklab,var(--brand)_20%,transparent)] hover:scale-105 transition-all"
           >
             <Waves className="w-4 h-4" /> Start Engine
           </Link>

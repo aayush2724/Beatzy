@@ -349,7 +349,7 @@ export default function Results() {
                       <button onClick={handleExport} className="p-4 rounded-2xl bg-ink/[0.03] border border-line hover:border-accent-warm/50 text-ink/60 hover:text-accent-warm transition-all">
                           <Download className="w-5 h-5" />
                       </button>
-                      <Link to="/upload" className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-brand text-brand-ink font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(255,107,53,0.2)] hover:scale-105 transition-all">
+                      <Link to="/upload" className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-brand text-brand-ink font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_30px_color-mix(in_oklab,var(--brand)_20%,transparent)] hover:scale-105 transition-all">
                           <Plus className="w-4 h-4" /> New Signal
                       </Link>
                   </div>
@@ -462,7 +462,7 @@ export default function Results() {
                                   className={clsx(
                                     'flex flex-col items-center justify-center min-w-[100px] h-14 rounded-xl transition-all duration-500',
                                     currentTime >= c.start_time && currentTime <= c.end_time
-                                      ? 'bg-brand text-brand-ink scale-110 shadow-[0_0_30px_rgba(255,107,53,0.2)] font-black'
+                                      ? 'bg-brand text-brand-ink scale-110 shadow-[0_0_30px_color-mix(in_oklab,var(--brand)_20%,transparent)] font-black'
                                       : 'bg-ink/5 text-ink/20 border border-line-subtle opacity-40'
                                   )}
                                   style={{ minWidth: Math.max(100, (c.end_time - c.start_time) * 80) }}

@@ -93,7 +93,7 @@ export default function Register() {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full h-14 rounded-2xl bg-brand text-brand-ink font-black text-sm uppercase tracking-wider shadow-[0_0_40px_rgba(255,107,53,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                    className="w-full h-14 rounded-2xl bg-brand text-brand-ink font-black text-sm uppercase tracking-wider shadow-[0_0_40px_color-mix(in_oklab,var(--brand)_20%,transparent)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                 >
                     {loading ? (
                         <div className="w-5 h-5 border-2 border-canvas/20 border-t-black rounded-full animate-spin" />

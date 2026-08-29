@@ -448,7 +448,7 @@ export default function Upload() {
               className={clsx(
                 'flex items-center gap-2 px-6 py-2.5 rounded-xl font-mono text-[10px] uppercase tracking-widest transition-all duration-300',
                 tab === t.id
-                  ? 'bg-brand text-brand-ink font-black shadow-[0_0_20px_rgba(255,107,53,0.15)]'
+                  ? 'bg-brand text-brand-ink font-black shadow-[0_0_20px_color-mix(in_oklab,var(--brand)_15%,transparent)]'
                   : 'text-on-surface-variant hover:text-ink hover:bg-ink/5'
               )}
             >
@@ -494,7 +494,7 @@ export default function Upload() {
                     className={clsx(
                       'relative group cursor-pointer rounded-[3rem] border p-12 md:p-16 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] text-center w-full',
                       isDragActive && !isDragReject
-                        ? 'border-brand/50 bg-brand/5 shadow-[0_0_80px_rgba(255,107,53,0.1)] scale-[1.02]'
+                        ? 'border-brand/50 bg-brand/5 shadow-[0_0_80px_color-mix(in_oklab,var(--brand)_10%,transparent)] scale-[1.02]'
                         : 'border-line-subtle bg-ink/[0.02] hover:bg-ink/[0.04] hover:border-line',
                       isDragReject && 'border-red-500/50 bg-red-500/5',
                       disabled && 'opacity-50 pointer-events-none'
@@ -649,7 +649,7 @@ export default function Upload() {
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-brand/10 animate-pulse" />
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full border border-brand/20 animate-ping" style={{ animationDuration: '3s' }} />
 
-                  <div className="relative w-36 h-36 flex items-center justify-center bg-surface/60 backdrop-blur-3xl rounded-[2.5rem] border border-brand/30 shadow-[0_0_50px_rgba(255,107,53,0.1)] overflow-hidden">
+                  <div className="relative w-36 h-36 flex items-center justify-center bg-surface/60 backdrop-blur-3xl rounded-[2.5rem] border border-brand/30 shadow-[0_0_50px_color-mix(in_oklab,var(--brand)_10%,transparent)] overflow-hidden">
                     <div
                       className="absolute w-full h-[2px] bg-brand shadow-[0_0_15px_var(--brand)] scan-line-anim"
                       style={{ top: 0, opacity: 0.5 }}
@@ -753,7 +753,7 @@ export default function Upload() {
                 <p className="text-on-surface-variant font-medium max-w-md">Something went wrong during the analysis process. This might be due to a server timeout or invalid signal.</p>
                 <button
                   onClick={resetState}
-                  className="mt-8 px-8 py-3 bg-brand text-brand-ink font-black rounded-xl uppercase tracking-widest hover:scale-105 transition-transform shadow-[0_0_20px_rgba(255,107,53,0.3)]"
+                  className="mt-8 px-8 py-3 bg-brand text-brand-ink font-black rounded-xl uppercase tracking-widest hover:scale-105 transition-transform shadow-[0_0_20px_color-mix(in_oklab,var(--brand)_30%,transparent)]"
                 >
                   Retry Initialization
                 </button>

@@ -75,8 +75,8 @@ export default function Pricing() {
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-line-subtle bg-canvas/50 backdrop-blur-xl">
         <div className="max-w-[1720px] mx-auto flex h-20 items-center justify-between px-8 md:px-12">
             <Link to="/" className="group inline-flex items-center gap-3">
-                <span className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-brand/30 bg-brand/10 shadow-[0_0_35px_rgba(255,107,53,0.16)]">
-                    <span className="absolute h-3 w-3 rounded-full bg-brand shadow-[0_0_22px_rgba(255,107,53,0.8)]"></span>
+                <span className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-brand/30 bg-brand/10 shadow-[0_0_35px_color-mix(in_oklab,var(--brand)_16%,transparent)]">
+                    <span className="absolute h-3 w-3 rounded-full bg-brand shadow-[0_0_22px_color-mix(in_oklab,var(--brand)_80%,transparent)]"></span>
                     <span className="h-7 w-7 rounded-full border border-brand/50"></span>
                 </span>
                 <span className="text-sm font-semibold tracking-[0.38em] text-brand">BEATZY</span>
@@ -87,7 +87,7 @@ export default function Pricing() {
                 {token ? (
                     <Link 
                         to="/dashboard" 
-                        className="inline-flex h-11 items-center justify-center rounded-2xl bg-brand px-6 text-xs font-black text-brand-ink shadow-[0_0_40px_rgba(255,107,53,0.2)] transition hover:-translate-y-0.5"
+                        className="inline-flex h-11 items-center justify-center rounded-2xl bg-brand px-6 text-xs font-black text-brand-ink shadow-[0_0_40px_color-mix(in_oklab,var(--brand)_20%,transparent)] transition hover:-translate-y-0.5"
                     >
                         DASHBOARD
                     </Link>

@@ -59,6 +59,104 @@
   100% { opacity: 1; transform: perspective(900px) rotateX(0deg) translateY(0) scale(1); filter: blur(0); }
 }
 
+/* --- Landing motion background: 3D rotating artist grid + drifting aurora --- */
+.artist-grid-scene {
+  perspective: 900px;
+  overflow: hidden;
+}
+.artist-grid-plane {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  /* oversized so the viewport stays covered at both slide extremes */
+  width: 260vmax;
+  height: 260vmax;
+  margin: -130vmax 0 0 -130vmax;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(12, 1fr);
+  gap: 4px;
+  opacity: 0.16;
+  transform: rotateX(52deg) rotateY(-3deg) translateX(-12vmax);
+  transform-style: preserve-3d;
+  will-change: transform;
+  /* no spin — the tilted plane glides sideways with a slight 3D yaw sway */
+  animation: artist-grid-slide 30s ease-in-out infinite alternate;
+}
+[data-theme='light'] .artist-grid-plane { opacity: 0.1; }
+@keyframes artist-grid-slide {
+  from { transform: rotateX(52deg) rotateY(-3deg) translateX(-12vmax); }
+  to   { transform: rotateX(52deg) rotateY(3deg) translateX(12vmax); }
+}
+.artist-grid-tile {
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line-subtle);
+}
+/* pop-up relief: tiles continuously rise out of the plane and settle back,
+   in three interleaved groups so the surface ripples rather than bounces */
+.artist-grid-tile:nth-child(3n) {
+  animation: tile-pop-a 7s ease-in-out infinite alternate;
+}
+.artist-grid-tile:nth-child(4n+1) {
+  animation: tile-pop-b 9s ease-in-out infinite alternate;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+.artist-grid-tile:nth-child(7n+2) {
+  animation: tile-pop-c 11s ease-in-out infinite alternate;
+  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.45);
+}
+/* delay-only rules to desynchronise tiles within each pop group */
+.artist-grid-tile:nth-child(2n)   { animation-delay: -3s; }
+.artist-grid-tile:nth-child(5n+3) { animation-delay: -6s; }
+@keyframes tile-pop-a {
+  from { transform: translateZ(0); }
+  to   { transform: translateZ(80px); }
+}
+@keyframes tile-pop-b {
+  from { transform: translateZ(20px); }
+  to   { transform: translateZ(130px); }
+}
+@keyframes tile-pop-c {
+  from { transform: translateZ(40px); }
+  to   { transform: translateZ(190px); }
+}
+.artist-grid-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(1) brightness(0.9) contrast(1.08);
+}
+
+.aurora { filter: blur(90px); opacity: 0.55; will-change: transform; }
+.aurora-1 {
+  background: radial-gradient(circle at 40% 40%, color-mix(in oklab, var(--brand) 22%, transparent), transparent 70%);
+  animation: aurora-a 26s ease-in-out infinite alternate;
+}
+.aurora-2 {
+  background: radial-gradient(circle at 60% 40%, color-mix(in oklab, var(--accent-warm) 16%, transparent), transparent 70%);
+  animation: aurora-b 32s ease-in-out infinite alternate;
+}
+.aurora-3 {
+  background: radial-gradient(circle at 50% 60%, color-mix(in oklab, var(--ink-muted) 14%, transparent), transparent 70%);
+  animation: aurora-c 38s ease-in-out infinite alternate;
+}
+/* aurora-1 is centred with left-1/2, so its translate lives in the keyframes */
+@keyframes aurora-a {
+  from { transform: translate3d(-50%, 0, 0) scale(1); }
+  to   { transform: translate3d(calc(-50% + 90px), 70px, 0) scale(1.15); }
+}
+@keyframes aurora-b {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(-120px, -80px, 0) scale(1.1); }
+}
+@keyframes aurora-c {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(110px, -60px, 0) scale(1.2); }
+}
+
 .noise:before {
   content: '';
   position: absolute;
@@ -121,7 +219,8 @@
   opacity: 1;
   transform: translateY(0);
 }
-.scanline:after {
+/* named scan-sweep so it can't collide with the full-bleed .scanline overlay below */
+.scan-sweep::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -197,12 +296,12 @@
 }
 
 /* =====================================================================
-   SEMANTIC TOKENS — palette "Spectrogram"
+   SEMANTIC TOKENS — palette "Graphite"
    ---------------------------------------------------------------------
-   Derived from the perceptually-uniform ramp a spectrogram is drawn with:
-   violet in the quiet registers, magenta through the mids, orange and
-   gold where the energy is. The brand orange is the hot end of that ramp,
-   which is why the ground is violet-black rather than neutral black.
+   A greyish, studio-hardware palette: cool graphite surfaces like brushed
+   mixing-desk metal, with a complementary accent pair — teal (the brand,
+   signal/active) and amber (accent-warm, warmth/level meters). Grey is
+   the ground; colour only ever means something.
 
    Every pair here is measured against WCAG 2.1. Text clears 4.5:1;
    interactive borders, focus rings and brand fills clear 3:1.
@@ -210,41 +309,41 @@
    ===================================================================== */
 :root {
   /* --- surfaces, back to front --- */
-  --canvas:        #0B0711;
-  --surface:       #150E1F;
-  --raised:        #211730;
+  --canvas:        #0F1113;
+  --surface:       #16191C;
+  --raised:        #1E2226;
 
   /* --- lines: hairline is decorative, strong is interactive (3:1) --- */
-  --line-subtle:   #1E1629;
-  --line:          #292039;
-  --line-strong:   #6E5F87;   /* 3.27:1 on surface — inputs, controls */
+  --line-subtle:   #1C2024;
+  --line:          #282D33;
+  --line-strong:   #707A85;   /* 4.06:1 on surface — inputs, controls */
 
   /* --- text --- */
-  --ink:           #F6F1FB;   /* 17.95:1 on canvas */
-  --ink-muted:     #B0A3C4;   /*  8.44:1 on canvas */
-  --ink-faint:     #7E7295;   /*  4.52:1 on canvas — decorative labels only */
+  --ink:           #F2F4F6;   /* 17.4:1 on canvas */
+  --ink-muted:     #A9B1BA;   /*  8.7:1 on canvas */
+  --ink-faint:     #79828C;   /*  4.8:1 on canvas — decorative labels only */
 
-  /* --- brand --- */
-  --brand:         #FF7A3D;   /*  7.70:1 on canvas */
-  --brand-hover:   #FF9463;
-  --brand-deep:    #E85A3A;
-  --brand-ink:     #1B0A02;   /*  7.43:1 on brand — never white on orange */
-  --link:          #FF9463;   /*  9.18:1 on canvas */
-  --focus:         #FF9463;
+  /* --- brand: teal, the signal colour --- */
+  --brand:         #4ED9C2;   /* 10.8:1 on canvas */
+  --brand-hover:   #74E7D3;
+  --brand-deep:    #2FA895;
+  --brand-ink:     #04201A;   /*  9.8:1 on brand — never white on teal */
+  --link:          #74E7D3;
+  --focus:         #74E7D3;
 
-  /* --- a second warm accent, was the old peach --- */
-  --accent-warm:   #FFC97A;
+  /* --- the complementary warm accent: amber --- */
+  --accent-warm:   #F5B355;
 
   /* --- sequential data ramp: energy, confidence, spectral bands --- */
-  --ramp-1:        #B02A5B;
-  --ramp-2:        #E85A3A;
-  --ramp-3:        #FF9A45;
-  --ramp-4:        #FFC97A;
-  --ramp-5:        #FFE9C2;
+  --ramp-1:        #3E4A56;
+  --ramp-2:        #2FA895;
+  --ramp-3:        #4ED9C2;
+  --ramp-4:        #F5B355;
+  --ramp-5:        #F6E8CF;
 
   /* --- semantic status, deliberately outside the brand hue --- */
-  --ok:            #5FD196;
-  --warn:          #FFC24B;
+  --ok:            #63D68F;
+  --warn:          #F5C044;
   --danger:        #FF8A8A;
   --ok-ink:        #04150C;
   --warn-ink:      #1F1400;
@@ -254,16 +353,16 @@
   --veil-1:        rgba(255, 255, 255, 0.03);
   --veil-2:        rgba(255, 255, 255, 0.06);
   --veil-3:        rgba(255, 255, 255, 0.10);
-  --glass:         rgba(33, 23, 48, 0.55);
+  --glass:         rgba(24, 28, 32, 0.55);
   --glass-line:    rgba(255, 255, 255, 0.10);
 
-  --gradient-brand:   linear-gradient(135deg, #150E1F, #B02A5B, #FF7A3D, #0B0711);
-  --gradient-sunrise: radial-gradient(ellipse at 60% 45%, rgba(255,122,61,.16) 0%, rgba(176,42,91,.12) 38%, rgba(11,7,17,0) 72%);
+  --gradient-brand:   linear-gradient(135deg, #16191C, #2FA895, #F5B355, #0F1113);
+  --gradient-sunrise: radial-gradient(ellipse at 60% 45%, rgba(78,217,194,.10) 0%, rgba(245,179,85,.06) 38%, rgba(15,17,19,0) 72%);
   --gradient-surface: linear-gradient(180deg, rgba(255,255,255,.05) 0%, rgba(255,255,255,0) 100%);
 
-  --shadow-sm: 0 4px 20px rgba(11, 7, 17, .35);
-  --shadow-md: 0 12px 40px rgba(11, 7, 17, .45);
-  --shadow-lg: 0 24px 70px rgba(11, 7, 17, .55);
+  --shadow-sm: 0 4px 20px rgba(9, 10, 12, .35);
+  --shadow-md: 0 12px 40px rgba(9, 10, 12, .45);
+  --shadow-lg: 0 24px 70px rgba(9, 10, 12, .55);
 
   --duration-fast: 120ms;
   --duration-normal: 200ms;
@@ -302,36 +401,36 @@
 }
 
 /* ---------------------------------------------------------------------
-   LIGHT — not an inversion. The brand darkens to #B3410B because the
-   dark-mode orange only reaches 2.84:1 on white and cannot carry text.
+   LIGHT — not an inversion. The brand darkens to #0F766E because the
+   dark-mode teal only reaches ~1.7:1 on white and cannot carry text.
    --------------------------------------------------------------------- */
 [data-theme='light'] {
-  --canvas:        #FCFAFF;
-  --surface:       #F3EEF9;
-  --raised:        #E7DFF2;
+  --canvas:        #F7F8F9;
+  --surface:       #EEF0F2;
+  --raised:        #E2E5E9;
 
-  --line-subtle:   #EFEAF7;
-  --line:          #E2DAEF;
-  --line-strong:   #8F82A6;   /* 3.11:1 on surface */
+  --line-subtle:   #E8EAED;
+  --line:          #D9DDE2;
+  --line-strong:   #7E8893;   /* 3.16:1 on surface */
 
-  --ink:           #15101E;   /* 18.01:1 on canvas */
-  --ink-muted:     #59506B;   /*  7.27:1 on canvas */
-  --ink-faint:     #7B7190;   /*  4.51:1 on canvas */
+  --ink:           #171A1D;   /* 16.9:1 on canvas */
+  --ink-muted:     #4E5760;   /*  6.9:1 on canvas */
+  --ink-faint:     #67707A;   /*  4.7:1 on canvas */
 
-  --brand:         #B3410B;   /*  5.51:1 on canvas */
-  --brand-hover:   #8E330A;
-  --brand-deep:    #CE4527;
-  --brand-ink:     #FFFFFF;   /*  5.71:1 on brand */
-  --link:          #B3410B;
-  --focus:         #B3410B;
+  --brand:         #0F766E;   /*  5.1:1 on canvas */
+  --brand-hover:   #0B5D57;
+  --brand-deep:    #12897B;
+  --brand-ink:     #FFFFFF;   /*  5.5:1 on brand */
+  --link:          #0F766E;
+  --focus:         #0F766E;
 
-  --accent-warm:   #9E5A12;
+  --accent-warm:   #8A5A12;
 
-  --ramp-1:        #3D1A5C;
-  --ramp-2:        #7A2270;
-  --ramp-3:        #A82655;
-  --ramp-4:        #CE4527;
-  --ramp-5:        #9E5A12;
+  --ramp-1:        #39434D;
+  --ramp-2:        #0F766E;
+  --ramp-3:        #2FA895;
+  --ramp-4:        #B4691E;
+  --ramp-5:        #8A5A12;
 
   --ok:            #1A6B41;
   --warn:          #8A5A00;
@@ -340,18 +439,18 @@
   --warn-ink:      #FFFFFF;
   --danger-ink:    #FFFFFF;
 
-  --veil-1:        rgba(21, 16, 30, 0.03);
-  --veil-2:        rgba(21, 16, 30, 0.05);
-  --veil-3:        rgba(21, 16, 30, 0.09);
+  --veil-1:        rgba(23, 26, 29, 0.03);
+  --veil-2:        rgba(23, 26, 29, 0.05);
+  --veil-3:        rgba(23, 26, 29, 0.09);
   --glass:         rgba(255, 255, 255, 0.72);
-  --glass-line:    rgba(21, 16, 30, 0.10);
+  --glass-line:    rgba(23, 26, 29, 0.10);
 
-  --gradient-brand:   linear-gradient(135deg, #F3EEF9, #CE4527, #B3410B, #FCFAFF);
-  --gradient-sunrise: radial-gradient(ellipse at 60% 45%, rgba(179,65,11,.07) 0%, rgba(122,34,112,.05) 38%, rgba(252,250,255,0) 72%);
+  --gradient-brand:   linear-gradient(135deg, #EEF0F2, #12897B, #B4691E, #F7F8F9);
+  --gradient-sunrise: radial-gradient(ellipse at 60% 45%, rgba(15,118,110,.07) 0%, rgba(180,105,30,.05) 38%, rgba(247,248,249,0) 72%);
 
-  --shadow-sm: 0 4px 20px rgba(21, 16, 30, .07);
-  --shadow-md: 0 12px 40px rgba(21, 16, 30, .10);
-  --shadow-lg: 0 24px 70px rgba(21, 16, 30, .14);
+  --shadow-sm: 0 4px 20px rgba(23, 26, 29, .07);
+  --shadow-md: 0 12px 40px rgba(23, 26, 29, .10);
+  --shadow-lg: 0 24px 70px rgba(23, 26, 29, .14);
 }
 
 /* =====================================================================

@@ -77,7 +77,7 @@ export default function History() {
                         className="w-full h-12 bg-ink/[0.03] border border-line rounded-xl pl-12 pr-4 text-ink text-xs placeholder:text-ink/20 focus:outline-none focus:border-brand/30 transition-all font-mono uppercase tracking-widest"
                     />
                 </div>
-                <Link to="/upload" className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-brand text-brand-ink font-black text-[10px] uppercase tracking-[0.15em] shadow-[0_0_30px_rgba(255,107,53,0.15)] hover:scale-105 transition-all">
+                <Link to="/upload" className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-brand text-brand-ink font-black text-[10px] uppercase tracking-[0.15em] shadow-[0_0_30px_color-mix(in_oklab,var(--brand)_15%,transparent)] hover:scale-105 transition-all">
                     <Plus className="w-4 h-4" /> New Extraction
                 </Link>
             </div>
