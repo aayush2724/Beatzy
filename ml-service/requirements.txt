@@ -18,3 +18,6 @@ pyacoustid==1.3.0
 scipy>=1.11.0
 tensorflow-cpu>=2.16.0
 tensorflow-hub>=0.16.0
+# Shazam song identification. Only the Rust signature generator, not the full
+# `shazamio` package, which pins numpy>=2.2 and would break librosa/tensorflow.
+shazamio-core==1.1.2
