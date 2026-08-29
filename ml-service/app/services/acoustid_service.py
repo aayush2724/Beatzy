@@ -13,8 +13,15 @@ class AcoustIDService:
     def __init__(self):
         self.api_key = os.getenv("ACOUSTID_API_KEY")
 
-    def identify_from_bytes(self, audio_bytes: bytes, extension: str = "mp3") -> dict | None:
-        """Write the sample to a temp file, fingerprint it, and look it up."""
+    def _identify(self, audio_bytes: bytes, extension: str, where: str) -> dict | None:
+        """Fingerprint a sample and resolve it to a title/artist.
+
+        Uses ``acoustid.lookup`` rather than ``acoustid.match`` because match()
+        silently skips any result with no MusicBrainz recording attached. Those
+        results still tell us the audio *was* recognised — worth distinguishing
+        in the logs from "the fingerprint matched nothing at all", because the
+        two have completely different causes.
+        """
         if not self.api_key:
             logger.warning(
                 "ACOUSTID_API_KEY not set — fingerprinting disabled",
@@ -22,109 +29,93 @@ class AcoustIDService:
             )
             return None
 
-        ext = extension.lstrip(".")
+        ext = extension.lstrip(".") or "mp3"
         tmp_path = None
         try:
-            with tempfile.NamedTemporaryFile(
-                suffix=f".{ext}", delete=False
-            ) as tmp:
+            with tempfile.NamedTemporaryFile(suffix=f".{ext}", delete=False) as tmp:
                 tmp.write(audio_bytes)
                 tmp_path = tmp.name
 
-            try:
-                matches = list(acoustid.match(self.api_key, tmp_path))
-            except acoustid.WebServiceError as e:
-                if "invalid api key" in str(e).lower():
-                    logger.error("AcoustID API key is invalid")
-                    return None
-                raise e
+            duration, fingerprint = acoustid.fingerprint_file(tmp_path)
+            response = acoustid.lookup(self.api_key, fingerprint, duration, meta="recordings")
 
-            if not matches:
-                logger.info("AcoustID found no match for this audio")
+            if response.get("status") != "ok":
+                logger.warning("AcoustID lookup not ok", stage=where, status=response.get("status"))
                 return None
 
-            matches.sort(key=lambda x: x[0], reverse=True)
+            results = sorted(
+                response.get("results") or [],
+                key=lambda r: r.get("score") or 0,
+                reverse=True,
+            )
+            if not results:
+                logger.info("AcoustID found no match", stage=where)
+                return None
 
-            for score, recording_id, title, artist in matches:
-                if title and artist:
-                    logger.info(
-                        "AcoustID matched track",
-                        title=title,
-                        artist=artist,
-                        score=round(float(score), 3),
-                        recording_id=recording_id,
-                    )
-                    return {
-                        "title": title,
-                        "artist": artist,
-                        "score": round(float(score), 3),
-                        "source": "acoustid",
-                        "acoustid_recording_id": recording_id,
-                        "isrc": None,
-                    }
-            return None
-        except acoustid.NoBackendError:
-            logger.error("fpcalc/chromaprint not installed — install libchromaprint-tools")
-            return None
-        except acoustid.FingerprintGenerationError:
-            logger.error("Could not generate fingerprint for this audio")
-            return None
-        except acoustid.WebServiceError as e:
-            logger.error("AcoustID web service error", error=str(e))
-            return None
-        finally:
-            if tmp_path and os.path.exists(tmp_path):
-                os.remove(tmp_path)
-
-    def identify_from_start_sample(self, audio_bytes: bytes, extension: str = "mp3") -> dict | None:
-        """Write a 30s start-sample to a temp file and fingerprint it."""
-        if not self.api_key:
-            return None
-
-        ext = extension.lstrip(".")
-        tmp_path = None
-        try:
-            with tempfile.NamedTemporaryFile(
-                suffix=f".{ext}", delete=False
-            ) as tmp:
-                tmp.write(audio_bytes)
-                tmp_path = tmp.name
-
-            try:
-                matches = list(acoustid.match(self.api_key, tmp_path))
-            except acoustid.WebServiceError as e:
-                if "invalid api key" in str(e).lower():
-                    logger.error("AcoustID API key is invalid")
-                    return None
-                raise e
-
-            if matches:
-                matches.sort(key=lambda x: x[0], reverse=True)
-                for score, recording_id, title, artist in matches:
+            for result in results:
+                for recording in result.get("recordings") or []:
+                    title = recording.get("title")
+                    artists = recording.get("artists") or []
+                    artist = "".join(
+                        a.get("name", "") + a.get("joinphrase", "") for a in artists
+                    ).strip()
                     if title and artist:
                         logger.info(
-                            "AcoustID start-sample matched track",
+                            "AcoustID matched track",
+                            stage=where,
                             title=title,
                             artist=artist,
-                            score=round(float(score), 3),
-                            recording_id=recording_id,
+                            score=round(float(result.get("score") or 0), 3),
+                            recording_id=recording.get("id"),
                         )
                         return {
                             "title": title,
                             "artist": artist,
-                            "score": round(float(score), 3),
+                            "score": round(float(result.get("score") or 0), 3),
                             "source": "acoustid",
-                            "acoustid_recording_id": recording_id,
+                            "acoustid_recording_id": recording.get("id"),
                             "isrc": None,
                         }
-            logger.info("AcoustID start-sample found no match")
+
+            # Recognised, but AcoustID has no MusicBrainz recording linked to
+            # this fingerprint, so there is no name to report. Common for short
+            # preview clips; nothing downstream can recover a title from it.
+            logger.info(
+                "AcoustID recognised the audio but has no metadata linked to it",
+                stage=where,
+                score=round(float(results[0].get("score") or 0), 3),
+                acoustid_id=results[0].get("id"),
+                candidates=len(results),
+            )
+            return None
+
+        except acoustid.NoBackendError:
+            logger.error("fpcalc/chromaprint not installed — install libchromaprint-tools")
+            return None
+        except acoustid.FingerprintGenerationError:
+            logger.error("Could not generate fingerprint for this audio", stage=where)
+            return None
+        except acoustid.WebServiceError as e:
+            if "invalid api key" in str(e).lower():
+                logger.error("AcoustID API key is invalid")
+            else:
+                logger.error("AcoustID web service error", stage=where, error=str(e))
             return None
         except Exception as e:
-            logger.warning("AcoustID start-sample attempt failed", error=str(e))
+            logger.warning("AcoustID lookup failed", stage=where, error=str(e))
             return None
         finally:
             if tmp_path and os.path.exists(tmp_path):
                 os.remove(tmp_path)
+
+    def identify_from_bytes(self, audio_bytes: bytes, extension: str = "mp3") -> dict | None:
+        """Fingerprint a mid-file sample and look it up."""
+        return self._identify(audio_bytes, extension, "mid-file")
+
+
+    def identify_from_start_sample(self, audio_bytes: bytes, extension: str = "mp3") -> dict | None:
+        """Fingerprint the first ~30s and look it up."""
+        return self._identify(audio_bytes, extension, "start-sample")
 
     @staticmethod
     def read_30s_start_sample(audio_path: str) -> bytes:

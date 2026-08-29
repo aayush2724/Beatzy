@@ -8,6 +8,8 @@ import structlog
 
 from app.services.audio_service import AudioAnalysisService
 from app.services.acoustid_service import AcoustIDService
+from app.services.acrcloud_service import ACRCloudService
+from app.services.shazam_service import ShazamService
 from app.services.spotify_service import SpotifyService
 from app.services.itunes_service import iTunesService
 from app.services.song_metadata import parse_filename, clean_title
@@ -115,7 +117,7 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
         audio_service = AudioAnalysisService()
         audio_features = await audio_service.analyze(audio_path)
 
-        # --- Song identification: AcoustID (start sample -> mid sample) -> filename -> iTunes ---
+        # --- Song identification: ACRCloud -> Shazam -> AcoustID -> filename -> iTunes ---
         song_info = None
         spotify_features = None
         ext = AcoustIDService.extension_from_path(audio_path)
@@ -127,18 +129,50 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
 
         is_mic_recording = req.original_filename in ('live-capture.webm',) or (req.original_filename or '').startswith('recording-')
 
-        # Try AcoustID fingerprinting for all audio (including mic recordings)
-        # If someone records a song playing, we can identify it and fetch lyrics
-        try:
-            song_info = await loop.run_in_executor(
-                None,
-                acoustid_service.identify_from_start_sample,
-                pre_sample_bytes,
-                real_ext,
+        # ACRCloud first when configured. It is the only identifier here that
+        # works on a microphone recording — AcoustID needs the exact audio, so
+        # room noise defeats it — and it returns metadata for short clips,
+        # which AcoustID often cannot even when the fingerprint is a hit.
+        acrcloud = ACRCloudService()
+        if acrcloud.enabled:
+            try:
+                song_info = await acrcloud.identify(pre_sample_bytes)
+            except Exception as e:
+                log.warning("ACRCloud lookup failed", error=str(e))
+                song_info = None
+
+        # Shazam next: same noise-robust matching, no account needed, but an
+        # unofficial endpoint — so it sits behind ACRCloud when that is paid
+        # for, and ahead of AcoustID always. Takes the decoded path rather
+        # than raw bytes so mic captures go in as the converted wav.
+        shazam = ShazamService()
+        if not song_info and shazam.enabled:
+            try:
+                song_info = await shazam.identify(audio_path)
+            except Exception as e:
+                log.warning("Shazam lookup failed", error=str(e))
+                song_info = None
+
+        if not song_info and is_mic_recording and not (acrcloud.enabled or shazam.enabled):
+            log.info(
+                "No noise-robust identifier available — a microphone recording "
+                "cannot be identified by AcoustID fingerprinting alone",
+                hint="install shazamio-core, or set ACRCLOUD_ACCESS_KEY / ACRCLOUD_SECRET_KEY",
             )
-        except Exception as e:
-            log.warning("AcoustID start-sample lookup failed", error=str(e))
-            song_info = None
+
+        # AcoustID fingerprinting. Works when the uploaded audio is the exact
+        # release audio; expected to miss on mic captures and preview clips.
+        if not song_info:
+            try:
+                song_info = await loop.run_in_executor(
+                    None,
+                    acoustid_service.identify_from_start_sample,
+                    pre_sample_bytes,
+                    real_ext,
+                )
+            except Exception as e:
+                log.warning("AcoustID start-sample lookup failed", error=str(e))
+                song_info = None
 
         # Fallback: acoustid mid-file sample
         if not song_info:
