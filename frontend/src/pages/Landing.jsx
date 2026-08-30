@@ -45,6 +45,75 @@ const GENRES = [
   'AMBIENT', 'HIP-HOP', 'CLASSICAL', 'FUNK', 'GARAGE', 'DISCO',
 ];
 
+const CASSETTES = [
+  { title: 'Midnight Signal', artist: 'Neon Drift', bpm: 128, key: 'F#m', mood: 'ELECTRIC', side: 'A', accent: 'brand' },
+  { title: 'Glass Horizon', artist: 'Vela', bpm: 96, key: 'Dm', mood: 'MOODY', side: 'B', accent: 'warm' },
+  { title: 'Chrome Tide', artist: 'Analog Youth', bpm: 117, key: 'Am', mood: 'DREAMY', side: 'A', accent: 'brand' },
+];
+
+function CassetteReel({ duration = 5, spoolSize = 'h-11 w-11' }) {
+  return (
+    <div className="relative flex items-center justify-center">
+      <span className={`absolute rounded-full bg-ink/15 ${spoolSize}`}></span>
+      <motion.div
+        className="relative flex h-14 w-14 items-center justify-center rounded-full border-4 border-line-strong bg-canvas"
+        animate={{ rotate: 360 }}
+        transition={{ repeat: Infinity, duration, ease: 'linear' }}
+      >
+        {[...Array(6)].map((_, i) => (
+          <span
+            key={i}
+            className="absolute h-1 w-2.5 rounded-full bg-line-strong"
+            style={{ transform: `rotate(${i * 60}deg) translateX(16px)` }}
+          />
+        ))}
+        <span className="h-3 w-3 rounded-full bg-line-strong"></span>
+      </motion.div>
+    </div>
+  );
+}
+
+function CassetteCard({ tape, i }) {
+  const accentText = tape.accent === 'warm' ? 'text-accent-warm' : 'text-brand';
+  return (
+    <motion.article variants={fadeUp} className="tilt-card relative rounded-[2rem] border border-line bg-veil-1 p-5 backdrop-blur-xl">
+      <div className="relative rounded-[1.4rem] border border-line-strong bg-raised/80 p-4">
+        {['left-2 top-2', 'right-2 top-2', 'left-2 bottom-2', 'right-2 bottom-2'].map((pos) => (
+          <span key={pos} className={`absolute ${pos} h-1.5 w-1.5 rounded-full bg-line-strong`}></span>
+        ))}
+
+        {/* Label */}
+        <div className="rounded-xl border border-line bg-veil-2 px-4 pb-3 pt-4">
+          <div className="flex items-center justify-between">
+            <p className={`text-[10px] font-black tracking-[0.3em] ${accentText}`}>BZ-{String(i + 1).padStart(3, '0')}</p>
+            <p className="text-[10px] tracking-[0.3em] text-ink-muted">SIDE {tape.side}</p>
+          </div>
+          <h3 className="mt-2 truncate text-2xl font-black tracking-tight text-ink">{tape.title}</h3>
+          <p className="text-sm text-ink-muted">{tape.artist}</p>
+          <div className="mt-3 flex flex-col gap-1">
+            <span className="h-1.5 rounded-full bg-brand"></span>
+            <span className="h-1.5 rounded-full bg-accent-warm"></span>
+          </div>
+        </div>
+
+        {/* Tape window */}
+        <div className="mt-3 flex items-center rounded-xl border border-line-strong bg-canvas/80 px-6 py-3">
+          <CassetteReel duration={6} spoolSize="h-12 w-12" />
+          <div className="mx-3 h-1 flex-1 rounded-full bg-ink/20"></div>
+          <CassetteReel duration={4} spoolSize="h-8 w-8" />
+        </div>
+
+        {/* Stamps */}
+        <div className="mt-3 flex items-center justify-between px-1">
+          <span className="text-[10px] tracking-[0.24em] text-ink-muted">{tape.bpm} BPM</span>
+          <span className={`text-[10px] font-black tracking-[0.24em] ${accentText}`}>{tape.key}</span>
+          <span className="text-[10px] tracking-[0.24em] text-ink-muted">{tape.mood}</span>
+        </div>
+      </div>
+    </motion.article>
+  );
+}
+
 function Reveal({ children, className = '', delay = 0 }) {
   return (
     <motion.div
@@ -152,7 +221,7 @@ export default function Landing() {
                 <span className="h-2 w-2 animate-pulse rounded-full bg-brand shadow-[0_0_16px_color-mix(in_oklab,var(--brand)_90%,transparent)]"></span>
                 RESONANCE ENGINE — V4
               </motion.div>
-              <h1 className="max-w-7xl text-6xl font-black uppercase leading-[0.88] tracking-[-0.08em] text-ink [perspective:900px] sm:text-7xl md:text-8xl lg:text-[8.4rem]">
+              <h1 className="max-w-7xl text-[clamp(3.5rem,9.2vw,8.4rem)] font-black uppercase leading-[0.88] tracking-[-0.08em] text-ink [perspective:900px]">
                 <motion.span variants={titleLine} className="inline-block">Decode</motion.span><br />
                 <motion.span variants={titleLine} className="inline-block text-brand">the DNA</motion.span><br />
                 <motion.span variants={titleLine} className="inline-block">of any song.</motion.span>
@@ -314,7 +383,7 @@ export default function Landing() {
         <section id="features" className="relative mx-auto max-w-[1720px] px-5 py-28 sm:px-8 lg:px-10">
           <Reveal className="mx-auto max-w-5xl text-center">
             <p className="text-[11px] font-semibold tracking-[0.36em] text-brand">FEATURES</p>
-            <h2 className="mt-4 text-5xl font-black uppercase tracking-[-0.06em] text-ink md:text-7xl">Music intelligence with depth.</h2>
+            <h2 className="mt-4 text-[clamp(2.75rem,4.7vw,4.5rem)] font-black uppercase tracking-[-0.06em] text-ink">Music intelligence with depth.</h2>
             <p className="mt-5 text-lg leading-8 text-ink-muted">Every component is built for recognition, enrichment, and API-scale delivery — wrapped in a cinematic interface that feels as fast as the engine underneath.</p>
           </Reveal>
           <motion.div
@@ -347,7 +416,7 @@ export default function Landing() {
           <div className="relative mx-auto max-w-[1500px] px-5 sm:px-8">
             <Reveal className="text-center">
               <p className="text-[11px] font-semibold tracking-[0.36em] text-brand">PIPELINE</p>
-              <h2 className="mt-4 text-5xl font-black uppercase tracking-[-0.06em] text-ink md:text-7xl">How it works</h2>
+              <h2 className="mt-4 text-[clamp(2.75rem,4.7vw,4.5rem)] font-black uppercase tracking-[-0.06em] text-ink">How it works</h2>
             </Reveal>
             <motion.div
               className="relative mt-20 grid gap-6 lg:grid-cols-3"
@@ -375,11 +444,31 @@ export default function Landing() {
           </div>
         </section>
 
+        {/* ============ CASSETTE ARCHIVE ============ */}
+        <section id="archive" className="relative mx-auto max-w-[1720px] px-5 py-28 sm:px-8 lg:px-10">
+          <Reveal className="mx-auto max-w-5xl text-center">
+            <p className="text-[11px] font-semibold tracking-[0.36em] text-brand">THE ARCHIVE</p>
+            <h2 className="mt-4 text-[clamp(2.75rem,4.7vw,4.5rem)] font-black uppercase tracking-[-0.06em] text-ink">Every tape has DNA.</h2>
+            <p className="mt-5 text-lg leading-8 text-ink-muted">From dusty mixtapes to studio masters — feed Beatzy any recording and it reads the tempo, key, and mood pressed into the tape.</p>
+          </Reveal>
+          <motion.div
+            className="mt-16 grid gap-5 md:grid-cols-3"
+            variants={stagger}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            {CASSETTES.map((tape, i) => (
+              <CassetteCard key={tape.title} tape={tape} i={i} />
+            ))}
+          </motion.div>
+        </section>
+
         {/* ============ EXAMPLES ============ */}
         <section id="examples" className="relative mx-auto grid max-w-[1720px] gap-10 px-5 py-28 sm:px-8 lg:grid-cols-[.9fr_1.1fr] lg:px-10">
           <Reveal>
             <p className="text-[11px] font-semibold tracking-[0.36em] text-brand">EXAMPLES</p>
-            <h2 className="mt-4 text-5xl font-black uppercase tracking-[-0.06em] text-ink md:text-7xl">API output that sings.</h2>
+            <h2 className="mt-4 text-[clamp(2.75rem,4.7vw,4.5rem)] font-black uppercase tracking-[-0.06em] text-ink">API output that sings.</h2>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-ink-muted">Designed for developers who need a gorgeous dashboard and reliable machine-readable analysis. No guesswork. Just clean signal.</p>
           </Reveal>
           <Reveal delay={0.15}>
