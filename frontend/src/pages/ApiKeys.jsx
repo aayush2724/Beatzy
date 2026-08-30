@@ -163,7 +163,7 @@ export default function ApiKeys() {
                             <div className="flex-1 min-w-0 space-y-3">
                                 <div className="flex items-center gap-4">
                                     <h4 className="text-xl font-display font-black text-ink uppercase tracking-tight truncate">{key.name}</h4>
-                                    <div className="px-3 py-1 rounded-lg font-mono text-[10px] font-black uppercase tracking-widest bg-brand/10 border border-brand/20 text-brand">ACTIVE</div>
+                                    <div className={`px-3 py-1 rounded-lg font-mono text-[10px] font-black uppercase tracking-widest border ${key.is_active ? 'bg-brand/10 border-brand/20 text-brand' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>{key.is_active ? 'ACTIVE' : 'REVOKED'}</div>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <div className="w-1.5 h-1.5 rounded-full bg-accent-warm animate-pulse" />
