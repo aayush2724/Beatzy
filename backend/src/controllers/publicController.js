@@ -31,7 +31,12 @@ class PublicController {
       checks.ml = 'error';
     }
 
-    const overall = Object.values(checks).every((v) => v === 'ok' || v === 'unavailable') ? 'operational' : 'degraded';
+    // `ml_storage` is a boolean (null when the ML service reports no storage),
+    // not a status string, so judging it against 'ok' marked a healthy stack
+    // "degraded". Only an explicit `false` — storage unreachable — degrades.
+    const overall = Object.entries(checks).every(([name, value]) =>
+      name === 'ml_storage' ? value !== false : value === 'ok' || value === 'unavailable'
+    ) ? 'operational' : 'degraded';
     res.json({ success: true, data: { status: overall, checks, timestamp: new Date().toISOString() } });
   }
 }
