@@ -27,12 +27,13 @@ export const analyzeUrl = (url, title, artist) =>
 
 export const pollForResults = async (jobId, maxAttempts = 60, intervalMs = 3000) => {
   for (let i = 0; i < maxAttempts; i++) {
+    // `status` and `error` are top-level fields of the results response
     const { data } = await getResults(jobId);
-    if (data.data?.status === 'completed' || data.data?.song_title !== undefined) {
+    if (data.status === 'complete' && data.data) {
       return data.data;
     }
-    if (data.data?.status === 'failed') {
-      throw new Error(data.data?.error_message || 'Analysis failed');
+    if (data.status === 'failed') {
+      throw new Error(data.error || 'Analysis failed');
     }
     await new Promise((r) => setTimeout(r, intervalMs));
   }

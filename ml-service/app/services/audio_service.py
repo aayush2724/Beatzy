@@ -20,6 +20,15 @@ KEY_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 MAJOR_PROFILE = np.array([6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88])
 MINOR_PROFILE = np.array([6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17])
 
+# Below this there is no beat or chord to find, and a result would be noise.
+MIN_DURATION_SEC = 2.0
+# Peak below -60 dBFS: a muted or blocked microphone, not quiet music.
+SILENCE_PEAK = 1e-3
+
+
+class AudioInputError(ValueError):
+    """The audio itself is unusable — retrying the analysis cannot help."""
+
 
 class AudioAnalysisService:
     async def analyze(self, audio_path: str) -> dict:
@@ -32,10 +41,20 @@ class AudioAnalysisService:
             y, sr = librosa.load(audio_path, sr=22050, mono=True, duration=60)
         except Exception as e:
             logger.error("Failed to load audio file", path=audio_path, error=str(e))
-            raise ValueError(f"Could not read audio file: {str(e)}")
+            raise AudioInputError(
+                "Could not decode this audio file — it may be corrupt or in an unsupported format"
+            ) from e
 
-        if len(y) < 1024:
-            raise ValueError("Audio file too short for analysis")
+        if len(y) < MIN_DURATION_SEC * sr:
+            raise AudioInputError(
+                f"Audio is too short to analyse — at least {MIN_DURATION_SEC:.0f} seconds are needed"
+            )
+
+        # A muted mic used to sail through as a "Live Recording" at 0 BPM.
+        if float(np.max(np.abs(y))) < SILENCE_PEAK:
+            raise AudioInputError(
+                "No audible signal detected — the recording is silent. Check that your microphone is not muted"
+            )
 
         # Split once and reuse. Drums smear the chromagram badly enough to push
         # key detection onto the dominant or subdominant — measured against
@@ -172,6 +191,13 @@ class AudioAnalysisService:
                     coalesced[-1] = (label, coalesced[-1][1], b)
                 else:
                     coalesced.append((label, a, b))
+
+            # A short leading run has no previous neighbour to absorb it, so
+            # hand it to the next one — dropping it left the timeline starting
+            # late with a gap at 0s.
+            if len(coalesced) > 1 and coalesced[0][2] - coalesced[0][1] < min_frames:
+                coalesced[1] = (coalesced[1][0], coalesced[0][1], coalesced[1][2])
+                coalesced.pop(0)
 
             return [
                 {

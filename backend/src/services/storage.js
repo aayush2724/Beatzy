@@ -98,8 +98,13 @@ async function getPresignedUrl(key, expiresIn = 3600) {
     if (!fs.existsSync(fullPath)) throw new Error('File not found');
     return `${process.env.BACKEND_URL || 'http://localhost:3000'}/api/audio/file/${encodeURIComponent(key)}`;
   }
-  const { GetObjectCommand } = require('@aws-sdk/client-s3');
+  const { GetObjectCommand, HeadObjectCommand } = require('@aws-sdk/client-s3');
   const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+  // Signing never touches the network, so it happily signs a URL for an
+  // object that is gone — and source audio is deleted after analysis. Handing
+  // that to the browser just produced a 404 on every results view. Mirror the
+  // local branch above and fail when there is nothing to fetch.
+  await getS3().send(new HeadObjectCommand({ Bucket: BUCKET, Key: key }));
   const cmd = new GetObjectCommand({ Bucket: BUCKET, Key: key });
   return getSignedUrl(getPublicS3(), cmd, { expiresIn });
 }

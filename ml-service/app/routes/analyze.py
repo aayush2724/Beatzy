@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, Request, Query
 from pydantic import BaseModel
 import structlog
 
-from app.services.audio_service import AudioAnalysisService
+from app.services.audio_service import AudioAnalysisService, AudioInputError
 from app.services.acoustid_service import AcoustIDService
 from app.services.acrcloud_service import ACRCloudService
 from app.services.shazam_service import ShazamService
@@ -19,11 +19,14 @@ from app.services.lyrics_service import LyricsService
 logger = structlog.get_logger()
 router = APIRouter()
 
-# Magic bytes for common audio formats
+# Magic bytes for common audio formats, matched at offset 0
 _AUDIO_MAGIC = {
-    b'ID3': 'mp3', b'\xff\xfb': 'mp3', b'\xff\xf3': 'mp3', b'\xff\xf2': 'mp3',
+    b'ID3': 'mp3', b'\xff\xfb': 'mp3', b'\xff\xfa': 'mp3', b'\xff\xf3': 'mp3', b'\xff\xf2': 'mp3',
+    b'\xff\xf1': 'aac', b'\xff\xf9': 'aac',
     b'RIFF': 'wav', b'OggS': 'ogg', b'fLaC': 'flac',
-    b'\x1aE\xdf\xa3': 'm4a', b'ftyp': 'm4a',
+    # EBML header — WebM/Matroska. This used to be mapped to 'm4a', so every
+    # mic capture was sniffed as an MP4 container.
+    b'\x1a\x45\xdf\xa3': 'webm',
 }
 
 
@@ -35,12 +38,19 @@ def _detect_audio_format(path: str) -> str | None:
         for magic, fmt in _AUDIO_MAGIC.items():
             if header.startswith(magic):
                 return fmt
-        # WebM starts with 0x1a 0x45 0xdf 0xa3 (EBML header)
-        if header[:4] == b'\x1a\x45\xdf\xa3':
-            return 'webm'
+        # MP4/M4A put their box size first; the 'ftyp' tag sits at offset 4
+        if header[4:8] == b'ftyp':
+            return 'm4a'
     except Exception:
         pass
     return None
+
+
+def _is_mic_recording(filename: str | None) -> bool:
+    """The recorder names captures `live-capture.<ext>`; the extension varies
+    by browser (webm on Chrome/Firefox, mp4 on Safari)."""
+    name = filename or ''
+    return name.startswith('live-capture') or name.startswith('recording-')
 
 
 # ── Spotify Search ────────────────────────────────────────────────────────────
@@ -127,7 +137,7 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
         acoustid_service = AcoustIDService()
         loop = asyncio.get_event_loop()
 
-        is_mic_recording = req.original_filename in ('live-capture.webm',) or (req.original_filename or '').startswith('recording-')
+        is_mic_recording = _is_mic_recording(req.original_filename)
 
         # ACRCloud first when configured. It is the only identifier here that
         # works on a microphone recording — AcoustID needs the exact audio, so
@@ -306,6 +316,11 @@ async def analyze_audio(req: AnalyzeRequest, request: Request):
         )
         return result
 
+    except AudioInputError as e:
+        # The audio itself is unusable (undecodable, silent, too short). 422
+        # tells the worker a retry cannot help, and the detail reaches the user.
+        log.warning("Audio rejected", error=str(e))
+        raise HTTPException(status_code=422, detail=str(e)) from e
     except Exception as e:
         log.error("Analysis failed", error=str(e))
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")

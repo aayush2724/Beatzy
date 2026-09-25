@@ -70,18 +70,17 @@ export default function Results() {
     setError(null);
     try {
       for (let attempt = 0; attempt < 40; attempt++) {
+        // `status` and `error` live at the top level of the response, not in
+        // `data` — reading them from `data` meant a failed job spun for two
+        // minutes and then claimed it was "still in progress".
         const { data } = await getResults(jobId);
-        const payload = data.data;
-        if (payload?.status === 'processing' || payload?.status === 'queued') {
-          await new Promise((r) => setTimeout(r, 3000));
-          continue;
+        if (data.status === 'failed') {
+          throw new Error(data.error || 'Analysis failed');
         }
-        if (payload?.song_title != null || payload?.bpm != null || payload?.raw_ml_response) {
+        const payload = data.data;
+        if (data.status === 'complete' && payload) {
           setResult(payload);
           return;
-        }
-        if (payload?.status === 'failed') {
-          throw new Error(payload.error_message || 'Analysis failed');
         }
         await new Promise((r) => setTimeout(r, 3000));
       }
@@ -113,7 +112,11 @@ export default function Results() {
     });
 
     if (result.audio_url) {
-        wavesurfer.current.load(result.audio_url);
+        // load() rejects when the audio is unreachable; don't let that surface
+        // as an uncaught promise rejection.
+        wavesurfer.current.load(result.audio_url).catch((err) => {
+          console.warn('[results] audio unavailable', err?.message);
+        });
     }
 
     wavesurfer.current.on('timeupdate', (t) => setCurrentTime(t));

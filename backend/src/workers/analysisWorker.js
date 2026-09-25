@@ -1,10 +1,11 @@
 require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 
-const { Worker } = require('bullmq');
+const { Worker, UnrecoverableError } = require('bullmq');
 const axios = require('axios');
 const { pool } = require('../db/client');
 const { persistAnalysisResult } = require('../services/analysisResults');
 const { deleteFromS3 } = require('../services/storage');
+const { describeMlError, isPermanentMlError } = require('../services/queue');
 const logger = require('../utils/logger');
 
 async function deleteSourceAudio(s3Key, jobId) {
@@ -66,6 +67,26 @@ try {
     emitToUser(userId, 'job:progress', { jobId, status: 'processing', progress: 10 });
     await pool.query('UPDATE audio_jobs SET progress = $1 WHERE id = $2', [10, jobId]);
 
+    // BullMQ retries a thrown job (see defaultJobOptions in services/queue.js).
+    // Marking it 'failed' on an attempt that will be retried made the UI give
+    // up — and show an error — while the job was still going to run again.
+    const isFinalAttempt = job.attemptsMade + 1 >= (job.opts.attempts || 1);
+
+    async function fail(message, err, { permanent = false } = {}) {
+      if (!permanent && !isFinalAttempt) {
+        logger.warn('Analysis attempt failed, will retry', { jobId, attempt: job.attemptsMade + 1, error: message });
+        await pool.query("UPDATE audio_jobs SET status = 'queued', progress = 0 WHERE id = $1", [jobId]);
+        emitToUser(userId, 'job:progress', { jobId, status: 'retrying', progress: 5 });
+        throw err;
+      }
+      await pool.query(
+        "UPDATE audio_jobs SET status = 'failed', error_message = $1, completed_at = NOW() WHERE id = $2",
+        [message, jobId]
+      );
+      emitToUser(userId, 'job:failed', { jobId, error: message });
+      throw permanent ? new UnrecoverableError(message) : err;
+    }
+
     let mlResult;
     try {
       emitToUser(userId, 'job:progress', { jobId, status: 'analyzing', progress: 30 });
@@ -77,31 +98,27 @@ try {
         original_filename: originalFilename,
       }, { timeout: 240000 });
       mlResult = response.data;
-      emitToUser(userId, 'job:progress', { jobId, status: 'saving', progress: 70 });
-      await pool.query('UPDATE audio_jobs SET progress = $1 WHERE id = $2', [70, jobId]);
     } catch (err) {
-      logger.error('ML service failed', { jobId, error: err.message });
-      await pool.query(
-        "UPDATE audio_jobs SET status = 'failed', error_message = $1, completed_at = NOW() WHERE id = $2",
-        [err.message, jobId]
-      );
-      emitToUser(userId, 'job:failed', { jobId, error: err.message });
-      throw err;
+      const message = describeMlError(err);
+      logger.error('ML service failed', { jobId, status: err.response?.status, error: message });
+      await fail(message, err, { permanent: isPermanentMlError(err) });
     }
 
-    // --- Post-ML processing (persist, cleanup, complete) ---
+    // --- Post-ML processing (persist, complete, cleanup) ---
     try {
       emitToUser(userId, 'job:progress', { jobId, status: 'saving', progress: 70 });
       await pool.query('UPDATE audio_jobs SET progress = $1 WHERE id = $2', [70, jobId]);
 
       await persistAnalysisResult({ jobId, mlResult });
 
-      await deleteSourceAudio(s3Key, jobId);
-
       await pool.query(
         "UPDATE audio_jobs SET status = 'completed', completed_at = NOW(), progress = 100 WHERE id = $1",
         [jobId]
       );
+
+      // Only after the job is recorded as complete: deleting first meant a
+      // failure above left a retry with no audio to download.
+      await deleteSourceAudio(s3Key, jobId);
 
       try {
         await pool.query(
@@ -118,12 +135,7 @@ try {
     } catch (err) {
       // persistAnalysisResult or DB update failed
       logger.error('Post-analysis persistence failed', { jobId, error: err.message, stack: err.stack });
-      await pool.query(
-        "UPDATE audio_jobs SET status = 'failed', error_message = $1, completed_at = NOW() WHERE id = $2",
-        [`Persistence failed: ${err.message}`, jobId]
-      );
-      emitToUser(userId, 'job:failed', { jobId, error: err.message });
-      throw err;
+      await fail(`Could not save the analysis results: ${err.message}`, err);
     }
   }, {
     connection,

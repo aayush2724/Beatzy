@@ -169,24 +169,52 @@ GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_secret
 ```
 
-### Production storage (Supabase S3 / R2 / MinIO) — required for live uploads
+### Production storage (Cloudflare R2) — required for live uploads
 
-Render (backend) and Hugging Face (ML) **must use the same bucket**. Local MinIO will not work across hosts. **Path-style addressing** is required (configured in code).
+Render (backend) and Hugging Face (ML) **must use the same bucket**. Local MinIO
+will **not** work across hosts — pointing `AWS_S3_ENDPOINT` at `http://localhost:9000`
+on Render makes every upload/analyze-url call 500 with an AWS SDK
+`char 'P' is not expected.:1:1 Deserialization error` (the SDK is parsing a
+non-S3 response as XML). **Path-style addressing** is required and is already
+configured in code (backend `storage.js` sets `forcePathStyle`; ML
+`storage_service.py` sets `addressing_style: path`). No code changes are needed —
+this is purely env-var config.
 
-**Supabase example:**
+**Cloudflare R2 (canonical setup):**
 
-| Variable | Example |
-|----------|---------|
-| `AWS_ACCESS_KEY_ID` | Supabase S3 access key |
-| `AWS_SECRET_ACCESS_KEY` | Supabase S3 secret |
+1. Cloudflare dashboard → **R2** → **Create bucket** → name it exactly `beatzy-audio`.
+2. R2 → **Manage R2 API Tokens** → **Create API token** → **Object Read & Write**,
+   scoped to that bucket. Copy the Access Key ID, Secret Access Key, and Account ID.
+3. Set these **five vars on both the Render backend AND the Hugging Face ML Space**
+   (identical values — same bucket):
+
+| Variable | Value |
+|----------|-------|
+| `AWS_ACCESS_KEY_ID` | R2 Access Key ID |
+| `AWS_SECRET_ACCESS_KEY` | R2 Secret Access Key |
+| `AWS_REGION` | `auto` |
 | `AWS_S3_BUCKET` | `beatzy-audio` |
-| `AWS_S3_ENDPOINT` | `https://<project>.supabase.co/storage/v1/s3` |
-| `AWS_REGION` | `ap-southeast-2` (match your project) |
+| `AWS_S3_ENDPOINT` | `https://<ACCOUNT_ID>.r2.cloudflarestorage.com` |
 
-Processed audio is **deleted from the bucket after analysis** to stay under free-tier limits.
+> ⚠️ Use the exact names `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` — **not** the
+> `AWS_ACCESS_KEY` / `AWS_SECRET` shorthand some local `.env` files use; the code
+> only reads the `_ID` / `_ACCESS_KEY` names.
+> Leave `AWS_S3_PUBLIC_ENDPOINT` **unset** — the code falls back to `AWS_S3_ENDPOINT`,
+> and presigned URLs sign against the R2 endpoint correctly.
+
+The bucket can stay **private**: processed audio is **deleted after analysis**
+(to stay under free-tier limits), so no public read access is ever needed —
+presigned URLs cover the rest. R2 ignores region for path-style signing, hence
+`auto`.
+
+**Supabase S3 (alternative):** same five vars, but
+`AWS_S3_ENDPOINT=https://<project>.supabase.co/storage/v1/s3` and
+`AWS_REGION=<your project region, e.g. ap-southeast-2>`.
 
 4. Redeploy backend and ML Space after saving secrets.
-5. Verify: upload a track on https://beatzy-zeta.vercel.app — job should complete without `FileNotFoundError` in ML logs.
+5. Verify: upload a track on https://beatzy-zeta.vercel.app — the job should
+   complete without `FileNotFoundError` in ML logs and without the `char 'P'`
+   500 on the backend.
 
 See also `README.md` → Production environment variables.
 

@@ -177,14 +177,16 @@ export default function Upload() {
       if (socketStatus === 'completed') {
         navigate(`/results/${jobId}`);
       } else if (socketStatus === 'failed') {
-        // Try to fetch the specific error message from the job record
+        // Stop the polling loop first, or it reports the same failure again.
+        abortRef.current = true;
+        toast.dismiss('polling-status');
+        // The results endpoint returns `{ status: 'failed', error }` at the top level
         getResults(jobId).then(({ data }) => {
-            const msg = data.data?.error_message || 'Analysis pipeline failed';
-            toast.error(msg);
+            toast.error(data?.error || 'Analysis pipeline failed');
         }).catch(() => {
             toast.error('Analysis pipeline failed');
         }).finally(() => {
-            resetState();
+            setStep('error');
         });
       }
  else if (['analyzing', 'saving', 'processing'].includes(socketStatus || '')) {
@@ -215,6 +217,45 @@ export default function Upload() {
     throw new Error('Server failed to wake up. Please try again later.');
   };
 
+  // Poll until the job completes (navigates to the report) or fails (throws).
+  // Six minutes covers the worker's 4-minute ML timeout plus a retry; the old
+  // three-minute cap declared "timed out" on jobs that were still running.
+  const pollUntilDone = useCallback(async (id) => {
+    let errorCount404 = 0;
+    for (let i = 0; i < 120; i++) {
+      if (abortRef.current) return;
+      await new Promise(r => setTimeout(r, 3000));
+      if (abortRef.current) return;
+      try {
+        const { data: rd } = await getResults(id);
+        errorCount404 = 0;
+        toast.dismiss('polling-status');
+
+        if (rd.status === 'complete') {
+          navigate(`/results/${id}`);
+          return;
+        }
+        if (rd.status === 'failed') {
+          throw new Error(rd.error || 'Analysis failed');
+        }
+      } catch (pollErr) {
+        if (pollErr?.response?.status === 404) {
+          errorCount404++;
+          if (errorCount404 > 10) {
+            throw new Error('Analysis job could not be found');
+          }
+          if (errorCount404 > 3) {
+            toast.loading('Analysis is taking longer than usual, please wait...', { id: 'polling-status' });
+          }
+          continue;
+        }
+        toast.dismiss('polling-status');
+        throw pollErr;
+      }
+    }
+    throw new Error('Analysis timed out');
+  }, [navigate]);
+
   const handleFile = useCallback(async (f) => {
     setFile(f);
     setStep('uploading');
@@ -232,46 +273,14 @@ export default function Upload() {
         style: { background: 'var(--surface)', color: 'var(--brand)', border: '1px solid var(--line)' },
       });
 
-      let errorCount404 = 0;
-      for (let i = 0; i < 60; i++) {
-        if (abortRef.current) return;
-        await new Promise(r => setTimeout(r, 3000));
-        try {
-          const { data: rd } = await getResults(id);
-          errorCount404 = 0;
-          toast.dismiss('polling-status');
-
-          if (rd.status === 'complete' || rd.data?.song_title !== undefined) {
-            navigate(`/results/${id}`);
-            return;
-          }
-          if (rd.status === 'failed') {
-            throw new Error(rd.error || 'Analysis failed');
-          }
-        } catch (pollErr) {
-          if (pollErr?.response?.status === 404) {
-            errorCount404++;
-            if (errorCount404 > 10) {
-              setStep('error');
-              return;
-            }
-            if (errorCount404 > 3) {
-              toast.loading('Analysis is taking longer than usual, please wait...', { id: 'polling-status' });
-            }
-            continue;
-          }
-          toast.dismiss('polling-status');
-          throw pollErr;
-        }
-      }
-      throw new Error('Analysis timed out');
+      await pollUntilDone(id);
     } catch (err) {
       if (abortRef.current) return;
       toast.dismiss('polling-status');
-      toast.error(err.message || 'Signal transmission failed');
+      toast.error(err.response?.data?.error?.message || err.message || 'Signal transmission failed');
       setStep('error');
     }
-  }, [navigate]);
+  }, [pollUntilDone]);
 
   const handleAnalyzeUrl = async (track) => {
     if (!track.preview_url) {
@@ -294,43 +303,11 @@ export default function Upload() {
 
       toast.success('Remote track cached! Analyzing...');
 
-      let errorCount404 = 0;
-      for (let i = 0; i < 60; i++) {
-        if (abortRef.current) return;
-        await new Promise(r => setTimeout(r, 3000));
-        try {
-          const { data: rd } = await getResults(id);
-          errorCount404 = 0;
-          toast.dismiss('polling-status');
-
-          if (rd.status === 'complete' || rd.data?.song_title !== undefined) {
-            navigate(`/results/${id}`);
-            return;
-          }
-          if (rd.status === 'failed') {
-            throw new Error(rd.error || 'Analysis failed');
-          }
-        } catch (pollErr) {
-          if (pollErr?.response?.status === 404) {
-            errorCount404++;
-            if (errorCount404 > 10) {
-              setStep('error');
-              return;
-            }
-            if (errorCount404 > 3) {
-              toast.loading('Analysis is taking longer than usual, please wait...', { id: 'polling-status' });
-            }
-            continue;
-          }
-          toast.dismiss('polling-status');
-          throw pollErr;
-        }
-      }
-      throw new Error('Analysis timed out');
+      await pollUntilDone(id);
     } catch (err) {
       if (abortRef.current) return;
       toast.dismiss('polling-status');
-      toast.error(err.message || 'Signal transmission failed');
+      toast.error(err.response?.data?.error?.message || err.message || 'Signal transmission failed');
       setStep('error');
     }
   };

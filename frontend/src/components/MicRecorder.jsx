@@ -2,6 +2,29 @@ import { useState, useRef, useEffect } from 'react';
 import clsx from 'clsx';
 import toast from 'react-hot-toast';
 
+// Chrome/Firefox record webm; Safari (and every iOS browser) only records mp4.
+// Asking for webm-or-ogg alone made the MediaRecorder constructor throw there.
+const RECORDING_TYPES = [
+  { mime: 'audio/webm;codecs=opus', ext: 'webm' },
+  { mime: 'audio/webm', ext: 'webm' },
+  { mime: 'audio/mp4', ext: 'mp4' },
+  { mime: 'audio/ogg;codecs=opus', ext: 'ogg' },
+];
+
+// The analyser needs a couple of seconds to find a beat or a chord.
+const MIN_RECORDING_SECONDS = 3;
+
+function pickRecordingType() {
+  if (typeof MediaRecorder === 'undefined') return null;
+  return RECORDING_TYPES.find((t) => MediaRecorder.isTypeSupported(t.mime)) || { mime: '', ext: 'webm' };
+}
+
+function extForMime(mime) {
+  if (mime.includes('mp4') || mime.includes('aac')) return 'mp4';
+  if (mime.includes('ogg')) return 'ogg';
+  return 'webm';
+}
+
 export default function MicRecorder({ onRecorded, disabled }) {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -14,21 +37,46 @@ export default function MicRecorder({ onRecorded, disabled }) {
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
   const animationFrameRef = useRef(null);
+  const streamRef = useRef(null);
+  const durationRef = useRef(0);
+  // Set on unmount so the recorder's onstop doesn't upload a capture the user
+  // walked away from (switching tabs used to submit it for analysis).
+  const discardRef = useRef(false);
+
+  const releaseMic = () => {
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+    if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+      audioContextRef.current.close().catch(() => {});
+    }
+  };
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      stopRecording();
-      if (timerRef.current) clearInterval(timerRef.current);
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-      if (audioContextRef.current) audioContextRef.current.close();
+      discardRef.current = true;
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+      }
+      releaseMic();
     };
   }, []);
 
   const startRecording = async () => {
+    const recordingType = pickRecordingType();
+    if (!recordingType || !navigator.mediaDevices?.getUserMedia) {
+      toast.error('Audio recording is not supported in this browser.');
+      return;
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      
+      streamRef.current = stream;
+      discardRef.current = false;
+      durationRef.current = 0;
+
       // Set up audio analysis for volume visualization
       audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
       const source = audioContextRef.current.createMediaStreamSource(stream);
@@ -47,10 +95,10 @@ export default function MicRecorder({ onRecorded, disabled }) {
       updateVolume();
 
       // Set up media recorder
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg'
-      });
-      
+      const mediaRecorder = recordingType.mime
+        ? new MediaRecorder(stream, { mimeType: recordingType.mime })
+        : new MediaRecorder(stream);
+
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -60,42 +108,49 @@ export default function MicRecorder({ onRecorded, disabled }) {
         }
       };
 
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        const audioFile = new File([audioBlob], `live-capture.webm`, { type: 'audio/webm' });
-        
-        // Stop all tracks
-        stream.getTracks().forEach(track => track.stop());
-        
-        // Call parent handler
-        if (onRecorded) {
-          onRecorded(audioFile);
-        }
-        
-        // Reset state
+      mediaRecorder.onstop = () => {
+        // Label the file with what the recorder actually produced — it used
+        // to be called .webm/audio/webm even when it wasn't.
+        const mime = (mediaRecorder.mimeType || recordingType.mime || 'audio/webm').split(';')[0];
+        const audioBlob = new Blob(audioChunksRef.current, { type: mime });
+        const audioFile = new File([audioBlob], `live-capture.${extForMime(mime)}`, { type: mime });
+        const recordedSeconds = durationRef.current;
+
+        releaseMic();
         setIsRecording(false);
         setIsPaused(false);
         setDuration(0);
         setVolume(0);
         audioChunksRef.current = [];
-        
-        if (timerRef.current) clearInterval(timerRef.current);
-        if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-        if (audioContextRef.current) audioContextRef.current.close();
+
+        if (discardRef.current) return;
+
+        if (audioBlob.size === 0 || recordedSeconds < MIN_RECORDING_SECONDS) {
+          toast.error(`Record at least ${MIN_RECORDING_SECONDS} seconds of audio to analyse.`);
+          return;
+        }
+
+        onRecorded?.(audioFile);
       };
 
       mediaRecorder.start(100); // Collect data every 100ms
       setIsRecording(true);
-      
+
       // Start duration timer
       timerRef.current = setInterval(() => {
-        setDuration(d => d + 1);
+        durationRef.current += 1;
+        setDuration(durationRef.current);
       }, 1000);
 
       toast.success('Recording started', { duration: 2000 });
     } catch (error) {
       console.error('Microphone access error:', error);
-      toast.error('Could not access microphone. Please check permissions.');
+      // Don't leave the mic (and its browser "recording" indicator) running.
+      releaseMic();
+      const denied = error?.name === 'NotAllowedError' || error?.name === 'SecurityError';
+      toast.error(denied
+        ? 'Could not access microphone. Please check permissions.'
+        : `Could not start recording: ${error?.message || 'unknown error'}`);
     }
   };
 
@@ -113,7 +168,8 @@ export default function MicRecorder({ onRecorded, disabled }) {
       mediaRecorderRef.current.resume();
       setIsPaused(false);
       timerRef.current = setInterval(() => {
-        setDuration(d => d + 1);
+        durationRef.current += 1;
+        setDuration(durationRef.current);
       }, 1000);
       toast.success('Recording resumed');
     }

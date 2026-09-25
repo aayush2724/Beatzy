@@ -69,6 +69,24 @@ async function initQueue() {
   }
 }
 
+/**
+ * The user-facing reason an ML call failed. axios only says "Request failed
+ * with status code 500"; the ML service puts the actual cause in `detail`.
+ */
+function describeMlError(err) {
+  const detail = err?.response?.data?.detail;
+  if (typeof detail === 'string' && detail) return detail;
+  if (err?.code === 'ECONNABORTED') return 'Analysis timed out — the ML service took too long to respond';
+  if (err?.code === 'ECONNREFUSED' || err?.code === 'ENOTFOUND') return 'Analysis service is unavailable — please try again shortly';
+  return err?.message || 'Analysis failed';
+}
+
+/** A 4xx from the ML service means the input is the problem; retrying cannot help. */
+function isPermanentMlError(err) {
+  const status = err?.response?.status;
+  return Boolean(status && status >= 400 && status < 500);
+}
+
 async function processJobDirectly(data) {
   const { jobId, userId, s3Key, s3Url, originalFilename } = data;
   const { pool } = require('../db/client');
@@ -111,6 +129,10 @@ async function processJobDirectly(data) {
 
     await persistAnalysisResult({ jobId, mlResult });
 
+    await pool.query("UPDATE audio_jobs SET status = 'completed', completed_at = NOW(), progress = 100 WHERE id = $1", [jobId]);
+
+    // Only once the job is safely recorded as complete — deleting earlier
+    // left nothing to re-analyse if the status update then failed.
     try {
       const { deleteFromS3 } = require('./storage');
       await deleteFromS3(s3Key);
@@ -118,8 +140,6 @@ async function processJobDirectly(data) {
     } catch (delErr) {
       logger.warn('Failed to delete source audio from storage', { jobId, s3Key, error: delErr.message });
     }
-
-    await pool.query("UPDATE audio_jobs SET status = 'completed', completed_at = NOW() WHERE id = $1", [jobId]);
 
     try {
       await pool.query(
@@ -134,12 +154,17 @@ async function processJobDirectly(data) {
     emit('job:completed', { jobId, status: 'completed', progress: 100 });
     logger.info('Inline job completed', { jobId });
   } catch (err) {
-    logger.error('Inline job failed', { jobId, error: err.message });
-    await pool.query(
-      "UPDATE audio_jobs SET status = 'failed', error_message = $1, completed_at = NOW() WHERE id = $2",
-      [err.message, jobId]
-    );
-    emit('job:failed', { jobId, error: err.message });
+    const message = describeMlError(err);
+    logger.error('Inline job failed', { jobId, error: message });
+    try {
+      await pool.query(
+        "UPDATE audio_jobs SET status = 'failed', error_message = $1, completed_at = NOW() WHERE id = $2",
+        [message, jobId]
+      );
+    } catch (dbErr) {
+      logger.error('Could not record inline job failure', { jobId, error: dbErr.message });
+    }
+    emit('job:failed', { jobId, error: message });
   }
 }
 
@@ -174,4 +199,11 @@ async function getQueueStats() {
   return { waiting: 0, active: 0, completed: 0, failed: 0, mode: 'inline' };
 }
 
-module.exports = { analysisQueue: { get: () => analysisQueue }, enqueueAnalysisJob, getQueueStats, initQueue };
+module.exports = {
+  analysisQueue: { get: () => analysisQueue },
+  enqueueAnalysisJob,
+  getQueueStats,
+  initQueue,
+  describeMlError,
+  isPermanentMlError,
+};

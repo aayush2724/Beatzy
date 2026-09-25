@@ -44,6 +44,8 @@ export default function Compare() {
 
     const load = async (id) => {
       const { data } = await getResults(id);
+      if (data.status === 'failed') throw new Error(data.error || 'Analysis failed');
+      if (data.status !== 'complete') throw new Error('Analysis is still in progress');
       return data.data;
     };
 
