@@ -1,56 +1,83 @@
-import { useEffect, useState, useRef, useMemo, useCallback, lazy, Suspense } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import WaveSurfer from 'wavesurfer.js';
 import toast from 'react-hot-toast';
-import { getResults } from '../api/audio';
+import clsx from 'clsx';
+import {
+  Activity,
+  ArrowUpRight,
+  Clock,
+  Download,
+  FileText,
+  Hand,
+  Heart,
+  KeyRound,
+  Music,
+  Pause,
+  Play,
+  Plus,
+  Radio,
+  Share2,
+  Sparkles,
+} from 'lucide-react';
+import { getResults, searchSongs } from '../api/audio';
 import { enableShare, exportReport, addFavorite } from '../api/library';
 import InstrumentChordPanel from '../components/InstrumentChordPanel';
 import GestureChordStage from '../components/GestureChordStage';
 import PageWrapper from '../components/PageWrapper';
-
-import { 
-  Heart, 
-  Share2, 
-  Download, 
-  Plus, 
-  Music, 
-  Activity, 
-  Play, 
-  Pause,
-  CloudRain,
-  Radio,
-  Clock,
-  Layers, 
-  FileText, 
-  Zap, 
-  CheckCircle2,
-  ArrowUpRight
-  } from 'lucide-react';
-
-const ResultsAtmosphere = lazy(() => import('../components/ResultsAtmosphere'));
-
-import clsx from 'clsx';
+import placeholderArt from '../assets/placeholder-art.svg';
+import {
+  Badge,
+  Card,
+  DataList,
+  EmptyState,
+  IconButton,
+  Progress,
+  SectionHeader,
+  Skeleton,
+  StatTile,
+  StatusDot,
+  Tabs,
+} from '../components/ui';
 import { usePalette } from '../lib/palette';
 
-function StatCard({ icon: Icon, label, value, sub, colorClass = 'text-brand', borderClass = 'border-brand/20' }) {
-  return (
-    <motion.div
-      whileHover={{ y: -5, scale: 1.02 }}
-      className={`glass-card p-6 border ${borderClass} flex flex-col justify-between transition-all duration-500 group cursor-default`}
-    >
-      <div className="flex justify-between items-start">
-        <div className={`p-2 rounded-xl bg-ink/[0.02] border border-line-subtle group-hover:border-line transition-colors`}>
-            <Icon className={clsx('w-5 h-5 transition-transform duration-500 group-hover:rotate-12', colorClass)} />
-        </div>
-        <span className="font-mono text-[11px] text-on-surface-variant uppercase tracking-[0.15em]">{label}</span>
-      </div>
-      <div className="mt-6">
-        <div className={`text-3xl font-display font-black text-ink tracking-tight uppercase group-hover:text-glow-orange transition-all`}>{value}</div>
-        {sub && <div className="text-[11px] text-on-surface-variant font-black mt-1 uppercase tracking-[0.15em] opacity-60">{sub}</div>}
-      </div>
-    </motion.div>
-  );
+const MOOD_TONE = {
+  happy: 'warm',
+  energetic: 'warm',
+  excited: 'warm',
+  calm: 'brand',
+  serene: 'brand',
+  sad: 'neutral',
+  melancholic: 'neutral',
+  depressed: 'neutral',
+  angry: 'danger',
+  neutral: 'neutral',
+};
+
+const SOURCE_LABEL = {
+  shazam: 'Shazam',
+  acrcloud: 'ACRCloud',
+  acoustid: 'AcoustID',
+  itunes: 'iTunes catalog',
+  filename: 'File name',
+  microphone: 'Microphone',
+};
+
+function formatTime(seconds) {
+  if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function parseJSON(value) {
+  if (!value) return null;
+  if (typeof value !== 'string') return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
 }
 
 export default function Results() {
@@ -60,7 +87,9 @@ export default function Results() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [audioReady, setAudioReady] = useState(false);
   const [chordMode, setChordMode] = useState('view');
   const waveformRef = useRef(null);
   const wavesurfer = useRef(null);
@@ -70,16 +99,13 @@ export default function Results() {
     setError(null);
     try {
       for (let attempt = 0; attempt < 40; attempt++) {
-        // `status` and `error` live at the top level of the response, not in
-        // `data` — reading them from `data` meant a failed job spun for two
-        // minutes and then claimed it was "still in progress".
+        // `status` and `error` live at the top level of the response, not in `data`.
         const { data } = await getResults(jobId);
         if (data.status === 'failed') {
           throw new Error(data.error || 'Analysis failed');
         }
-        const payload = data.data;
-        if (data.status === 'complete' && payload) {
-          setResult(payload);
+        if (data.status === 'complete' && data.data) {
+          setResult(data.data);
           return;
         }
         await new Promise((r) => setTimeout(r, 3000));
@@ -96,163 +122,132 @@ export default function Results() {
     fetchResults();
   }, [fetchResults]);
 
+  const spotifyMeta = useMemo(() => parseJSON(result?.spotify_features), [result]);
+  const mlData = useMemo(() => parseJSON(result?.raw_ml_response), [result]);
+
+  // Source audio is deleted once the analysis is saved, so `audio_url` is
+  // normally empty. The identified track's 30-second catalog preview is the
+  // next best thing — and its CDN allows cross-origin playback. Enrichment
+  // only stores one when it went through iTunes, so look it up when missing.
+  const [lookedUpPreview, setLookedUpPreview] = useState(null);
+  useEffect(() => {
+    setLookedUpPreview(null);
+    if (!result || result.audio_url || spotifyMeta?.preview_url) return;
+    if (!result.song_title || result.song_title === 'Live Recording') return;
+    let cancelled = false;
+    searchSongs(`${result.song_title} ${result.song_artist || ''}`.trim(), 3)
+      .then(({ data }) => {
+        const hit = (data.data || []).find((t) => t.preview_url);
+        if (!cancelled && hit) setLookedUpPreview(hit.preview_url);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [result, spotifyMeta]);
+
+  const audioSrc = result?.audio_url || spotifyMeta?.preview_url || lookedUpPreview || null;
+  const audioIsPreview = Boolean(audioSrc) && !result?.audio_url;
+
   useEffect(() => {
     if (!result || !waveformRef.current) return;
 
-    wavesurfer.current = WaveSurfer.create({
+    const ws = WaveSurfer.create({
       container: waveformRef.current,
-      waveColor: 'color-mix(in_oklab,var(--ink)_5%,transparent)',
+      waveColor: c.lineStrong,
       progressColor: c.brand,
       cursorColor: c.brand,
       barWidth: 2,
-      barGap: 4,
-      barRadius: 4,
-      height: 80,
+      barGap: 3,
+      barRadius: 2,
+      height: 64,
       normalize: true,
     });
+    wavesurfer.current = ws;
+    setAudioReady(false);
 
-    if (result.audio_url) {
-        // load() rejects when the audio is unreachable; don't let that surface
-        // as an uncaught promise rejection.
-        wavesurfer.current.load(result.audio_url).catch((err) => {
-          console.warn('[results] audio unavailable', err?.message);
-        });
+    if (audioSrc) {
+      ws.load(audioSrc).catch((err) => {
+        console.warn('[results] audio unavailable', err?.message);
+      });
     }
 
-    wavesurfer.current.on('timeupdate', (t) => setCurrentTime(t));
-    wavesurfer.current.on('play', () => setIsPlaying(true));
-    wavesurfer.current.on('pause', () => setIsPlaying(false));
+    ws.on('ready', () => {
+      setAudioReady(true);
+      setDuration(ws.getDuration());
+    });
+    ws.on('timeupdate', (t) => setCurrentTime(t));
+    ws.on('play', () => setIsPlaying(true));
+    ws.on('pause', () => setIsPlaying(false));
+    ws.on('finish', () => setIsPlaying(false));
 
-    return () => wavesurfer.current.destroy();
-  }, [result]);
+    return () => ws.destroy();
+  }, [result, audioSrc, c.brand, c.lineStrong]);
 
+  // Gesture mode plays chords over the track, so duck the track.
   useEffect(() => {
-    if (!wavesurfer.current) return;
-    if (chordMode === 'play') {
-      wavesurfer.current.setVolume(0.3);
-    } else {
-      wavesurfer.current.setVolume(1.0);
-    }
-    return () => {
-      if (wavesurfer.current) {
-        wavesurfer.current.setVolume(1.0);
-      }
-    };
+    wavesurfer.current?.setVolume(chordMode === 'play' ? 0.3 : 1);
   }, [chordMode]);
 
-  const mlData = useMemo(() => {
-    try {
-      const raw = result?.raw_ml_response;
-      if (!raw) return null;
-      return typeof raw === 'string' ? JSON.parse(raw) : raw;
-    } catch {
-      return null;
-    }
-  }, [result]);
-
-  const normalizeChords = (segments) =>
-    (Array.isArray(segments) ? segments : []).map((c) => ({
-      chord: c.chord,
-      start_time: c.start_time ?? c.start ?? 0,
-      end_time: c.end_time ?? c.end ?? 0,
-    }));
-
   const chords = useMemo(() => {
-    const fromMl = normalizeChords(mlData?.audio?.chord_timeline);
+    const normalize = (segments) =>
+      (Array.isArray(segments) ? segments : []).map((s) => ({
+        chord: s.chord,
+        start_time: s.start_time ?? s.start ?? 0,
+        end_time: s.end_time ?? s.end ?? 0,
+      }));
+    const fromMl = normalize(mlData?.audio?.chord_timeline);
     if (fromMl.length) return fromMl;
-    try {
-      const raw = result?.chords;
-      if (!raw) return [];
-      const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
-      return normalizeChords(parsed);
-    } catch {
-      return [];
-    }
+    return normalize(parseJSON(result?.chords));
   }, [result, mlData]);
+
+  const currentChord = useMemo(
+    () => chords.find((s) => currentTime >= s.start_time && currentTime <= s.end_time)?.chord || null,
+    [chords, currentTime],
+  );
 
   const mlLyrics = mlData?.lyrics;
   const lyricsText = (mlLyrics && typeof mlLyrics === 'object' ? mlLyrics.plain : mlLyrics) || result?.lyrics || null;
-  const chordSegments = chords;
-
-  const currentChord = useMemo(() => {
-    return chords.find(c => currentTime >= c.start_time && currentTime <= c.end_time)?.chord || 'N.C.';
-  }, [chords, currentTime]);
 
   const lyricLines = useMemo(() => {
-    const raw = result?.synced_lyrics || lyricsText || '';
     if (result?.synced_lyrics) {
-        // Parse LRC format: [mm:ss.xx] Lyrics
-        return raw.split('\n').map(line => {
-            const match = line.match(/\[(\d+):(\d+)\.(\d+)\](.*)/);
-            if (match) {
-                const time = parseInt(match[1]) * 60 + parseInt(match[2]) + parseInt(match[3]) / 100;
-                return { time, text: match[4].trim() };
-            }
-            return null;
-        }).filter(Boolean);
+      return result.synced_lyrics
+        .split('\n')
+        .map((line) => {
+          const match = line.match(/\[(\d+):(\d+)\.(\d+)\](.*)/);
+          if (!match) return null;
+          const time = parseInt(match[1], 10) * 60 + parseInt(match[2], 10) + parseInt(match[3], 10) / 100;
+          return { time, text: match[4].trim() };
+        })
+        .filter((l) => l && l.text);
     }
-    return raw.split('\n').map(text => ({ time: 0, text: text.trim() })).filter(l => l.text);
+    return (lyricsText || '')
+      .split('\n')
+      .map((text) => ({ time: null, text: text.trim() }))
+      .filter((l) => l.text);
   }, [result, lyricsText]);
 
   const currentLyricIdx = useMemo(() => {
     if (!result?.synced_lyrics) return -1;
     let idx = -1;
     for (let i = 0; i < lyricLines.length; i++) {
-        if (currentTime >= lyricLines[i].time) idx = i;
-        else break;
+      if (currentTime >= lyricLines[i].time) idx = i;
+      else break;
     }
     return idx;
   }, [lyricLines, currentTime, result]);
 
-  if (loading) {
-    return (
-      <PageWrapper className="py-32">
-        <div className="max-w-md mx-auto text-center space-y-8">
-          <div className="relative w-24 h-24 mx-auto">
-            <div className="absolute inset-0 rounded-full border border-brand/20 animate-ping" />
-            <div className="absolute inset-4 rounded-full border-2 border-t-brand border-transparent animate-spin" />
-            <div className="absolute inset-0 flex items-center justify-center">
-                <Zap className="w-8 h-8 text-brand fill-brand/20" />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <p className="font-display font-black text-ink text-lg uppercase tracking-widest">Decoding Signal</p>
-            <p className="font-mono text-on-surface-variant text-[10px] uppercase tracking-[0.3em] animate-pulse">Neural clusters synchronizing…</p>
-          </div>
-        </div>
-      </PageWrapper>
-    );
-  }
-
-  if (error) {
-    return (
-      <PageWrapper className="py-32">
-        <div className="max-w-lg mx-auto text-center glass-card p-12 border border-red-500/20 space-y-8">
-          <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center justify-center mx-auto">
-            <Radio className="w-8 h-8 text-red-400 opacity-70" />
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-2xl font-display font-black text-ink uppercase tracking-tight">Signal Interrupted</h3>
-            <p className="text-red-300/60 font-mono text-xs uppercase tracking-widest leading-relaxed px-12">{error}</p>
-          </div>
-          <div className="flex justify-center gap-4">
-            <button onClick={fetchResults} className="px-8 py-3 rounded-xl bg-ink text-brand-ink font-black text-[10px] uppercase tracking-widest hover:bg-brand hover:text-brand-ink transition-all">Initialize Retry</button>
-            <Link to="/upload" className="px-8 py-3 rounded-xl border border-line text-ink font-mono text-[10px] uppercase tracking-widest hover:bg-ink/5 transition-all">New Extraction</Link>
-          </div>
-        </div>
-      </PageWrapper>
-    );
-  }
-
-  if (!result) return null;
+  const yamnet = useMemo(() => {
+    const labels = parseJSON(result?.yamnet_labels) || [];
+    const scores = parseJSON(result?.confidence_scores) || [];
+    return labels.slice(0, 4).map((label, i) => ({ label, score: Math.round((scores[i] || 0) * 100) }));
+  }, [result]);
 
   async function handleShare() {
     try {
       const { data } = await enableShare(jobId);
       await navigator.clipboard.writeText(data.data.shareUrl);
-      toast.success('Intelligence link copied');
+      toast.success('Share link copied');
     } catch {
-      toast.error('Share link generation failed');
+      toast.error("Couldn't create a share link");
     }
   }
 
@@ -262,362 +257,291 @@ export default function Results() {
       const url = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
       const a = document.createElement('a');
       a.href = url;
-      a.download = `beatzy-intel-${jobId.slice(0, 8)}.json`;
+      a.download = `beatzy-${jobId.slice(0, 8)}.json`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success('Report decrypted & downloaded');
+      toast.success('Report downloaded');
     } catch {
-      toast.error('Intelligence export failed');
+      toast.error("Couldn't export the report");
     }
   }
 
   async function handleFavorite() {
     try {
       await addFavorite(jobId);
-      toast.success('Added to secure archives');
+      toast.success('Saved to your library');
     } catch {
-      toast.error('Archive operation failed');
+      toast.error("Couldn't save this track");
     }
   }
 
-  const isLiveRecording = result?.song_title === 'Live Recording' && result?.song_artist === 'Unknown';
+  if (loading) {
+    return (
+      <PageWrapper className="space-y-8 pb-16">
+        <Skeleton className="h-52 rounded-2xl" />
+        <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}
+        </div>
+        <div className="grid grid-cols-12 gap-6">
+          <Skeleton className="col-span-12 h-72 rounded-2xl xl:col-span-8" />
+          <Skeleton className="col-span-12 h-72 rounded-2xl xl:col-span-4" />
+        </div>
+        <p className="text-center text-sm text-ink-muted">Loading the analysis…</p>
+      </PageWrapper>
+    );
+  }
 
-  const spotifyMeta = result?.spotify_features
-    ? (typeof result.spotify_features === 'string' ? JSON.parse(result.spotify_features) : result.spotify_features)
-    : null;
+  if (error) {
+    return (
+      <PageWrapper className="py-24">
+        <EmptyState
+          icon={Radio}
+          title="Couldn't load this analysis"
+          description={error}
+          className="mx-auto max-w-lg"
+          action={
+            <div className="flex gap-3">
+              <button onClick={fetchResults} className="btn-secondary text-sm">Try again</button>
+              <Link to="/upload" className="btn-primary inline-flex items-center text-sm">Analyze another track</Link>
+            </div>
+          }
+        />
+      </PageWrapper>
+    );
+  }
 
-  const bpm = result.bpm || 120;
-  const pulseDuration = 60 / bpm;
+  if (!result) return null;
+
+  const isLiveRecording = result.song_title === 'Live Recording' && result.song_artist === 'Unknown';
+  const title = isLiveRecording ? 'Live recording' : result.song_title || 'Untitled track';
+  const artist = isLiveRecording ? 'Not identified' : result.song_artist || 'Unknown artist';
+  const coverUrl = spotifyMeta?.cover_url || placeholderArt;
+  const source = mlData?.song?.source;
+  const keyLabel = result.scale || result.key_signature || '—';
+  const energy = Number.isFinite(Number(result.energy_level)) ? Math.round(Number(result.energy_level) * 100) : null;
+  const analysedAt = result.job_created_at ? new Date(result.job_created_at).toLocaleString() : null;
+
+  const detailRows = [
+    { label: 'Album', value: result.song_album || '—' },
+    { label: 'Released', value: result.song_release_year || spotifyMeta?.release_date?.slice(0, 4) || '—' },
+    { label: 'Time signature', value: result.time_signature || '—' },
+    { label: 'Identified via', value: SOURCE_LABEL[source] || (source ? source : '—') },
+    { label: 'ISRC', value: result.isrc || '—' },
+    { label: 'Lyrics from', value: result.lyrics_source || (lyricsText ? 'Analysis service' : '—') },
+    { label: 'Analysed', value: analysedAt || '—' },
+  ];
 
   return (
-    <PageWrapper className="space-y-12 pb-20 relative animate-page-entrance">
-        {/* Background 3D Atmosphere */}
-        <Suspense fallback={null}>
-            <ResultsAtmosphere bpm={bpm} />
-        </Suspense>
-
-      {/* Cinematic Header */}
-      <header className="relative rounded-[3rem] overflow-hidden border border-line h-[400px] flex items-end p-10 md:p-16 group">
-          {/* Blurred Background Art */}
-          <div className="absolute inset-0 z-0 overflow-hidden">
-              <img src={spotifyMeta?.cover_url || '/placeholder-art.jpg'} className="w-full h-full object-cover blur-[80px] opacity-30 scale-125 group-hover:scale-110 transition-transform duration-[2000ms]" />
-              <div className="absolute inset-0 bg-gradient-to-t from-canvas via-canvas/40 to-transparent" />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0,var(--canvas)_100%)] opacity-60" />
+    <PageWrapper className="space-y-8 pb-16">
+      {/* Header */}
+      <Card padding="lg" className="overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 opacity-30" aria-hidden="true">
+          <img src={coverUrl} alt="" className="h-full w-full scale-125 object-cover blur-[90px]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-surface via-surface/85 to-surface/60" />
+        </div>
+        <div className="relative flex flex-col gap-6 md:flex-row md:items-end">
+          <img
+            src={coverUrl}
+            alt=""
+            className="h-36 w-36 shrink-0 rounded-xl border border-line object-cover shadow-[var(--shadow-md)] md:h-44 md:w-44"
+          />
+          <div className="min-w-0 flex-1 space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant={isLiveRecording ? 'neutral' : 'brand'} dot>{isLiveRecording ? 'Recording' : 'Identified'}</Badge>
+              {result.mood && <Badge variant={MOOD_TONE[result.mood] || 'neutral'} className="capitalize">{result.mood}</Badge>}
+              {source === 'microphone' && !isLiveRecording && <Badge variant="neutral">From microphone</Badge>}
+            </div>
+            <div className="min-w-0">
+              <h1 className="truncate font-display text-3xl font-semibold tracking-tight text-ink md:text-[2.5rem] md:leading-[1.1]">{title}</h1>
+              <p className="mt-1 truncate text-lg text-ink-muted">{artist}</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <IconButton aria-label="Save to library" onClick={handleFavorite}><Heart className="h-4 w-4" /></IconButton>
+              <IconButton aria-label="Copy share link" onClick={handleShare}><Share2 className="h-4 w-4" /></IconButton>
+              <IconButton aria-label="Download JSON report" onClick={handleExport}><Download className="h-4 w-4" /></IconButton>
+              <Link to="/upload" className="btn-primary ml-1 inline-flex items-center gap-2 text-sm !px-5 !py-2.5">
+                <Plus className="h-4 w-4" /> Analyze another
+              </Link>
+            </div>
           </div>
+        </div>
+      </Card>
 
-          <div className="relative z-10 flex flex-col md:flex-row gap-12 items-center md:items-end w-full">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="relative shrink-0"
-              >
-                <div className="absolute inset-0 bg-brand/20 blur-[40px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                <motion.img 
-                  animate={{ scale: [1, 1.02, 1] }}
-                  transition={{ duration: pulseDuration, repeat: Infinity, ease: "easeInOut" }}
-                  src={spotifyMeta?.cover_url || '/placeholder-art.jpg'} 
-                  className="w-48 h-48 md:w-64 md:h-64 rounded-3xl shadow-2xl border border-line relative z-10 object-cover" 
-                />
-              </motion.div>
-
-              <div className="flex-1 min-w-0 text-center md:text-left space-y-6">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-center md:justify-start gap-4">
-                        <span className="px-3 py-1 bg-brand/10 border border-brand/20 text-brand font-mono text-[11px] font-black rounded-lg uppercase tracking-[0.15em]">Spectral Intelligence Report</span>
-                        <span className="font-mono text-[11px] text-ink/30 uppercase tracking-widest">Ref: {jobId.substring(0, 12)}</span>
-                    </div>
-                    {isLiveRecording ? (
-                      <div>
-                        <p className="text-orange-400 text-sm uppercase tracking-widest">
-                          Live Capture
-                        </p>
-                        <h1 className="text-5xl md:text-7xl font-display font-black text-ink tracking-tighter uppercase leading-none">Audio Analysis</h1>
-                      </div>
-                    ) : (
-                      <>
-                        <h1 className="text-5xl md:text-7xl font-display font-black text-ink tracking-tighter uppercase truncate leading-none">{result.song_title || 'Unknown Waveform'}</h1>
-                        <p className="text-2xl font-medium text-ink/50 tracking-tight">{result.song_artist || 'System Source'}</p>
-                      </>
-                    )}
-                  </div>
-                  
-                  <div className="flex flex-wrap justify-center md:justify-start gap-4">
-                      <button onClick={handleFavorite} className="p-4 rounded-2xl bg-ink/[0.03] border border-line hover:border-line-strong text-ink/60 hover:text-ink transition-all group/btn">
-                          <Heart className="w-5 h-5 group-hover/btn:fill-current" />
-                      </button>
-                      <button onClick={handleShare} className="p-4 rounded-2xl bg-ink/[0.03] border border-line hover:border-brand/50 text-ink/60 hover:text-brand transition-all">
-                          <Share2 className="w-5 h-5" />
-                      </button>
-                      <button onClick={handleExport} className="p-4 rounded-2xl bg-ink/[0.03] border border-line hover:border-accent-warm/50 text-ink/60 hover:text-accent-warm transition-all">
-                          <Download className="w-5 h-5" />
-                      </button>
-                      <Link to="/upload" className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-brand text-brand-ink font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_30px_color-mix(in_oklab,var(--brand)_20%,transparent)] hover:scale-105 transition-all">
-                          <Plus className="w-4 h-4" /> New Signal
-                      </Link>
-                  </div>
-              </div>
-          </div>
-      </header>
-
-      {/* Primary Metrics Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard icon={Clock} label="Tempo" value={`${Math.round(result.bpm || 0)}`} sub="BPM" colorClass="text-brand" borderClass="border-brand/10" />
-          <StatCard icon={Layers} label="Scale" value={result.key_signature || result.scale || 'N/A'} sub="Signature" colorClass="text-brand" borderClass="border-brand/10" />
-          <StatCard icon={Activity} label="Energy" value={`${Math.round(result.energy_level * 100)}%`} sub="Intensity" colorClass="text-ink" borderClass="border-line" />
-          <StatCard icon={Music} label="Mood" value={result.mood?.toUpperCase() || 'NEUTRAL'} sub="Neural Vector" colorClass="text-accent-warm" borderClass="border-accent-warm/10" />
+      {/* Key numbers */}
+      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+        <StatTile label="Tempo" value={result.bpm ? Math.round(result.bpm) : '—'} hint="beats per minute" icon={Clock} />
+        <StatTile label="Key" value={keyLabel} hint={result.key_signature && result.scale ? `Tonic ${result.key_signature}` : 'estimated from the harmonic content'} icon={KeyRound} />
+        <StatTile label="Energy" value={energy != null ? `${energy}%` : '—'} hint="loudness relative to full scale" icon={Activity}>
+          {energy != null && <Progress value={energy} tone={energy > 66 ? 'warm' : 'brand'} />}
+        </StatTile>
+        <StatTile label="Mood" value={<span className="capitalize">{result.mood || '—'}</span>} hint={result.mood_confidence ? `${Math.round(result.mood_confidence * 100)}% confidence` : 'from tempo, energy and timbre'} icon={Sparkles} />
       </div>
 
-      <div className="grid grid-cols-12 gap-8">
-          {/* Left Column: Player & Lyrics */}
-          <div className="col-span-12 xl:col-span-8 space-y-8">
-              {/* REDESIGNED: Audio Control Center */}
-              <div className="glass-card p-10 border border-line overflow-hidden relative group">
-                  <motion.div 
-                    animate={{ opacity: isPlaying ? [0.03, 0.08, 0.03] : 0.03 }}
-                    transition={{ duration: pulseDuration, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute inset-0 bg-brand pointer-events-none blur-[120px] z-0" 
-                  />
+      <div className="grid grid-cols-12 gap-6">
+        {/* Left column */}
+        <div className="col-span-12 space-y-6 xl:col-span-8">
+          {/* Player */}
+          <Card>
+            <div className="flex items-start justify-between gap-4">
+              <SectionHeader
+                title="Playback"
+                description={
+                  !audioSrc
+                    ? 'Source audio is deleted after analysis and no preview is available for this track.'
+                    : audioIsPreview
+                      ? '30-second catalog preview — chords and lyrics follow along.'
+                      : 'Your uploaded audio.'
+                }
+              />
+              {audioSrc && (
+                <StatusDot tone={isPlaying ? 'brand' : 'neutral'}>
+                  <span className="text-ink-muted">{isPlaying ? 'Playing' : audioReady ? 'Ready' : 'Loading…'}</span>
+                </StatusDot>
+              )}
+            </div>
 
-                  <div className="relative z-10 space-y-12">
-                      {/* Main Player Row */}
-                      <div className="flex flex-col lg:flex-row items-center gap-12">
-                          {/* Play/Pause Controller */}
-                          <button 
-                            onClick={() => wavesurfer.current?.playPause()}
-                            className="w-28 h-28 rounded-[2.5rem] bg-ink text-canvas flex items-center justify-center hover:scale-105 transition-all shadow-[0_20px_60px_color-mix(in_oklab,var(--ink)_20%,transparent)] shrink-0 group/play relative overflow-hidden"
-                          >
-                              <div className="absolute inset-0 bg-brand opacity-0 group-hover/play:opacity-10 transition-opacity" />
-                              {isPlaying ? (
-                                <Pause className="w-12 h-12 fill-canvas" />
-                              ) : (
-                                <Play className="w-12 h-12 fill-canvas ml-1.5" />
-                              )}
-                          </button>
-
-                          {/* Track Progress & Waveform */}
-                          <div className="flex-1 w-full space-y-6">
-                              <div className="flex justify-between items-center">
-                                  <div className="flex items-center gap-3">
-                                      <div className={clsx("w-2 h-2 rounded-full", isPlaying ? "bg-brand animate-pulse shadow-[0_0_10px_var(--brand)]" : "bg-ink/10")} />
-                                        <span className="font-mono text-[11px] font-black uppercase tracking-[0.2em] text-ink">Live Spectral Stream</span>
-                                  </div>
-                                  <div className="px-3 py-1 rounded-lg bg-ink/5 border border-line">
-                                    <span className="font-mono text-[10px] text-ink/40 uppercase tracking-widest font-black text-glow-orange">Engine v4.2.0</span>
-                                  </div>
-                              </div>
-                              
-                              <div className="relative">
-                                <div ref={waveformRef} className="w-full cursor-pointer hover:opacity-80 transition-opacity relative z-10" />
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-brand/5 to-transparent blur-[40px] pointer-events-none opacity-40" />
-                              </div>
-                              
-                              <div className="flex justify-between font-mono text-[10px] font-black text-ink/40 uppercase tracking-widest">
-                                  <span className="text-brand tabular-nums">{new Date(currentTime * 1000).toISOString().substr(14, 5)}</span>
-                                  <span className="tabular-nums">{result.duration_ms ? new Date(result.duration_ms).toISOString().substr(14, 5) : '--:--'}</span>
-                              </div>
-                          </div>
-                      </div>
-
-                      {/* Advanced Telemetry Strips */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t border-line-subtle">
-                          {[
-                            { label: 'Signal Confidence', value: '98%', color: 'bg-brand' },
-                            { label: 'Spectral Stability', value: '84%', color: 'bg-brand' },
-                            { label: 'Neural Phase', value: 'SYNCED', isStatus: true },
-                            { label: 'Buffer Rate', value: 'OPTIMAL', isStatus: true },
-                          ].map((stat, i) => (
-                            <div key={i} className="space-y-3">
-                              <span className="font-mono text-[10px] text-ink/30 uppercase tracking-[0.15em] font-black">{stat.label}</span>
-                              {stat.isStatus ? (
-                                <div className="flex items-center gap-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
-                                    <span className="font-mono text-[11px] text-ink font-black uppercase tracking-widest">{stat.value}</span>
-                                </div>
-                              ) : (
-                                <div className="flex items-center gap-3">
-                                  <div className="flex-1 h-1 bg-ink/5 rounded-full overflow-hidden">
-                                      <div className={`h-full ${stat.color}`} style={{ width: stat.value }} />
-                                  </div>
-                                  <span className="font-mono text-[11px] text-ink font-black">{stat.value}</span>
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                      </div>
-
-                      {/* Real-time Chord Scroll Strip */}
-                      <div className="relative h-24 bg-surface/60 border border-line-subtle rounded-2xl overflow-hidden flex items-center px-6 shadow-[inset_0_4px_30px_rgba(0,0,0,0.5)]">
-                          {/* Focal Point Indicator */}
-                          <div className="absolute left-1/2 top-0 bottom-0 w-px bg-brand z-10 shadow-[0_0_20px_var(--brand)]">
-                              <div className="absolute -top-1 -left-1 w-2 h-2 bg-brand rounded-full blur-[1px]" />
-                              <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-brand rounded-full blur-[1px]" />
-                          </div>
-
-                          {chordSegments.length > 0 ? (
-                            <div
-                              className="flex gap-8 transition-transform duration-150 ease-linear"
-                              style={{ transform: `translateX(calc(50% - ${currentTime * 80}px))` }}
-                            >
-                              {chordSegments.map((c, i) => (
-                                <div
-                                  key={`${c.chord}-${c.start_time}-${i}`}
-                                  className={clsx(
-                                    'flex flex-col items-center justify-center min-w-[100px] h-14 rounded-xl transition-all duration-500',
-                                    currentTime >= c.start_time && currentTime <= c.end_time
-                                      ? 'bg-brand text-brand-ink scale-110 shadow-[0_0_30px_color-mix(in_oklab,var(--brand)_20%,transparent)] font-black'
-                                      : 'bg-ink/5 text-ink/20 border border-line-subtle opacity-40'
-                                  )}
-                                  style={{ minWidth: Math.max(100, (c.end_time - c.start_time) * 80) }}
-                                >
-                                  <span className="text-lg font-display uppercase tracking-tighter leading-none">{c.chord}</span>
-                                    <span className="text-[10px] font-mono opacity-60 uppercase mt-1 tracking-widest">{Math.round(c.start_time)}s</span>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="w-full flex items-center justify-center gap-4">
-                                <Radio className="w-5 h-5 text-ink/10 animate-pulse" />
-                                <span className="font-mono text-[10px] text-ink/20 uppercase tracking-[0.4em] font-black">Decoding Harmonic Matrix...</span>
-                            </div>
-                          )}
-                      </div>
+            <div className="mt-5 flex items-center gap-5">
+              <button
+                type="button"
+                onClick={() => wavesurfer.current?.playPause()}
+                disabled={!audioSrc || !audioReady}
+                aria-label={isPlaying ? 'Pause' : 'Play'}
+                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand text-brand-ink transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {isPlaying ? <Pause className="h-5 w-5 fill-current" /> : <Play className="ml-0.5 h-5 w-5 fill-current" />}
+              </button>
+              <div className="min-w-0 flex-1">
+                <div ref={waveformRef} className={clsx('w-full', audioSrc ? 'cursor-pointer' : 'hidden')} />
+                {!audioSrc && (
+                  <div className="flex h-16 items-center rounded-xl border border-dashed border-line px-4 text-sm text-ink-faint">
+                    No audio to play
                   </div>
-              </div>
-
-              {/* Transcripts Panel */}
-              <div className="obsidian-panel p-10 rounded-[3rem] border border-line-subtle h-[500px] overflow-hidden flex flex-col group/lyrics">
-                  <div className="flex justify-between items-center mb-10">
-                    <h3 className="font-display font-black text-xs text-brand uppercase tracking-[0.3em] flex items-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-brand" />
-                      {result?.synced_lyrics ? 'Neural Sync Transcript' : 'Source Transcript'}
-                    </h3>
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-ink/5 border border-line-subtle">
-                        <Activity className="w-3 h-3 text-ink/20" />
-                        <span className="font-mono text-[9px] text-ink/30 uppercase font-black tracking-widest">Active Tracking</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex-1 overflow-y-auto pr-6 space-y-10 custom-scrollbar scroll-smooth">
-                      {lyricLines.length > 0 ? (
-                        lyricLines.map((line, i) => (
-                          <motion.p
-                            key={i}
-                            animate={i === currentLyricIdx ? { x: 10, scale: 1.05 } : { x: 0, scale: 1 }}
-                            className={clsx(
-                              'text-2xl md:text-4xl font-display font-black transition-all duration-700 leading-tight',
-                              i === currentLyricIdx
-                                ? 'text-ink text-glow-orange opacity-100'
-                                : 'text-ink/10 hover:text-ink/25 cursor-default'
-                            )}
-                          >
-                            {line.text}
-                          </motion.p>
-                        ))
-                      ) : lyricsText ? (
-                        <pre className="text-ink/60 text-lg font-medium whitespace-pre-wrap leading-relaxed font-sans">
-                          {lyricsText}
-                        </pre>
-                      ) : (
-                        <div className="h-full flex flex-col items-center justify-center space-y-6 text-ink/10">
-                          <CloudRain className="w-16 h-16 opacity-10" />
-                          <p className="font-mono text-xs uppercase tracking-[0.4em] font-black italic">Neural signatures missing for lyrics</p>
-                        </div>
-                      )}
-                  </div>
-              </div>
-          </div>
-
-          {/* Right Column: Technical Metadata & Chord Fingerprints */}
-          <div className="col-span-12 xl:col-span-4 space-y-8">
-              <div className="glass-card p-8 border border-brand/20 bg-brand/5 relative overflow-hidden group/chord">
-                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover/chord:opacity-10 transition-opacity">
-                    <Radio className="w-32 h-32 text-brand" />
-                  </div>
-                    <span className="font-mono text-[11px] text-brand font-black uppercase tracking-[0.2em] mb-8 block">Live Harmonic Detection</span>
-                  <div className="flex items-center justify-between relative z-10">
-                      <div className="text-6xl font-display font-black text-ink tracking-tighter text-glow-orange">{currentChord}</div>
-                      <div className="w-16 h-16 rounded-[2rem] bg-brand/10 border border-brand/30 flex items-center justify-center">
-                          <Radio className="w-8 h-8 text-brand animate-pulse" />
-                      </div>
-                  </div>
-                  <div className="mt-8 flex items-center gap-3 px-4 py-2 rounded-xl bg-surface/40 border border-line-subtle relative z-10 w-max">
-                    <div className="w-1.5 h-1.5 rounded-full bg-brand animate-ping" />
-                    <p className="text-[11px] text-brand uppercase font-mono font-black tracking-widest">Real-time spectral link active</p>
-                  </div>
-              </div>
-
-              <div className="obsidian-panel rounded-[2.5rem] border border-line-subtle overflow-hidden">
-                <div className="p-8 border-b border-line-subtle bg-ink/[0.01] flex items-center justify-between">
-                    <h3 className="font-display font-black text-xs text-ink uppercase tracking-[0.3em] flex items-center gap-3">
-                        <Zap className="w-4 h-4 text-brand" /> Harmonic Stage
-                    </h3>
-                    <div className="flex p-1 bg-ink/5 rounded-xl border border-line">
-                      <button
-                        onClick={() => setChordMode('view')}
-                        className={clsx(
-                          "px-3 py-1.5 rounded-lg font-mono text-[10px] uppercase tracking-wider transition-all",
-                          chordMode === 'view' ? "bg-brand text-brand-ink font-bold" : "text-ink/60 hover:text-ink"
-                        )}
-                      >
-                        View
-                      </button>
-                      <button
-                        onClick={() => setChordMode('play')}
-                        className={clsx(
-                          "px-3 py-1.5 rounded-lg font-mono text-[10px] uppercase tracking-wider transition-all flex items-center gap-1.5",
-                          chordMode === 'play' ? "bg-brand text-brand-ink font-bold" : "text-ink/60 hover:text-ink"
-                        )}
-                      >
-                        <span className="material-symbols-outlined text-xs">pan_tool</span>
-                        Play
-                      </button>
-                    </div>
-                </div>
-                <div className="p-4">
-                  {chordMode === 'play' ? (
-                    <GestureChordStage chords={chordSegments} />
-                  ) : (
-                    <InstrumentChordPanel chords={chordSegments} />
-                  )}
+                )}
+                <div className="mt-2 flex justify-between text-xs tabular-nums text-ink-muted">
+                  <span>{formatTime(currentTime)}</span>
+                  <span>{duration ? formatTime(duration) : '–:––'}</span>
                 </div>
               </div>
+            </div>
 
-              <div className="obsidian-panel p-8 rounded-[2.5rem] border border-line-subtle space-y-8">
-                  <div className="flex items-center justify-between">
-                      <h4 className="font-display font-black text-xs text-ink uppercase tracking-[0.3em] flex items-center gap-3">
-                        <FileText className="w-4 h-4 text-brand" /> Spectral Metadata
-                      </h4>
-                      <CheckCircle2 className="w-4 h-4 text-brand opacity-50" />
-                  </div>
-                  
-                  <div className="space-y-4">
-                      {[
-                        { label: 'Sample Rate', value: '44.1kHz', sub: 'HD Audio' },
-                        { label: 'Bit Depth', value: '24-bit', sub: 'PCM Linear' },
-                        { label: 'Loudness', value: '-14.2 LUFS', sub: 'Streaming Target' },
-                        { label: 'Peak Level', value: '-0.1 dBTP', sub: 'True Peak' },
-                        { label: 'Complexity', value: 'High', sub: 'Neural Score' }
-                      ].map((meta, i) => (
-                        <div key={i} className="flex justify-between items-center group/meta p-2 rounded-xl hover:bg-ink/[0.02] transition-colors cursor-default">
-                          <div className="space-y-1">
-                            <span className="font-mono text-[10px] text-ink/30 uppercase tracking-widest font-black block group-hover/meta:text-ink/50 transition-colors">{meta.label}</span>
-                            <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest opacity-40 block">{meta.sub}</span>
-                          </div>
-                          <span className="font-display font-black text-sm text-ink group-hover/meta:text-brand transition-colors">{meta.value}</span>
-                        </div>
-                      ))}
-                  </div>
-
-                  <button 
-                    onClick={handleExport}
-                    className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-ink/[0.03] border border-line hover:bg-ink/[0.06] hover:border-brand/30 transition-all group/export"
+            {/* Chord timeline */}
+            <div className="mt-6 border-t border-line-subtle pt-5">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-xs font-medium text-ink-muted">Chord timeline</p>
+                <p className="text-xs text-ink-faint">{chords.length ? `${chords.length} changes` : ''}</p>
+              </div>
+              {chords.length ? (
+                <div className="relative overflow-hidden rounded-xl border border-line-subtle bg-veil-1 py-3">
+                  <div className="pointer-events-none absolute inset-y-0 left-1/2 w-px bg-brand/60" />
+                  <div
+                    className="flex gap-2 pl-[50%] transition-transform duration-150 ease-linear"
+                    style={{ transform: `translateX(-${currentTime * 72}px)` }}
                   >
-                    <span className="font-mono text-[10px] font-black text-ink uppercase tracking-widest group-hover/export:text-brand">Download Full JSON Report</span>
-                    <ArrowUpRight className="w-3 h-3 text-ink/20 group-hover/export:text-brand group-hover/export:translate-x-0.5 group-hover/export:-translate-y-0.5 transition-all" />
-                  </button>
+                    {chords.map((s, i) => {
+                      const active = currentTime >= s.start_time && currentTime <= s.end_time;
+                      return (
+                        <div
+                          key={`${s.chord}-${s.start_time}-${i}`}
+                          className={clsx(
+                            'flex shrink-0 flex-col items-center justify-center rounded-lg border px-3 py-2 transition-colors',
+                            active ? 'border-brand/50 bg-brand/10 text-ink' : 'border-line-subtle bg-surface text-ink-muted',
+                          )}
+                          style={{ width: Math.max(72, (s.end_time - s.start_time) * 72) }}
+                        >
+                          <span className="font-display text-base font-semibold">{s.chord}</span>
+                          <span className="text-[0.6875rem] tabular-nums text-ink-faint">{formatTime(s.start_time)}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-ink-faint">No chords were detected in this track.</p>
+              )}
+            </div>
+          </Card>
+
+          {/* Lyrics */}
+          <Card className="flex max-h-[34rem] flex-col">
+            <SectionHeader
+              title="Lyrics"
+              description={result.synced_lyrics ? 'Synced to playback.' : lyricsText ? 'Plain text — no timing available.' : undefined}
+              action={lyricLines.length ? <span className="text-xs text-ink-faint">{lyricLines.length} lines</span> : null}
+            />
+            <div className="custom-scrollbar mt-5 flex-1 space-y-3 overflow-y-auto pr-3">
+              {lyricLines.length ? (
+                lyricLines.map((line, i) => (
+                  <p
+                    key={i}
+                    className={clsx(
+                      'text-lg leading-snug transition-colors duration-300 md:text-xl',
+                      result.synced_lyrics
+                        ? i === currentLyricIdx ? 'font-medium text-ink' : 'text-ink-faint'
+                        : 'text-ink-muted',
+                    )}
+                  >
+                    {line.text}
+                  </p>
+                ))
+              ) : (
+                <p className="py-10 text-center text-sm text-ink-faint">No lyrics were found for this track.</p>
+              )}
+            </div>
+          </Card>
+        </div>
+
+        {/* Right column */}
+        <aside className="col-span-12 space-y-6 xl:col-span-4">
+          <Card>
+            <SectionHeader title="Current chord" description="Follows the playhead." />
+            <div className="mt-4 flex items-center justify-between">
+              <span className="font-display text-5xl font-semibold tracking-tight text-ink">{currentChord || '—'}</span>
+              <StatusDot tone={isPlaying ? 'brand' : 'neutral'}>
+                <span className="text-ink-muted">{isPlaying ? 'Live' : 'Paused'}</span>
+              </StatusDot>
+            </div>
+          </Card>
+
+          <Card padding="none">
+            <div className="flex items-center justify-between gap-4 border-b border-line-subtle px-6 py-4">
+              <SectionHeader title="Chord tools" />
+              <Tabs
+                aria-label="Chord tool mode"
+                value={chordMode}
+                onChange={setChordMode}
+                items={[
+                  { id: 'view', label: 'Shapes', icon: Music },
+                  { id: 'play', label: 'Gestures', icon: Hand },
+                ]}
+              />
+            </div>
+            <div className="p-4">
+              {chordMode === 'play' ? <GestureChordStage chords={chords} /> : <InstrumentChordPanel chords={chords} />}
+            </div>
+          </Card>
+
+          <Card>
+            <SectionHeader title="Details" />
+            <DataList rows={detailRows} className="mt-2" />
+            {yamnet.length > 0 && (
+              <div className="mt-5 border-t border-line-subtle pt-4">
+                <p className="mb-3 text-xs font-medium text-ink-muted">What it sounds like</p>
+                <div className="space-y-3">
+                  {yamnet.map((t) => (
+                    <Progress key={t.label} label={t.label} display={`${t.score}%`} value={t.score} tone="neutral" />
+                  ))}
+                </div>
               </div>
-          </div>
+            )}
+            <button
+              type="button"
+              onClick={handleExport}
+              className="btn-secondary mt-5 inline-flex w-full items-center justify-center gap-2 text-sm"
+            >
+              <FileText className="h-4 w-4" /> Download JSON report <ArrowUpRight className="h-3.5 w-3.5 text-ink-faint" />
+            </button>
+          </Card>
+        </aside>
       </div>
     </PageWrapper>
   );

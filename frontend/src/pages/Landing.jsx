@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
-import ThemeToggle from '../components/ThemeToggle';
+import { PublicNav, PublicFooter } from '../components/PublicShell';
 import LandingBackground from '../components/landing/LandingBackground';
 import MagneticCta from '../components/landing/MagneticCta';
 import {
@@ -139,9 +139,10 @@ export default function Landing() {
       const r = card.getBoundingClientRect();
       const x = e.clientX - r.left;
       const y = e.clientY - r.top;
-      const rx = ((y / r.height) - 0.5) * -10;
-      const ry = ((x / r.width) - 0.5) * 10;
-      card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-10px)`;
+      // Enough to feel the depth, not enough to notice the trick.
+      const rx = ((y / r.height) - 0.5) * -4;
+      const ry = ((x / r.width) - 0.5) * 4;
+      card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-4px)`;
     };
     const onMouseLeave = (card) => {
       card.style.transform = '';
@@ -173,44 +174,11 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen overflow-hidden bg-transparent text-ink antialiased selection:bg-brand selection:text-brand-ink noise relative font-sans">
-      <motion.header
-        initial={{ y: -80, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.7, ease: EASE }}
-        className="sticky top-0 z-50 border-b border-line bg-surface/80 backdrop-blur-md"
-      >
-        <nav className="mx-auto flex h-20 max-w-[1720px] items-center justify-between px-5 sm:px-8 lg:px-10">
-          <Link to="/" className="group inline-flex items-center gap-3">
-            <span className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-brand/30 bg-brand/10 shadow-[0_0_35px_color-mix(in_oklab,var(--brand)_16%,transparent)]">
-              <span className="absolute h-3 w-3 rounded-full bg-brand shadow-[0_0_22px_color-mix(in_oklab,var(--brand)_80%,transparent)]"></span>
-              <span className="h-7 w-7 rounded-full border border-brand/50"></span>
-            </span>
-            <span className="text-sm font-semibold tracking-[0.38em] text-ink">BEATZY</span>
-          </Link>
-          <div className="hidden items-center gap-10 md:flex">
-            <a href="#features" onClick={scrollTo('#features')} className="text-[11px] font-medium tracking-[0.24em] text-ink-muted transition hover:text-brand">FEATURES</a>
-            <a href="#how-it-works" onClick={scrollTo('#how-it-works')} className="text-[11px] font-medium tracking-[0.24em] text-ink-muted transition hover:text-brand">HOW IT WORKS</a>
-            <a href="#examples" onClick={scrollTo('#examples')} className="text-[11px] font-medium tracking-[0.24em] text-ink-muted transition hover:text-brand">EXAMPLES</a>
-            <Link to="/pricing" className="text-[11px] font-medium tracking-[0.24em] text-ink-muted transition hover:text-brand">PRICING</Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            {!token && (
-              <Link to="/login" className="hidden px-3 text-[11px] font-medium tracking-[0.22em] text-ink-muted transition hover:text-ink sm:inline-flex">LOGIN</Link>
-            )}
-            <Link
-              to={token ? '/dashboard' : '/pricing'}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-brand px-5 text-xs font-black text-brand-ink shadow-[0_0_40px_color-mix(in_oklab,var(--brand)_20%,transparent)] transition hover:-translate-y-0.5 hover:shadow-[0_0_70px_color-mix(in_oklab,var(--brand)_38%,transparent)]"
-            >
-              {token ? 'OPEN APP' : 'GET STARTED'}
-            </Link>
-          </div>
-        </nav>
-      </motion.header>
+      <PublicNav />
 
       <main id="top" className="relative z-10">
         {/* ============ HERO ============ */}
-        <section className="relative flex min-h-[860px] items-center overflow-hidden">
+        <section className="relative flex min-h-[53.75rem] items-center overflow-hidden">
           <LandingBackground />
           <div className="relative z-10 mx-auto grid w-full max-w-[1720px] items-center gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[1.02fr_.98fr] lg:px-10">
             <motion.div className="max-w-6xl" variants={stagger} initial="hidden" animate="show">
@@ -218,10 +186,10 @@ export default function Landing() {
                 variants={fadeUp}
                 className="mb-6 inline-flex items-center gap-3 rounded-full border border-brand/20 bg-brand/5 px-4 py-2 text-[11px] font-medium tracking-[0.28em] text-brand shadow-[0_0_50px_color-mix(in_oklab,var(--brand)_8%,transparent)]"
               >
-                <span className="h-2 w-2 animate-pulse rounded-full bg-brand shadow-[0_0_16px_color-mix(in_oklab,var(--brand)_90%,transparent)]"></span>
-                RESONANCE ENGINE — V4
+                <span className="h-2 w-2 rounded-full bg-brand shadow-[0_0_16px_color-mix(in_oklab,var(--brand)_90%,transparent)]"></span>
+                MUSIC INTELLIGENCE
               </motion.div>
-              <h1 className="max-w-7xl text-[clamp(3.5rem,9.2vw,8.4rem)] font-black uppercase leading-[0.88] tracking-[-0.08em] text-ink [perspective:900px]">
+              <h1 className="max-w-7xl text-[clamp(3.25rem,8.4vw,7.5rem)] font-black uppercase leading-[0.92] tracking-[-0.05em] text-ink [perspective:900px]">
                 <motion.span variants={titleLine} className="inline-block">Decode</motion.span><br />
                 <motion.span variants={titleLine} className="inline-block text-brand">the DNA</motion.span><br />
                 <motion.span variants={titleLine} className="inline-block">of any song.</motion.span>
@@ -243,9 +211,7 @@ export default function Landing() {
             </motion.div>
 
             {/* Floating analysis cards */}
-            <div className="relative mx-auto hidden h-[620px] w-full max-w-[590px] perspective-[1200px] sm:block">
-              <div className="orbit-dot absolute left-1/2 top-1/2 h-4 w-4 rounded-full bg-brand shadow-[0_0_26px_var(--brand)]"></div>
-
+            <div className="relative mx-auto hidden h-[38.75rem] w-full max-w-[36.875rem] perspective-[1200px] sm:block">
               <motion.div
                 initial={{ opacity: 0, y: 60, rotateY: -14 }}
                 animate={{ opacity: 1, y: 0, rotateY: 0 }}
@@ -371,8 +337,8 @@ export default function Landing() {
               { val: '99.8%', lab: 'ID ACCURACY' },
               { val: '6', lab: 'AUDIO DIMENSIONS' },
             ].map((stat) => (
-              <motion.div key={stat.lab} variants={fadeUp} className="tilt-card rounded-[2rem] border border-line bg-veil-1 p-7 text-center backdrop-blur-xl">
-                <p className="text-5xl font-black tracking-tight text-brand">{stat.val}</p>
+              <motion.div key={stat.lab} variants={fadeUp} className="tilt-card rounded-2xl border border-line bg-surface p-7 text-center">
+                <p className="font-display text-4xl font-semibold tracking-tight text-brand">{stat.val}</p>
                 <p className="mt-2 text-[10px] tracking-[0.24em] text-ink-muted">{stat.lab}</p>
               </motion.div>
             ))}
@@ -383,7 +349,7 @@ export default function Landing() {
         <section id="features" className="relative mx-auto max-w-[1720px] px-5 py-28 sm:px-8 lg:px-10">
           <Reveal className="mx-auto max-w-5xl text-center">
             <p className="text-[11px] font-semibold tracking-[0.36em] text-brand">FEATURES</p>
-            <h2 className="mt-4 text-[clamp(2.75rem,4.7vw,4.5rem)] font-black uppercase tracking-[-0.06em] text-ink">Music intelligence with depth.</h2>
+            <h2 className="mt-4 text-[clamp(2.25rem,3.6vw,3.5rem)] font-semibold tracking-tight text-ink">Everything a track can tell you.</h2>
             <p className="mt-5 text-lg leading-8 text-ink-muted">Every component is built for recognition, enrichment, and API-scale delivery — wrapped in a cinematic interface that feels as fast as the engine underneath.</p>
           </Reveal>
           <motion.div
@@ -398,12 +364,12 @@ export default function Landing() {
               { icon: Radar, title: 'AI audio dimensions', text: 'Extract tempo, key, mood, energy, rhythm density, vocal presence, chords, sections, and similarity vectors for discovery systems.' },
               { icon: Code2, title: 'SaaS-ready API', text: 'Drop Beatzy into streaming apps, rights workflows, DJ tools, creator platforms, and catalog intelligence products.' },
             ].map((feat, i) => (
-              <motion.article key={i} variants={fadeUp} className="tilt-card rounded-[2.5rem] border border-line bg-veil-1 p-7 backdrop-blur-xl">
-                <div className="mb-10 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand text-brand-ink shadow-[0_0_55px_color-mix(in_oklab,var(--brand)_32%,transparent)]">
+              <motion.article key={i} variants={fadeUp} className="tilt-card rounded-2xl border border-line bg-surface p-7">
+                <div className="mb-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand text-brand-ink shadow-[0_0_28px_color-mix(in_oklab,var(--brand)_22%,transparent)]">
                   <feat.icon className="w-8 h-8" />
                 </div>
                 <p className="text-[10px] tracking-[0.28em] text-brand">0{i + 1} / {feat.title.split(' ')[0].toUpperCase()}</p>
-                <h3 className="mt-3 text-3xl font-black tracking-tight text-ink">{feat.title}</h3>
+                <h3 className="mt-3 font-display text-2xl font-semibold tracking-tight text-ink">{feat.title}</h3>
                 <p className="mt-4 leading-7 text-ink-muted">{feat.text}</p>
               </motion.article>
             ))}
@@ -416,7 +382,7 @@ export default function Landing() {
           <div className="relative mx-auto max-w-[1500px] px-5 sm:px-8">
             <Reveal className="text-center">
               <p className="text-[11px] font-semibold tracking-[0.36em] text-brand">PIPELINE</p>
-              <h2 className="mt-4 text-[clamp(2.75rem,4.7vw,4.5rem)] font-black uppercase tracking-[-0.06em] text-ink">How it works</h2>
+              <h2 className="mt-4 text-[clamp(2.25rem,3.6vw,3.5rem)] font-semibold tracking-tight text-ink">How it works</h2>
             </Reveal>
             <motion.div
               className="relative mt-20 grid gap-6 lg:grid-cols-3"
@@ -431,12 +397,12 @@ export default function Landing() {
                 { icon: Waves, title: 'Analyze', text: 'Fingerprinting, source separation, chord inference, tempo grids, and mood models run together.' },
                 { icon: Sparkles, title: 'Reveal', text: 'Return clean metadata, confidence scores, and structured JSON for product teams.' },
               ].map((step, i) => (
-                <motion.article key={i} variants={fadeUp} className="tilt-card relative rounded-[2.5rem] border border-line bg-raised/80 p-8 text-center backdrop-blur-xl">
-                  <div className="step-badge mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-brand text-2xl font-black text-brand-ink shadow-[0_0_70px_color-mix(in_oklab,var(--brand)_35%,transparent)]" style={{ animationDelay: `-${i * 2}s` }}>
+                <motion.article key={i} variants={fadeUp} className="tilt-card relative rounded-2xl border border-line bg-surface p-8 text-center">
+                  <div className="step-badge mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-brand text-xl font-black text-brand-ink shadow-[0_0_32px_color-mix(in_oklab,var(--brand)_24%,transparent)]" style={{ animationDelay: `-${i * 2}s` }}>
                     0{i + 1}
                   </div>
                   <step.icon className="mx-auto mt-9 w-12 h-12 text-brand" />
-                  <h3 className="mt-5 text-3xl font-black uppercase tracking-tight text-ink">{step.title}</h3>
+                  <h3 className="mt-5 font-display text-2xl font-semibold tracking-tight text-ink">{step.title}</h3>
                   <p className="mt-4 leading-7 text-ink-muted">{step.text}</p>
                 </motion.article>
               ))}
@@ -448,7 +414,7 @@ export default function Landing() {
         <section id="archive" className="relative mx-auto max-w-[1720px] px-5 py-28 sm:px-8 lg:px-10">
           <Reveal className="mx-auto max-w-5xl text-center">
             <p className="text-[11px] font-semibold tracking-[0.36em] text-brand">THE ARCHIVE</p>
-            <h2 className="mt-4 text-[clamp(2.75rem,4.7vw,4.5rem)] font-black uppercase tracking-[-0.06em] text-ink">Every tape has DNA.</h2>
+            <h2 className="mt-4 text-[clamp(2.25rem,3.6vw,3.5rem)] font-semibold tracking-tight text-ink">From any recording.</h2>
             <p className="mt-5 text-lg leading-8 text-ink-muted">From dusty mixtapes to studio masters — feed Beatzy any recording and it reads the tempo, key, and mood pressed into the tape.</p>
           </Reveal>
           <motion.div
@@ -468,11 +434,11 @@ export default function Landing() {
         <section id="examples" className="relative mx-auto grid max-w-[1720px] gap-10 px-5 py-28 sm:px-8 lg:grid-cols-[.9fr_1.1fr] lg:px-10">
           <Reveal>
             <p className="text-[11px] font-semibold tracking-[0.36em] text-brand">EXAMPLES</p>
-            <h2 className="mt-4 text-[clamp(2.75rem,4.7vw,4.5rem)] font-black uppercase tracking-[-0.06em] text-ink">API output that sings.</h2>
+            <h2 className="mt-4 text-[clamp(2.25rem,3.6vw,3.5rem)] font-semibold tracking-tight text-ink">Clean output for developers.</h2>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-ink-muted">Designed for developers who need a gorgeous dashboard and reliable machine-readable analysis. No guesswork. Just clean signal.</p>
           </Reveal>
           <Reveal delay={0.15}>
-            <div className="tilt-card overflow-hidden rounded-[2.5rem] border border-brand/25 bg-raised shadow-lg">
+            <div className="tilt-card overflow-hidden rounded-2xl border border-line bg-surface shadow-[var(--shadow-md)]">
               <div className="flex items-center justify-between border-b border-line bg-veil-1 px-6 py-4">
                 <div className="flex gap-2">
                   <span className="h-3 w-3 rounded-full bg-line-strong"></span>
@@ -502,11 +468,11 @@ export default function Landing() {
         {/* ============ CTA BANNER ============ */}
         <section id="pricing" className="relative px-5 pb-28 sm:px-8 lg:px-10">
           <Reveal>
-            <div className="mx-auto max-w-[1500px] overflow-hidden rounded-[3rem] border border-brand/25 bg-brand p-8 text-brand-ink shadow-[0_0_140px_color-mix(in_oklab,var(--brand)_22%,transparent)] md:p-12">
+            <div className="mx-auto max-w-[1500px] overflow-hidden rounded-2xl border border-brand/25 bg-brand p-8 text-brand-ink md:p-12">
               <div className="grid items-center gap-10 lg:grid-cols-[1fr_auto]">
                 <div>
                   <p className="text-[11px] font-black tracking-[0.34em] opacity-70">START BUILDING</p>
-                  <h2 className="mt-3 max-w-5xl text-5xl font-black uppercase leading-[.92] tracking-[-0.07em] md:text-7xl">Turn every song into structured intelligence.</h2>
+                  <h2 className="mt-3 max-w-4xl font-display text-4xl font-semibold tracking-tight md:text-5xl">Start with your next track.</h2>
                   <p className="mt-5 max-w-4xl text-lg font-medium leading-8 opacity-80">Launch with hosted analysis, dashboard uploads, and API access for recognition-first music products.</p>
                 </div>
                 <Link
@@ -521,17 +487,7 @@ export default function Landing() {
         </section>
       </main>
 
-      <footer className="relative z-10 border-t border-line bg-canvas/80 px-5 py-10 backdrop-blur-sm sm:px-8 lg:px-10">
-        <div className="mx-auto flex max-w-[1720px] flex-col items-center justify-between gap-5 md:flex-row">
-          <p className="text-sm font-semibold tracking-[0.32em] text-ink">BEATZY</p>
-          <p className="text-sm text-ink-muted text-center">Music intelligence engine for identification, analysis, and API access.</p>
-          <div className="flex gap-5">
-            <a href="#examples" onClick={scrollTo('#examples')} className="text-sm text-ink-muted transition hover:text-brand">Docs</a>
-            <a href="#features" onClick={scrollTo('#features')} className="text-sm text-ink-muted transition hover:text-brand">Features</a>
-            <Link to="/pricing" className="text-sm text-ink-muted transition hover:text-brand">Pricing</Link>
-          </div>
-        </div>
-      </footer>
+      <div className="relative z-10"><PublicFooter /></div>
     </div>
   );
 }

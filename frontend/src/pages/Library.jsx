@@ -1,20 +1,22 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { ArrowRightLeft, ArrowUpRight, FolderPlus, Folder, Heart, History, X } from 'lucide-react';
 import { getFavorites, getCollections, createCollection, removeFavorite } from '../api/library';
 import { getHistory } from '../api/audio';
 import GlassRecordSleeve from '../components/GlassRecordSleeve';
 import PageWrapper from '../components/PageWrapper';
-import { 
-  Search, 
-  Star, 
-  Layers, 
-  ArrowRightLeft,
-  FolderPlus,
-  History,
-  ArrowUpRight,
-  X
-} from 'lucide-react';
+import {
+  Button,
+  Card,
+  EmptyState,
+  IconButton,
+  Input,
+  PageHeader,
+  SearchField,
+  SectionHeader,
+  Skeleton,
+} from '../components/ui';
 
 export default function Library() {
   const [favorites, setFavorites] = useState([]);
@@ -23,7 +25,8 @@ export default function Library() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [newCollection, setNewCollection] = useState('');
-  const [searchQuery, setSearchSearchQuery] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [query, setQuery] = useState('');
 
   const load = useCallback(() => {
     setLoading(true);
@@ -34,167 +37,176 @@ export default function Library() {
         setCollections(col.data.data);
         setRecent(hist.data.data.jobs.filter((j) => j.status === 'completed'));
       })
-      .catch((err) => setError(err.response?.data?.error?.message || 'Failed to load library'))
+      .catch((err) => setError(err.response?.data?.error?.message || 'Failed to load your library'))
       .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
+  const visibleFavorites = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return favorites;
+    return favorites.filter((j) =>
+      [j.song_title, j.song_artist, j.original_filename].some((v) => v && v.toLowerCase().includes(q)),
+    );
+  }, [favorites, query]);
+
   async function handleCreateCollection(e) {
     e.preventDefault();
-    if (!newCollection.trim()) return;
+    const name = newCollection.trim();
+    if (!name) return;
+    setCreating(true);
     try {
-      await createCollection(newCollection.trim());
+      await createCollection(name);
       setNewCollection('');
-      toast.success('Neural collection initialized');
+      toast.success(`Created “${name}”`);
       load();
     } catch {
-      toast.error('Initialization failure');
+      toast.error("Couldn't create the collection");
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  async function handleRemoveFavorite(job) {
+    try {
+      await removeFavorite(job.id);
+      setFavorites((list) => list.filter((j) => j.id !== job.id));
+      toast.success('Removed from saved tracks');
+    } catch {
+      toast.error("Couldn't remove this track");
     }
   }
 
   return (
-    <PageWrapper className="space-y-16 pb-20 animate-page-entrance">
-      <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 border-b border-line-subtle pb-12">
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand/20 bg-brand/5 text-brand font-mono text-[11px] uppercase tracking-[0.15em]">
-              <Layers className="w-3 h-3" /> Central Registry
-          </div>
-          <h1 className="text-6xl font-display font-black text-ink tracking-tighter uppercase leading-none">Neural <span className="text-brand text-glow-ember">Library</span></h1>
-          <p className="font-mono text-[11px] text-ink/30 uppercase tracking-[0.2em]">Curated spectral signatures and collections</p>
-        </div>
-        
-        <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
-            <div className="relative w-full sm:w-80 group">
-                <div className="absolute inset-0 bg-brand/5 blur-[15px] opacity-0 group-focus-within:opacity-100 transition-opacity" />
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/20 w-4 h-4 group-focus-within:text-brand transition-colors" />
-                <input 
-                    type="text" 
-                    value={searchQuery}
-                    onChange={(e) => setSearchSearchQuery(e.target.value)}
-                    placeholder="Filter registry..."
-                    className="w-full h-12 bg-ink/[0.03] border border-line rounded-xl pl-12 pr-4 text-ink text-xs placeholder:text-ink/20 focus:outline-none focus:border-brand/30 transition-all font-mono uppercase tracking-widest"
-                />
-            </div>
-            <Link to="/compare" className="w-full sm:w-auto flex items-center justify-center gap-3 px-6 py-4 rounded-xl border border-line bg-ink/[0.03] text-ink font-mono text-[10px] uppercase tracking-widest hover:bg-ink/[0.06] transition-all">
-                <ArrowRightLeft className="w-4 h-4" /> Cross-Reference
+    <PageWrapper className="space-y-10 pb-16">
+      <PageHeader
+        eyebrow="Library"
+        title="Saved tracks"
+        description="Tracks you've saved, your collections, and what you analysed most recently."
+        actions={
+          <>
+            <SearchField
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Filter saved tracks"
+              className="w-full sm:w-64"
+              aria-label="Filter saved tracks"
+            />
+            <Link to="/compare" className="btn-secondary inline-flex items-center gap-2 text-sm">
+              <ArrowRightLeft className="h-4 w-4" /> Compare
             </Link>
-        </div>
-      </header>
+          </>
+        }
+      />
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-72 rounded-[2.5rem] bg-ink/[0.02] border border-line-subtle animate-pulse" />
-            ))}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-64 rounded-2xl" />)}
         </div>
       ) : error ? (
-        <div className="glass-card p-12 text-center border border-red-500/20 max-w-xl mx-auto">
-          <p className="text-red-300 font-mono text-xs uppercase tracking-widest mb-8">{error}</p>
-          <button onClick={load} className="px-8 py-3 rounded-xl bg-ink text-brand-ink font-black text-[10px] uppercase tracking-widest hover:bg-brand hover:text-brand-ink transition-all">Retry Link</button>
-        </div>
+        <EmptyState
+          icon={Heart}
+          title="Couldn't load your library"
+          description={error}
+          action={<button onClick={load} className="btn-secondary text-sm">Try again</button>}
+        />
       ) : (
-        <div className="space-y-24">
-          <section className="space-y-10">
-            <div className="flex justify-between items-center">
-                <h2 className="font-display font-black text-xl text-ink uppercase tracking-[0.2em] flex items-center gap-4">
-                    <span className="w-8 h-px bg-canvas/30" /> 
-                    <Star className="w-5 h-5 text-ink fill-canvas/20" />
-                    Starred Signatures
-                </h2>
-                <span className="font-mono text-[11px] text-ink/20 uppercase tracking-widest">{favorites.length} entries</span>
-            </div>
+        <div className="space-y-12">
+          {/* Saved */}
+          <section className="space-y-5">
+            <SectionHeader
+              title="Saved"
+              description={favorites.length === 1 ? '1 track' : `${favorites.length} tracks`}
+            />
             {favorites.length === 0 ? (
-              <div className="obsidian-panel p-12 rounded-[2.5rem] border border-dashed border-line-subtle text-center">
-                <p className="text-ink/20 text-xs font-mono uppercase tracking-[0.15em]">No starred signatures found in registry.</p>
-              </div>
+              <EmptyState
+                icon={Heart}
+                title="Nothing saved yet"
+                description="Use the heart on any result to keep it here."
+                action={<Link to="/history" className="btn-secondary inline-flex items-center text-sm">Browse your history</Link>}
+              />
+            ) : visibleFavorites.length === 0 ? (
+              <EmptyState icon={Heart} title="No matches" description="Try a different title or artist." action={<button onClick={() => setQuery('')} className="btn-secondary text-sm">Clear filter</button>} />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {favorites.map((job) => (
-                  <div key={job.id} className="relative group">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {visibleFavorites.map((job) => (
+                  <div key={job.id} className="group relative">
                     <GlassRecordSleeve job={job} />
-                    <button
-                      type="button"
-                      onClick={() => removeFavorite(job.id).then(load)}
-                      className="absolute top-6 right-6 w-10 h-10 rounded-full bg-surface/60 backdrop-blur-md border border-line flex items-center justify-center text-ink opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
-                      aria-label="Remove favorite"
+                    <IconButton
+                      size="sm"
+                      aria-label="Remove from saved tracks"
+                      onClick={() => handleRemoveFavorite(job)}
+                      className="absolute right-6 top-6 z-20 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                     >
-                      <X className="w-5 h-5" />
-                    </button>
+                      <X className="h-4 w-4" />
+                    </IconButton>
                   </div>
                 ))}
               </div>
             )}
           </section>
 
-          <section className="space-y-10">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8">
-                <h2 className="font-display font-black text-xl text-ink uppercase tracking-[0.2em] flex items-center gap-4">
-                    <span className="w-8 h-px bg-accent-warm/30" /> 
-                    <Layers className="w-5 h-5 text-accent-warm" />
-                    Neural Collections
-                </h2>
-                <form onSubmit={handleCreateCollection} className="flex gap-3 w-full sm:w-auto group">
-                  <div className="relative">
-                    <FolderPlus className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/20 w-4 h-4" />
-                    <input 
-                        className="h-12 bg-ink/[0.03] border border-line rounded-xl pl-12 pr-4 text-ink text-xs placeholder:text-ink/20 focus:outline-none focus:border-accent-warm/30 transition-all font-mono uppercase tracking-widest"
-                        value={newCollection} 
-                        onChange={(e) => setNewCollection(e.target.value)} 
-                        placeholder="Label Identifier" 
-                    />
-                  </div>
-                  <button type="submit" className="px-6 h-12 rounded-xl bg-accent-warm text-ink font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_30px_rgba(232,160,132,0.2)]">
-                    Initialize
-                  </button>
+          {/* Collections */}
+          <section className="space-y-5">
+            <SectionHeader
+              title="Collections"
+              description="Group tracks for a set, a project or a mood."
+              action={
+                <form onSubmit={handleCreateCollection} className="flex items-end gap-2">
+                  <Input
+                    aria-label="New collection name"
+                    placeholder="New collection"
+                    value={newCollection}
+                    onChange={(e) => setNewCollection(e.target.value)}
+                    icon={FolderPlus}
+                    className="w-48 md:w-56"
+                  />
+                  <Button type="submit" size="sm" disabled={creating || !newCollection.trim()} className="!h-11 !py-0">
+                    {creating ? 'Creating…' : 'Create'}
+                  </Button>
                 </form>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {collections.map((c) => (
-                <div key={c.id} className="obsidian-panel p-6 rounded-[2rem] border border-line-subtle hover:border-accent-warm/30 transition-all cursor-pointer group flex flex-col justify-between h-48 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <Layers className="w-24 h-24 text-accent-warm" />
-                  </div>
-                  <div className="flex justify-between items-start relative z-10">
-                    <div className="w-10 h-10 rounded-xl bg-accent-warm/10 border border-accent-warm/20 flex items-center justify-center text-accent-warm">
-                        <Layers className="w-5 h-5" />
+              }
+            />
+            {collections.length === 0 ? (
+              <EmptyState icon={Folder} title="No collections yet" description="Create one above to start grouping tracks." />
+            ) : (
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {collections.map((c) => (
+                  <Card key={c.id} hover className="flex h-40 flex-col justify-between">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-line-subtle bg-veil-1">
+                      <Folder className="h-4 w-4 text-accent-warm" />
                     </div>
-                  </div>
-                  <div className="relative z-10">
-                      <p className="font-display font-black text-lg text-ink uppercase tracking-tight group-hover:text-accent-warm transition-colors">{c.name}</p>
-                      <p className="font-mono text-[10px] text-ink/30 mt-2 uppercase tracking-[0.15em]">{c.item_count} Signatures Indexed</p>
-                  </div>
-                </div>
-              ))}
-              {collections.length === 0 && (
-                <div className="lg:col-span-4 obsidian-panel p-12 rounded-[2.5rem] border border-dashed border-line-subtle text-center">
-                    <p className="text-ink/20 text-xs font-mono uppercase tracking-[0.15em]">No collections initialized.</p>
-                </div>
-              )}
-            </div>
+                    <div className="min-w-0">
+                      <p className="truncate font-display text-base font-semibold text-ink">{c.name}</p>
+                      <p className="text-xs text-ink-muted">{Number(c.item_count) === 1 ? '1 track' : `${c.item_count ?? 0} tracks`}</p>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
           </section>
 
-          <section className="space-y-10">
-            <div className="flex justify-between items-center">
-                <h2 className="font-display font-black text-xl text-ink uppercase tracking-[0.2em] flex items-center gap-4">
-                    <span className="w-8 h-px bg-brand/30" /> 
-                    <History className="w-5 h-5 text-brand" />
-                    Recently Indexed
-                </h2>
-                <Link to="/history" className="group flex items-center gap-2 text-[10px] font-mono text-brand uppercase tracking-widest hover:text-ink transition-colors">
-                    Access full archives <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          {/* Recent */}
+          <section className="space-y-5">
+            <SectionHeader
+              title="Recently analysed"
+              action={
+                <Link to="/history" className="inline-flex items-center gap-1 text-[0.8125rem] font-medium text-brand hover:text-brand-hover">
+                  All history <ArrowUpRight className="h-3.5 w-3.5" />
                 </Link>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {recent.slice(0, 4).map((job) => (
-                <GlassRecordSleeve key={job.id} job={job} />
-              ))}
-            </div>
+              }
+            />
+            {recent.length === 0 ? (
+              <EmptyState icon={History} title="No completed analyses yet" action={<Link to="/upload" className="btn-primary inline-flex items-center text-sm">Analyze a track</Link>} />
+            ) : (
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                {recent.slice(0, 4).map((job) => <GlassRecordSleeve key={job.id} job={job} />)}
+              </div>
+            )}
           </section>
         </div>
       )}
     </PageWrapper>
   );
 }
-
-

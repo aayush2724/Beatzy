@@ -1,17 +1,23 @@
 import { Link } from 'react-router-dom';
+import { ShieldAlert } from 'lucide-react';
+import PublicShell from '../components/PublicShell';
+import { EmptyState } from '../components/ui';
 
 export default function AuthError() {
   return (
-    <div className="min-h-screen bg-canvas text-ink font-body flex flex-col items-center justify-center px-6 text-center">
-      <span className="material-symbols-outlined text-5xl text-red-400/80 mb-6">error</span>
-      <h1 className="font-headline text-3xl uppercase tracking-tight mb-4">Sign-in failed</h1>
-      <p className="text-gray-400 text-sm max-w-md mb-8">
-        Google authentication did not complete. Check that OAuth is configured on the server, or try email sign-in.
-      </p>
-      <div className="flex gap-4">
-        <Link to="/login" className="btn-primary px-6 py-3 text-xs">Try again</Link>
-        <Link to="/" className="btn-secondary px-6 py-3 text-xs">Home</Link>
-      </div>
-    </div>
+    <PublicShell width="max-w-lg" className="flex items-center">
+      <EmptyState
+        icon={ShieldAlert}
+        title="Sign-in didn't complete"
+        description="Google sign-in was interrupted or isn't set up on this server. You can try again, or sign in with your email."
+        className="w-full"
+        action={
+          <div className="flex gap-3">
+            <Link to="/login" className="btn-primary inline-flex items-center text-sm">Try again</Link>
+            <Link to="/" className="btn-secondary inline-flex items-center text-sm">Home</Link>
+          </div>
+        }
+      />
+    </PublicShell>
   );
 }

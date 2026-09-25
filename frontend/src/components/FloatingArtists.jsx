@@ -11,7 +11,7 @@ const ARTISTS = [
   { src: '/artists/artist-3.jpg',  cls: 'w-44 h-56 top-[38%]  left-[2%]',        d: 0.35, float: 'float-b' },
   { src: '/artists/artist-4.jpg',  cls: 'w-36 h-48 bottom-[7%] left-[15%]',      d: 0.7,  float: 'float-d' },
   { src: '/artists/artist-5.avif', cls: 'w-48 h-60 top-[32%]  right-[4%]',       d: 0.45, float: 'float-a' },
-  { src: '/artists/artist-6.jpg',  cls: 'w-32 h-44 bottom-[9%] right-[13%]',     d: 0.85, float: 'float-c' },
+  { src: '/artists/artist-6-tile.jpg',  cls: 'w-32 h-44 bottom-[9%] right-[13%]',     d: 0.85, float: 'float-c' },
   { src: '/artists/artist-7.webp', cls: 'w-28 h-36 top-[60%]  left-[44%]',       d: 1.1,  float: 'float-b' },
   { src: '/artists/artist-8.jpg',  cls: 'w-36 h-48 top-[5%]   left-[60%]',       d: 0.6,  float: 'float-d' },
   { src: '/artists/artist-9.webp', cls: 'w-40 h-52 bottom-[12%] left-[56%]',     d: 0.75, float: 'float-a' },

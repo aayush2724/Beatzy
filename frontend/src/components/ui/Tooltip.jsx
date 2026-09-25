@@ -24,7 +24,7 @@ export function Tooltip({ content, children, side = 'top', className }) {
           id={id}
           role="tooltip"
           className={clsx(
-            'absolute z-50 px-2.5 py-1.5 rounded-lg font-mono text-[10px] uppercase tracking-wider',
+            'absolute z-50 px-2.5 py-1.5 rounded-lg font-mono text-[0.625rem] uppercase tracking-wider',
             'bg-surface-container-highest border border-glass-border text-on-surface whitespace-nowrap pointer-events-none',
             positions[side],
           )}

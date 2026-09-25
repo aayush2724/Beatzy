@@ -63,7 +63,7 @@ export default function MetricCards() {
 
           {metric.id === 'rhythm' && (
             <div className="grid grid-cols-4 gap-2.5 h-16">
-              <div className="bg-surface-container-high/50 rounded animate-pulse"></div>
+              <div className="bg-surface-container-high/50 rounded"></div>
               <div className="bg-surface-container-high/20 rounded"></div>
               <div className="bg-tertiary/40 rounded"></div>
               <div className="bg-surface-container-high/10 rounded"></div>

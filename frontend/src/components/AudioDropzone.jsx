@@ -47,7 +47,7 @@ export default function AudioDropzone({ onFile, disabled }) {
           {isDragReject ? (
             <AlertCircle size={40} className="text-red-400" />
           ) : isDragActive ? (
-            <Music size={40} className="text-ink animate-pulse" />
+            <Music size={40} className="text-ink" />
           ) : (
             <Upload size={40} className="text-gray-400 group-hover:text-ink transition-colors" />
           )}

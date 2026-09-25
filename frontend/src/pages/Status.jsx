@@ -1,66 +1,83 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { getSystemStatus } from '../api/public';
 import { usePageMeta } from '../hooks/usePageMeta';
-import { Badge, Skeleton } from '../components/ui';
+import PublicShell from '../components/PublicShell';
+import { Badge, Card, EmptyState, Skeleton, StatusDot } from '../components/ui';
 
-const STATUS_COLORS = {
-  ok: 'success',
-  operational: 'success',
-  unavailable: 'warning',
-  degraded: 'warning',
-  error: 'danger',
-  unknown: 'muted',
-};
+const ROWS = [
+  ['backend', 'API'],
+  ['database', 'Database'],
+  ['redis', 'Queue'],
+  ['ml', 'Analysis service'],
+  ['ml_storage', 'Audio storage'],
+];
+
+function toneFor(value) {
+  if (value === 'ok' || value === true) return 'ok';
+  if (value === 'unavailable' || value == null) return 'neutral';
+  return 'danger';
+}
+
+function labelFor(value) {
+  if (value === true) return 'Reachable';
+  if (value === false) return 'Unreachable';
+  if (value == null) return 'Unknown';
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
 
 export default function Status() {
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  usePageMeta({ title: 'System Status', description: 'Beatzy platform health and service status.' });
+  usePageMeta({ title: 'Status', description: 'Beatzy service status.' });
 
   useEffect(() => {
-    getSystemStatus()
-      .then(({ data: res }) => setData(res.data))
-      .catch(() => setError('Could not reach status endpoint'))
-      .finally(() => setLoading(false));
-    const interval = setInterval(() => {
-      getSystemStatus().then(({ data: res }) => setData(res.data)).catch(() => {});
-    }, 30000);
-    return () => clearInterval(interval);
+    const load = () =>
+      getSystemStatus()
+        .then(({ data: res }) => { setData(res.data); setError(null); })
+        .catch(() => setError("Couldn't reach the status endpoint"))
+        .finally(() => setLoading(false));
+    load();
+    const id = setInterval(load, 30000);
+    return () => clearInterval(id);
   }, []);
 
+  const operational = data?.status === 'operational';
+
   return (
-    <div className="min-h-screen bg-bg text-accent font-body">
-      <nav className="border-b border-glass-border px-6 py-6">
-        <Link to="/" className="font-display tracking-[0.2em] text-sm">BEATZY</Link>
-      </nav>
-      <main className="max-w-xl mx-auto px-6 py-16">
-        <h1 className="font-display text-fluid-h1 uppercase tracking-tight mb-2">Status</h1>
+    <PublicShell width="max-w-2xl">
+      <header>
+        <p className="text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-brand">Status</p>
+        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-ink">Service status</h1>
+        <p className="mt-3 text-[0.9375rem] text-ink-muted">Live checks against each part of the service, refreshed every 30 seconds.</p>
+      </header>
+
+      <div className="mt-10">
         {loading ? (
-          <Skeleton className="h-24 w-full mt-8" />
+          <Skeleton className="h-64 rounded-2xl" />
         ) : error ? (
-          <p className="text-red-400 mt-8 font-mono text-sm">{error}</p>
+          <EmptyState title="Status unavailable" description={error} />
         ) : (
-          <>
-            <Badge variant={STATUS_COLORS[data.status] || 'muted'} className="mt-6 mb-8 text-sm">
-              {data.status}
-            </Badge>
-            <ul className="space-y-3">
-              {Object.entries(data.checks || {}).map(([name, status]) => (
-                <li key={name} className="glass-panel p-4 flex justify-between border border-glass-border">
-                  <span className="font-mono text-xs uppercase tracking-widest">{name}</span>
-                  <Badge variant={STATUS_COLORS[status] || 'muted'}>{status}</Badge>
+          <Card padding="none">
+            <div className="flex items-center justify-between border-b border-line-subtle px-6 py-4">
+              <p className="font-medium text-ink">{operational ? 'All systems operational' : 'Some systems are degraded'}</p>
+              <Badge variant={operational ? 'ok' : 'danger'} dot>{operational ? 'Operational' : labelFor(data.status)}</Badge>
+            </div>
+            <ul className="divide-y divide-line-subtle px-6">
+              {ROWS.map(([key, label]) => (
+                <li key={key} className="flex items-center justify-between py-3.5 text-sm">
+                  <span className="text-ink">{label}</span>
+                  <StatusDot tone={toneFor(data.checks?.[key])}>
+                    <span className="text-ink-muted">{labelFor(data.checks?.[key])}</span>
+                  </StatusDot>
                 </li>
               ))}
             </ul>
-            <p className="mt-8 font-mono text-[9px] text-muted uppercase">
-              Updated {new Date(data.timestamp).toLocaleString()}
-            </p>
-          </>
+            <p className="border-t border-line-subtle px-6 py-3 text-xs text-ink-faint">Updated {new Date(data.timestamp).toLocaleString()}</p>
+          </Card>
         )}
-      </main>
-    </div>
+      </div>
+    </PublicShell>
   );
 }

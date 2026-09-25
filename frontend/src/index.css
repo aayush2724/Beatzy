@@ -61,27 +61,28 @@
 
 /* --- Landing motion background: 3D rotating artist grid + drifting aurora --- */
 .artist-grid-scene {
-  perspective: 900px;
+  /* A long perspective so the far edge of the tilted plane still spans the
+     viewport. At 900px it converged to ~1,850px wide, leaving bare corners
+     on a 2,560px monitor. */
+  perspective: 1600px;
   overflow: hidden;
 }
 .artist-grid-plane {
   position: absolute;
   left: 50%;
   top: 50%;
-  /* oversized so the viewport stays covered at both slide extremes */
-  width: 260vmax;
-  height: 260vmax;
-  margin: -130vmax 0 0 -130vmax;
+  width: 190vmax;
+  height: 130vmax;
+  margin: -65vmax 0 0 -95vmax;
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  grid-template-rows: repeat(12, 1fr);
-  gap: 4px;
-  opacity: 0.16;
-  transform: rotateX(52deg) rotateY(-3deg) translateX(-12vmax);
-  transform-style: preserve-3d;
-  will-change: transform;
-  /* no spin — the tilted plane glides sideways with a slight 3D yaw sway */
-  animation: artist-grid-slide 30s ease-in-out infinite alternate;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  gap: 6px;
+  opacity: 0.18;
+  transform: rotateX(42deg) rotateY(-4deg) translateY(2vmax);
+  /* One flat layer: no per-tile 3D, no per-tile shadows, nothing animates. */
+  transform-style: flat;
+  contain: layout paint;
 }
 [data-theme='light'] .artist-grid-plane { opacity: 0.1; }
 @keyframes artist-grid-slide {
@@ -94,22 +95,9 @@
   background: var(--surface);
   border: 1px solid var(--line-subtle);
 }
-/* pop-up relief: tiles continuously rise out of the plane and settle back,
-   in three interleaved groups so the surface ripples rather than bounces */
-.artist-grid-tile:nth-child(3n) {
-  animation: tile-pop-a 7s ease-in-out infinite alternate;
-}
-.artist-grid-tile:nth-child(4n+1) {
-  animation: tile-pop-b 9s ease-in-out infinite alternate;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
-}
-.artist-grid-tile:nth-child(7n+2) {
-  animation: tile-pop-c 11s ease-in-out infinite alternate;
-  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.45);
-}
-/* delay-only rules to desynchronise tiles within each pop group */
-.artist-grid-tile:nth-child(2n)   { animation-delay: -3s; }
-.artist-grid-tile:nth-child(5n+3) { animation-delay: -6s; }
+/* a little tonal variety so the mosaic doesn't read as a flat checkerboard */
+.artist-grid-tile:nth-child(3n)   { opacity: 0.85; }
+.artist-grid-tile:nth-child(7n+2) { opacity: 0.6; }
 @keyframes tile-pop-a {
   from { transform: translateZ(0); }
   to   { transform: translateZ(80px); }
@@ -130,18 +118,18 @@
   filter: grayscale(1) brightness(0.9) contrast(1.08);
 }
 
-.aurora { filter: blur(90px); opacity: 0.55; will-change: transform; }
+/* Still glows: an animated 90px blur over a 42rem element is one of the most
+   expensive things a browser can be asked to redraw. */
+.aurora { filter: blur(90px); opacity: 0.55; }
 .aurora-1 {
   background: radial-gradient(circle at 40% 40%, color-mix(in oklab, var(--brand) 22%, transparent), transparent 70%);
-  animation: aurora-a 26s ease-in-out infinite alternate;
+  transform: translate3d(-50%, 0, 0);
 }
 .aurora-2 {
   background: radial-gradient(circle at 60% 40%, color-mix(in oklab, var(--accent-warm) 16%, transparent), transparent 70%);
-  animation: aurora-b 32s ease-in-out infinite alternate;
 }
 .aurora-3 {
   background: radial-gradient(circle at 50% 60%, color-mix(in oklab, var(--ink-muted) 14%, transparent), transparent 70%);
-  animation: aurora-c 38s ease-in-out infinite alternate;
 }
 /* aurora-1 is centred with left-1/2, so its translate lives in the keyframes */
 @keyframes aurora-a {
@@ -220,34 +208,28 @@
   transform: translateY(0);
 }
 /* named scan-sweep so it can't collide with the full-bleed .scanline overlay below */
-.scan-sweep::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--brand) 10%, transparent), transparent);
-  animation: scan 4s ease-in-out infinite;
-}
+/* .scan-sweep and .orbit-dot are intentionally static now: a light sweeping
+   across a card every 4s and a glowing dot circling the hero both read as
+   blinking. */
+.scan-sweep::after { content: none; }
 .equalizer span {
-  animation: equalize 1.45s ease-in-out infinite;
+  animation: equalize 3.2s ease-in-out infinite;
 }
 .equalizer span:nth-child(2) { animation-delay: .12s }
 .equalizer span:nth-child(3) { animation-delay: .25s }
 .equalizer span:nth-child(4) { animation-delay: .36s }
 .equalizer span:nth-child(5) { animation-delay: .48s }
 .equalizer span:nth-child(6) { animation-delay: .58s }
-.orbit-dot {
-  animation: orbit 14s linear infinite;
-}
-.step-badge {
-  animation: rotateBadge 7s linear infinite;
-  transform-style: preserve-3d;
-}
+.orbit-dot { display: none; }
+/* The numbered step badge used to flip in 3D every 7s, vanishing edge-on. */
+.step-badge { transform-style: preserve-3d; }
 
 /* --- Obsidian OS Utility Classes --- */
 .glass-card {
   background: var(--glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  /* 20px blur on every card was paid on every scroll frame; 8px reads the same. */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--glass-line);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
@@ -524,6 +506,10 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* The whole UI is rem-based, so scaling the root scales type, spacing and
+       radii together: ~15px on a small laptop, 16px at 1280, 18px at 1920,
+       20px on a 2560-wide monitor. Fixed 16px made large screens look tiny. */
+    font-size: clamp(15px, 0.3125vw + 12px, 20px);
   }
 
   body {
@@ -579,8 +565,8 @@
 @layer components {
   .glass-panel {
     background: var(--glass);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--glass-line);
     border-radius: 1rem;
   }
@@ -589,8 +575,8 @@
   .card {
     position: relative;
     background: var(--glass);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--glass-line);
     border-radius: 0.5rem;
     padding: 1.5rem;

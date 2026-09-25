@@ -1,24 +1,27 @@
 import { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
+import { ArrowUpRight, Copy, KeyRound, Lock, Plus, ShieldCheck, Trash2, X } from 'lucide-react';
 import api from '../api/client';
 import PageWrapper from '../components/PageWrapper';
 import { useAuthStore } from '../store/authStore';
-import { 
-  Key, 
-  Plus, 
-  X, 
-  Copy, 
-  ShieldCheck, 
-  Activity, 
-  Database, 
-  Cpu, 
-  Trash2,
-  Terminal,
-  ChevronRight,
-  ShieldAlert
-} from 'lucide-react';
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  IconButton,
+  Input,
+  PageHeader,
+  SectionHeader,
+  Skeleton,
+} from '../components/ui';
+
+const API_BASE = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+
+const CURL_EXAMPLE = `curl -X POST ${API_BASE}/api/audio/upload \\
+  -H "X-API-Key: YOUR_KEY" \\
+  -F "audio=@track.mp3"`;
 
 export default function ApiKeys() {
   const { user } = useAuthStore();
@@ -32,226 +35,189 @@ export default function ApiKeys() {
   const canUseApiKeys = user?.plan === 'pro' || user?.plan === 'enterprise' || user?.is_admin;
 
   useEffect(() => {
-    if (canUseApiKeys) {
-      api.get('/api/keys')
-        .then(({ data }) => setKeys(data.data))
-        .catch(() => {})
-        .finally(() => setLoading(false));
-    } else {
+    if (!canUseApiKeys) {
       setLoading(false);
+      return;
     }
+    api.get('/api/keys')
+      .then(({ data }) => setKeys(data.data))
+      .catch(() => toast.error("Couldn't load your API keys"))
+      .finally(() => setLoading(false));
   }, [canUseApiKeys]);
 
   async function createKey(e) {
     e.preventDefault();
-    if (!newName.trim()) return;
+    const name = newName.trim();
+    if (!name) return;
     setCreating(true);
     try {
-      const { data } = await api.post('/api/keys', { name: newName });
+      const { data } = await api.post('/api/keys', { name });
       setNewKey(data.data.key);
-      setKeys(prev => [data.data, ...prev]);
+      setKeys((prev) => [data.data, ...prev]);
       setNewName('');
       setShowForm(false);
-      toast.success('Access node provisioned');
-    } catch (err) {
-      toast.error('Provisioning failed');
-    } finally { setCreating(false); }
+      toast.success('API key created');
+    } catch {
+      toast.error("Couldn't create the key");
+    } finally {
+      setCreating(false);
+    }
   }
 
-  async function revokeKey(id) {
-    if (!confirm('Revoke this access node? This action is permanent and will terminate all active uplinks.')) return;
+  async function revokeKey(key) {
+    if (!window.confirm(`Revoke “${key.name}”? Requests using it will stop working immediately.`)) return;
     try {
-      await api.delete(`/api/keys/${id}`);
-      setKeys(prev => prev.filter(k => k.id !== id));
-      toast.success('Node revoked');
-    } catch (err) { toast.error('Revocation protocol failed'); }
+      await api.delete(`/api/keys/${key.id}`);
+      setKeys((prev) => prev.filter((k) => k.id !== key.id));
+      toast.success('Key revoked');
+    } catch {
+      toast.error("Couldn't revoke the key");
+    }
   }
 
-  function copyKey(key) {
-    navigator.clipboard.writeText(key);
-    toast.success('Credential copied to buffer');
+  function copy(text, message = 'Copied') {
+    navigator.clipboard.writeText(text);
+    toast.success(message);
   }
 
-  if (!canUseApiKeys) return (
-    <PageWrapper className="flex items-center justify-center py-24 animate-page-entrance">
-      <div className="max-w-xl w-full text-center glass-card p-16 border border-line-subtle relative overflow-hidden group">
-        <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
-            <ShieldAlert className="w-64 h-64 text-ink" />
-        </div>
-        <div className="w-24 h-24 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 bg-ink/[0.03] border border-line group-hover:border-line-strong transition-colors">
-          <ShieldAlert className="w-10 h-10 text-ink opacity-70" />
-        </div>
-        <h2 className="text-4xl font-display font-black text-ink mb-4 uppercase tracking-tight">Access Restricted</h2>
-        <p className="font-mono text-[10px] text-ink/30 mb-12 uppercase tracking-[0.2em] leading-relaxed max-w-sm mx-auto">Upgrade to a professional tier to provision secure API credentials for high-frequency neural mapping.</p>
-        <Link to="/pricing" className="group flex items-center justify-center gap-4 h-16 w-full rounded-2xl bg-canvas text-ink font-black uppercase tracking-[0.2em] text-xs hover:scale-105 transition-all shadow-[0_0_50px_rgba(139,46,95,0.2)]">
-          <Cpu className="w-5 h-5 fill-current" />
-          <span>Upgrade Protocol</span>
-        </Link>
-      </div>
-    </PageWrapper>
-  );
+  if (!canUseApiKeys) {
+    return (
+      <PageWrapper className="py-16">
+        <EmptyState
+          icon={Lock}
+          title="API keys are available on Pro and Enterprise"
+          description="Upgrade to create keys and run analyses from your own code."
+          className="mx-auto max-w-lg"
+          action={<Link to="/pricing" className="btn-primary inline-flex items-center gap-2 text-sm">See plans <ArrowUpRight className="h-4 w-4" /></Link>}
+        />
+      </PageWrapper>
+    );
+  }
 
   return (
-    <PageWrapper className="space-y-16 pb-20 animate-page-entrance">
-      <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-10 border-b border-line-subtle pb-12">
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-accent-warm/20 bg-accent-warm/5 text-accent-warm font-mono text-[11px] uppercase tracking-[0.15em]">
-              <Key className="w-3 h-3" /> Credential Matrix
-          </div>
-          <h1 className="text-6xl font-display font-black text-ink tracking-tighter uppercase leading-none">API <span className="text-accent-warm text-glow-wine">Matrix</span></h1>
-          <p className="font-mono text-[11px] text-ink/30 uppercase tracking-[0.2em]">Programmatic interface for audio intelligence uplinks</p>
-        </div>
-        <button onClick={() => setShowForm(f => !f)} className="group flex items-center gap-4 px-10 py-5 rounded-2xl bg-accent-warm text-ink font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(232,160,132,0.2)] hover:scale-105 transition-all">
-          {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-          {showForm ? 'CANCEL' : 'PROVISION NODE'}
-        </button>
-      </header>
+    <PageWrapper className="space-y-8 pb-16">
+      <PageHeader
+        eyebrow="Developers"
+        title="API keys"
+        description="Keys let your own code call the same analysis pipeline. Each key can be revoked on its own."
+        actions={
+          <Button onClick={() => setShowForm((f) => !f)} variant={showForm ? 'secondary' : 'primary'} size="sm" className="inline-flex items-center gap-2">
+            {showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+            {showForm ? 'Cancel' : 'Create key'}
+          </Button>
+        }
+      />
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-12">
-        <div className="xl:col-span-8 space-y-12">
+      <div className="grid grid-cols-12 gap-6">
+        <div className="col-span-12 space-y-6 xl:col-span-8">
           {newKey && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="glass-card p-10 relative overflow-hidden border-brand/20 bg-brand/5">
-              <div className="absolute top-0 left-0 w-1 h-full bg-brand" />
-              <div className="flex items-center gap-3 mb-6 text-brand">
-                <ShieldCheck className="w-5 h-5" />
-                <span className="font-mono text-[10px] font-black uppercase tracking-[0.3em]">Credential Provisioned Successfully</span>
+            <Card className="border-brand/40">
+              <div className="flex items-center gap-2 text-brand">
+                <ShieldCheck className="h-4 w-4" />
+                <p className="text-sm font-medium">New key created — copy it now</p>
               </div>
-              <p className="font-mono text-[11px] text-ink/40 mb-8 uppercase tracking-widest leading-relaxed">Store this secret key securely. For system integrity, it will not be displayed again.</p>
-              <div className="flex items-center justify-between gap-6 p-6 rounded-2xl bg-surface/60 border border-line shadow-inner group/key">
-                <code className="font-mono text-base text-brand select-all truncate">{newKey}</code>
-                <button onClick={() => copyKey(newKey)} className="flex items-center justify-center w-12 h-12 rounded-xl bg-ink/5 border border-line hover:border-brand/50 text-ink/20 hover:text-brand transition-all group-hover/key:scale-105">
-                    <Copy className="w-5 h-5" />
-                </button>
+              <p className="mt-1 text-xs text-ink-muted">For security it won't be shown again. Store it somewhere safe.</p>
+              <div className="mt-4 flex items-center gap-3 rounded-xl border border-line bg-canvas px-4 py-3">
+                <code className="min-w-0 flex-1 select-all truncate font-mono text-sm text-ink">{newKey}</code>
+                <IconButton size="sm" aria-label="Copy key" onClick={() => copy(newKey, 'Key copied')}><Copy className="h-4 w-4" /></IconButton>
+                <IconButton size="sm" aria-label="Dismiss" onClick={() => setNewKey(null)}><X className="h-4 w-4" /></IconButton>
               </div>
-            </motion.div>
+            </Card>
           )}
 
           {showForm && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="obsidian-panel p-10 rounded-[2.5rem] border border-accent-warm/20 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-8 opacity-5">
-                  <Terminal className="w-24 h-24 text-accent-warm" />
-              </div>
-              <h3 className="font-display font-black text-xs text-ink uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
-                  <Terminal className="w-4 h-4 text-accent-warm" /> Initialize New Node
-              </h3>
-              <form onSubmit={createKey} className="flex flex-col md:flex-row gap-6">
-                <input 
-                    className="flex-1 h-16 bg-ink/[0.03] border border-line rounded-2xl px-6 text-ink placeholder:text-ink/20 focus:outline-none focus:border-accent-warm/30 transition-all font-medium" 
-                    placeholder="Node Identifier (e.g. Production Cluster)" 
-                    value={newName} 
-                    onChange={e => setNewName(e.target.value)} 
-                    required 
+            <Card>
+              <SectionHeader title="New key" description="Name it after where it will be used, so revoking later is easy." />
+              <form onSubmit={createKey} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+                <Input
+                  label="Name"
+                  placeholder="e.g. Production server"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  required
+                  autoFocus
                 />
-                <button type="submit" disabled={creating} className="h-16 px-12 rounded-2xl bg-accent-warm text-ink font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_30px_rgba(232,160,132,0.15)] disabled:opacity-50">
-                  {creating ? 'AUTHORIZING...' : 'AUTHORIZE NODE'}
-                </button>
+                <Button type="submit" disabled={creating || !newName.trim()} className="!h-11 !py-0">
+                  {creating ? 'Creating…' : 'Create'}
+                </Button>
               </form>
-            </motion.div>
+            </Card>
           )}
 
-          <div className="space-y-6">
-            <p className="font-mono text-[11px] text-ink/20 uppercase tracking-[0.2em] ml-1">Active Neural Access Nodes</p>
-            
+          <section className="space-y-3">
+            <SectionHeader title="Your keys" description={keys.length === 1 ? '1 key' : `${keys.length} keys`} />
             {loading ? (
-              <div className="space-y-4">{[...Array(2)].map((_, i) => <div key={i} className="h-28 rounded-[2rem] animate-pulse obsidian-panel" />)}</div>
-            ) : keys.length > 0 ? (
-                <div className="space-y-4">
-                    {keys.map(key => (
-                        <div key={key.id} className="flex flex-col md:flex-row md:items-center justify-between gap-8 p-8 rounded-[2.5rem] obsidian-panel border border-line-subtle hover:border-accent-warm/20 transition-all group relative overflow-hidden">
-                            <div className="absolute left-0 top-0 w-1 h-full bg-accent-warm/20 group-hover:bg-accent-warm transition-colors" />
-                            
-                            <div className="flex-1 min-w-0 space-y-3">
-                                <div className="flex items-center gap-4">
-                                    <h4 className="text-xl font-display font-black text-ink uppercase tracking-tight truncate">{key.name}</h4>
-                                    <div className={`px-3 py-1 rounded-lg font-mono text-[10px] font-black uppercase tracking-widest border ${key.is_active ? 'bg-brand/10 border-brand/20 text-brand' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>{key.is_active ? 'ACTIVE' : 'REVOKED'}</div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-accent-warm animate-pulse" />
-                                    <code className="font-mono text-[11px] text-ink/30 tracking-widest">{key.key_prefix}••••••••••••••••</code>
-                                </div>
-                            </div>
-
-                            <div className="flex gap-12 shrink-0 px-8 border-l border-line-subtle">
-                                <div>
-                                    <p className="font-mono text-[10px] text-ink/20 uppercase tracking-widest mb-1">Invocations</p>
-                                    <p className="font-display font-black text-lg text-ink">{key.request_count?.toLocaleString() ?? '0'}</p>
-                                </div>
-                                <div>
-                                    <p className="font-mono text-[10px] text-ink/20 uppercase tracking-widest mb-1">Last Uplink</p>
-                                    <p className="font-display font-black text-lg text-ink">{key.last_used_at ? new Date(key.last_used_at).toLocaleDateString() : '—'}</p>
-                                </div>
-                            </div>
-
-                            <button onClick={() => revokeKey(key.id)} className="w-14 h-14 flex items-center justify-center rounded-2xl border border-line-subtle hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-400 transition-all opacity-0 group-hover:opacity-100">
-                                <Trash2 className="w-5 h-5" />
-                            </button>
-                        </div>
-                    ))}
-                </div>
+              <div className="space-y-3">{[0, 1].map((i) => <Skeleton key={i} className="h-20 rounded-2xl" />)}</div>
+            ) : keys.length === 0 ? (
+              <EmptyState
+                icon={KeyRound}
+                title="No keys yet"
+                description="Create one to start calling the API."
+                action={<Button size="sm" onClick={() => setShowForm(true)}>Create key</Button>}
+              />
             ) : (
-              <div className="p-20 rounded-[3rem] text-center obsidian-panel border border-dashed border-line-subtle">
-                <Key className="mx-auto w-12 h-12 text-ink/10 mb-6" />
-                <h4 className="font-display font-black text-lg text-ink/20 uppercase tracking-[0.3em]">No active nodes detected</h4>
+              <div className="space-y-3">
+                {keys.map((key) => (
+                  <Card key={key.id} padding="sm" className="flex flex-col gap-4 md:flex-row md:items-center">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="truncate font-medium text-ink">{key.name}</p>
+                        <Badge variant={key.is_active ? 'ok' : 'danger'} dot>{key.is_active ? 'Active' : 'Revoked'}</Badge>
+                      </div>
+                      <code className="mt-1 block font-mono text-xs text-ink-muted">{key.key_prefix}••••••••••••••••</code>
+                    </div>
+                    <dl className="flex gap-8 text-sm md:border-l md:border-line-subtle md:pl-6">
+                      <div>
+                        <dt className="text-xs text-ink-faint">Requests</dt>
+                        <dd className="tabular-nums text-ink">{key.request_count?.toLocaleString() ?? '0'}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs text-ink-faint">Last used</dt>
+                        <dd className="text-ink">{key.last_used_at ? new Date(key.last_used_at).toLocaleDateString() : 'Never'}</dd>
+                      </div>
+                    </dl>
+                    {key.is_active && (
+                      <IconButton aria-label={`Revoke ${key.name}`} onClick={() => revokeKey(key)} className="hover:border-danger/50 hover:text-danger">
+                        <Trash2 className="h-4 w-4" />
+                      </IconButton>
+                    )}
+                  </Card>
+                ))}
               </div>
             )}
-          </div>
+          </section>
         </div>
 
-        <aside className="xl:col-span-4 space-y-12">
-            <section className="glass-card overflow-hidden border-line shadow-2xl">
-                <div className="flex items-center justify-between px-6 py-5 border-b border-line-subtle bg-ink/[0.02]">
-                    <span className="font-mono text-[10px] text-ink/40 flex items-center gap-3 uppercase tracking-[0.15em] font-black">
-                        <div className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
-                        Query Terminal
-                    </span>
-                    <button onClick={() => { navigator.clipboard.writeText('curl -X POST https://api.beatzy.io/api/audio/upload -H "X-API-Key: YOUR_KEY" -F "audio=@song.mp3"'); toast.success('Copied to buffer'); }} className="text-ink/20 hover:text-brand transition-colors">
-                        <Copy className="w-4 h-4" />
-                    </button>
-                </div>
-                <div className="p-8 overflow-x-auto bg-surface/40">
-                    <pre className="font-mono text-[10px] leading-relaxed">
-                        <span className="text-ink/60 font-bold">curl</span><span className="text-ink/20"> -X POST </span><span className="text-brand font-black">api.beatzy.io</span><span className="text-ink/20">/upload \{'\n'}</span>
-                        <span className="text-ink/20">  -H </span><span className="text-accent-warm font-black">"X-API-Key: YOUR_NODE_KEY"</span><span className="text-ink/20"> \{'\n'}</span>
-                        <span className="text-ink/20">  -F </span><span className="text-brand font-black">"audio=@spectral_data.mp3"</span>
-                    </pre>
-                </div>
-            </section>
+        <aside className="col-span-12 space-y-6 xl:col-span-4">
+          <Card padding="none">
+            <div className="flex items-center justify-between border-b border-line-subtle px-5 py-3">
+              <p className="text-sm font-medium text-ink">Quick start</p>
+              <IconButton size="sm" aria-label="Copy example" onClick={() => copy(CURL_EXAMPLE, 'Example copied')}><Copy className="h-4 w-4" /></IconButton>
+            </div>
+            <pre className="overflow-x-auto px-5 py-4 font-mono text-xs leading-relaxed text-ink-muted"><code>{CURL_EXAMPLE}</code></pre>
+            <p className="border-t border-line-subtle px-5 py-3 text-xs text-ink-faint">
+              Send the key in the <code className="font-mono text-ink-muted">X-API-Key</code> header. The response is a job id; poll <code className="font-mono text-ink-muted">/api/results/:id</code> for the analysis.
+            </p>
+          </Card>
 
-            <section className="obsidian-panel p-10 rounded-[3rem] border border-line-subtle space-y-10">
-                <p className="font-mono text-[10px] text-ink/20 uppercase tracking-[0.4em] font-black">Technical Documentation</p>
-                <ul className="space-y-4">
-                    {[
-                        { label: 'Uplink Authentication', icon: ShieldCheck, color: 'text-accent-warm' },
-                        { label: 'Neural Bandwidth', icon: Activity, color: 'text-brand' },
-                        { label: 'SDK V4.2 Protocol', icon: Terminal, color: 'text-brand' }
-                    ].map(doc => (
-                        <li key={doc.label}>
-                            <a href={`${import.meta.env.VITE_API_URL || ''}/api/docs`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-5 rounded-2xl transition-all group border border-line-subtle hover:border-line hover:bg-ink/[0.03]">
-                                <div className="flex items-center gap-4">
-                                    <doc.icon className={`w-4 h-4 ${doc.color}`} />
-                                    <span className="font-display font-black text-[10px] uppercase tracking-widest text-ink/40 group-hover:text-ink transition-colors">{doc.label}</span>
-                                </div>
-                                <ChevronRight className="w-4 h-4 text-ink/10 group-hover:translate-x-1 group-hover:text-brand transition-all" />
-                            </a>
-                        </li>
-                    ))}
-                </ul>
-            </section>
+          <Card>
+            <SectionHeader title="Reference" />
+            <ul className="mt-3 divide-y divide-line-subtle">
+              {[
+                ['Interactive API docs', `${API_BASE}/api/docs`],
+                ['Authentication', `${API_BASE}/api/docs#/Authentication`],
+                ['Rate limits by plan', '/pricing'],
+              ].map(([label, href]) => (
+                <li key={label}>
+                  <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" className="flex items-center justify-between py-3 text-sm text-ink-muted transition-colors hover:text-ink">
+                    {label} <ArrowUpRight className="h-3.5 w-3.5 text-ink-faint" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </Card>
         </aside>
       </div>
-
-      {/* Technical Footer Decoration */}
-        <div className="flex justify-between items-center pt-20 font-mono text-[10px] text-ink/10 uppercase tracking-[0.3em] select-none">
-            <div className="flex items-center gap-4">
-                <div className="w-1 h-1 rounded-full bg-accent-warm animate-pulse" />
-                API Matrix Synchronized
-            </div>
-            <div>Uplink Status: Encrypted (AES-256)</div>
-            <div className="flex items-center gap-2">
-                <Database className="w-2 h-2" />
-                Cluster Node: 0x9081X
-            </div>
-        </div>
     </PageWrapper>
   );
 }

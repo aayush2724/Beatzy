@@ -1,9 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, PerspectiveCamera, Stars } from '@react-three/drei';
-import * as THREE from 'three';
 import toast from 'react-hot-toast';
 import { uploadAudio, getResults, searchSongs, analyzeUrl, getHealth } from '../api/audio';
 import { useJobSocket } from '../hooks/useJobSocket';
@@ -29,7 +26,7 @@ import {
   ShieldAlert as ShieldCode
 } from 'lucide-react';
 import PageWrapper from '../components/PageWrapper';
-import { usePalette } from '../lib/palette';
+import { Card, PageHeader, Tabs } from '../components/ui';
 
 // Keep the aliases browsers actually report — Chrome calls .m4a `audio/x-m4a`,
 // not `audio/mp4`. Listing only the canonical types made the dropzone and the
@@ -45,75 +42,28 @@ const ACCEPTED = {
   'audio/webm': ['.webm'],
 };
 
-function VinylRecord({ spinning, drop }) {
-  const c = usePalette();
-  const mesh = useRef();
-  useFrame(() => {
-    if (!mesh.current) return;
-    if (spinning) {
-      mesh.current.rotation.y += 0.15;
-    } else {
-      mesh.current.rotation.y += 0.01;
-    }
-    if (drop) {
-        mesh.current.position.y = THREE.MathUtils.lerp(mesh.current.position.y, -4, 0.05);
-        mesh.current.rotation.x = THREE.MathUtils.lerp(mesh.current.rotation.x, Math.PI / 2, 0.05);
-    } else {
-        mesh.current.position.y = THREE.MathUtils.lerp(mesh.current.position.y, 0, 0.05);
-    }
-  });
-
-  return (
-    <Float speed={2} rotationIntensity={0.5} floatIntensity={1}>
-      <group ref={mesh} rotation={[Math.PI / 3, 0, 0]}>
-        {/* Main Vinyl Disc */}
-        <mesh>
-            <cylinderGeometry args={[2.5, 2.5, 0.05, 64]} />
-            <meshStandardMaterial color={c.canvas} metalness={0.9} roughness={0.2} />
-        </mesh>
-        {/* Groove texture effect (simplified with rings) */}
-        {Array.from({ length: 10 }).map((_, i) => (
-            <mesh key={i} position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-                <ringGeometry args={[0.8 + i * 0.15, 0.82 + i * 0.15, 64]} />
-                <meshStandardMaterial color={c.raised} transparent opacity={0.3} />
-            </mesh>
-        ))}
-        {/* Center Label */}
-        <mesh position={[0, 0.04, 0]}>
-            <cylinderGeometry args={[0.7, 0.7, 0.02, 32]} />
-            <meshStandardMaterial color={c.brand} emissive={c.brand} emissiveIntensity={0.2} />
-        </mesh>
-        {/* Center Hole */}
-        <mesh position={[0, 0.05, 0]}>
-            <cylinderGeometry args={[0.05, 0.05, 0.03, 16]} />
-            <meshStandardMaterial color={c.brandInk} />
-        </mesh>
-      </group>
-    </Float>
-  );
-}
-
+// A slow, deterministic wave. Random per-bar heights and durations read as
+// flicker; a phase-shifted sine reads as one motion.
 function AudioWave({ active, bars = 12 }) {
   return (
     <div className="flex items-end gap-1 h-12">
-      {Array.from({ length: bars }).map((_, i) => (
-        <motion.div
-          key={i}
-          animate={active ? {
-            height: [10, Math.random() * 40 + 10, 10],
-          } : { height: 4 }}
-          transition={active ? {
-            duration: 0.5 + Math.random() * 0.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: i * 0.05
-          } : {}}
-          className="w-1 rounded-full bg-gradient-to-t from-brand to-brand"
-          style={{
-            opacity: active ? 1 : 0.2
-          }}
-        />
-      ))}
+      {Array.from({ length: bars }).map((_, i) => {
+        const peak = 14 + 26 * Math.abs(Math.sin((i + 1) * 0.9));
+        return (
+          <motion.div
+            key={i}
+            animate={active ? { height: [8, peak, 8] } : { height: 4 }}
+            transition={active ? {
+              duration: 1.6,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              delay: i * 0.09,
+            } : {}}
+            className="w-1 rounded-full bg-brand"
+            style={{ opacity: active ? 0.9 : 0.2 }}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -376,81 +326,52 @@ export default function Upload() {
   const stageCards = [
     {
       icon: SearchCode,
-      title: 'Song ID',
-      engine: 'AcoustID',
-      status: step === 'uploading' ? 'Buffered' : socketStatus === 'processing' ? 'Matching...' : 'Scanning...',
+      title: 'Identify',
+      engine: 'Shazam · AcoustID',
+      status: step === 'uploading' ? 'Waiting' : socketStatus === 'processing' ? 'Matching…' : 'Running…',
       active: step === 'analyzing' && ['processing', 'analyzing'].includes(socketStatus),
     },
     {
       icon: Activity,
-      title: 'Spectral DNA',
-      engine: 'librosa + ML',
-      status: step === 'uploading' ? 'Queued' : socketStatus === 'analyzing' ? 'Extracting...' : socketStatus === 'saving' ? 'Complete' : 'Queued',
+      title: 'Audio features',
+      engine: 'Tempo · key · chords',
+      status: step === 'uploading' ? 'Queued' : socketStatus === 'analyzing' ? 'Extracting…' : socketStatus === 'saving' ? 'Done' : 'Queued',
       active: step === 'analyzing' && socketStatus === 'analyzing',
     },
     {
       icon: Cpu,
-      title: 'Classifiers',
-      engine: 'YAMNet Array',
-      status: socketStatus === 'saving' ? 'Persisting...' : socketStatus === 'completed' ? 'Complete' : 'Queued',
+      title: 'Classify',
+      engine: 'YAMNet',
+      status: socketStatus === 'saving' ? 'Saving…' : socketStatus === 'completed' ? 'Done' : 'Queued',
       active: socketStatus === 'saving',
     },
   ];
 
   return (
     <PageWrapper className="space-y-10 pb-16 animate-page-entrance">
-      <header className="space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand/20 bg-brand/5 text-brand font-mono text-[11px] uppercase tracking-[0.15em]">
-            <Database className="w-3 h-3" /> Neural Core V4.2
-        </div>
-        <h1 className="text-5xl font-display font-black text-ink tracking-tight uppercase">
-          Spectral <span className="text-brand text-glow-orange">Engine</span>
-        </h1>
-        <p className="text-on-surface-variant max-w-xl text-sm leading-relaxed">
-          Initialize track analysis. Upload raw audio, capture live signals, or search the global database to extract musical intelligence.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Analyze"
+        title="Analyze a track"
+        description="Upload a file, record a snippet, or search the catalog. Beatzy identifies the song and returns tempo, key, chords, mood and lyrics."
+        actions={
+          step === 'upload' && (
+            <Tabs
+              aria-label="Audio source"
+              value={tab}
+              onChange={(id) => { setTab(id); stopPreview(); }}
+              items={[
+                { id: 'file', label: 'Upload file', icon: UploadIcon },
+                { id: 'mic', label: 'Record', icon: Mic },
+                { id: 'search', label: 'Search catalog', icon: Search },
+              ]}
+            />
+          )
+        }
+      />
 
-      {/* Modern Tabs */}
-      {step === 'upload' && (
-        <div className="flex gap-2 p-1 obsidian-panel rounded-2xl border border-line-subtle w-max mb-8">
-          {[
-            { id: 'file', label: 'File Upload', icon: UploadIcon },
-            { id: 'mic', label: 'Listen Live', icon: Mic },
-            { id: 'search', label: 'Global Search', icon: Search },
-          ].map(t => (
-            <button
-              key={t.id}
-              onClick={() => { setTab(t.id); stopPreview(); }}
-              className={clsx(
-                'flex items-center gap-2 px-6 py-2.5 rounded-xl font-mono text-[10px] uppercase tracking-widest transition-all duration-300',
-                tab === t.id
-                  ? 'bg-brand text-brand-ink font-black shadow-[0_0_20px_color-mix(in_oklab,var(--brand)_15%,transparent)]'
-                  : 'text-on-surface-variant hover:text-ink hover:bg-ink/5'
-              )}
-            >
-              <t.icon className="w-3.5 h-3.5" />
-              {t.label}
-            </button>
-          ))}
-        </div>
-      )}
-
-      <div className="relative glass-card rounded-[3rem] border border-line overflow-hidden p-8 md:p-12 min-h-[600px] flex items-center justify-center">
-        {/* Interactive 3D Vinyl Overlay */}
-        <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
-            <Canvas>
-                <PerspectiveCamera makeDefault position={[0, 1, 8]} />
-                <ambientLight intensity={0.5} />
-                <pointLight position={[10, 10, 10]} intensity={1} />
-                <VinylRecord spinning={step !== 'upload'} drop={step === 'analyzing'} />
-                {step === 'analyzing' && <Stars radius={50} depth={50} count={1000} factor={4} saturation={0} fade speed={2} />}
-            </Canvas>
-        </div>
-
-        {/* Background glow effects */}
+      <div className="relative rounded-3xl border border-line bg-surface overflow-hidden p-8 md:p-12 min-h-[35rem] flex items-center justify-center">
+        {/* Soft glow behind the content */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand/5 blur-[120px] rounded-full pointer-events-none" />
-        <div className="absolute inset-0 bg-[linear-gradient(color-mix(in_oklab,var(--ink)_1%,transparent)_1px,transparent_1px),linear-gradient(90deg,color-mix(in_oklab,var(--ink)_1%,transparent)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
 
         <div className="relative z-10 w-full max-w-2xl flex flex-col items-center">
           <AnimatePresence mode="wait">
@@ -469,7 +390,7 @@ export default function Upload() {
                   <motion.div
                     {...getRootProps()}
                     className={clsx(
-                      'relative group cursor-pointer rounded-[3rem] border p-12 md:p-16 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] text-center w-full',
+                      'relative group cursor-pointer rounded-3xl border p-10 md:p-14 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] text-center w-full',
                       isDragActive && !isDragReject
                         ? 'border-brand/50 bg-brand/5 shadow-[0_0_80px_color-mix(in_oklab,var(--brand)_10%,transparent)] scale-[1.02]'
                         : 'border-line-subtle bg-ink/[0.02] hover:bg-ink/[0.04] hover:border-line',
@@ -482,7 +403,7 @@ export default function Upload() {
                     <div className="relative z-10 flex flex-col items-center gap-8">
                       {/* Large Animated Icon */}
                       <div className={clsx(
-                        'w-24 h-24 rounded-[2.5rem] border flex items-center justify-center transition-all duration-500',
+                        'w-20 h-20 rounded-3xl border flex items-center justify-center transition-all duration-300',
                         isDragActive && !isDragReject ? 'bg-brand/20 border-brand rotate-180' : 'bg-ink/5 border-line group-hover:scale-110 group-hover:bg-ink/10',
                         isDragReject && 'bg-red-500/20 border-red-500/50'
                       )}>
@@ -496,22 +417,23 @@ export default function Upload() {
                       </div>
 
                       <div className="space-y-4">
-                        <h3 className="text-4xl font-display font-black text-ink tracking-tight uppercase">
-                          {isDragReject ? 'Invalid Format' : isDragActive ? 'Drop to Extract' : 'Load Signal'}
+                        <h3 className="font-display text-2xl font-semibold tracking-tight text-ink">
+                          {isDragReject ? 'That file type isn’t supported' : isDragActive ? 'Drop to analyze' : 'Drop an audio file'}
                         </h3>
-                        <p className="text-on-surface-variant text-base font-medium">
-                          Drag audio signature here, or <span className="text-ink underline decoration-brand/30 underline-offset-4 hover:decoration-brand transition-all cursor-pointer">browse workspace</span>
+                        <p className="text-[0.9375rem] text-ink-muted">
+                          Drag a track here, or <span className="text-ink underline decoration-brand/40 underline-offset-4 transition-colors hover:decoration-brand">browse your files</span>
                         </p>
-                        {rejected && <p className="text-red-400 text-xs mt-4 font-mono uppercase tracking-widest">{rejected}</p>}
+                        {rejected && <p className="mt-3 text-[0.8125rem] text-danger">{rejected}</p>}
                       </div>
 
-                      {/* Format Pills */}
-                      <div className="flex justify-center gap-2 mt-2">
-                        {['MP3', 'WAV', 'FLAC', 'OGG'].map(ext => (
-                          <span key={ext} className="text-[10px] font-mono text-ink/30 border border-line-subtle rounded-lg px-4 py-2 bg-ink/5 tracking-[0.15em]">
+                      {/* Accepted formats */}
+                      <div className="flex flex-wrap items-center justify-center gap-2">
+                        {['MP3', 'WAV', 'FLAC', 'M4A', 'OGG'].map(ext => (
+                          <span key={ext} className="rounded-md border border-line-subtle bg-veil-1 px-2.5 py-1 text-[0.6875rem] font-medium text-ink-muted">
                             {ext}
                           </span>
                         ))}
+                        <span className="px-1 text-[0.6875rem] text-ink-faint">up to 50 MB</span>
                       </div>
                     </div>
                   </motion.div>
@@ -528,15 +450,14 @@ export default function Upload() {
                 {tab === 'search' && (
                   <div className="w-full flex flex-col gap-8">
                     <form onSubmit={handleSearch} className="relative group">
-                      <div className="absolute inset-0 bg-brand/10 blur-[20px] opacity-0 group-focus-within:opacity-100 transition-opacity" />
                       <div className="relative flex items-center">
-                        <Search className="absolute left-6 text-ink/20 w-5 h-5" />
+                        <Search className="pointer-events-none absolute left-5 h-5 w-5 text-ink-faint" />
                         <input
                           type="text"
                           value={query}
                           onChange={(e) => setQuery(e.target.value)}
-                          placeholder="Search database for a song, artist, or album..."
-                          className="w-full h-16 bg-ink/[0.03] border border-line rounded-2xl pl-16 pr-6 text-ink placeholder:text-ink/20 focus:outline-none focus:border-brand/50 transition-all font-medium"
+                          placeholder="Search for a song, artist or album"
+                          className="h-14 w-full rounded-xl border border-line bg-surface pl-14 pr-6 text-[0.9375rem] text-ink placeholder:text-ink-faint transition-colors focus:border-brand/60 focus:outline-none focus:ring-2 focus:ring-brand/20"
                         />
                         {searching && (
                           <div className="absolute right-6">
@@ -547,14 +468,14 @@ export default function Upload() {
                     </form>
 
                     {query.trim().length > 0 && query.trim().length < 3 && (
-                      <p className="text-[11px] text-on-surface-variant/40 font-mono uppercase tracking-widest text-center">Spectral signature too short...</p>
+                      <p className="text-center text-[0.8125rem] text-ink-faint">Type at least 3 characters to search</p>
                     )}
 
-                    <div className="grid gap-3 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
+                    <div className="grid gap-3 max-h-[24rem] overflow-y-auto pr-2 custom-scrollbar">
                       {tracks.map((track) => (
                         <div key={track.spotify_id} className={clsx(
-                          "flex items-center justify-between p-4 obsidian-panel rounded-2xl border border-line-subtle hover:border-line transition-all gap-4 group/item",
-                          !track.preview_url && "opacity-40"
+                          "flex items-center justify-between gap-4 rounded-xl border border-line bg-surface p-3 transition-colors hover:border-line-strong/60 group/item",
+                          !track.preview_url && "opacity-50"
                         )}>
                           <div className="flex items-center gap-4 min-w-0">
                             {track.cover_url ? (
@@ -565,8 +486,8 @@ export default function Upload() {
                               </div>
                             )}
                             <div className="min-w-0">
-                              <h4 className="text-sm font-bold text-ink truncate group-hover/item:text-brand transition-colors">{track.title}</h4>
-                              <p className="text-[11px] font-mono text-on-surface-variant uppercase tracking-wider truncate">{track.artist} • {track.album}</p>
+                              <h4 className="truncate text-sm font-medium text-ink">{track.title}</h4>
+                              <p className="truncate text-xs text-ink-muted">{track.artist} · {track.album}</p>
                             </div>
                           </div>
 
@@ -587,24 +508,22 @@ export default function Upload() {
 
                                 <button
                                   onClick={() => handleAnalyzeUrl(track)}
-                                  className="px-5 py-2.5 bg-brand/10 border border-brand/30 text-brand hover:bg-brand hover:text-brand-ink font-mono text-[9px] uppercase tracking-[0.15em] font-black rounded-xl transition-all"
+                                  className="rounded-lg bg-brand px-4 py-2 text-[0.8125rem] font-semibold text-brand-ink transition-colors hover:bg-brand-hover"
                                 >
                                   Analyze
                                 </button>
                               </>
                             ) : (
-                              <div className="px-4 py-2 rounded-xl bg-ink/5 border border-line-subtle">
-                                  <span className="text-[10px] font-mono text-ink/20 uppercase tracking-widest select-none">No Preview</span>
-                              </div>
+                              <span className="px-2 text-xs text-ink-faint select-none">No preview</span>
                             )}
                           </div>
                         </div>
                       ))}
 
                       {tracks.length === 0 && !searching && (
-                        <div className="text-center py-12 obsidian-panel rounded-[2rem] border border-dashed border-line-subtle">
-                          <Waves className="mx-auto w-8 h-8 text-ink/10 mb-4" />
-                          <p className="text-[11px] font-mono text-ink/30 uppercase tracking-[0.15em]">Enter query to scan global archives</p>
+                        <div className="rounded-2xl border border-dashed border-line py-12 text-center">
+                          <Waves className="mx-auto mb-3 h-6 w-6 text-ink-faint" />
+                          <p className="text-[0.8125rem] text-ink-muted">Results will appear here</p>
                         </div>
                       )}
                     </div>
@@ -623,21 +542,19 @@ export default function Upload() {
                 className="w-full flex flex-col items-center"
               >
                 <div className="relative mb-20">
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-brand/10 animate-pulse" />
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full border border-brand/20 animate-ping" style={{ animationDuration: '3s' }} />
+                  {/* One still ring and one slowly turning dashed ring — motion
+                      you can sense, not a strobe. */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 rounded-full border border-brand/10" />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-44 h-44 rounded-full border border-dashed border-brand/25 animate-[spin_24s_linear_infinite]" />
 
-                  <div className="relative w-36 h-36 flex items-center justify-center bg-surface/60 backdrop-blur-3xl rounded-[2.5rem] border border-brand/30 shadow-[0_0_50px_color-mix(in_oklab,var(--brand)_10%,transparent)] overflow-hidden">
-                    <div
-                      className="absolute w-full h-[2px] bg-brand shadow-[0_0_15px_var(--brand)] scan-line-anim"
-                      style={{ top: 0, opacity: 0.5 }}
-                    />
+                  <div className="relative w-36 h-36 flex items-center justify-center bg-surface/70 backdrop-blur-xl rounded-3xl border border-brand/30 shadow-[0_0_40px_color-mix(in_oklab,var(--brand)_8%,transparent)] overflow-hidden">
                     <AudioWave active bars={12} />
                   </div>
 
                   <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 text-center whitespace-nowrap space-y-2">
-                    <span className="font-display text-5xl font-black text-ink tracking-tighter">{Math.floor(visibleProgress)}%</span>
-                    <div className="font-mono text-[10px] text-brand font-black uppercase tracking-[0.3em]">
-                      {step === 'uploading' ? 'Transmitting Core' : 'Neural Core Active'}
+                    <span className="font-display text-4xl font-semibold tabular-nums tracking-tight text-ink">{Math.floor(visibleProgress)}%</span>
+                    <div className="text-[0.8125rem] font-medium text-brand">
+                      {step === 'uploading' ? 'Uploading' : 'Analyzing'}
                     </div>
                   </div>
                 </div>
@@ -653,8 +570,8 @@ export default function Upload() {
                     />
                   </div>
                   {file && (
-                        <p className="font-mono text-[11px] text-on-surface-variant text-center mt-3 uppercase tracking-widest opacity-60 truncate">
-                      Source: {file.name}
+                    <p className="mt-3 truncate text-center text-xs text-ink-muted">
+                      {file.name}
                     </p>
                   )}
                 </div>
@@ -664,10 +581,10 @@ export default function Upload() {
                     <div
                       key={card.title}
                       className={clsx(
-                        'p-5 rounded-2xl flex flex-col gap-3 border transition-all duration-700',
+                        'p-5 rounded-2xl flex flex-col gap-3 border transition-all duration-500',
                         card.active
                           ? 'border-brand/40 bg-brand/5'
-                          : 'border-line-subtle obsidian-panel opacity-40'
+                          : 'border-line bg-surface opacity-60'
                       )}
                     >
                       <div className="flex justify-between items-start">
@@ -684,12 +601,12 @@ export default function Upload() {
                         )}
                       </div>
                       <div>
-                        <h4 className="text-[11px] font-black text-ink uppercase tracking-wider">{card.title}</h4>
-                        <p className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest mt-0.5">{card.engine}</p>
+                        <h4 className="text-[0.8125rem] font-medium text-ink">{card.title}</h4>
+                        <p className="mt-0.5 text-xs text-ink-muted">{card.engine}</p>
                       </div>
                       <div className="pt-3 border-t border-line-subtle flex items-center gap-2">
-                        <div className={clsx('w-1.5 h-1.5 rounded-full', card.active ? 'bg-brand animate-pulse shadow-[0_0_10px_var(--brand)]' : 'bg-ink/10')} />
-                        <span className={clsx('font-mono text-[10px] font-black uppercase tracking-widest', card.active ? 'text-brand' : 'text-on-surface-variant')}>
+                        <div className={clsx('w-1.5 h-1.5 rounded-full', card.active ? 'bg-brand shadow-[0_0_8px_var(--brand)]' : 'bg-ink/10')} />
+                        <span className={clsx('text-xs font-medium', card.active ? 'text-brand' : 'text-ink-muted')}>
                           {card.status}
                         </span>
                       </div>
@@ -697,19 +614,19 @@ export default function Upload() {
                   ))}
                 </div>
 
-                <div className="mt-8 w-full flex justify-between font-mono text-[11px] text-on-surface-variant uppercase tracking-[0.15em] px-2 opacity-60">
+                <div className="mt-6 flex w-full justify-between px-1 text-xs text-ink-muted">
                   <div className="flex items-center gap-2">
-                    <div className="w-1 h-1 rounded-full bg-brand animate-ping" />
-                    Neural Core Online
+                    <span className="h-1.5 w-1.5 rounded-full bg-brand" />
+                    Processing
                   </div>
-                  <span>Uptime: {elapsed.toFixed(1)}s</span>
+                  <span className="tabular-nums">Elapsed {elapsed.toFixed(1)}s</span>
                 </div>
 
                 <button
                   onClick={() => { abortRef.current = true; resetState(); }}
-                  className="mt-6 px-6 py-2 rounded-lg border border-line-subtle text-[10px] font-mono text-on-surface-variant hover:text-ink hover:border-line transition-all uppercase tracking-widest"
+                  className="btn-secondary mt-6 text-[0.8125rem] !px-5 !py-2"
                 >
-                  Terminate Process
+                  Cancel
                 </button>
               </motion.div>
             )}
@@ -723,16 +640,13 @@ export default function Upload() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="flex flex-col items-center text-center relative z-20"
               >
-                <div className="w-20 h-20 bg-red-500/10 border border-red-500/30 rounded-[2rem] flex items-center justify-center text-red-500 mb-8">
-                  <ShieldCode className="w-10 h-10" />
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-danger/30 bg-danger/10 text-danger">
+                  <ShieldCode className="h-8 w-8" />
                 </div>
-                <h3 className="text-4xl font-display font-black text-ink tracking-tight uppercase mb-3">System Malfunction</h3>
-                <p className="text-on-surface-variant font-medium max-w-md">Something went wrong during the analysis process. This might be due to a server timeout or invalid signal.</p>
-                <button
-                  onClick={resetState}
-                  className="mt-8 px-8 py-3 bg-brand text-brand-ink font-black rounded-xl uppercase tracking-widest hover:scale-105 transition-transform shadow-[0_0_20px_color-mix(in_oklab,var(--brand)_30%,transparent)]"
-                >
-                  Retry Initialization
+                <h3 className="mb-2 font-display text-2xl font-semibold tracking-tight text-ink">Analysis failed</h3>
+                <p className="max-w-md text-[0.9375rem] text-ink-muted">Something went wrong while analyzing this track. The error was shown in the notification; you can try again or pick a different file.</p>
+                <button onClick={resetState} className="btn-primary mt-6 text-sm">
+                  Try again
                 </button>
               </motion.div>
             )}
@@ -740,20 +654,22 @@ export default function Upload() {
         </div>
       </div>
 
-      {/* Footer Info */}
-      <div className="grid md:grid-cols-3 gap-6">
+      {/* Good to know */}
+      <div className="grid gap-4 md:grid-cols-3">
         {[
-          { title: 'Secure Transfer', text: 'All signals are encrypted using industry standard protocols during transmission.', icon: ShieldCode },
-          { title: 'Real-time Processing', text: 'Our neural cluster processes audio in parallel for sub-3-second results.', icon: Cpu },
-          { title: 'Global Database', text: 'Access millions of acoustic fingerprints through our identification layer.', icon: Database }
-        ].map((item, i) => (
-          <div key={i} className="p-6 rounded-[2rem] border border-line-subtle bg-ink/[0.02] space-y-4 hover:border-line transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-ink/5 border border-line flex items-center justify-center">
-               {i === 0 ? <ShieldCheck className="w-5 h-5 text-ink/40" /> : i === 1 ? <Cpu className="w-5 h-5 text-ink/40" /> : <Database className="w-5 h-5 text-ink/40" />}
+          { title: 'Formats', text: 'MP3, WAV, FLAC, M4A, OGG and WebM, up to 50 MB per file.', icon: Database },
+          { title: 'Recordings', text: 'Capture at least a few seconds of clear audio. Noisy rooms are fine; silence is not.', icon: Mic },
+          { title: 'Privacy', text: 'Source audio is deleted from storage as soon as the analysis is saved.', icon: ShieldCheck },
+        ].map((item) => (
+          <Card key={item.title} padding="sm" className="flex items-start gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line-subtle bg-veil-1">
+              <item.icon className="h-4 w-4 text-ink-muted" />
             </div>
-            <h4 className="font-display font-bold text-sm text-ink uppercase tracking-widest">{item.title}</h4>
-            <p className="text-xs text-on-surface-variant leading-relaxed opacity-70">{item.text}</p>
-          </div>
+            <div className="space-y-0.5">
+              <h4 className="text-[0.8125rem] font-medium text-ink">{item.title}</h4>
+              <p className="text-xs leading-relaxed text-ink-muted">{item.text}</p>
+            </div>
+          </Card>
         ))}
       </div>
     </PageWrapper>

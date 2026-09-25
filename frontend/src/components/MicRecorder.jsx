@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import clsx from 'clsx';
 import toast from 'react-hot-toast';
+import { Mic, Pause, Play, Square } from 'lucide-react';
 
 // Chrome/Firefox record webm; Safari (and every iOS browser) only records mp4.
 // Asking for webm-or-ogg alone made the MediaRecorder constructor throw there.
@@ -190,122 +191,76 @@ export default function MicRecorder({ onRecorded, disabled }) {
 
   return (
     <div className="w-full flex flex-col items-center gap-6">
-      {/* Recording visualization */}
-      <div className="relative w-full max-w-md">
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/5 to-transparent rounded-2xl" />
-        
+      {/* Level + state */}
+      <div className={clsx(
+        'relative w-full max-w-md rounded-2xl border p-10 transition-colors duration-300',
+        isRecording ? 'border-brand/40 bg-brand/5' : 'border-line bg-surface'
+      )}>
         <div className={clsx(
-          'relative p-12 rounded-2xl border transition-all duration-300 backdrop-blur-xl',
-          isRecording 
-            ? 'border-primary/30 bg-primary/5 shadow-[0_0_40px_color-mix(in_oklab,var(--ink)_5%,transparent)]' 
-            : 'border-line bg-ink/[0.02]'
+          'mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border transition-colors duration-300',
+          isRecording ? 'border-brand/40 bg-brand/10 text-brand' : 'border-line bg-veil-1 text-ink-muted'
         )}>
-          {/* Microphone icon */}
-          <div className={clsx(
-            'w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-6 transition-all duration-300',
-            isRecording 
-              ? 'bg-primary/20 border-2 border-primary/40 shadow-[0_0_30px_color-mix(in_oklab,var(--ink)_10%,transparent)]' 
-              : 'bg-ink/10 border border-line'
-          )}>
-            <span className={clsx(
-              'material-symbols-outlined text-4xl transition-all duration-300',
-              isRecording ? 'text-primary' : 'text-gray-400'
-            )}>
-              {isPaused ? 'pause' : 'mic'}
-            </span>
-          </div>
+          {isPaused ? <Pause className="h-8 w-8" /> : <Mic className="h-8 w-8" />}
+        </div>
 
-          {/* Volume bars visualization */}
-          {isRecording && !isPaused && (
-            <div className="flex items-end justify-center gap-1 h-16 mb-4">
-              {Array.from({ length: 20 }).map((_, i) => (
+        {/* Input level: one bar per band, driven by the mic, no jitter */}
+        {isRecording && !isPaused && (
+          <div className="mb-5 flex h-14 items-end justify-center gap-1">
+            {Array.from({ length: 16 }).map((_, i) => {
+              const weight = 0.55 + 0.45 * Math.sin(((i + 1) / 17) * Math.PI);
+              const h = Math.max(8, Math.min(100, volume * weight));
+              return (
                 <div
                   key={i}
-                  className="w-1.5 bg-gradient-to-t from-primary to-secondary rounded-full transition-all duration-75"
-                  style={{
-                    height: `${Math.max(10, Math.min(100, volume + (Math.random() * 20 - 10)))}%`,
-                    opacity: 0.3 + (volume / 150)
-                  }}
+                  className="w-1.5 rounded-full bg-brand transition-[height] duration-100"
+                  style={{ height: `${h}%`, opacity: 0.35 + Math.min(0.65, volume / 120) }}
                 />
-              ))}
-            </div>
-          )}
+              );
+            })}
+          </div>
+        )}
 
-          {/* Duration display */}
-          {isRecording && (
-            <div className="text-center mb-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-surface/30 rounded-full border border-line">
-                <div className={clsx(
-                  'w-2 h-2 rounded-full',
-                  isPaused ? 'bg-secondary' : 'bg-red-500 animate-pulse'
-                )} />
-                <span className="font-mono text-xl text-ink font-bold">
-                  {formatDuration(duration)}
-                </span>
-              </div>
-            </div>
-          )}
+        {isRecording && (
+          <div className="mb-4 text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-4 py-1.5">
+              <span className={clsx('h-2 w-2 rounded-full', isPaused ? 'bg-warn' : 'bg-danger animate-pulse')} />
+              <span className="font-mono text-lg tabular-nums text-ink">{formatDuration(duration)}</span>
+            </span>
+          </div>
+        )}
 
-          {/* Status text */}
-          <p className="text-center text-xs text-on-surface-variant font-medium uppercase tracking-widest">
-            {!isRecording 
-              ? 'Click below to start capture'
-              : isPaused
-              ? 'Recording paused'
-              : 'Capture Active... Monitoring signal'
-            }
-          </p>
-        </div>
+        <p className="text-center text-sm text-ink-muted">
+          {!isRecording ? 'Play the track near your microphone, then start recording.' : isPaused ? 'Paused' : 'Listening…'}
+        </p>
       </div>
 
-      {/* Control buttons */}
+      {/* Controls */}
       <div className="flex items-center gap-3">
         {!isRecording ? (
-          <button
-            onClick={startRecording}
-            disabled={disabled}
-            className="btn-primary flex items-center gap-2"
-          >
-            <span className="material-symbols-outlined text-lg">mic</span>
-            Start Capture
+          <button onClick={startRecording} disabled={disabled} className="btn-primary inline-flex items-center gap-2 text-sm">
+            <Mic className="h-4 w-4" /> Start recording
           </button>
         ) : (
           <>
             {!isPaused ? (
-              <button
-                onClick={pauseRecording}
-                className="btn-secondary border-secondary/50 text-secondary hover:bg-secondary/10 flex items-center gap-2"
-              >
-                <span className="material-symbols-outlined text-lg">pause</span>
-                Pause
+              <button onClick={pauseRecording} className="btn-secondary inline-flex items-center gap-2 text-sm">
+                <Pause className="h-4 w-4" /> Pause
               </button>
             ) : (
-              <button
-                onClick={resumeRecording}
-                className="btn-secondary border-green-500/50 text-green-500 hover:bg-green-500/10 flex items-center gap-2"
-              >
-                <span className="material-symbols-outlined text-lg">play_arrow</span>
-                Resume
+              <button onClick={resumeRecording} className="btn-secondary inline-flex items-center gap-2 text-sm">
+                <Play className="h-4 w-4" /> Resume
               </button>
             )}
-            
-            <button
-              onClick={stopRecording}
-              className="px-8 py-3 bg-red-500/80 hover:bg-red-500 text-ink font-bold rounded-lg transition-all flex items-center gap-2"
-            >
-              <span className="material-symbols-outlined text-lg">stop</span>
-              Stop & Analyze
+            <button onClick={stopRecording} className="btn-primary inline-flex items-center gap-2 text-sm">
+              <Square className="h-4 w-4 fill-current" /> Stop and analyze
             </button>
           </>
         )}
       </div>
 
-      {/* Instructions */}
-      <div className="max-w-md text-center">
-        <p className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest leading-relaxed">
-          Record at least 10s of audio for optimal fingerprinting.
-        </p>
-      </div>
+      <p className="max-w-md text-center text-xs text-ink-faint">
+        A few seconds of clear audio is enough. Noisy rooms are fine; silence is not.
+      </p>
     </div>
   );
 }

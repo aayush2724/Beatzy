@@ -1,5 +1,21 @@
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import placeholderArt from '../assets/placeholder-art.svg';
+import { Badge } from './ui';
+
+const STATUS_BADGE = {
+  failed: ['danger', 'Failed'],
+  queued: ['neutral', 'Queued'],
+  processing: ['brand', 'Analyzing…'],
+};
+
+// Mic captures are uploaded as `live-capture.<ext>`; never show that as a title.
+function displayTitle(job) {
+  if (job.song_title) return job.song_title;
+  const name = job.original_filename || '';
+  if (/^live-capture\./i.test(name) || /^recording-/i.test(name)) return 'Live recording';
+  return name.replace(/\.[a-z0-9]+$/i, '') || 'Untitled track';
+}
 
 export default function GlassRecordSleeve({ job }) {
   const x = useMotionValue(0);
@@ -8,8 +24,9 @@ export default function GlassRecordSleeve({ job }) {
   const mouseXSpring = useSpring(x);
   const mouseYSpring = useSpring(y);
 
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
+  // A hint of depth, not a card that swings around under the cursor.
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["5deg", "-5deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-5deg", "5deg"]);
 
   function handleMouseMove(e) {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -29,8 +46,9 @@ export default function GlassRecordSleeve({ job }) {
   }
 
   const spotifyMeta = job.spotify_features ? (typeof job.spotify_features === 'string' ? JSON.parse(job.spotify_features) : job.spotify_features) : null;
-  const title = job.song_title || job.original_filename || 'Unknown Signal';
-  const coverUrl = spotifyMeta?.cover_url || '/placeholder-art.jpg';
+  const title = displayTitle(job);
+  const coverUrl = spotifyMeta?.cover_url || placeholderArt;
+  const [badgeTone, badgeLabel] = STATUS_BADGE[job.status] || ['neutral', job.status];
 
   return (
     <motion.div
@@ -49,7 +67,7 @@ export default function GlassRecordSleeve({ job }) {
             style={{ translateZ: 20 }}
             className="absolute -right-4 top-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-canvas border-4 border-line-subtle shadow-2xl group-hover:right-[-2rem] transition-all duration-500 flex items-center justify-center overflow-hidden"
         >
-            <div className="w-full h-full opacity-40 mix-blend-overlay bg-[repeating-radial-gradient(circle_at_center,#222_0,#222_2px,transparent_2px,transparent_4px)]" />
+            <div className="w-full h-full opacity-40 mix-blend-overlay bg-[repeating-radial-gradient(circle_at_center,var(--raised)_0,var(--raised)_2px,transparent_2px,transparent_4px)]" />
             <div className="absolute inset-0 bg-gradient-to-tr from-ink/10 to-transparent" />
         </motion.div>
 
@@ -64,36 +82,36 @@ export default function GlassRecordSleeve({ job }) {
             {/* Overlay Info */}
             <div className="absolute bottom-3 left-3 right-3">
                 <p className="text-ink font-bold text-sm truncate">{title}</p>
-                <p className="text-ink/60 text-[10px] truncate uppercase tracking-widest">{job.song_artist || 'Neural Source'}</p>
+                <p className="text-ink/70 text-xs truncate">{job.song_artist || 'Unknown artist'}</p>
             </div>
-            
-            {/* BPM Badge */}
+
+            {/* BPM */}
             {job.bpm && (
-                <div className="absolute top-3 right-3 px-2 py-1 bg-primary text-surface rounded font-mono text-[9px] font-bold shadow-lg">
-                    {Math.round(job.bpm)}
+                <div className="absolute top-3 right-3 rounded-md border border-line bg-surface/90 px-2 py-1 text-[0.6875rem] font-medium tabular-nums text-ink backdrop-blur">
+                    {Math.round(job.bpm)} <span className="text-ink-muted">BPM</span>
                 </div>
             )}
         </motion.div>
-
-        {/* Shine Overlay */}
-        <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
-            <div className="absolute inset-[-100%] group-hover:inset-0 bg-gradient-to-tr from-transparent via-ink/5 to-transparent transition-all duration-1000" />
-        </div>
       </Link>
       ) : (
-      <div className="block h-full cursor-default opacity-70" title="Analysis in progress">
+      <div className="block h-full cursor-default" title={job.status === 'failed' ? (job.error_message || 'Analysis failed') : 'Analysis in progress'}>
         {/* Sleeve Background */}
         <div className="absolute inset-0 glass-panel border border-line rounded-xl bg-ink/[0.02] transition-colors shadow-2xl" />
-        <motion.div style={{ translateZ: 20 }} className="absolute -right-4 top-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-canvas border-4 border-line-subtle shadow-2xl flex items-center justify-center overflow-hidden">
-            <div className="w-full h-full opacity-40 mix-blend-overlay bg-[repeating-radial-gradient(circle_at_center,#222_0,#222_2px,transparent_2px,transparent_4px)]" />
+        <motion.div style={{ translateZ: 20 }} className="absolute -right-4 top-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-canvas border-4 border-line-subtle shadow-2xl flex items-center justify-center overflow-hidden opacity-60">
+            <div className="w-full h-full opacity-40 mix-blend-overlay bg-[repeating-radial-gradient(circle_at_center,var(--raised)_0,var(--raised)_2px,transparent_2px,transparent_4px)]" />
         </motion.div>
         <motion.div style={{ translateZ: 40 }} className="relative z-10 p-6 h-full flex flex-col justify-between">
-            <div className="w-24 h-24 rounded-lg overflow-hidden border border-line shadow-lg">
-                <img src={coverUrl} alt={title} className="w-full h-full object-cover grayscale" />
+            <div className="flex items-start justify-between gap-3">
+              <div className="w-20 h-20 rounded-lg overflow-hidden border border-line shadow-lg opacity-70">
+                  <img src={coverUrl} alt="" className="w-full h-full object-cover grayscale" />
+              </div>
+              <Badge variant={badgeTone} dot>{badgeLabel}</Badge>
             </div>
-            <div>
-                <h3 className="font-headline font-bold text-ink text-lg truncate">{title}</h3>
-                <p className="font-mono text-[9px] text-ink/40 uppercase tracking-widest mt-1">{job.status}</p>
+            <div className="min-w-0">
+                <h3 className="font-display font-semibold text-ink text-base truncate">{title}</h3>
+                <p className="text-xs text-ink-muted truncate mt-0.5">
+                  {job.status === 'failed' ? (job.error_message || 'Analysis failed') : 'Results will appear here when analysis finishes'}
+                </p>
             </div>
         </motion.div>
       </div>

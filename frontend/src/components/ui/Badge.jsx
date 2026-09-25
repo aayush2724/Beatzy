@@ -1,16 +1,36 @@
-import clsx from 'clsx';
+import { cn } from '../../lib/utils';
 
+// Status colours come from the semantic tokens, never from Tailwind's palette,
+// so they hold up in light mode and stay outside the brand hue.
 const variants = {
-  default: 'bg-ink/10 text-on-surface border-line',
-  accent: 'bg-accent/10 text-accent border-accent/20',
-  success: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20',
-  warning: 'bg-secondary/10 text-muted border-secondary/20',
-  muted: 'bg-surface-container-high text-muted border-glass-border',
+  neutral: 'bg-veil-2 text-ink-muted border-line',
+  brand: 'bg-brand/10 text-brand border-brand/20',
+  ok: 'bg-ok/10 text-ok border-ok/20',
+  warn: 'bg-warn/10 text-warn border-warn/20',
+  danger: 'bg-danger/10 text-danger border-danger/20',
+  warm: 'bg-accent-warm/10 text-accent-warm border-accent-warm/20',
 };
 
-export function Badge({ variant = 'default', className, children }) {
+// Older call sites use these names.
+const aliases = {
+  default: 'neutral',
+  muted: 'neutral',
+  accent: 'brand',
+  success: 'ok',
+  warning: 'warn',
+};
+
+export function Badge({ variant = 'neutral', dot = false, className, children }) {
+  const key = aliases[variant] || variant;
   return (
-    <span className={clsx('badge border', variants[variant], className)}>
+    <span
+      className={cn(
+        'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[0.6875rem] font-medium tracking-wide',
+        variants[key] || variants.neutral,
+        className,
+      )}
+    >
+      {dot && <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />}
       {children}
     </span>
   );

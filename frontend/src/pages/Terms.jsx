@@ -1,60 +1,32 @@
-import { Link } from 'react-router-dom';
-import { ChevronLeft, FileText } from 'lucide-react';
+import PublicShell from '../components/PublicShell';
+import { usePageMeta } from '../hooks/usePageMeta';
+
+const SECTIONS = [
+  ['Using Beatzy', 'You may use Beatzy to analyse audio you have the right to upload. Automated scraping, attempts to overload the service, or use of the API beyond your plan’s limits may lead to your account being suspended.'],
+  ['Your content', 'You keep all rights to the audio you upload. Source audio is deleted from storage once an analysis is saved; the results are stored in your account until you delete them.'],
+  ['Accuracy', 'Analyses are produced automatically. Tempo, key, chord and mood estimates can be wrong, and identification depends on third-party catalogs. Beatzy is provided as is, without warranty.'],
+  ['Plans and billing', 'Paid plans renew monthly and are billed through Stripe. You can change or cancel your plan at any time from the billing portal; changes to a lower plan apply at the end of the current period.'],
+  ['Changes', 'We may update these terms. When we do, the date below changes and continued use of the service means you accept the new terms.'],
+];
 
 export default function Terms() {
+  usePageMeta({ title: 'Terms of service', description: 'The terms for using Beatzy.' });
   return (
-    <div className="min-h-screen bg-canvas text-ink font-body selection:bg-brand/30 selection:text-canvas">
-      <div className="max-w-3xl mx-auto px-8 py-24 space-y-16 animate-page-entrance">
-        <Link to="/" className="group inline-flex items-center gap-2 font-mono text-[10px] text-ink/30 uppercase tracking-widest hover:text-brand transition-colors">
-          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to Network
-        </Link>
-
-        <header className="space-y-6">
-          <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full border border-brand/20 bg-brand/5 text-brand font-mono text-[9px] uppercase tracking-[0.2em]">
-            <FileText className="w-3 h-3" /> Service Level Protocol
-          </div>
-          <h1 className="text-6xl font-display font-black text-ink uppercase tracking-tighter leading-none">Terms of <span className="text-brand text-glow-ember">Uplink</span></h1>
-          <p className="text-on-surface-variant font-mono text-[10px] uppercase tracking-[0.3em]">Revision 4.2.0 · Neural Core Governance</p>
-        </header>
-
-        <div className="obsidian-panel p-12 rounded-[3rem] border border-line-subtle space-y-10 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-10 opacity-[0.02] group-hover:opacity-[0.05] transition-opacity pointer-events-none">
-              <FileText className="w-64 h-64" />
-          </div>
-
-          <section className="space-y-6 relative z-10">
-            <h3 className="font-display font-black text-xl text-ink uppercase tracking-tight flex items-center gap-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-brand" />
-                Resource Authorization
-            </h3>
-            <p className="text-on-surface-variant text-base leading-relaxed font-medium">
-              By establishing an uplink with Beatzy, you agree to utilize neural bandwidth for authorized audio analysis only. Automated scraping, signal overloading, or attempted core penetration will result in immediate identifier termination.
-            </p>
+    <PublicShell width="max-w-3xl">
+      <header>
+        <p className="text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-brand">Legal</p>
+        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-ink">Terms of service</h1>
+        <p className="mt-3 text-sm text-ink-muted">Last updated September 2026</p>
+      </header>
+      <div className="mt-10 divide-y divide-line-subtle">
+        {SECTIONS.map(([title, body]) => (
+          <section key={title} className="py-6">
+            <h2 className="font-display text-lg font-semibold text-ink">{title}</h2>
+            <p className="mt-2 text-[0.9375rem] leading-relaxed text-ink-muted">{body}</p>
           </section>
-
-          <section className="space-y-6 relative z-10">
-            <h3 className="font-display font-black text-xl text-ink uppercase tracking-tight flex items-center gap-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-accent-warm" />
-                Liability Disclaimer
-            </h3>
-            <p className="text-on-surface-variant text-base leading-relaxed font-medium">
-              Beatzy provides spectral intelligence "as-is". While our neural models aim for 99.9% accuracy, we are not responsible for identifier mismatches or signal latency within the global distributed network.
-            </p>
-          </section>
-
-          <div className="pt-10 border-t border-line-subtle flex flex-col sm:flex-row justify-between items-center gap-6 font-mono text-[9px] text-ink/20 uppercase tracking-[0.2em] relative z-10">
-            <div className="flex items-center gap-3">
-                <div className="w-1 h-1 rounded-full bg-brand animate-pulse" />
-                Governance Level: ENFORCED
-            </div>
-            <span>End of Transmission</span>
-          </div>
-        </div>
-
-        <footer className="text-center pt-10">
-            <p className="font-mono text-[9px] text-ink/10 uppercase tracking-[0.4em]">Questions? uplink@beatzy.io · Node: Region-EU-1</p>
-        </footer>
+        ))}
       </div>
-    </div>
+      <p className="mt-8 text-sm text-ink-muted">Questions about these terms: <a href="mailto:hello@beatzy.app" className="text-brand hover:text-brand-hover">hello@beatzy.app</a></p>
+    </PublicShell>
   );
 }

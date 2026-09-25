@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import clsx from 'clsx';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Hand, Lock, Music, Sparkles, VideoOff, Volume2 } from 'lucide-react';
 import * as Tone from 'tone';
 import useHandTracking from '../hooks/useHandTracking';
 import useChordSynth from '../hooks/useChordSynth';
@@ -156,13 +156,9 @@ export default function GestureChordStage({ chords = [] }) {
   // Empty state fallback
   if (count === 0) {
     return (
-      <div className="h-64 rounded-xl border border-dashed border-glass-border flex flex-col items-center justify-center p-6 text-center bg-ink/[0.01] space-y-3">
-        <span className="material-symbols-outlined text-4xl text-on-surface-variant/40">
-          music_off
-        </span>
-        <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest">
-          Shape data not synchronized — No detected song chords
-        </span>
+      <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-line p-6 text-center">
+        <Music className="h-8 w-8 text-ink-faint" />
+        <span className="text-sm text-ink-muted">No chords were detected in this track, so there is nothing to play.</span>
       </div>
     );
   }
@@ -175,24 +171,19 @@ export default function GestureChordStage({ chords = [] }) {
   return (
     <div className="w-full flex flex-col items-center gap-6">
       {/* Top Banner & Control Bar */}
-      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl glass-panel border border-glass-border">
+      <div className="flex w-full flex-col items-center justify-between gap-4 rounded-xl border border-line bg-surface p-4 sm:flex-row">
         <div>
-          <h4 className="font-headline font-bold text-xs text-primary uppercase tracking-widest flex items-center gap-2">
-            <span className="material-symbols-outlined text-base">pan_tool</span>
-            Gesture Chord Stage
+          <h4 className="flex items-center gap-2 text-sm font-medium text-ink">
+            <Hand className="h-4 w-4 text-brand" /> Play chords with your hand
           </h4>
-          <p className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider">
-            Hover over wheel segments to trigger triads • Fist to sustain • Pinch for shimmer
+          <p className="mt-0.5 text-xs text-ink-muted">
+            Point at a segment to sound its triad. Make a fist to hold it; pinch for shimmer.
           </p>
         </div>
 
         {!audioStarted && (
-          <button
-            onClick={handleStartAudio}
-            className="btn-primary flex items-center gap-2 shrink-0 py-2 px-4 text-xs font-mono"
-          >
-            <span className="material-symbols-outlined text-sm">volume_up</span>
-            Start Playing
+          <button onClick={handleStartAudio} className="btn-primary inline-flex shrink-0 items-center gap-2 text-sm !px-4 !py-2">
+            <Volume2 className="h-4 w-4" /> Start
           </button>
         )}
       </div>
@@ -212,22 +203,17 @@ export default function GestureChordStage({ chords = [] }) {
         {!isReady && !error && (
           <div className="absolute inset-0 bg-canvas/80 backdrop-blur-md flex flex-col items-center justify-center gap-3 z-30">
             <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest animate-pulse">
-              Starting camera & hand tracking…
-            </span>
+            <span className="text-sm text-ink-muted">Starting camera and hand tracking…</span>
           </div>
         )}
 
         {/* Error Overlay */}
         {error && (
           <div className="absolute inset-0 bg-canvas/90 backdrop-blur-md flex flex-col items-center justify-center gap-4 p-6 text-center z-30">
-            <span className="material-symbols-outlined text-4xl text-red-500">videocam_off</span>
-            <p className="font-mono text-xs text-red-400 uppercase tracking-widest">{error}</p>
-            <button
-              onClick={start}
-              className="btn-primary py-2 px-6 text-xs font-mono uppercase tracking-wider"
-            >
-              Retry Camera Connection
+            <VideoOff className="h-8 w-8 text-danger" />
+            <p className="text-sm text-ink-muted">{error}</p>
+            <button onClick={start} className="btn-primary text-sm !px-5 !py-2">
+              Try the camera again
             </button>
           </div>
         )}
@@ -336,7 +322,7 @@ export default function GestureChordStage({ chords = [] }) {
                 fill="none"
                 stroke={activeChord ? 'var(--color-primary)' : 'color-mix(in_oklab,var(--ink)_50%,transparent)'}
                 strokeWidth="2"
-                className="animate-ping"
+                className=""
               />
               <circle
                 cx={fingertipX}
@@ -353,44 +339,35 @@ export default function GestureChordStage({ chords = [] }) {
         <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between pointer-events-none z-30">
           <div className="flex items-center gap-2">
             {isFist && (
-              <span className="px-3 py-1 bg-primary/20 border border-primary/40 text-primary font-mono text-[9px] font-extrabold rounded-full uppercase tracking-widest shadow-lg animate-pulse flex items-center gap-1">
-                <span className="material-symbols-outlined text-xs">lock</span>
-                Frozen (Sustaining)
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand/10 px-2.5 py-1 text-[0.6875rem] font-medium text-brand backdrop-blur">
+                <Lock className="h-3 w-3" /> Held
               </span>
             )}
             {isPinching && (
-              <span className="px-3 py-1 bg-secondary/20 border border-secondary/40 text-secondary font-mono text-[9px] font-extrabold rounded-full uppercase tracking-widest shadow-lg flex items-center gap-1">
-                <span className="material-symbols-outlined text-xs">auto_awesome</span>
-                Shimmer Active
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-warm/30 bg-accent-warm/10 px-2.5 py-1 text-[0.6875rem] font-medium text-accent-warm backdrop-blur">
+                <Sparkles className="h-3 w-3" /> Shimmer
               </span>
             )}
           </div>
 
           {!audioStarted && isReady && (
-            <span className="px-3 py-1 bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-[9px] font-bold rounded-full uppercase tracking-widest">
-              Audio muted (Click Start Playing)
+            <span className="rounded-full border border-warn/30 bg-warn/10 px-2.5 py-1 text-[0.6875rem] font-medium text-warn backdrop-blur">
+              Sound is off until you press Start
             </span>
           )}
         </div>
       </div>
 
-      {/* Active Chord Display Bar */}
-      <div className="w-full max-w-md flex items-center justify-between p-4 rounded-xl glass-panel border border-glass-border">
+      {/* Active chord */}
+      <div className="flex w-full max-w-md items-center justify-between rounded-xl border border-line bg-surface p-4">
         <div>
-          <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest block">
-            Triggered Chord
-          </span>
-          <span className="text-2xl font-headline font-black text-ink">
-            {activeChord || 'None'}
-          </span>
+          <span className="block text-xs text-ink-muted">Playing</span>
+          <span className="font-display text-2xl font-semibold tracking-tight text-ink">{activeChord || '—'}</span>
         </div>
-
-        <div className="flex items-center gap-3">
-          <div className={clsx('w-3 h-3 rounded-full', activeChord ? 'bg-primary animate-pulse' : 'bg-ink/10')} />
-          <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-wider font-bold">
-            {activeChord ? 'PLAYING TRIAD' : 'HOVER SEGMENT'}
-          </span>
-        </div>
+        <span className="inline-flex items-center gap-2 text-xs text-ink-muted">
+          <span className={clsx('h-2 w-2 rounded-full', activeChord ? 'bg-brand' : 'bg-line-strong')} />
+          {activeChord ? 'Triad sounding' : 'Point at a segment'}
+        </span>
       </div>
     </div>
   );

@@ -10,12 +10,14 @@ import './index.css';
 
 const toastConfig = {
   style: {
-    background: 'rgba(20, 20, 20, 0.92)',
+    // Tokens, so toasts follow the theme instead of staying near-black in light mode.
+    background: 'var(--raised)',
     color: 'var(--ink)',
-    border: '1px solid color-mix(in_oklab,var(--ink)_10%,transparent)',
-    backdropFilter: 'blur(10px)',
+    border: '1px solid var(--line)',
+    boxShadow: 'var(--shadow-md)',
     borderRadius: '0.75rem',
-    padding: '1rem 1.25rem',
+    padding: '0.875rem 1.125rem',
+    fontSize: '14px',
   },
   success: { iconTheme: { primary: 'var(--ok)', secondary: 'var(--ok-ink)' } },
   error: { iconTheme: { primary: 'var(--danger)', secondary: 'var(--danger-ink)' } },

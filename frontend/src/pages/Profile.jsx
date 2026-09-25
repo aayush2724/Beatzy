@@ -1,211 +1,139 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { ArrowUpRight, CreditCard, Lock, Mail, UserRound } from 'lucide-react';
 import api from '../api/client';
 import PageWrapper from '../components/PageWrapper';
 import { useAuthStore } from '../store/authStore';
-import { motion } from 'framer-motion';
-import { 
-  UserCircle, 
-  Mail, 
-  ShieldCheck, 
-  Lock, 
-  CreditCard, 
-  Zap, 
-  ArrowUpRight, 
-  Database, 
-  Fingerprint,
-  Activity
-} from 'lucide-react';
+import { Badge, Button, Card, Input, PageHeader, SectionHeader } from '../components/ui';
 
-const PLAN_PRICES = { pro: '$19.99 / cycle', enterprise: '$99.99 / cycle', free: '$0 / cycle' };
-
-function ProfileSection({ icon: Icon, title, children, accentColor = 'text-brand' }) {
-  return (
-    <section className="glass-card p-10 border border-line relative overflow-hidden group">
-      <div className="absolute top-0 right-0 p-10 opacity-[0.03] pointer-events-none group-hover:opacity-[0.06] transition-opacity">
-          <Icon className="w-48 h-48" />
-      </div>
-      <div className="flex items-center gap-4 mb-10 relative z-10">
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-ink/[0.03] border border-line group-hover:border-line transition-colors`}>
-          <Icon className={`w-5 h-5 ${accentColor}`} />
-        </div>
-        <h2 className="font-display font-black text-xl text-ink uppercase tracking-widest">{title}</h2>
-      </div>
-      <div className="relative z-10">
-        {children}
-      </div>
-    </section>
-  );
-}
+// Keep in step with the Pricing page.
+const PLAN_PRICES = { free: '$0 / month', pro: '$4.99 / month', enterprise: '$19.99 / month' };
 
 export default function Profile() {
   const { user, setUser } = useAuthStore();
   const [name, setName] = useState(user?.name || '');
-  const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
+  const [passwords, setPasswords] = useState({ current: '', next: '', confirm: '' });
   const [savingName, setSavingName] = useState(false);
   const [savingPw, setSavingPw] = useState(false);
 
+  const plan = user?.plan || 'free';
+
   async function saveName(e) {
     e.preventDefault();
+    if (!name.trim() || name.trim() === user?.name) return;
     setSavingName(true);
     try {
-      const { data } = await api.patch('/api/users/me', { name });
+      const { data } = await api.patch('/api/users/me', { name: name.trim() });
       setUser(data.data);
-      toast.success('Identity updated in neural core');
-    } finally { setSavingName(false); }
+      toast.success('Name updated');
+    } catch (err) {
+      toast.error(err.response?.data?.error?.message || "Couldn't update your name");
+    } finally {
+      setSavingName(false);
+    }
   }
 
   async function savePassword(e) {
     e.preventDefault();
-    if (passwords.new !== passwords.confirm) return toast.error('Encryption keys mismatch');
+    if (passwords.next !== passwords.confirm) {
+      toast.error("New passwords don't match");
+      return;
+    }
     setSavingPw(true);
     try {
-      await api.patch('/api/users/me/password', { currentPassword: passwords.current, newPassword: passwords.new });
-      toast.success('Security protocol re-encrypted');
-      setPasswords({ current: '', new: '', confirm: '' });
-    } finally { setSavingPw(false); }
+      await api.patch('/api/users/me/password', { currentPassword: passwords.current, newPassword: passwords.next });
+      toast.success('Password changed');
+      setPasswords({ current: '', next: '', confirm: '' });
+    } catch (err) {
+      toast.error(err.response?.data?.error?.message || "Couldn't change your password");
+    } finally {
+      setSavingPw(false);
+    }
   }
 
   async function openBillingPortal() {
     try {
       const { data } = await api.post('/api/billing/portal');
       window.location.href = data.url;
-    } catch (err) {
-      toast.error('Billing interface offline');
+    } catch {
+      toast.error("Billing isn't available right now");
     }
   }
 
   return (
-    <PageWrapper className="max-w-[1200px] mx-auto space-y-16 pb-20 animate-page-entrance">
-      {/* Header */}
-      <header className="flex flex-col md:flex-row items-center gap-10 border-b border-line-subtle pb-16 relative overflow-hidden">
-        <div className="absolute top-1/2 left-0 -translate-y-1/2 w-64 h-64 bg-brand/5 blur-[100px] rounded-full -ml-32 pointer-events-none" />
-        
-        <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="w-32 h-32 rounded-[3rem] flex items-center justify-center text-5xl font-black text-brand-ink flex-shrink-0 bg-brand shadow-[0_0_60px_color-mix(in_oklab,var(--brand)_20%,transparent)] relative z-10"
-        >
-          {user?.name?.[0]?.toUpperCase() || 'U'}
-        </motion.div>
-        
-        <div className="text-center md:text-left relative z-10 space-y-4">
-          <h1 className="text-6xl font-display font-black text-ink tracking-tighter uppercase leading-none">{user?.name}</h1>
-          <div className="flex flex-wrap justify-center md:justify-start items-center gap-6">
-              <div className="flex items-center gap-2 text-ink/40 font-mono text-[10px] uppercase tracking-widest">
-                  <Mail className="w-3 h-3" /> {user?.email}
-              </div>
-              <div className="w-1 h-1 rounded-full bg-ink/10" />
-              <div className="px-4 py-1.5 rounded-full font-mono text-[9px] font-black uppercase tracking-[0.2em] bg-brand/10 border border-brand/20 text-brand flex items-center gap-2">
-                <Zap className="w-3 h-3 fill-current" /> {user?.plan || 'FREE'} SECTOR
-              </div>
+    <PageWrapper className="mx-auto max-w-4xl space-y-8 pb-16">
+      <PageHeader
+        eyebrow="Account"
+        title={
+          <span className="flex items-center gap-4">
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand font-display text-2xl font-semibold text-brand-ink">
+              {user?.name?.[0]?.toUpperCase() || 'U'}
+            </span>
+            {user?.name}
+          </span>
+        }
+        description={user?.email}
+        actions={<Badge variant={plan === 'free' ? 'neutral' : 'brand'} className="capitalize">{plan} plan</Badge>}
+      />
+
+      {/* Name */}
+      <Card>
+        <SectionHeader title="Profile" description="How you appear in the app." />
+        <form onSubmit={saveName} className="mt-5 grid gap-4 md:grid-cols-2 md:items-end">
+          <Input label="Email" value={user?.email || ''} icon={Mail} disabled hint="Your email is your sign-in and can't be changed here." />
+          <div className="flex items-end gap-3">
+            <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} icon={UserRound} required minLength={2} />
+            <Button type="submit" disabled={savingName || !name.trim() || name.trim() === user?.name} className="!h-11 !py-0">
+              {savingName ? 'Saving…' : 'Save'}
+            </Button>
+          </div>
+        </form>
+      </Card>
+
+      {/* Password */}
+      <Card>
+        <SectionHeader title="Password" description="Use at least 8 characters." />
+        <form onSubmit={savePassword} className="mt-5 grid gap-4 md:grid-cols-3">
+          <Input label="Current password" type="password" icon={Lock} autoComplete="current-password" value={passwords.current} onChange={(e) => setPasswords((p) => ({ ...p, current: e.target.value }))} required />
+          <Input label="New password" type="password" icon={Lock} autoComplete="new-password" value={passwords.next} onChange={(e) => setPasswords((p) => ({ ...p, next: e.target.value }))} required minLength={8} />
+          <Input
+            label="Confirm new password"
+            type="password"
+            icon={Lock}
+            autoComplete="new-password"
+            value={passwords.confirm}
+            onChange={(e) => setPasswords((p) => ({ ...p, confirm: e.target.value }))}
+            required
+            minLength={8}
+            error={passwords.confirm && passwords.next !== passwords.confirm ? "Doesn't match" : undefined}
+          />
+          <div className="md:col-span-3">
+            <Button type="submit" variant="secondary" disabled={savingPw}>{savingPw ? 'Changing…' : 'Change password'}</Button>
+          </div>
+        </form>
+      </Card>
+
+      {/* Plan */}
+      <Card>
+        <SectionHeader title="Plan & billing" description="Billing is handled by Stripe." />
+        <div className="mt-5 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="font-display text-3xl font-semibold tracking-tight text-ink capitalize">{plan}</p>
+            <p className="mt-1 text-sm text-ink-muted">{PLAN_PRICES[plan] || PLAN_PRICES.free}</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {plan !== 'free' && (
+              <Button variant="secondary" onClick={openBillingPortal} className="inline-flex items-center gap-2">
+                <CreditCard className="h-4 w-4" /> Manage billing
+              </Button>
+            )}
+            <Link to="/pricing" className="btn-primary inline-flex items-center gap-2 text-sm">
+              {plan === 'enterprise' ? 'View plans' : 'Upgrade'} <ArrowUpRight className="h-4 w-4" />
+            </Link>
           </div>
         </div>
-      </header>
-
-      <div className="grid gap-12">
-          {/* Personal Info */}
-          <ProfileSection icon={Fingerprint} title="Operator Identity" accentColor="text-brand">
-            <div className="grid lg:grid-cols-2 gap-12">
-              <div className="space-y-4">
-                <label className="text-sm text-ink/60 font-medium block ml-1">Permanent Identifier</label>
-                <div className="relative group">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/10 group-focus-within:text-brand transition-colors" />
-                    <input disabled value={user?.email || ''} className="w-full h-14 bg-ink/[0.02] border border-dashed border-line rounded-2xl pl-12 pr-4 text-ink/40 font-mono text-xs cursor-not-allowed" />
-                </div>
-                <p className="font-mono text-[11px] text-ink/20 mt-2 uppercase tracking-widest italic ml-1">Identity locked to neural core architecture.</p>
-              </div>
-
-              <form onSubmit={saveName} className="space-y-4">
-                <label className="text-sm text-ink/60 font-medium block ml-1">Interface Alias</label>
-                <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="relative flex-1 group">
-                        <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/10 group-focus-within:text-brand transition-colors" />
-                        <input value={name} onChange={e => setName(e.target.value)} placeholder="Operator Alias" required minLength={2} className="w-full h-14 bg-ink/[0.03] border border-line rounded-2xl pl-12 pr-4 text-ink placeholder:text-ink/20 focus:outline-none focus:border-brand/30 transition-all font-medium" />
-                    </div>
-                    <button type="submit" disabled={savingName} className="h-14 px-10 rounded-2xl bg-brand text-brand-ink font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_30px_color-mix(in_oklab,var(--brand)_15%,transparent)] disabled:opacity-50">
-                        {savingName ? 'SYNCING...' : 'SYNC'}
-                    </button>
-                </div>
-              </form>
-            </div>
-          </ProfileSection>
-
-          {/* Change Password */}
-          <ProfileSection icon={ShieldCheck} title="Access Encryption" accentColor="text-brand">
-            <form onSubmit={savePassword} className="grid lg:grid-cols-3 gap-8">
-              <div className="space-y-4">
-                <label className="text-sm text-ink/60 font-medium block ml-1">Active Encryption Key</label>
-                <div className="relative group">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/10 group-focus-within:text-brand transition-colors" />
-                    <input type="password" value={passwords.current} onChange={e => setPasswords(p => ({ ...p, current: e.target.value }))} required className="w-full h-14 bg-ink/[0.03] border border-line rounded-2xl pl-12 pr-4 text-ink focus:outline-none focus:border-brand/30 transition-all" />
-                </div>
-              </div>
-              <div className="space-y-4">
-                <label className="text-sm text-ink/60 font-medium block ml-1">New Generation Key</label>
-                <div className="relative group">
-                    <Zap className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/10 group-focus-within:text-brand transition-colors" />
-                    <input type="password" value={passwords.new} onChange={e => setPasswords(p => ({ ...p, new: e.target.value }))} required minLength={8} className="w-full h-14 bg-ink/[0.03] border border-line rounded-2xl pl-12 pr-4 text-ink focus:outline-none focus:border-brand/30 transition-all" />
-                </div>
-              </div>
-              <div className="space-y-4">
-                <label className="text-sm text-ink/60 font-medium block ml-1">Verify Generation Key</label>
-                <div className="relative group">
-                    <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/10 group-focus-within:text-brand transition-colors" />
-                    <input type="password" value={passwords.confirm} onChange={e => setPasswords(p => ({ ...p, confirm: e.target.value }))} required minLength={8} className="w-full h-14 bg-ink/[0.03] border border-line rounded-2xl pl-12 pr-4 text-ink focus:outline-none focus:border-brand/30 transition-all" />
-                </div>
-              </div>
-              <div className="lg:col-span-3 pt-4">
-                <button type="submit" disabled={savingPw} className="h-14 px-12 rounded-2xl border border-brand/30 bg-brand/5 text-brand font-black text-[10px] uppercase tracking-[0.2em] hover:bg-brand hover:text-brand-ink transition-all shadow-[0_0_30px_rgba(244,164,96,0.1)] disabled:opacity-50">
-                    {savingPw ? 'RE-ENCRYPTING...' : 'INITIALIZE RE-ENCRYPTION PROTOCOL'}
-                </button>
-              </div>
-            </form>
-          </ProfileSection>
-
-          {/* Subscription */}
-          <ProfileSection icon={Database} title="Resource Matrix" accentColor="text-accent-warm">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-12 p-10 rounded-[2.5rem] bg-ink/[0.01] border border-line-subtle relative overflow-hidden group/matrix">
-              <div className="absolute inset-0 bg-accent-warm/5 opacity-0 group-hover/matrix:opacity-100 transition-opacity" />
-              
-              <div className="space-y-8 relative z-10">
-                <div className="flex items-center gap-4">
-                  <span className="font-mono text-[10px] text-ink/30 uppercase tracking-[0.3em]">Operational Tier</span>
-                  <div className="px-4 py-1.5 rounded-xl bg-accent-warm text-ink font-black font-mono text-[10px] uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(232,160,132,0.3)]">
-                    {user?.plan ? `${user.plan} resonance` : 'FREE RESONANCE'}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                    <p className="text-5xl font-display font-black text-ink uppercase tracking-tighter">{PLAN_PRICES[user?.plan] || PLAN_PRICES.free}</p>
-                    <p className="font-mono text-[10px] text-ink/20 uppercase tracking-[0.2em] max-w-sm leading-relaxed">Continuous analysis capability active. Uplink secured via Stripe automated protocols.</p>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-4 min-w-[280px] relative z-10">
-                <button onClick={openBillingPortal} className="group flex items-center justify-center gap-3 h-14 rounded-2xl bg-ink/[0.03] border border-line text-ink font-black text-[10px] uppercase tracking-widest hover:bg-ink/[0.06] hover:border-line transition-all">
-                  <CreditCard className="w-4 h-4 text-ink/40" /> BILLING CONSOLE
-                </button>
-                <Link to="/pricing" className="group flex items-center justify-center gap-2 h-14 rounded-2xl bg-accent-warm/10 border border-accent-warm/20 text-accent-warm font-black text-[10px] uppercase tracking-widest hover:bg-accent-warm hover:text-ink transition-all">
-                  UPGRADE ACCESS <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                </Link>
-              </div>
-            </div>
-          </ProfileSection>
-      </div>
-
-      {/* Technical Metadata Decoration */}
-      <div className="flex justify-between items-center pt-20 font-mono text-[10px] text-ink/10 uppercase tracking-[0.3em] select-none">
-            <div className="flex items-center gap-4">
-                <div className="w-1 h-1 rounded-full bg-brand animate-pulse" />
-                Operator Sync Active
-            </div>
-            <div>Auth Protocol: JWT-RS256</div>
-            <div className="flex items-center gap-2">
-                <Activity className="w-2 h-2" />
-                System Core V4.2
-            </div>
-        </div>
+      </Card>
     </PageWrapper>
   );
 }

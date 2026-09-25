@@ -19,10 +19,8 @@ const PIANO_NOTES = [
 function Fretboard({ shape, strings }) {
   if (!shape) {
     return (
-      <div className="h-48 rounded-lg border border-dashed border-glass-border flex items-center justify-center px-6 text-center bg-ink/[0.01]">
-        <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest">
-          Shape data not synchronized
-        </span>
+      <div className="flex h-48 items-center justify-center rounded-xl border border-dashed border-line px-6 text-center">
+        <span className="text-sm text-ink-faint">No fingering available for this chord yet.</span>
       </div>
     );
   }
@@ -107,25 +105,19 @@ export default function InstrumentChordPanel({ chords = [] }) {
   const shape = getChordShape(selectedChord);
 
   return (
-    <section className="glass-panel border border-glass-border p-6 rounded-xl overflow-hidden relative">
-      <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
-          <span className="material-symbols-outlined text-8xl">piano</span>
-      </div>
-
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 relative z-10">
-        <div>
-          <h3 className="font-headline font-bold text-sm text-primary uppercase tracking-widest">Musician Assist</h3>
-          <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider">Dynamic fingering guide</span>
-        </div>
-        
-        <div className="flex p-1 bg-ink/5 rounded-xl border border-line">
+    <section className="relative">
+      <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <p className="text-xs text-ink-muted">Pick a chord to see how to play it.</p>
+        <div className="inline-flex items-center gap-1 rounded-xl border border-line bg-surface p-1" role="tablist" aria-label="Instrument">
           {INSTRUMENTS.map(ins => (
             <button
               key={ins}
+              role="tab"
+              aria-selected={instrument === ins}
               onClick={() => setInstrument(ins)}
               className={clsx(
-                "px-4 py-2 rounded-lg font-mono text-[10px] uppercase tracking-wider transition-all",
-                instrument === ins ? "bg-primary text-surface font-bold" : "text-on-surface-variant hover:text-ink"
+                'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
+                instrument === ins ? 'bg-raised text-ink shadow-[var(--shadow-sm)]' : 'text-ink-muted hover:text-ink'
               )}
             >
               {ins}
@@ -134,29 +126,27 @@ export default function InstrumentChordPanel({ chords = [] }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-8 items-start relative z-10">
+      <div className="grid grid-cols-12 items-start gap-6">
         <div className="col-span-12 lg:col-span-4">
             <div className="space-y-4">
-                <p className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest">Detected Signals</p>
+                <p className="text-xs font-medium text-ink-muted">{uniqueChords.length ? 'Chords in this track' : 'Example chords'}</p>
                 <div className="flex flex-wrap gap-2">
                     {(uniqueChords.length > 0 ? uniqueChords : ['Cmaj', 'Gmaj', 'Amin', 'Fmaj']).map(c => (
                         <button
                             key={c}
                             onClick={() => setSelectedChord(c)}
                             className={clsx(
-                                "px-3 py-2 rounded-lg border font-mono text-[11px] font-bold transition-all",
-                                selectedChord === c ? "border-primary bg-primary/10 text-primary" : "border-glass-border bg-ink/[0.02] text-on-surface-variant hover:border-line"
+                                'rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors',
+                                selectedChord === c ? 'border-brand/50 bg-brand/10 text-brand' : 'border-line bg-surface text-ink-muted hover:border-line-strong/60 hover:text-ink'
                             )}
                         >
                             {c}
                         </button>
                     ))}
                 </div>
-                <div className="pt-4 border-t border-glass-border">
-                    <div className="text-4xl font-headline font-extrabold text-ink mb-2">{selectedChord}</div>
-                    <p className="text-[10px] text-on-surface-variant leading-relaxed font-mono uppercase opacity-60">
-                        {instrument} Tablature Mode
-                    </p>
+                <div className="border-t border-line-subtle pt-4">
+                    <div className="font-display text-3xl font-semibold tracking-tight text-ink">{selectedChord}</div>
+                    <p className="mt-1 text-xs text-ink-faint">{instrument} fingering</p>
                 </div>
             </div>
         </div>
