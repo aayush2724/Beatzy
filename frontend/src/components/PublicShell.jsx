@@ -2,6 +2,7 @@ import { Link, NavLink } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import ThemeToggle from './ThemeToggle';
 import { cn } from '../lib/utils';
+import BrandMark from './BrandMark';
 
 /**
  * The frame for every page outside the signed-in app: one nav, one footer.
@@ -18,10 +19,7 @@ const NAV_LINKS = [
 export function Wordmark({ className }) {
   return (
     <Link to="/" className={cn('inline-flex items-center gap-2.5', className)} aria-label="Beatzy home">
-      <span className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-brand/30 bg-brand/10">
-        <span className="absolute h-2.5 w-2.5 rounded-full bg-brand" />
-        <span className="h-6 w-6 rounded-full border border-brand/50" />
-      </span>
+      <BrandMark />
       <span className="font-display text-[0.9375rem] font-semibold tracking-[0.12em] text-ink">BEATZY</span>
     </Link>
   );

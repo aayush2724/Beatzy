@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import OnboardingTour from './OnboardingTour';
+import BrandMark from './BrandMark';
 import {
   Waves,
   LayoutDashboard,
@@ -13,7 +14,6 @@ import {
   UserCircle,
   ShieldCheck,
   LogOut,
-  Zap,
 } from 'lucide-react';
 
 export default function Layout() {
@@ -65,9 +65,7 @@ export default function Layout() {
       >
         {/* Wordmark */}
         <div className="px-5 mb-8 flex items-center gap-3 overflow-hidden shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-brand/10 flex items-center justify-center border border-brand/20 shrink-0">
-            <Zap className="w-4 h-4 text-brand fill-brand" />
-          </div>
+          <BrandMark />
           <motion.p
             animate={{ opacity: isSidebarHovered ? 1 : 0, x: isSidebarHovered ? 0 : -8 }}
             className="whitespace-nowrap font-display text-[0.9375rem] font-semibold tracking-[0.12em] text-ink"
