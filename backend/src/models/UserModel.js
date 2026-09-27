@@ -6,6 +6,14 @@ class UserModel {
     return rows[0];
   }
 
+  static async findById(userId) {
+    const { rows } = await pool.query(
+      'SELECT id, name, email, plan, is_active, is_admin FROM users WHERE id = $1',
+      [userId]
+    );
+    return rows[0];
+  }
+
   static async updateGoogleId(userId, googleId) {
     await pool.query('UPDATE users SET google_id = $1 WHERE id = $2', [googleId, userId]);
   }

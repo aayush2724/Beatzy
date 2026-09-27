@@ -25,6 +25,20 @@ describe('Auth Routes', () => {
     });
   });
 
+  describe('POST /api/auth/google/exchange', () => {
+    it('should return 422 for a malformed code', async () => {
+      const res = await request(app).post('/api/auth/google/exchange').send({ code: 'nope' });
+      expect(res.status).toBe(422);
+    });
+
+    it('should return 401 for an unknown or expired code', async () => {
+      const res = await request(app)
+        .post('/api/auth/google/exchange')
+        .send({ code: 'A'.repeat(43) });
+      expect(res.status).toBe(401);
+    });
+  });
+
   describe('GET /health', () => {
     it('should return ok', async () => {
       const res = await request(app).get('/health');

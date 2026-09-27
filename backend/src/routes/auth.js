@@ -65,6 +65,8 @@ router.get('/google/callback', (req, res, next) => {
   return passport.authenticate('google', { session: false, failureRedirect: `${frontendUrl}/auth/error` })(req, res, next);
 }, AuthController.googleCallback);
 
+router.post('/google/exchange', authLimiter, validate(schemas.oauthExchange), AuthController.googleExchange);
+
 router.get('/me', authenticate, AuthController.getMe);
 router.post('/logout', authenticate, AuthController.logout);
 

@@ -16,6 +16,11 @@ const mockClient = {
     setTimeout(() => _cache.delete(key), ttl * 1000);
   },
   del: async (key) => { _cache.delete(key); _counters.delete(key); },
+  getDel: async (key) => {
+    const v = _cache.get(key) ?? null;
+    _cache.delete(key);
+    return v;
+  },
   incr: async (key) => {
     const v = (_counters.get(key) || 0) + 1;
     _counters.set(key, v);
@@ -82,6 +87,25 @@ async function deleteCache(key) {
   }
 }
 
+// Read a key and delete it in one step, for single-use values such as OAuth
+// sign-in codes. Uses GETDEL where the client supports it; otherwise falls
+// back to get + del.
+async function consumeCache(key) {
+  try {
+    const client = getRedisClient();
+    let val;
+    if (typeof client.getDel === 'function') {
+      val = await client.getDel(key);
+    } else {
+      val = await client.get(key);
+      if (val !== null) await client.del(key);
+    }
+    return val ? JSON.parse(val) : null;
+  } catch {
+    return null;
+  }
+}
+
 async function incrementCounter(key, ttlSeconds = 86400) {
   try {
     const count = await getRedisClient().incr(key);
@@ -99,5 +123,6 @@ module.exports = {
   getCache,
   setCache,
   deleteCache,
+  consumeCache,
   incrementCounter,
 };

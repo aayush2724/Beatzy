@@ -5,10 +5,20 @@ const { v4: uuidv4 } = require('uuid');
 const UserModel = require('../models/UserModel');
 const { createError } = require('../middleware/errorHandler');
 const { logAudit } = require('../services/audit');
+const { setCache, consumeCache } = require('../db/redis');
 const logger = require('../utils/logger');
+
+// How long the browser has to swap a Google sign-in code for tokens.
+const OAUTH_CODE_TTL_SECONDS = 60;
 
 function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
+}
+
+// The cache key holds a hash of the code, so a Redis dump never reveals a
+// code that is still redeemable.
+function oauthCodeKey(code) {
+  return `oauth:code:${hashToken(code)}`;
 }
 
 async function generateTokens(userId) {
@@ -105,10 +115,38 @@ class AuthController {
   }
 
   static async googleCallback(req, res) {
-    const tokens = await generateTokens(req.user.id);
-    await logAudit({ userId: req.user.id, action: 'user.login_google', ip: req.ip });
+    // Hand the browser a short-lived, single-use code rather than the tokens
+    // themselves. Query strings end up in browser history, Referer headers and
+    // request logs; the frontend redeems the code over POST instead.
+    const code = crypto.randomBytes(32).toString('base64url');
+    await setCache(oauthCodeKey(code), { userId: req.user.id }, OAUTH_CODE_TTL_SECONDS);
     const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').trim().replace(/^["']|["']$/g, '');
-    res.redirect(`${frontendUrl}/auth/callback?token=${tokens.accessToken}&refresh=${tokens.refreshToken}`);
+    res.redirect(`${frontendUrl}/auth/callback?code=${code}`);
+  }
+
+  static async googleExchange(req, res) {
+    const { code } = req.validated.body;
+
+    const entry = await consumeCache(oauthCodeKey(code));
+    if (!entry) throw createError(401, 'Sign-in code is invalid or has expired — please try again');
+
+    const user = await UserModel.findById(entry.userId);
+    if (!user) throw createError(401, 'User not found');
+    if (!user.is_active) throw createError(403, 'Account deactivated');
+
+    const tokens = await generateTokens(user.id);
+    await UserModel.updateLastLogin(user.id);
+
+    await logAudit({ userId: user.id, action: 'user.login_google', ip: req.ip });
+    logger.info('User logged in via Google', { userId: user.id });
+
+    res.json({
+      success: true,
+      data: {
+        user: { id: user.id, name: user.name, email: user.email, plan: user.plan, is_admin: user.is_admin },
+        ...tokens,
+      },
+    });
   }
 }
 

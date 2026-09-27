@@ -8,7 +8,8 @@
     "start": "node src/index.js",
     "lint": "eslint src/ --ext .js",
     "test": "jest --forceExit --detectOpenHandles",
-    "migrate": "node src/db/migrate.js"
+    "migrate": "node src/db/migrate.js",
+    "seed": "node src/db/seed.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.470.0",

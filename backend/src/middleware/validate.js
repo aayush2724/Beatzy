@@ -34,6 +34,12 @@ const schemas = {
       password: z.string().min(8).max(72),
     }),
   }),
+  oauthExchange: z.object({
+    body: z.object({
+      // base64url of 32 random bytes is 43 chars; allow some slack.
+      code: z.string().regex(/^[A-Za-z0-9_-]{32,128}$/, 'Malformed sign-in code'),
+    }),
+  }),
   createApiKey: z.object({
     body: z.object({
       name: z.string().min(1).max(100),

@@ -28,7 +28,6 @@ export default defineConfig({
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
           'vendor-motion': ['framer-motion'],
           'vendor-three': ['three', '@react-three/fiber', '@react-three/drei'],
-          'vendor-scroll': ['gsap', 'lenis'],
           'vendor-charts': ['recharts'],
         },
       },
