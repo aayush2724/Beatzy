@@ -199,7 +199,27 @@ async function bootstrap() {
   }
 }
 
+// Render sends SIGTERM when it replaces or stops an instance; finish in-flight
+// requests and release connections instead of dying mid-request.
+function shutdown(signal) {
+  logger.info(`${signal} received, shutting down`);
+  setTimeout(() => process.exit(0), 10000).unref();
+  server.close(async () => {
+    try {
+      const { worker } = require('./workers/analysisWorker');
+      if (worker) await worker.close();
+    } catch (err) {
+      logger.warn('Worker shutdown failed', { error: err.message });
+    }
+    const { pool } = require('./db/client');
+    await pool.end().catch(() => {});
+    process.exit(0);
+  });
+}
+
 if (require.main === module) {
+  process.once('SIGTERM', () => shutdown('SIGTERM'));
+  process.once('SIGINT', () => shutdown('SIGINT'));
   bootstrap();
 }
 
