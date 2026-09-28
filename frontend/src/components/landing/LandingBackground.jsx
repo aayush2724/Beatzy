@@ -1,12 +1,16 @@
+import HeroWave from './HeroWave';
+
 /**
- * Backdrop for the landing hero, built from still layers (nothing animates):
+ * Backdrop for the landing hero, built from still layers:
  *
  *   1. a tilted mosaic of artist portraits — one flat composited layer
  *   2. a hairline grid that fades out towards the edges
- *   3. a waveform ribbon across the mid-band, in the brand gradient
+ *   3. a waveform ribbon across the mid-band that only moves while the
+ *      pointer is over the hero — see HeroWave
  *   4. three soft glows (teal, amber, graphite) and a vignette
  *
- * Every layer is cheap: no filters that re-render, no per-tile 3D, no motion.
+ * Nothing here animates on its own; the signal ring is the hero's one
+ * self-moving element.
  */
 const ARTIST_IMAGES = [
   '/artists/artist-1.jpg',
@@ -28,23 +32,6 @@ const GRID_TILES = Array.from(
   { length: COLS * ROWS },
   (_, i) => ARTIST_IMAGES[(i + Math.floor(i / COLS) * 5) % ARTIST_IMAGES.length],
 );
-
-/* A deterministic waveform: two sines and a slow envelope, so it reads as
-   audio rather than a random scribble. Computed once at module load. */
-const WAVE_PATH = (() => {
-  const points = 160;
-  const width = 1600;
-  const mid = 100;
-  const parts = [];
-  for (let i = 0; i <= points; i++) {
-    const t = i / points;
-    const x = t * width;
-    const envelope = Math.sin(t * Math.PI) ** 1.5;
-    const y = mid + envelope * (Math.sin(t * 46) * 34 + Math.sin(t * 11) * 22);
-    parts.push(`${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`);
-  }
-  return parts.join(' ');
-})();
 
 export default function LandingBackground() {
   return (
@@ -72,22 +59,7 @@ export default function LandingBackground() {
       />
 
       {/* 3. waveform ribbon */}
-      <svg
-        className="absolute inset-x-0 top-[38%] h-[28%] w-full opacity-[0.28]"
-        viewBox="0 0 1600 200"
-        preserveAspectRatio="none"
-      >
-        <defs>
-          <linearGradient id="hero-wave" x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0" stopColor="var(--brand)" stopOpacity="0" />
-            <stop offset="0.3" stopColor="var(--brand)" stopOpacity="0.9" />
-            <stop offset="0.7" stopColor="var(--accent-warm)" stopOpacity="0.8" />
-            <stop offset="1" stopColor="var(--accent-warm)" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path d={WAVE_PATH} fill="none" stroke="url(#hero-wave)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
-        <path d={WAVE_PATH} fill="none" stroke="url(#hero-wave)" strokeWidth="6" vectorEffect="non-scaling-stroke" opacity="0.18" />
-      </svg>
+      <HeroWave className="absolute inset-x-0 top-[38%] h-[28%] w-full opacity-[0.4]" />
 
       {/* 4. glows + vignette */}
       <div className="aurora aurora-1 absolute -top-72 left-1/2 h-[42rem] w-[42rem] rounded-full"></div>
