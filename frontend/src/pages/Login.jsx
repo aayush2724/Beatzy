@@ -4,7 +4,9 @@ import toast from 'react-hot-toast';
 import { Lock, Mail } from 'lucide-react';
 import { login, googleLogin } from '../api/auth';
 import { useAuthStore } from '../store/authStore';
+import { usePageMeta } from '../hooks/usePageMeta';
 import AuthShell from '../components/AuthShell';
+import { fieldErrorsFrom } from '../lib/formErrors';
 import { Button, Input } from '../components/ui';
 
 function GoogleMark() {
@@ -22,19 +24,32 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
   const { setAuth } = useAuthStore();
   const navigate = useNavigate();
 
+  usePageMeta({ title: 'Sign in', description: 'Sign in to Beatzy to analyse tracks and manage your API keys.' });
+
   async function handleSubmit(e) {
     e.preventDefault();
+    if (loading) return;
+    setFormError(null);
+    setFieldErrors({});
     setLoading(true);
     try {
-      const { data } = await login({ email, password });
+      const { data } = await login({ email: email.trim(), password });
       setAuth(data.data.user, data.data.accessToken, data.data.refreshToken);
       toast.success('Welcome back');
       navigate('/upload');
     } catch (err) {
-      toast.error(err.response?.data?.error?.message || 'Invalid email or password');
+      const status = err.response?.status;
+      const fields = fieldErrorsFrom(err);
+      setFieldErrors(fields);
+      if (status === 401) setFormError('That email and password don’t match. Check both and try again.');
+      else if (status === 403) setFormError(err.response?.data?.error?.message || 'This account is not active.');
+      else if (status === 429) setFormError('Too many attempts. Please wait a few minutes and try again.');
+      else if (!Object.keys(fields).length) setFormError(status ? 'Sign-in failed. Please try again.' : 'Couldn’t reach the server. Check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -50,15 +65,43 @@ export default function Login() {
         </>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input label="Email" type="email" icon={Mail} autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
-        <Input label="Password" type="password" icon={Lock} autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password" />
-        <Button type="submit" disabled={loading} className="w-full">
+      <form onSubmit={handleSubmit} className="space-y-4" aria-busy={loading} noValidate>
+        {formError && (
+          <p role="alert" className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
+            {formError}
+          </p>
+        )}
+        <Input
+          label="Email"
+          name="email"
+          type="email"
+          icon={Mail}
+          autoComplete="email"
+          inputMode="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@example.com"
+          error={fieldErrors.email}
+        />
+        <Input
+          label="Password"
+          name="password"
+          type="password"
+          icon={Lock}
+          autoComplete="current-password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Your password"
+          error={fieldErrors.password}
+        />
+        <Button type="submit" disabled={loading || !email || !password} className="w-full">
           {loading ? 'Signing in…' : 'Sign in'}
         </Button>
       </form>
 
-      <div className="flex items-center gap-3 text-xs text-ink-faint">
+      <div className="flex items-center gap-3 text-xs text-ink-faint" aria-hidden="true">
         <span className="h-px flex-1 bg-line-subtle" /> or <span className="h-px flex-1 bg-line-subtle" />
       </div>
 

@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, CloudOff, Disc, Plus } from 'lucide-react';
 import { getHistory } from '../api/audio';
 import GlassRecordSleeve from '../components/GlassRecordSleeve';
 import PageWrapper from '../components/PageWrapper';
+import { usePageMeta } from '../hooks/usePageMeta';
 import { EmptyState, IconButton, PageHeader, SearchField, Skeleton } from '../components/ui';
 
 const PAGE_SIZE = 12;
@@ -16,6 +17,7 @@ const containerVariants = {
 };
 
 export default function History() {
+  usePageMeta({ title: 'History', noindex: true });
   const [jobs, setJobs] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
   const [loading, setLoading] = useState(true);

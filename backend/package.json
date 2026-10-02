@@ -1,11 +1,11 @@
 {
   "name": "beatzy-backend",
   "version": "1.0.0",
-  "description": "Beatzy API Gateway — Node.js/Express",
+  "description": "Beatzy API Gateway \u2014 Node.js/Express",
   "main": "src/index.js",
   "scripts": {
-    "dev": "nodemon src/index.js",
-    "start": "node src/index.js",
+    "dev": "node init && nodemon src/index.js",
+    "start": "node init && node src/index.js",
     "lint": "eslint src/ --ext .js",
     "test": "jest --forceExit --detectOpenHandles",
     "migrate": "node src/db/migrate.js",

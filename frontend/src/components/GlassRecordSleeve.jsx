@@ -76,7 +76,7 @@ export default function GlassRecordSleeve({ job }) {
             style={{ translateZ: 40 }}
             className="absolute inset-4 rounded-lg overflow-hidden shadow-2xl border border-line"
         >
-            <img src={coverUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+            <img src={coverUrl} alt="" width="256" height="256" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
             <div className="absolute inset-0 bg-gradient-to-t from-canvas/80 via-transparent to-transparent opacity-60" />
             
             {/* Overlay Info */}
@@ -103,7 +103,7 @@ export default function GlassRecordSleeve({ job }) {
         <motion.div style={{ translateZ: 40 }} className="relative z-10 p-6 h-full flex flex-col justify-between">
             <div className="flex items-start justify-between gap-3">
               <div className="w-20 h-20 rounded-lg overflow-hidden border border-line shadow-lg opacity-70">
-                  <img src={coverUrl} alt="" className="w-full h-full object-cover grayscale" />
+                  <img src={coverUrl} alt="" width="80" height="80" className="w-full h-full object-cover grayscale" />
               </div>
               <Badge variant={badgeTone} dot>{badgeLabel}</Badge>
             </div>

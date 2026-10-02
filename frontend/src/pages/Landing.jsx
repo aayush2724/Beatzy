@@ -1,8 +1,10 @@
 import { useMemo, useRef, useState } from 'react';
 import { motion, MotionConfig, useScroll, useTransform } from 'framer-motion';
-import { Activity, ArrowUpRight, Disc3, Fingerprint, Music2, Sparkles, Timer, Waves, Zap } from 'lucide-react';
+import { Activity, ArrowUpRight, Disc3, Fingerprint, Music2, Sparkles, Waves, Zap } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import { usePageMeta } from '../hooks/usePageMeta';
 import { PublicNav, PublicFooter } from '../components/PublicShell';
+import MobileCta from '../components/landing/MobileCta';
 import LandingBackground from '../components/landing/LandingBackground';
 import MagneticCta from '../components/landing/MagneticCta';
 import ScrollProgress from '../components/landing/ScrollProgress';
@@ -70,6 +72,12 @@ export default function Landing() {
   const { token } = useAuthStore();
   const [trackId, setTrackId] = useState(SAMPLE_TRACKS[0].id);
   const track = findTrack(trackId);
+  const ctaTo = token ? '/upload' : '/register';
+
+  usePageMeta({
+    description:
+      'Identify any song and read its tempo, key, chords, mood and lyrics. Upload a file, record a snippet or search the catalog, with a REST API to match.',
+  });
 
   const heroRef = useRef(null);
   const { scrollYProgress: heroProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
@@ -89,7 +97,6 @@ export default function Landing() {
       { icon: Zap, label: 'Energy', value: track.energy.toFixed(2) },
       { icon: Disc3, label: 'Camelot', value: track.camelot },
       { icon: Fingerprint, label: 'Confidence', value: `${(track.confidence * 100).toFixed(2)}%` },
-      { icon: Timer, label: 'Latency', value: `${track.latencyMs} ms` },
     ],
     [track],
   );
@@ -105,8 +112,9 @@ export default function Landing() {
         <PublicNav />
         <ScrollProgress />
         <CursorRing />
+        <MobileCta to={ctaTo} heroRef={heroRef} />
 
-        <main id="top" className="relative z-10">
+        <main id="main" tabIndex={-1} className="relative z-10 focus:outline-none">
           {/* ============ HERO ============ */}
           <section ref={heroRef} className="relative flex min-h-[calc(100vh-4rem)] items-center overflow-hidden">
             <motion.div className="absolute inset-0" style={{ y: backdropY }}>
@@ -133,7 +141,7 @@ export default function Landing() {
                 </motion.p>
                 <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-6">
                   <MagneticCta
-                    to={token ? '/upload' : '/register'}
+                    to={ctaTo}
                     className="cta-3d btn-shine inline-flex min-h-14 items-center justify-center rounded-2xl bg-brand px-8 text-sm font-semibold uppercase tracking-[0.12em] text-brand-ink"
                   >
                     Start analyzing<ArrowUpRight className="ml-2 h-5 w-5" />
@@ -161,7 +169,7 @@ export default function Landing() {
             <Marquee label="Genres" items={GENRES} renderItem={(g) => <GenreChip label={g} />} className="border-t-0 bg-transparent pt-8" />
 
             {/* ============ STATS ============ */}
-            <section aria-label="Platform statistics" className="relative py-14">
+            <section aria-label="What Beatzy does, in numbers" className="relative py-14">
               <StatsRow />
             </section>
 
@@ -211,10 +219,10 @@ export default function Landing() {
                   className="mt-4 font-display text-[clamp(2.25rem,3.6vw,3.5rem)] font-semibold tracking-tight text-ink"
                 />
                 <p className="mt-6 max-w-3xl text-lg leading-8 text-ink-muted">
-                  Designed for developers who need a gorgeous dashboard and reliable machine-readable analysis. No guesswork. Just clean signal.
+                  Every analysis is available as JSON over the REST API, so the same numbers you see in the dashboard can drive your own tools.
                 </p>
                 <p className="mt-6 text-sm text-ink-muted">
-                  Showing <span className="font-medium text-ink">{track.title}</span>. Choose another tape above, or a track in the hero, and this panel follows.
+                  Showing the sample track <span className="font-medium text-ink">{track.title}</span>. Choose another tape above, or a track in the hero, and this panel follows.
                 </p>
               </Reveal>
               <Reveal delay={0.15}>

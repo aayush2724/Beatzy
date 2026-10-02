@@ -31,7 +31,6 @@ function payloadFor(track) {
     chords: track.chords,
     energy: track.energy,
     danceability: track.danceability,
-    api_latency_ms: track.latencyMs,
   };
 }
 
@@ -150,7 +149,7 @@ export default function OutputPanel({ track }) {
           </motion.pre>
         </AnimatePresence>
         <div className="pointer-events-none absolute bottom-4 right-4">
-          <Badge variant="neutral">{track.latencyMs} ms</Badge>
+          <Badge variant="neutral">Sample response</Badge>
         </div>
       </div>
     </Card>

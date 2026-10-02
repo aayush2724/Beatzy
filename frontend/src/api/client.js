@@ -23,8 +23,11 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
-    const original = err.config;
-    
+    const original = err.config || {};
+    // Callers that poll or probe pass `{ silent: true }` so a transient
+    // failure doesn't raise a toast on every tick; they handle it themselves.
+    const silent = Boolean(original.silent);
+
     // Handle Render cold starts with retries on network/timeout errors
     const isNetworkError = !err.response && (err.code === 'ECONNABORTED' || err.message === 'Network Error');
     if (isNetworkError && !original._retryCount) {
@@ -34,7 +37,7 @@ api.interceptors.response.use(
     if (isNetworkError && original._retryCount < 3) {
       original._retryCount++;
       const delay = 3000;
-      toast.loading(`Reconnecting... (Attempt ${original._retryCount}/3)`, { id: 'api-retry', duration: delay });
+      if (!silent) toast.loading(`Reconnecting... (Attempt ${original._retryCount}/3)`, { id: 'api-retry', duration: delay });
       await new Promise(resolve => setTimeout(resolve, delay));
       if (original._retryCount === 3) toast.dismiss('api-retry');
       return api(original);
@@ -59,8 +62,19 @@ api.interceptors.response.use(
         if (!isPublicPath()) window.location.href = '/login';
       }
     }
-    const message = err.response?.data?.error?.message || err.message || 'Something went wrong';
-    if (err.response?.status !== 401) toast.error(message);
+    // Server messages for 4xx are written for users; anything else gets a
+    // generic line so internal details never surface in the UI.
+    const status = err.response?.status;
+    const serverMessage = err.response?.data?.error?.message;
+    const message =
+      status && status < 500 && serverMessage
+        ? serverMessage
+        : status >= 500
+          ? 'The server hit a problem. Please try again in a moment.'
+          : !err.response
+            ? "Couldn't reach the server. Check your connection and try again."
+            : 'Something went wrong';
+    if (!silent && status !== 401) toast.error(message, { id: `api-error-${status || 'network'}` });
     return Promise.reject(err);
   }
 );

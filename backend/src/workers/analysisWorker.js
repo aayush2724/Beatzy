@@ -39,6 +39,10 @@ const connection = {
 };
 
 const ML_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+// Shared secret so only this backend can call the (publicly reachable) ML
+// service. Sent on every request; the ML side ignores it until
+// ML_SERVICE_TOKEN is set there too.
+const ML_HEADERS = process.env.ML_SERVICE_TOKEN ? { 'X-Service-Token': process.env.ML_SERVICE_TOKEN } : {};
 
 function emitToUser(userId, event, payload) {
   try {
@@ -96,7 +100,7 @@ try {
         s3_key: s3Key,
         s3_url: s3Url,
         original_filename: originalFilename,
-      }, { timeout: 240000 });
+      }, { timeout: 240000, headers: ML_HEADERS });
       mlResult = response.data;
     } catch (err) {
       const message = describeMlError(err);

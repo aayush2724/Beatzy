@@ -28,12 +28,13 @@ export default function PublicResult() {
     title: data?.song_title || 'Shared analysis',
     description: data ? `${data.song_title} by ${data.song_artist} — ${Math.round(data.bpm || 0)} BPM, ${data.scale || data.key_signature || ''}, ${data.mood || ''} on Beatzy` : 'A shared music analysis on Beatzy',
     image: meta?.cover_url,
+    noindex: true,
   });
 
   return (
     <PublicShell width="max-w-4xl">
       {loading ? (
-        <div className="space-y-6">
+        <div className="space-y-6" role="status" aria-label="Loading shared analysis">
           <Skeleton className="h-48 rounded-2xl" />
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">{[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}</div>
         </div>
@@ -42,7 +43,7 @@ export default function PublicResult() {
       ) : (
         <div className="space-y-6">
           <Card padding="lg" className="flex flex-col gap-6 md:flex-row md:items-end">
-            <img src={meta?.cover_url || placeholderArt} alt="" className="h-40 w-40 shrink-0 rounded-xl border border-line object-cover shadow-[var(--shadow-md)]" />
+            <img src={meta?.cover_url || placeholderArt} alt={meta?.cover_url ? `Cover art for ${data.song_title || 'this track'}` : ''} width="160" height="160" className="h-40 w-40 shrink-0 rounded-xl border border-line object-cover shadow-[var(--shadow-md)]" />
             <div className="min-w-0 flex-1">
               <Badge variant="brand" dot>Shared analysis</Badge>
               <h1 className="mt-3 truncate font-display text-3xl font-semibold tracking-tight text-ink md:text-4xl">{data.song_title || 'Untitled track'}</h1>

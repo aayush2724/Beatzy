@@ -5,7 +5,8 @@ const variants = {
   primary: 'btn-primary',
   secondary: 'btn-secondary',
   ghost: 'bg-transparent border border-transparent text-on-surface-variant hover:text-on-surface hover:bg-ink/5 px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-[var(--duration-normal)]',
-  danger: 'bg-red-500/10 border border-red-500/30 text-red-300 hover:bg-red-500/20 px-4 py-2 rounded-xl font-semibold text-sm transition-all',
+  // Tokens, not Tailwind reds: `text-red-300` on a light surface fails contrast.
+  danger: 'bg-danger/10 border border-danger/30 text-danger hover:bg-danger/20 px-4 py-2 rounded-xl font-semibold text-sm transition-all',
 };
 
 const sizes = {
@@ -21,9 +22,10 @@ export const Button = forwardRef(function Button(
   return (
     <button
       ref={ref}
+      type={props.type || 'button'}
       className={clsx(
         variants[variant],
-        variant !== 'primary' && variant !== 'secondary' ? sizes[size] : sizes[size],
+        sizes[size],
         magnetic && 'magnetic-btn',
         className,
       )}

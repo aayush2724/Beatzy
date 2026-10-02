@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { ArrowUpRight, Copy, KeyRound, Lock, Plus, ShieldCheck, Trash2, X } from 'lucide-react';
 import api from '../api/client';
 import PageWrapper from '../components/PageWrapper';
+import { usePageMeta } from '../hooks/usePageMeta';
 import { useAuthStore } from '../store/authStore';
 import {
   Badge,
@@ -24,6 +25,7 @@ const CURL_EXAMPLE = `curl -X POST ${API_BASE}/api/audio/upload \\
   -F "audio=@track.mp3"`;
 
 export default function ApiKeys() {
+  usePageMeta({ title: 'API keys', noindex: true });
   const { user } = useAuthStore();
   const [keys, setKeys] = useState([]);
   const [loading, setLoading] = useState(true);

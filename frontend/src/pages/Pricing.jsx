@@ -6,22 +6,35 @@ import { useAuthStore } from '../store/authStore';
 import api from '../api/client';
 import PublicShell from '../components/PublicShell';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { PLAN_LIMITS } from '../config/site';
 import { Badge, Button, Card } from '../components/ui';
 
+// Every line here is enforced by backend/src/middleware/rateLimit.js and
+// controllers/apiKeysController.js. Nothing aspirational.
 const PLANS = [
   {
     id: 'free',
     name: 'Free',
     price: '0',
     blurb: 'Try the analysis on your own tracks.',
-    features: ['100 analyses a month', '500 API requests a day', 'Web dashboard', 'Community support'],
+    features: [
+      `${PLAN_LIMITS.free.analysesPerMonth} analyses a month`,
+      `${PLAN_LIMITS.free.requestsPerDay} API requests a day`,
+      `Uploads up to ${PLAN_LIMITS.free.uploadSizeMB} MB`,
+      'Web dashboard, history and library',
+    ],
   },
   {
     id: 'pro',
     name: 'Pro',
     price: '4.99',
     blurb: 'For producers, DJs and developers.',
-    features: ['1,000 analyses a month', '10,000 API requests a day', 'REST API with 5 keys', 'Priority queue'],
+    features: [
+      `${PLAN_LIMITS.pro.analysesPerMonth.toLocaleString()} analyses a month`,
+      `${PLAN_LIMITS.pro.requestsPerDay.toLocaleString()} API requests a day`,
+      `REST API with ${PLAN_LIMITS.pro.apiKeys} keys`,
+      `Uploads up to ${PLAN_LIMITS.pro.uploadSizeMB} MB, batches of ${PLAN_LIMITS.pro.batchSize}`,
+    ],
     popular: true,
   },
   {
@@ -29,7 +42,12 @@ const PLANS = [
     name: 'Enterprise',
     price: '19.99',
     blurb: 'For products built on the API.',
-    features: ['Unlimited analyses', 'Everything in Pro', '20 API keys', 'Priority support'],
+    features: [
+      'Unlimited analyses and API requests',
+      `${PLAN_LIMITS.enterprise.apiKeys} API keys`,
+      `Uploads up to ${PLAN_LIMITS.enterprise.uploadSizeMB} MB, batches of ${PLAN_LIMITS.enterprise.batchSize}`,
+      'Everything in Pro',
+    ],
   },
 ];
 
@@ -37,7 +55,7 @@ const FAQ = [
   ['What counts as an analysis?', 'One uploaded file, one recording, or one catalog track run through the pipeline. Failed runs are not counted.'],
   ['Do you keep my audio?', 'No. Source audio is deleted from storage as soon as the analysis is saved; only the results are kept.'],
   ['Can I change plans later?', 'Yes. Upgrades apply immediately; downgrades take effect at the end of the billing period, through the Stripe billing portal.'],
-  ['Which formats are supported?', 'MP3, WAV, FLAC, M4A/AAC, OGG and WebM, up to 50 MB per file, plus microphone recordings from the browser.'],
+  ['Which formats are supported?', `MP3, WAV, FLAC, M4A/AAC, OGG and WebM — up to ${PLAN_LIMITS.free.uploadSizeMB} MB per file on Free, ${PLAN_LIMITS.pro.uploadSizeMB} MB on Pro and ${PLAN_LIMITS.enterprise.uploadSizeMB} MB on Enterprise — plus microphone recordings from the browser.`],
 ];
 
 export default function Pricing() {
@@ -45,18 +63,18 @@ export default function Pricing() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(null);
 
-  usePageMeta({ title: 'Pricing', description: 'Beatzy plans: free, Pro and Enterprise.' });
+  usePageMeta({ title: 'Pricing', description: 'Beatzy plans: Free, Pro at $4.99 a month and Enterprise at $19.99 a month. Every plan runs the same identification and analysis pipeline.' });
 
   async function choose(planId) {
+    if (loading) return;
     if (!token) { navigate('/register'); return; }
     if (planId === 'free') { navigate('/dashboard'); return; }
     setLoading(planId);
     try {
-      const { data } = await api.post('/api/billing/subscribe', { planId });
-      window.location.href = data.data.url;
-    } catch {
-      toast.error("Couldn't start checkout. Please try again.");
-    } finally {
+      const { data } = await api.post('/api/billing/subscribe', { planId }, { silent: true });
+      window.location.assign(data.data.url);
+    } catch (err) {
+      toast.error(err.response?.data?.error?.message || "Couldn't start checkout. Please try again.");
       setLoading(null);
     }
   }
@@ -71,7 +89,7 @@ export default function Pricing() {
         </p>
       </header>
 
-      <div className="mt-12 grid gap-5 md:grid-cols-3">
+      <div className="mt-12 grid gap-5 md:grid-cols-3" aria-busy={Boolean(loading)}>
         {PLANS.map((plan) => {
           const current = user?.plan === plan.id;
           return (

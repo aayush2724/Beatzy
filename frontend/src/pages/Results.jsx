@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import WaveSurfer from 'wavesurfer.js';
 import toast from 'react-hot-toast';
@@ -23,8 +23,8 @@ import {
 import { getResults, searchSongs } from '../api/audio';
 import { enableShare, exportReport, addFavorite } from '../api/library';
 import InstrumentChordPanel from '../components/InstrumentChordPanel';
-import GestureChordStage from '../components/GestureChordStage';
 import PageWrapper from '../components/PageWrapper';
+import { usePageMeta } from '../hooks/usePageMeta';
 import placeholderArt from '../assets/placeholder-art.svg';
 import {
   Badge,
@@ -40,6 +40,10 @@ import {
   Tabs,
 } from '../components/ui';
 import { usePalette } from '../lib/palette';
+
+// Hand tracking pulls in MediaPipe and Tone.js (several hundred kB); only
+// load them when someone actually switches to gesture mode.
+const GestureChordStage = lazy(() => import('../components/GestureChordStage'));
 
 const MOOD_TONE = {
   happy: 'warm',
@@ -91,8 +95,14 @@ export default function Results() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
   const [chordMode, setChordMode] = useState('view');
+  const [busy, setBusy] = useState(null); // 'share' | 'export' | 'favorite'
   const waveformRef = useRef(null);
   const wavesurfer = useRef(null);
+
+  usePageMeta({
+    title: result?.song_title && result.song_title !== 'Live Recording' ? `${result.song_title} — analysis` : 'Analysis',
+    noindex: true,
+  });
 
   const fetchResults = useCallback(async () => {
     setLoading(true);
@@ -100,7 +110,7 @@ export default function Results() {
     try {
       for (let attempt = 0; attempt < 40; attempt++) {
         // `status` and `error` live at the top level of the response, not in `data`.
-        const { data } = await getResults(jobId);
+        const { data } = await getResults(jobId, { silent: true });
         if (data.status === 'failed') {
           throw new Error(data.error || 'Analysis failed');
         }
@@ -112,7 +122,12 @@ export default function Results() {
       }
       throw new Error('Analysis is still in progress. Try again shortly.');
     } catch (err) {
-      setError(err.response?.data?.error?.message || err.message || 'Failed to load results');
+      const status = err.response?.status;
+      setError(
+        status === 404
+          ? 'This analysis does not exist or belongs to another account.'
+          : err.response?.data?.error?.message || err.message || 'Failed to load results',
+      );
     } finally {
       setLoading(false);
     }
@@ -242,16 +257,26 @@ export default function Results() {
   }, [result]);
 
   async function handleShare() {
+    if (busy) return;
+    setBusy('share');
     try {
       const { data } = await enableShare(jobId);
-      await navigator.clipboard.writeText(data.data.shareUrl);
-      toast.success('Share link copied');
+      try {
+        await navigator.clipboard.writeText(data.data.shareUrl);
+        toast.success('Share link copied. Anyone with it can view this result.');
+      } catch {
+        window.prompt('Copy this share link:', data.data.shareUrl);
+      }
     } catch {
       toast.error("Couldn't create a share link");
+    } finally {
+      setBusy(null);
     }
   }
 
   async function handleExport() {
+    if (busy) return;
+    setBusy('export');
     try {
       const { data } = await exportReport(jobId);
       const url = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
@@ -263,15 +288,21 @@ export default function Results() {
       toast.success('Report downloaded');
     } catch {
       toast.error("Couldn't export the report");
+    } finally {
+      setBusy(null);
     }
   }
 
   async function handleFavorite() {
+    if (busy) return;
+    setBusy('favorite');
     try {
       await addFavorite(jobId);
       toast.success('Saved to your library');
     } catch {
       toast.error("Couldn't save this track");
+    } finally {
+      setBusy(null);
     }
   }
 
@@ -286,7 +317,7 @@ export default function Results() {
           <Skeleton className="col-span-12 h-72 rounded-2xl xl:col-span-8" />
           <Skeleton className="col-span-12 h-72 rounded-2xl xl:col-span-4" />
         </div>
-        <p className="text-center text-sm text-ink-muted">Loading the analysis…</p>
+        <p className="text-center text-sm text-ink-muted" role="status">Loading the analysis…</p>
       </PageWrapper>
     );
   }
@@ -336,13 +367,15 @@ export default function Results() {
       {/* Header */}
       <Card padding="lg" className="overflow-hidden">
         <div className="pointer-events-none absolute inset-0 opacity-30" aria-hidden="true">
-          <img src={coverUrl} alt="" className="h-full w-full scale-125 object-cover blur-[90px]" />
+          <img src={coverUrl} alt="" width="640" height="640" className="h-full w-full scale-125 object-cover blur-[90px]" />
           <div className="absolute inset-0 bg-gradient-to-r from-surface via-surface/85 to-surface/60" />
         </div>
         <div className="relative flex flex-col gap-6 md:flex-row md:items-end">
           <img
             src={coverUrl}
-            alt=""
+            alt={spotifyMeta?.cover_url ? `Cover art for ${title}` : ''}
+            width="176"
+            height="176"
             className="h-36 w-36 shrink-0 rounded-xl border border-line object-cover shadow-[var(--shadow-md)] md:h-44 md:w-44"
           />
           <div className="min-w-0 flex-1 space-y-3">
@@ -356,9 +389,9 @@ export default function Results() {
               <p className="mt-1 truncate text-lg text-ink-muted">{artist}</p>
             </div>
             <div className="flex flex-wrap items-center gap-2 pt-1">
-              <IconButton aria-label="Save to library" onClick={handleFavorite}><Heart className="h-4 w-4" /></IconButton>
-              <IconButton aria-label="Copy share link" onClick={handleShare}><Share2 className="h-4 w-4" /></IconButton>
-              <IconButton aria-label="Download JSON report" onClick={handleExport}><Download className="h-4 w-4" /></IconButton>
+              <IconButton aria-label="Save to library" disabled={busy === 'favorite'} aria-busy={busy === 'favorite'} onClick={handleFavorite}><Heart className="h-4 w-4" aria-hidden /></IconButton>
+              <IconButton aria-label="Copy share link" disabled={busy === 'share'} aria-busy={busy === 'share'} onClick={handleShare}><Share2 className="h-4 w-4" aria-hidden /></IconButton>
+              <IconButton aria-label="Download JSON report" disabled={busy === 'export'} aria-busy={busy === 'export'} onClick={handleExport}><Download className="h-4 w-4" aria-hidden /></IconButton>
               <Link to="/upload" className="btn-primary ml-1 inline-flex items-center gap-2 text-sm !px-5 !py-2.5">
                 <Plus className="h-4 w-4" /> Analyze another
               </Link>
@@ -516,7 +549,13 @@ export default function Results() {
               />
             </div>
             <div className="p-4">
-              {chordMode === 'play' ? <GestureChordStage chords={chords} /> : <InstrumentChordPanel chords={chords} />}
+              {chordMode === 'play' ? (
+                <Suspense fallback={<Skeleton className="h-64 rounded-xl" />}>
+                  <GestureChordStage chords={chords} />
+                </Suspense>
+              ) : (
+                <InstrumentChordPanel chords={chords} />
+              )}
             </div>
           </Card>
 
@@ -536,9 +575,10 @@ export default function Results() {
             <button
               type="button"
               onClick={handleExport}
-              className="btn-secondary mt-5 inline-flex w-full items-center justify-center gap-2 text-sm"
+              disabled={busy === 'export'}
+              className="btn-secondary mt-5 inline-flex w-full items-center justify-center gap-2 text-sm disabled:opacity-60"
             >
-              <FileText className="h-4 w-4" /> Download JSON report <ArrowUpRight className="h-3.5 w-3.5 text-ink-faint" />
+              <FileText className="h-4 w-4" aria-hidden /> {busy === 'export' ? 'Preparing…' : 'Download JSON report'} <ArrowUpRight className="h-3.5 w-3.5 text-ink-faint" aria-hidden />
             </button>
           </Card>
         </aside>

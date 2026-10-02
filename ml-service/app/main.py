@@ -9,13 +9,14 @@ if not hasattr(scipy.signal, "hann"):
     scipy.signal.hann = windows.hann
 
 import os
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import structlog
 
 from app.routes import analyze
 from app.routes.waveform import router as waveform_router
+from app.security import require_service_token
 from app.services.yamnet_service import YAMNetService
 from app.services.storage_service import check_storage_connectivity
 
@@ -37,6 +38,8 @@ async def lifespan(app: FastAPI):
     logger.info("YAMNet model loaded")
 
     logger.info("Mood classifier ready (rule-based heuristic)")
+    if not os.getenv("ML_SERVICE_TOKEN"):
+        logger.warning("ML_SERVICE_TOKEN is not set — /analyze is open to anyone who can reach this host")
 
     yield
     logger.info("ML service shutting down")
@@ -65,8 +68,10 @@ app.add_middleware(
 )
 
 # ── Routers ──────────────────────────────────────────────────────────────────
-app.include_router(analyze.router, prefix="", tags=["Analysis"])
-app.include_router(waveform_router, prefix="", tags=["Waveform"])
+# Everything except /health requires the backend's shared secret (when set).
+_protected = [Depends(require_service_token)]
+app.include_router(analyze.router, prefix="", tags=["Analysis"], dependencies=_protected)
+app.include_router(waveform_router, prefix="", tags=["Waveform"], dependencies=_protected)
 
 
 @app.get("/health")

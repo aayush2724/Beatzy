@@ -4,9 +4,11 @@ import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { getMe } from '../api/auth';
 import { useAuthStore } from '../store/authStore';
 import { Wordmark } from '../components/PublicShell';
+import { usePageMeta } from '../hooks/usePageMeta';
 import { Badge, Card, Progress } from '../components/ui';
 
 export default function BillingSuccess() {
+  usePageMeta({ title: 'Payment confirmed', noindex: true });
   const { user, setUser } = useAuthStore();
   const navigate = useNavigate();
   const [synced, setSynced] = useState(false);
