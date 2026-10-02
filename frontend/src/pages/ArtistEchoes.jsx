@@ -10,7 +10,7 @@ import { Badge, Card, SectionHeader } from '../components/ui';
  * labelled as such — the real numbers live in the app after sign-in.
  */
 export default function ArtistEchoes() {
-  usePageMeta({ title: 'Demo', description: 'A demo of Beatzy analysis visuals on sample data.' });
+  usePageMeta({ title: 'Demo', description: 'A demo of two Beatzy analysis visuals, the waveform player and the style chart, running on sample data.' });
 
   return (
     <PublicShell width="max-w-6xl">

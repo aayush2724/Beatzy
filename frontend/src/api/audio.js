@@ -14,7 +14,8 @@ export const uploadAudio = (file, onProgress) => {
 };
 
 export const getJob = (jobId) => api.get(`/api/audio/jobs/${jobId}`);
-export const getResults = (jobId) => api.get(`/api/results/${jobId}`);
+/** `silent` suppresses the global error toast — for polling loops that report their own state. */
+export const getResults = (jobId, { silent = false } = {}) => api.get(`/api/results/${jobId}`, { silent });
 export const getHistory = (page = 1, limit = 20, filters = {}) =>
   api.get('/api/audio/history', { params: { page, limit, ...filters } });
 export const deleteJob = (jobId) => api.delete(`/api/audio/jobs/${jobId}`);
@@ -25,17 +26,3 @@ export const searchSongs = (q, limit = 10) =>
 export const analyzeUrl = (url, title, artist) =>
   api.post('/api/audio/analyze-url', { url, title, artist });
 
-export const pollForResults = async (jobId, maxAttempts = 60, intervalMs = 3000) => {
-  for (let i = 0; i < maxAttempts; i++) {
-    // `status` and `error` are top-level fields of the results response
-    const { data } = await getResults(jobId);
-    if (data.status === 'complete' && data.data) {
-      return data.data;
-    }
-    if (data.status === 'failed') {
-      throw new Error(data.error || 'Analysis failed');
-    }
-    await new Promise((r) => setTimeout(r, intervalMs));
-  }
-  throw new Error('Analysis timed out');
-};

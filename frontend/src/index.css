@@ -1,8 +1,53 @@
-/* Font Imports — display: Outfit, body: Plus Jakarta Sans */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
-
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
+
+/* =====================================================================
+   FONTS — self-hosted (public/fonts, OFL-1.1). Display: Outfit, body:
+   Plus Jakarta Sans, mono: JetBrains Mono. Nothing is fetched from
+   Google, and `font-display: swap` keeps first paint unblocked.
+   ===================================================================== */
+@font-face {
+  font-family: 'Outfit Variable';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/outfit-latin-wght-normal.woff2') format('woff2-variations');
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans Variable';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-latin-wght-normal.woff2') format('woff2-variations');
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans Variable';
+  font-style: italic;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-latin-wght-italic.woff2') format('woff2-variations');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-700-normal.woff2') format('woff2');
+}
 
 :root {
   --radius: 0.5rem;
@@ -344,9 +389,9 @@
   --duration-slower: 700ms;
   --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
 
-  --font-display: 'Outfit', 'Sora', system-ui, sans-serif;
-  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-display: 'Outfit Variable', 'Outfit', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
   --text-display: clamp(3.5rem, 8vw + 1rem, 7rem);
@@ -527,6 +572,32 @@
   ::-webkit-scrollbar-thumb:hover { background: var(--brand); }
 
   ::selection { background: var(--brand); color: var(--brand-ink); }
+
+  /* Keyboard focus is always visible. Components that draw their own ring
+     use `focus-visible:ring-*` and `focus:outline-none`; this is the floor
+     for everything else (links, native buttons, the skip link). */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
+
+  /* The first focusable element on every page: hidden until focused. */
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -100%;
+    z-index: 1000;
+    padding: 0.625rem 1rem;
+    border-radius: 0.75rem;
+    background: var(--brand);
+    color: var(--brand-ink);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: var(--shadow-md);
+  }
+  .skip-link:focus-visible { top: 1rem; outline-offset: 0; }
 }
 
 /* =====================================================================
@@ -698,8 +769,6 @@
     border-top-left-radius: 9999px;
     border-top-right-radius: 9999px;
   }
-
-  .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24; }
 
   .archetype-card.active {
     box-shadow: 0 6px 30px color-mix(in oklab, var(--brand) 15%, transparent);

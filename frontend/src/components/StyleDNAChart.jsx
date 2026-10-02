@@ -1,7 +1,8 @@
 import { useRef, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Float, Line, Sphere, Text } from '@react-three/drei';
+import { Float, Html, Line, Sphere } from '@react-three/drei';
 import * as THREE from 'three';
+import { usePalette } from '../lib/palette';
 
 const DATA = [
   { artist: 'The Weeknd', value: 0.8 },
@@ -11,7 +12,10 @@ const DATA = [
   { artist: 'Drake', value: 0.4 },
 ];
 
+// WebGL cannot read CSS variables (`var(--brand)` parses as black), so the
+// colours come from the resolved palette.
 function Radar3D({ data }) {
+    const c = usePalette();
     const group = useRef();
     const count = data.length;
     const radius = 4;
@@ -37,7 +41,7 @@ function Radar3D({ data }) {
                         const angle = (j / 32) * Math.PI * 2;
                         return [Math.cos(angle) * r * radius, Math.sin(angle) * r * radius, 0];
                     })}
-                    color="color-mix(in_oklab,var(--ink)_5%,transparent)"
+                    color={c.line}
                     lineWidth={0.5}
                 />
             ))}
@@ -49,7 +53,7 @@ function Radar3D({ data }) {
                     <Line
                         key={i}
                         points={[[0, 0, 0], [Math.cos(angle) * radius, Math.sin(angle) * radius, 0]]}
-                        color="color-mix(in_oklab,var(--ink)_10%,transparent)"
+                        color={c.lineStrong}
                         lineWidth={0.5}
                     />
                 );
@@ -58,7 +62,7 @@ function Radar3D({ data }) {
             {/* Radar Shape */}
             <Line
                 points={closedPoints}
-                color="var(--color-primary)"
+                color={c.brand}
                 lineWidth={2}
             />
             
@@ -66,16 +70,13 @@ function Radar3D({ data }) {
             {points.map((p, i) => (
                 <Float key={i} speed={2} rotationIntensity={0} floatIntensity={0.5}>
                     <Sphere position={p} args={[0.15, 16, 16]}>
-                        <meshStandardMaterial color="var(--color-primary)" emissive="var(--color-primary)" emissiveIntensity={0.5} />
+                        <meshStandardMaterial color={c.brand} emissive={c.brand} emissiveIntensity={0.5} />
                     </Sphere>
-                    <Text
-                        position={[p.x * 1.3, p.y * 1.3, 0]}
-                        fontSize={0.25}
-                        color="white"
-                        font="/fonts/SpaceGrotesk-Bold.ttf"
-                    >
-                        {data[i].artist}
-                    </Text>
+                    {/* HTML labels, not drei <Text>: troika's text worker compiles
+                        code with eval, which the site's CSP forbids. */}
+                    <Html position={[p.x * 1.3, p.y * 1.3, 0]} center zIndexRange={[10, 0]}>
+                        <span className="whitespace-nowrap text-xs font-medium text-ink">{data[i].artist}</span>
+                    </Html>
                 </Float>
             ))}
 
@@ -84,7 +85,7 @@ function Radar3D({ data }) {
                 <Line
                     key={`l-${i}`}
                     points={[[0, 0, 0], p]}
-                    color="var(--color-primary)"
+                    color={c.brand}
                     lineWidth={1}
                     transparent
                     opacity={0.2}

@@ -1,11 +1,17 @@
-import { forwardRef } from 'react';
+import { forwardRef, useId } from 'react';
 import { cn } from '../../lib/utils';
 
 export const Input = forwardRef(function Input(
   { className, error, label, hint, id, icon: Icon, ...props },
   ref,
 ) {
-  const inputId = id || props.name;
+  const autoId = useId();
+  const inputId = id || props.name || autoId;
+  const hintId = `${inputId}-hint`;
+  const errorId = `${inputId}-error`;
+  const describedBy = [error ? errorId : null, hint && !error ? hintId : null, props['aria-describedby'] || null]
+    .filter(Boolean)
+    .join(' ') || undefined;
   return (
     <div className="w-full">
       {label && (
@@ -21,6 +27,7 @@ export const Input = forwardRef(function Input(
           ref={ref}
           id={inputId}
           aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy}
           className={cn(
             'h-11 w-full rounded-xl border border-line bg-surface px-4 text-sm text-ink placeholder:text-ink-faint',
             'transition-colors duration-[var(--duration-normal)] focus:border-brand/60 focus:outline-none focus:ring-2 focus:ring-brand/20',
@@ -33,9 +40,9 @@ export const Input = forwardRef(function Input(
         />
       </div>
       {error ? (
-        <p className="mt-1.5 text-xs text-danger">{error}</p>
+        <p id={errorId} role="alert" className="mt-1.5 text-xs text-danger">{error}</p>
       ) : hint ? (
-        <p className="mt-1.5 text-xs text-ink-faint">{hint}</p>
+        <p id={hintId} className="mt-1.5 text-xs text-ink-faint">{hint}</p>
       ) : null}
     </div>
   );

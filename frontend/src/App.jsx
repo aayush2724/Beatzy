@@ -5,6 +5,7 @@ import { useAuthStore } from './store/authStore';
 import Layout from './components/Layout';
 import PageTransition from './components/PageTransition';
 import RouteFallback from './components/RouteFallback';
+import { applyPageMeta } from './hooks/usePageMeta';
 
 const Landing = lazy(() => import('./pages/Landing'));
 const Login = lazy(() => import('./pages/Login'));
@@ -46,11 +47,25 @@ function AdminRoute({ children }) {
   return user?.is_admin ? children : <Navigate to="/upload" replace />;
 }
 
+// Resets title/description/canonical to the site defaults on every route
+// change, before the page's own usePageMeta runs, so a page that forgets to
+// set its metadata never inherits the previous page's.
+function DefaultMeta() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    applyPageMeta({ path: pathname });
+  }, [pathname]);
+  return null;
+}
+
 function LazyPage({ children }) {
   return (
-    <Suspense fallback={<RouteFallback />}>
-      <PageTransition>{children}</PageTransition>
-    </Suspense>
+    <>
+      <DefaultMeta />
+      <Suspense fallback={<RouteFallback />}>
+        <PageTransition>{children}</PageTransition>
+      </Suspense>
+    </>
   );
 }
 

@@ -12,16 +12,22 @@ import HeroWave from './HeroWave';
  * Nothing here animates on its own; the signal ring is the hero's one
  * self-moving element.
  */
+/*
+ * LICENSING: these portraits were added without a recorded source or licence.
+ * They are resized to tile size (<=640px, WebP) for performance, but their
+ * rights status is unverified. Replace them with licensed or original artwork
+ * before a public launch. See docs/LAUNCH.md.
+ */
 const ARTIST_IMAGES = [
-  '/artists/artist-1.jpg',
-  '/artists/artist-2.webp',
-  '/artists/artist-3.jpg',
-  '/artists/artist-4.jpg',
+  '/artists/tile-1.webp',
+  '/artists/tile-2.webp',
+  '/artists/tile-3.webp',
+  '/artists/tile-4.webp',
   '/artists/artist-5.avif',
-  '/artists/artist-6-tile.jpg',
-  '/artists/artist-7.webp',
-  '/artists/artist-8.jpg',
-  '/artists/artist-9.webp',
+  '/artists/tile-6.webp',
+  '/artists/tile-7.webp',
+  '/artists/tile-8.webp',
+  '/artists/tile-9.webp',
 ];
 
 const COLS = 10;
@@ -41,7 +47,7 @@ export default function LandingBackground() {
         <div className="artist-grid-plane">
           {GRID_TILES.map((src, i) => (
             <div key={i} className="artist-grid-tile">
-              <img src={src} alt="" decoding="async" loading="lazy" draggable="false" />
+              <img src={src} alt="" width="640" height="640" decoding="async" loading="lazy" fetchPriority="low" draggable="false" />
             </div>
           ))}
         </div>

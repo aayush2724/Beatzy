@@ -47,6 +47,8 @@ services:
         sync: false
       - key: ML_SERVICE_URL
         sync: false
+      - key: ML_SERVICE_TOKEN
+        sync: false
       - key: FRONTEND_URL
         sync: false
       - key: BACKEND_URL

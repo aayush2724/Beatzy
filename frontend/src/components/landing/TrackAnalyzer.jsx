@@ -178,7 +178,7 @@ export default function TrackAnalyzer({ trackId, onSelect }) {
               <Swap id={track.id}>{track.artist}</Swap>
             </p>
           </div>
-          <Badge variant="brand" dot>Analyzed · {track.latencyMs} ms</Badge>
+          <Badge variant="neutral" dot>Sample track</Badge>
         </div>
 
         <div

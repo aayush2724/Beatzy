@@ -7,6 +7,7 @@ import { getSystemStatus } from '../api/public';
 import { useAuthStore } from '../store/authStore';
 import GlassRecordSleeve from '../components/GlassRecordSleeve';
 import PageWrapper from '../components/PageWrapper';
+import { usePageMeta } from '../hooks/usePageMeta';
 import {
   Badge,
   Card,
@@ -74,6 +75,7 @@ const STATUS_ROWS = [
 export default function Dashboard() {
   const c = usePalette();
   const user = useAuthStore((s) => s.user);
+  usePageMeta({ title: 'Dashboard', noindex: true });
   const [history, setHistory] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -254,7 +256,7 @@ export default function Dashboard() {
         <div className="space-y-1">
           <h2 className="font-display text-xl font-semibold tracking-tight text-ink">Analyze a new track</h2>
           <p className="max-w-xl text-sm text-ink-muted">
-            Upload up to 50 MB of audio. Beatzy identifies the song and returns tempo, key, chords, mood and lyrics in a few seconds.
+            Upload a file, record a snippet or search the catalog. Beatzy identifies the song and returns tempo, key, chords, mood and lyrics.
           </p>
         </div>
         <Link to="/upload" className="btn-primary inline-flex shrink-0 items-center gap-2 text-sm">

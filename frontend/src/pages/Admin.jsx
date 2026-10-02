@@ -4,6 +4,7 @@ import { ResponsiveContainer, BarChart, Bar, Cell, XAxis, YAxis, Tooltip } from 
 import { Activity, ScrollText, ShieldCheck, Users } from 'lucide-react';
 import { getStats, getUsers, updateUser, getAuditLogs } from '../api/admin';
 import PageWrapper from '../components/PageWrapper';
+import { usePageMeta } from '../hooks/usePageMeta';
 import { usePalette } from '../lib/palette';
 import {
   Badge,
@@ -49,6 +50,7 @@ function CountChart({ data, colors, unit }) {
 }
 
 export default function Admin() {
+  usePageMeta({ title: 'Admin', noindex: true });
   const c = usePalette();
   const [tab, setTab] = useState('overview');
   const [stats, setStats] = useState(null);

@@ -30,7 +30,7 @@ export default function Status() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  usePageMeta({ title: 'Status', description: 'Beatzy service status.' });
+  usePageMeta({ title: 'Status', description: 'Live status of the Beatzy API, database, queue, analysis service and audio storage.' });
 
   useEffect(() => {
     const load = () =>
@@ -39,8 +39,18 @@ export default function Status() {
         .catch(() => setError("Couldn't reach the status endpoint"))
         .finally(() => setLoading(false));
     load();
-    const id = setInterval(load, 30000);
-    return () => clearInterval(id);
+    // Poll only while the tab is visible; a background tab shouldn't keep the API busy.
+    const id = setInterval(() => {
+      if (document.visibilityState === 'visible') load();
+    }, 30000);
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') load();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, []);
 
   const operational = data?.status === 'operational';
@@ -55,9 +65,12 @@ export default function Status() {
 
       <div className="mt-10">
         {loading ? (
-          <Skeleton className="h-64 rounded-2xl" />
+          <>
+            <Skeleton className="h-64 rounded-2xl" />
+            <p className="sr-only" role="status">Loading service status</p>
+          </>
         ) : error ? (
-          <EmptyState title="Status unavailable" description={error} />
+          <EmptyState title="Status unavailable" description={`${error}. We'll keep retrying every 30 seconds.`} />
         ) : (
           <Card padding="none">
             <div className="flex items-center justify-between border-b border-line-subtle px-6 py-4">

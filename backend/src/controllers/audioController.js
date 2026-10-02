@@ -11,6 +11,7 @@ const { PLAN_LIMITS } = require('../middleware/rateLimit');
 const logger = require('../utils/logger');
 
 const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+const ML_HEADERS = process.env.ML_SERVICE_TOKEN ? { 'X-Service-Token': process.env.ML_SERVICE_TOKEN } : {};
 const LOCAL_STORAGE_DIR = process.env.LOCAL_STORAGE_DIR || '/tmp/beatzy-audio';
 
 const ALLOWED_AUDIO_HOSTS = [
@@ -188,8 +189,9 @@ class AudioController {
     try {
       try {
         const { data } = await axios.get(`${ML_SERVICE_URL}/spotify/search`, {
-          params: { q, limit: limit || 10 },
+          params: { q: String(q).slice(0, 200), limit: Math.min(20, parseInt(limit, 10) || 10) },
           timeout: 15000,
+          headers: ML_HEADERS,
         });
         if (data?.data?.length) {
           return res.json(data);
@@ -199,7 +201,7 @@ class AudioController {
       }
 
       const itunesResponse = await axios.get('https://itunes.apple.com/search', {
-        params: { term: q, entity: 'song', limit: limit || 10 },
+        params: { term: String(q).slice(0, 200), entity: 'song', limit: Math.min(20, parseInt(limit, 10) || 10) },
         timeout: 10000,
       });
 

@@ -13,7 +13,7 @@ function validateEnv() {
   }
   
   // Warn about important optional vars
-  const optional = ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'AWS_ACCESS_KEY_ID', 'ACOUSTID_API_KEY', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET'];
+  const optional = ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'AWS_ACCESS_KEY_ID', 'ACOUSTID_API_KEY', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'ML_SERVICE_TOKEN', 'FRONTEND_URL'];
   const missingOptional = optional.filter(key => !process.env[key]);
   if (missingOptional.length > 0) {
     console.warn(`⚠️  Missing optional environment variables: ${missingOptional.join(', ')}`);
@@ -77,8 +77,6 @@ process.on('uncaughtException', (err) => {
   }
 });
 
-const isDev = process.env.NODE_ENV !== 'production';
-
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -131,12 +129,12 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-if (isDev) {
-  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-    customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: 'Beatzy API Documentation',
-  }));
-}
+// The public /docs page links here, so the interactive reference has to exist
+// in production too. It documents the API; it exposes no data.
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Beatzy API Documentation',
+}));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/audio', audioRoutes);

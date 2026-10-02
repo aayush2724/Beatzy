@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { ArrowUpRight, CreditCard, Lock, Mail, UserRound } from 'lucide-react';
 import api from '../api/client';
 import PageWrapper from '../components/PageWrapper';
+import { usePageMeta } from '../hooks/usePageMeta';
 import { useAuthStore } from '../store/authStore';
 import { Badge, Button, Card, Input, PageHeader, SectionHeader } from '../components/ui';
 
@@ -11,11 +12,13 @@ import { Badge, Button, Card, Input, PageHeader, SectionHeader } from '../compon
 const PLAN_PRICES = { free: '$0 / month', pro: '$4.99 / month', enterprise: '$19.99 / month' };
 
 export default function Profile() {
+  usePageMeta({ title: 'Profile', noindex: true });
   const { user, setUser } = useAuthStore();
   const [name, setName] = useState(user?.name || '');
   const [passwords, setPasswords] = useState({ current: '', next: '', confirm: '' });
   const [savingName, setSavingName] = useState(false);
   const [savingPw, setSavingPw] = useState(false);
+  const [openingPortal, setOpeningPortal] = useState(false);
 
   const plan = user?.plan || 'free';
 
@@ -53,11 +56,17 @@ export default function Profile() {
   }
 
   async function openBillingPortal() {
+    if (openingPortal) return;
+    setOpeningPortal(true);
     try {
-      const { data } = await api.post('/api/billing/portal');
-      window.location.href = data.url;
-    } catch {
-      toast.error("Billing isn't available right now");
+      const { data } = await api.post('/api/billing/portal', {}, { silent: true });
+      // The API wraps responses as { success, data: { url } }.
+      const url = data?.data?.url || data?.url;
+      if (!url) throw new Error('No portal URL');
+      window.location.assign(url);
+    } catch (err) {
+      toast.error(err.response?.data?.error?.message || "Billing isn't available right now");
+      setOpeningPortal(false);
     }
   }
 
@@ -80,7 +89,7 @@ export default function Profile() {
       {/* Name */}
       <Card>
         <SectionHeader title="Profile" description="How you appear in the app." />
-        <form onSubmit={saveName} className="mt-5 grid gap-4 md:grid-cols-2 md:items-end">
+        <form onSubmit={saveName} className="mt-5 grid gap-4 md:grid-cols-2 md:items-end" aria-busy={savingName}>
           <Input label="Email" value={user?.email || ''} icon={Mail} disabled hint="Your email is your sign-in and can't be changed here." />
           <div className="flex items-end gap-3">
             <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} icon={UserRound} required minLength={2} />
@@ -94,7 +103,7 @@ export default function Profile() {
       {/* Password */}
       <Card>
         <SectionHeader title="Password" description="Use at least 8 characters." />
-        <form onSubmit={savePassword} className="mt-5 grid gap-4 md:grid-cols-3">
+        <form onSubmit={savePassword} className="mt-5 grid gap-4 md:grid-cols-3" aria-busy={savingPw}>
           <Input label="Current password" type="password" icon={Lock} autoComplete="current-password" value={passwords.current} onChange={(e) => setPasswords((p) => ({ ...p, current: e.target.value }))} required />
           <Input label="New password" type="password" icon={Lock} autoComplete="new-password" value={passwords.next} onChange={(e) => setPasswords((p) => ({ ...p, next: e.target.value }))} required minLength={8} />
           <Input
@@ -124,8 +133,8 @@ export default function Profile() {
           </div>
           <div className="flex flex-wrap gap-3">
             {plan !== 'free' && (
-              <Button variant="secondary" onClick={openBillingPortal} className="inline-flex items-center gap-2">
-                <CreditCard className="h-4 w-4" /> Manage billing
+              <Button variant="secondary" onClick={openBillingPortal} disabled={openingPortal} className="inline-flex items-center gap-2">
+                <CreditCard className="h-4 w-4" aria-hidden /> {openingPortal ? 'Opening…' : 'Manage billing'}
               </Button>
             )}
             <Link to="/pricing" className="btn-primary inline-flex items-center gap-2 text-sm">

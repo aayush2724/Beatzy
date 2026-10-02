@@ -6,6 +6,7 @@ import { getFavorites, getCollections, createCollection, removeFavorite } from '
 import { getHistory } from '../api/audio';
 import GlassRecordSleeve from '../components/GlassRecordSleeve';
 import PageWrapper from '../components/PageWrapper';
+import { usePageMeta } from '../hooks/usePageMeta';
 import {
   Button,
   Card,
@@ -19,6 +20,7 @@ import {
 } from '../components/ui';
 
 export default function Library() {
+  usePageMeta({ title: 'Library', noindex: true });
   const [favorites, setFavorites] = useState([]);
   const [collections, setCollections] = useState([]);
   const [recent, setRecent] = useState([]);

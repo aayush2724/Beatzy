@@ -27,6 +27,9 @@ import {
 } from 'lucide-react';
 import PageWrapper from '../components/PageWrapper';
 import { Card, PageHeader, Tabs } from '../components/ui';
+import { usePageMeta } from '../hooks/usePageMeta';
+import { useAuthStore } from '../store/authStore';
+import { uploadLimitMB } from '../config/site';
 
 // Keep the aliases browsers actually report — Chrome calls .m4a `audio/x-m4a`,
 // not `audio/mp4`. Listing only the canonical types made the dropzone and the
@@ -69,6 +72,10 @@ function AudioWave({ active, bars = 12 }) {
 }
 
 export default function Upload() {
+  const plan = useAuthStore((st) => st.user?.plan) || 'free';
+  const maxMB = uploadLimitMB(plan);
+  usePageMeta({ title: 'Analyze a track', noindex: true });
+
   const [tab, setTab] = useState('file'); // 'file' | 'mic' | 'search'
   const [step, setStep] = useState('upload'); // 'upload' | 'uploading' | 'analyzing' | 'error'
   const [file, setFile] = useState(null);
@@ -103,8 +110,8 @@ export default function Upload() {
     try {
       const { data } = await searchSongs(searchTerm);
       setTracks(data.data || []);
-    } catch (err) {
-      console.error('Search failed', err);
+    } catch {
+      // The API client has already shown the error; keep previous results visible.
     } finally {
       setSearching(false);
     }
@@ -131,7 +138,7 @@ export default function Upload() {
         abortRef.current = true;
         toast.dismiss('polling-status');
         // The results endpoint returns `{ status: 'failed', error }` at the top level
-        getResults(jobId).then(({ data }) => {
+        getResults(jobId, { silent: true }).then(({ data }) => {
             toast.error(data?.error || 'Analysis pipeline failed');
         }).catch(() => {
             toast.error('Analysis pipeline failed');
@@ -177,7 +184,7 @@ export default function Upload() {
       await new Promise(r => setTimeout(r, 3000));
       if (abortRef.current) return;
       try {
-        const { data: rd } = await getResults(id);
+        const { data: rd } = await getResults(id, { silent: true });
         errorCount404 = 0;
         toast.dismiss('polling-status');
 
@@ -218,16 +225,13 @@ export default function Upload() {
       setJobId(id);
       setStep('analyzing');
 
-      toast.success('Signal captured! Neural core syncing...', {
-        id: 'upload-success',
-        style: { background: 'var(--surface)', color: 'var(--brand)', border: '1px solid var(--line)' },
-      });
+      toast.success('Uploaded. Analysing…', { id: 'upload-success' });
 
       await pollUntilDone(id);
     } catch (err) {
       if (abortRef.current) return;
       toast.dismiss('polling-status');
-      toast.error(err.response?.data?.error?.message || err.message || 'Signal transmission failed');
+      toast.error(err.response?.data?.error?.message || err.message || 'Analysis could not start');
       setStep('error');
     }
   }, [pollUntilDone]);
@@ -251,13 +255,13 @@ export default function Upload() {
       setJobId(id);
       setStep('analyzing');
 
-      toast.success('Remote track cached! Analyzing...');
+      toast.success('Preview fetched. Analysing…');
 
       await pollUntilDone(id);
     } catch (err) {
       if (abortRef.current) return;
       toast.dismiss('polling-status');
-      toast.error(err.response?.data?.error?.message || err.message || 'Signal transmission failed');
+      toast.error(err.response?.data?.error?.message || err.message || 'Analysis could not start');
       setStep('error');
     }
   };
@@ -310,7 +314,7 @@ export default function Upload() {
   const { getRootProps, getInputProps, isDragActive, isDragReject, fileRejections } = useDropzone({
     accept: ACCEPTED,
     maxFiles: 1,
-    maxSize: 50 * 1024 * 1024,
+    maxSize: maxMB * 1024 * 1024,
     disabled,
     onDropAccepted: ([f]) => handleFile(f),
   });
@@ -394,7 +398,7 @@ export default function Upload() {
                       isDragActive && !isDragReject
                         ? 'border-brand/50 bg-brand/5 shadow-[0_0_80px_color-mix(in_oklab,var(--brand)_10%,transparent)] scale-[1.02]'
                         : 'border-line-subtle bg-ink/[0.02] hover:bg-ink/[0.04] hover:border-line',
-                      isDragReject && 'border-red-500/50 bg-red-500/5',
+                      isDragReject && 'border-danger/50 bg-danger/5',
                       disabled && 'opacity-50 pointer-events-none'
                     )}
                   >
@@ -405,25 +409,25 @@ export default function Upload() {
                       <div className={clsx(
                         'w-20 h-20 rounded-3xl border flex items-center justify-center transition-all duration-300',
                         isDragActive && !isDragReject ? 'bg-brand/20 border-brand rotate-180' : 'bg-ink/5 border-line group-hover:scale-110 group-hover:bg-ink/10',
-                        isDragReject && 'bg-red-500/20 border-red-500/50'
+                        isDragReject && 'bg-danger/20 border-danger/50'
                       )}>
                         {isDragReject ? (
-                          <X className="w-8 h-8 text-red-400" />
+                          <X className="w-8 h-8 text-danger" aria-hidden />
                         ) : isDragActive ? (
-                          <ArrowUpRight className="w-8 h-8 text-brand animate-bounce" />
+                          <ArrowUpRight className="w-8 h-8 text-brand" aria-hidden />
                         ) : (
                           <UploadIcon className="w-8 h-8 text-ink/40 group-hover:text-ink transition-colors" />
                         )}
                       </div>
 
                       <div className="space-y-4">
-                        <h3 className="font-display text-2xl font-semibold tracking-tight text-ink">
+                        <h2 className="font-display text-2xl font-semibold tracking-tight text-ink">
                           {isDragReject ? 'That file type isn’t supported' : isDragActive ? 'Drop to analyze' : 'Drop an audio file'}
-                        </h3>
+                        </h2>
                         <p className="text-[0.9375rem] text-ink-muted">
                           Drag a track here, or <span className="text-ink underline decoration-brand/40 underline-offset-4 transition-colors hover:decoration-brand">browse your files</span>
                         </p>
-                        {rejected && <p className="mt-3 text-[0.8125rem] text-danger">{rejected}</p>}
+                        {rejected && <p role="alert" className="mt-3 text-[0.8125rem] text-danger">{rejected}</p>}
                       </div>
 
                       {/* Accepted formats */}
@@ -433,7 +437,7 @@ export default function Upload() {
                             {ext}
                           </span>
                         ))}
-                        <span className="px-1 text-[0.6875rem] text-ink-faint">up to 50 MB</span>
+                        <span className="px-1 text-[0.6875rem] text-ink-faint">up to {maxMB} MB</span>
                       </div>
                     </div>
                   </motion.div>
@@ -453,15 +457,17 @@ export default function Upload() {
                       <div className="relative flex items-center">
                         <Search className="pointer-events-none absolute left-5 h-5 w-5 text-ink-faint" />
                         <input
-                          type="text"
+                          type="search"
+                          aria-label="Search the catalog for a song, artist or album"
+                          autoComplete="off"
                           value={query}
                           onChange={(e) => setQuery(e.target.value)}
                           placeholder="Search for a song, artist or album"
                           className="h-14 w-full rounded-xl border border-line bg-surface pl-14 pr-6 text-[0.9375rem] text-ink placeholder:text-ink-faint transition-colors focus:border-brand/60 focus:outline-none focus:ring-2 focus:ring-brand/20"
                         />
                         {searching && (
-                          <div className="absolute right-6">
-                            <div className="w-5 h-5 border-2 border-brand/20 border-t-brand rounded-full animate-spin" />
+                          <div className="absolute right-6" role="status" aria-label="Searching">
+                            <div className="w-5 h-5 border-2 border-brand/20 border-t-brand rounded-full animate-spin" aria-hidden />
                           </div>
                         )}
                       </div>
@@ -479,14 +485,14 @@ export default function Upload() {
                         )}>
                           <div className="flex items-center gap-4 min-w-0">
                             {track.cover_url ? (
-                              <img src={track.cover_url} alt={track.album} className="w-12 h-12 rounded-xl object-cover border border-line-subtle flex-shrink-0 shadow-lg" />
+                              <img src={track.cover_url} alt="" width="48" height="48" loading="lazy" className="w-12 h-12 rounded-xl object-cover border border-line-subtle flex-shrink-0 shadow-lg" />
                             ) : (
                               <div className="w-12 h-12 rounded-xl bg-ink/5 border border-line-subtle flex items-center justify-center flex-shrink-0">
                                 <Music className="w-5 h-5 text-on-surface-variant" />
                               </div>
                             )}
                             <div className="min-w-0">
-                              <h4 className="truncate text-sm font-medium text-ink">{track.title}</h4>
+                              <p className="truncate text-sm font-medium text-ink">{track.title}</p>
                               <p className="truncate text-xs text-ink-muted">{track.artist} · {track.album}</p>
                             </div>
                           </div>
@@ -495,7 +501,10 @@ export default function Upload() {
                             {track.preview_url ? (
                               <>
                                 <button
+                                  type="button"
                                   onClick={() => togglePreview(track.preview_url)}
+                                  aria-label={playingUrl === track.preview_url ? `Pause preview of ${track.title}` : `Play preview of ${track.title}`}
+                                  aria-pressed={playingUrl === track.preview_url}
                                   className={clsx(
                                     'w-10 h-10 rounded-full flex items-center justify-center border transition-all',
                                     playingUrl === track.preview_url
@@ -507,7 +516,9 @@ export default function Upload() {
                                 </button>
 
                                 <button
+                                  type="button"
                                   onClick={() => handleAnalyzeUrl(track)}
+                                  aria-label={`Analyze ${track.title} by ${track.artist}`}
                                   className="rounded-lg bg-brand px-4 py-2 text-[0.8125rem] font-semibold text-brand-ink transition-colors hover:bg-brand-hover"
                                 >
                                   Analyze
@@ -523,7 +534,9 @@ export default function Upload() {
                       {tracks.length === 0 && !searching && (
                         <div className="rounded-2xl border border-dashed border-line py-12 text-center">
                           <Waves className="mx-auto mb-3 h-6 w-6 text-ink-faint" />
-                          <p className="text-[0.8125rem] text-ink-muted">Results will appear here</p>
+                          <p className="text-[0.8125rem] text-ink-muted">
+                            {query.trim().length >= 3 ? 'No tracks found. Try the artist name or a different spelling.' : 'Results will appear here'}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -540,6 +553,8 @@ export default function Upload() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
                 className="w-full flex flex-col items-center"
+                role="status"
+                aria-live="polite"
               >
                 <div className="relative mb-20">
                   {/* One still ring and one slowly turning dashed ring — motion
@@ -576,7 +591,7 @@ export default function Upload() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 w-full">
+                <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
                   {stageCards.map((card) => (
                     <div
                       key={card.title}
@@ -601,7 +616,7 @@ export default function Upload() {
                         )}
                       </div>
                       <div>
-                        <h4 className="text-[0.8125rem] font-medium text-ink">{card.title}</h4>
+                        <p className="text-[0.8125rem] font-medium text-ink">{card.title}</p>
                         <p className="mt-0.5 text-xs text-ink-muted">{card.engine}</p>
                       </div>
                       <div className="pt-3 border-t border-line-subtle flex items-center gap-2">
@@ -623,6 +638,7 @@ export default function Upload() {
                 </div>
 
                 <button
+                  type="button"
                   onClick={() => { abortRef.current = true; resetState(); }}
                   className="btn-secondary mt-6 text-[0.8125rem] !px-5 !py-2"
                 >
@@ -639,13 +655,14 @@ export default function Upload() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="flex flex-col items-center text-center relative z-20"
+                role="alert"
               >
                 <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-danger/30 bg-danger/10 text-danger">
                   <ShieldCode className="h-8 w-8" />
                 </div>
-                <h3 className="mb-2 font-display text-2xl font-semibold tracking-tight text-ink">Analysis failed</h3>
-                <p className="max-w-md text-[0.9375rem] text-ink-muted">Something went wrong while analyzing this track. The error was shown in the notification; you can try again or pick a different file.</p>
-                <button onClick={resetState} className="btn-primary mt-6 text-sm">
+                <h2 className="mb-2 font-display text-2xl font-semibold tracking-tight text-ink">Analysis failed</h2>
+                <p className="max-w-md text-[0.9375rem] text-ink-muted">Something went wrong while analyzing this track. You can try again, pick a different file, or check the status page if it keeps happening.</p>
+                <button type="button" onClick={resetState} className="btn-primary mt-6 text-sm">
                   Try again
                 </button>
               </motion.div>
@@ -657,7 +674,7 @@ export default function Upload() {
       {/* Good to know */}
       <div className="grid gap-4 md:grid-cols-3">
         {[
-          { title: 'Formats', text: 'MP3, WAV, FLAC, M4A, OGG and WebM, up to 50 MB per file.', icon: Database },
+          { title: 'Formats', text: `MP3, WAV, FLAC, M4A, OGG and WebM, up to ${maxMB} MB per file on your plan.`, icon: Database },
           { title: 'Recordings', text: 'Capture at least a few seconds of clear audio. Noisy rooms are fine; silence is not.', icon: Mic },
           { title: 'Privacy', text: 'Source audio is deleted from storage as soon as the analysis is saved.', icon: ShieldCheck },
         ].map((item) => (
@@ -666,7 +683,7 @@ export default function Upload() {
               <item.icon className="h-4 w-4 text-ink-muted" />
             </div>
             <div className="space-y-0.5">
-              <h4 className="text-[0.8125rem] font-medium text-ink">{item.title}</h4>
+              <h2 className="text-[0.8125rem] font-medium text-ink">{item.title}</h2>
               <p className="text-xs leading-relaxed text-ink-muted">{item.text}</p>
             </div>
           </Card>

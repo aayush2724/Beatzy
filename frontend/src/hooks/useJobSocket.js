@@ -37,9 +37,14 @@ export function useJobSocket(jobId) {
 
   const startPolling = useCallback(() => {
     if (!jobId || pollRef.current) return;
+    let tick = 0;
     pollRef.current = setInterval(async () => {
+      // With a live socket the server pushes progress, so polling is only a
+      // safety net: hit the API every fourth tick instead of every tick.
+      tick += 1;
+      if (socketRef.current?.connected && tick % 4 !== 0) return;
       try {
-        const res = await api.get(`/api/results/${jobId}`);
+        const res = await api.get(`/api/results/${jobId}`, { silent: true });
         const { status: s, data, progress: p, error: e } = res.data;
 
         if (s === 'processing') {

@@ -1,7 +1,7 @@
 import { cn } from '../../lib/utils';
 import { Card } from './Card';
 
-export function EmptyState({ icon: Icon, title, description, action, className }) {
+export function EmptyState({ icon: Icon, title, titleAs: Title = 'p', description, action, className }) {
   return (
     <Card
       padding="lg"
@@ -13,7 +13,7 @@ export function EmptyState({ icon: Icon, title, description, action, className }
         </div>
       )}
       <div className="space-y-1">
-        <p className="font-display text-lg font-semibold tracking-tight text-ink">{title}</p>
+        <Title className="font-display text-lg font-semibold tracking-tight text-ink">{title}</Title>
         {description && <p className="max-w-sm text-sm leading-relaxed text-ink-muted">{description}</p>}
       </div>
       {action && <div className="pt-2">{action}</div>}

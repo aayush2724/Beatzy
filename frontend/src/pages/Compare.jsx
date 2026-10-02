@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { ArrowRightLeft, ArrowUpRight } from 'lucide-react';
 import { getHistory, getResults } from '../api/audio';
 import PageWrapper from '../components/PageWrapper';
+import { usePageMeta } from '../hooks/usePageMeta';
 import { Badge, Button, Card, DataList, EmptyState, PageHeader, SectionHeader, Skeleton } from '../components/ui';
 
 const selectClass =
@@ -40,6 +41,7 @@ function TrackCard({ label, data, loading, error }) {
 }
 
 export default function Compare() {
+  usePageMeta({ title: 'Compare tracks', noindex: true });
   const [params, setParams] = useSearchParams();
   const [tracks, setTracks] = useState([]);
   const [idA, setIdA] = useState(params.get('a') || '');

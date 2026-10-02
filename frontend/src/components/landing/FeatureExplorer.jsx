@@ -18,21 +18,21 @@ const FEATURES = [
     id: 'fingerprint',
     icon: Fingerprint,
     title: 'Acoustic fingerprinting',
-    text: 'Match noisy clips, live recordings, stems, and full tracks against a recognition layer built for sub-second lookup.',
+    text: 'Identify full tracks, catalog previews and microphone captures by fingerprint, through ACRCloud, Shazam and AcoustID, with the file name as a last resort.',
     hint: 'Drag the clip quality slider to see how confidence holds up.',
   },
   {
     id: 'dimensions',
     icon: Radar,
-    title: 'AI audio dimensions',
-    text: 'Tempo, key, mood, energy, rhythm density, vocal presence, chords, sections, and similarity vectors for discovery systems.',
+    title: 'Audio dimensions',
+    text: 'Tempo, key and scale, a chord timeline, mood and energy from a trained classifier, spectral measurements, and what the track sounds like according to YAMNet.',
     hint: 'Hover an axis, or overlay a second track to compare.',
   },
   {
     id: 'api',
     icon: Code2,
-    title: 'SaaS-ready API',
-    text: 'Drop Beatzy into streaming apps, rights workflows, DJ tools, creator platforms, and catalog intelligence products.',
+    title: 'REST API',
+    text: 'The same pipeline over HTTP: upload a file or point at a preview URL, poll for the result, export it as JSON, and share it with a link.',
     hint: 'Send the request and watch the response come back.',
   },
 ];
@@ -146,7 +146,7 @@ function FingerprintDemo({ track }) {
 
       <div className="mt-4 flex flex-wrap gap-2">
         <Badge variant="brand">{matchedCount} / {BINS} bins matched</Badge>
-        <Badge variant="neutral">{track.latencyMs} ms lookup</Badge>
+        <Badge variant="neutral">Sample data</Badge>
         <Badge variant="warm" dot>matched bin</Badge>
       </div>
     </div>

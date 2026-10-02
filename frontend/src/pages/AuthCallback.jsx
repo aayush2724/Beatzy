@@ -4,9 +4,11 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
 import { exchangeGoogleCode } from '../api/auth';
 import { Wordmark } from '../components/PublicShell';
+import { usePageMeta } from '../hooks/usePageMeta';
 import { Card } from '../components/ui';
 
 export default function AuthCallback() {
+  usePageMeta({ title: 'Signing you in', noindex: true });
   const [params] = useSearchParams();
   const { setAuth } = useAuthStore();
   const navigate = useNavigate();

@@ -20,7 +20,7 @@ const ENDPOINTS = [
 const METHOD_TONE = { GET: 'brand', POST: 'warm' };
 
 export default function ApiDocs() {
-  usePageMeta({ title: 'API', description: 'Beatzy REST API: upload audio, poll results, share analyses.' });
+  usePageMeta({ title: 'REST API', description: 'The Beatzy REST API: upload audio or a preview URL, poll for the analysis, export JSON and share results. Bearer token or API key authentication.' });
 
   return (
     <PublicShell width="max-w-3xl">
@@ -33,7 +33,7 @@ export default function ApiDocs() {
           </p>
         </div>
         <a href={`${apiBase}/api/docs`} target="_blank" rel="noopener noreferrer" className="btn-primary inline-flex items-center gap-2 text-sm">
-          Interactive docs <ArrowUpRight className="h-4 w-4" />
+          Interactive docs <ArrowUpRight className="h-4 w-4" aria-hidden /><span className="sr-only"> (opens in a new tab)</span>
         </a>
       </header>
 

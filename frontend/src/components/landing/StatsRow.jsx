@@ -22,11 +22,13 @@ function sparkline(seed, trend) {
   };
 }
 
+// Facts about the product, each one checkable in the code — not usage or
+// accuracy claims, which nothing in this repo measures.
 const STATS = [
-  { id: 'tracks', value: 100, format: (v) => `${Math.round(v)}M+`, label: 'Tracks in the database', hint: 'Fingerprints indexed across labels and independents', seed: 2, trend: 1 },
-  { id: 'speed', value: 2.6, format: (v) => `${v.toFixed(1)}s`, label: 'Average analysis time', hint: 'From upload to a complete report', seed: 5, trend: -1 },
-  { id: 'accuracy', value: 99.8, format: (v) => `${v.toFixed(1)}%`, label: 'Identification accuracy', hint: 'On clean studio recordings', seed: 9, trend: 1 },
-  { id: 'dimensions', value: 6, format: (v) => Math.round(v).toString(), label: 'Audio dimensions', hint: 'Tempo, key, mood, energy, chords, genre', seed: 13, trend: 1 },
+  { id: 'inputs', value: 3, format: (v) => Math.round(v).toString(), label: 'Ways to analyse', hint: 'Upload a file, record live, or search the catalog', seed: 2, trend: 1 },
+  { id: 'dimensions', value: 6, format: (v) => Math.round(v).toString(), label: 'Audio dimensions', hint: 'Tempo, key, chords, mood, energy, sound class', seed: 13, trend: 1 },
+  { id: 'formats', value: 6, format: (v) => Math.round(v).toString(), label: 'Audio formats', hint: 'MP3, WAV, FLAC, M4A/AAC, OGG and WebM', seed: 5, trend: 1 },
+  { id: 'identifiers', value: 3, format: (v) => Math.round(v).toString(), label: 'Identification engines', hint: 'ACRCloud, Shazam and AcoustID, with lyrics from LRCLIB', seed: 9, trend: 1 },
 ].map((s) => ({ ...s, spark: sparkline(s.seed, s.trend) }));
 
 export default function StatsRow() {

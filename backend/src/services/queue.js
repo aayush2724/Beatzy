@@ -93,6 +93,7 @@ async function processJobDirectly(data) {
   const { persistAnalysisResult } = require('./analysisResults');
   const axios = require('axios');
   const ML_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
+  const mlHeaders = process.env.ML_SERVICE_TOKEN ? { 'X-Service-Token': process.env.ML_SERVICE_TOKEN } : {};
 
   function emit(event, payload) {
     try {
@@ -122,7 +123,7 @@ async function processJobDirectly(data) {
       s3_key: s3Key,
       s3_url: s3Url,
       original_filename: filename,
-    }, { timeout: 240000 });
+    }, { timeout: 240000, headers: mlHeaders });
     const mlResult = response.data;
 
     emit('job:progress', { jobId, status: 'saving', progress: 70 });

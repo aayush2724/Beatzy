@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const { authenticate, authenticateApiKey } = require('../middleware/auth');
-const { planRateLimit, monthlyAnalysisLimit } = require('../middleware/rateLimit');
+const { planRateLimit, monthlyAnalysisLimit, PLAN_LIMITS } = require('../middleware/rateLimit');
 const { AudioController } = require('../controllers/audioController');
 const { createError } = require('../middleware/errorHandler');
 
@@ -40,17 +40,32 @@ function isAcceptedAudio(file) {
   return false;
 }
 
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 200 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    if (isAcceptedAudio(file)) return cb(null, true);
-    cb(createError(415, `Unsupported file type: ${file.mimetype || 'unknown'}`));
-  },
-});
+// Files are buffered in memory, so the size cap has to be enforced while the
+// body streams in — not after, as the controller used to do. The cap follows
+// the caller's plan; a flat 200 MB let a Free user hold 200 MB of RAM per
+// request before being told the limit was 50 MB.
+function planUpload(method) {
+  return (req, res, next) => {
+    const plan = PLAN_LIMITS[req.user?.plan] || PLAN_LIMITS.free;
+    const uploader = multer({
+      storage: multer.memoryStorage(),
+      limits: {
+        fileSize: plan.uploadSizeMB * 1024 * 1024,
+        files: method === 'array' ? Math.min(plan.batchSize || 1, 50) : 1,
+        fields: 10,
+      },
+      fileFilter: (_req, file, cb) => {
+        if (isAcceptedAudio(file)) return cb(null, true);
+        cb(createError(415, `Unsupported file type: ${file.mimetype || 'unknown'}`));
+      },
+    });
+    const handler = method === 'array' ? uploader.array('audio', 50) : uploader.single('audio');
+    handler(req, res, next);
+  };
+}
 
-router.post('/upload', authenticateApiKey, planRateLimit, monthlyAnalysisLimit, upload.single('audio'), AudioController.upload);
-router.post('/upload-batch', authenticateApiKey, planRateLimit, monthlyAnalysisLimit, upload.array('audio', 20), AudioController.uploadBatch);
+router.post('/upload', authenticateApiKey, planRateLimit, monthlyAnalysisLimit, planUpload('single'), AudioController.upload);
+router.post('/upload-batch', authenticateApiKey, planRateLimit, monthlyAnalysisLimit, planUpload('array'), AudioController.uploadBatch);
 router.get('/search', authenticateApiKey, planRateLimit, AudioController.search);
 router.post('/analyze-url', authenticateApiKey, planRateLimit, AudioController.analyzeUrl);
 router.get('/jobs/:jobId', authenticateApiKey, AudioController.getJob);
